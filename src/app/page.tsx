@@ -1,65 +1,196 @@
-import Image from "next/image";
+"use client";
+
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Dumbbell, Play, Loader2 } from "lucide-react";
+import { SupersetView } from "@/components/workout/superset-view";
+import db from "@/lib/db";
+import type { TrainingDay, Exercise } from "@/lib/db";
+import { seedDatabase } from "@/lib/seed";
 
 export default function Home() {
+  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(true);
+  const [trainingDays, setTrainingDays] = useState<TrainingDay[]>([]);
+  const [exercises, setExercises] = useState<Map<string, Exercise>>(new Map());
+  const [selectedDay, setSelectedDay] = useState("day-1");
+
+  useEffect(() => {
+    async function init() {
+      try {
+        // Seed database on first load
+        await seedDatabase();
+
+        // Load training days
+        const days = await db.trainingDays.toArray();
+        days.sort((a, b) => a.dayNumber - b.dayNumber);
+        setTrainingDays(days);
+
+        // Load all exercises into a map for quick lookup
+        const allExercises = await db.exercises.toArray();
+        const exerciseMap = new Map<string, Exercise>();
+        allExercises.forEach((ex) => exerciseMap.set(ex.id, ex));
+        setExercises(exerciseMap);
+      } catch (error) {
+        console.error("Failed to initialize:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    init();
+  }, []);
+
+  const currentDay = trainingDays.find((d) => d.id === selectedDay);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <Loader2 className="w-8 h-8 animate-spin mx-auto text-primary" />
+          <p className="text-muted-foreground">Loading program...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div className="min-h-screen pb-24">
+      {/* Header */}
+      <header className="px-4 pt-safe-top pb-4 border-b border-border">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
+            <Dumbbell className="w-5 h-5 text-primary-foreground" />
+          </div>
+          <div>
+            <h1 className="text-xl font-bold text-foreground">Gym Tracker</h1>
+            <p className="text-sm text-muted-foreground">NPT 3-Day Hypertrophy</p>
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+      </header>
+
+      {/* Day Tabs */}
+      <Tabs value={selectedDay} onValueChange={setSelectedDay} className="w-full">
+        <div className="px-4 py-3 border-b border-border">
+          <TabsList className="w-full bg-muted/50">
+            {trainingDays.map((day) => (
+              <TabsTrigger
+                key={day.id}
+                value={day.id}
+                className="flex-1 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+              >
+                Day {day.dayNumber}
+              </TabsTrigger>
+            ))}
+          </TabsList>
         </div>
-      </main>
+
+        {trainingDays.map((day) => (
+          <TabsContent key={day.id} value={day.id} className="mt-0">
+            <div className="p-4 space-y-6">
+              {/* Day Title */}
+              <div>
+                <h2 className="text-2xl font-bold text-foreground">{day.name}</h2>
+                <p className="text-sm text-muted-foreground mt-1">
+                  {day.supersets.length} supersets - {day.supersets.reduce((acc, ss) => acc + ss.exercises.length, 0)} exercises
+                </p>
+              </div>
+
+              {/* Warmup Section */}
+              {day.warmup && day.warmup.length > 0 && (
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
+                      Warmup
+                    </h3>
+                    <div className="h-px flex-1 bg-border" />
+                  </div>
+                  <Card className="bg-card border-border p-4">
+                    <ul className="space-y-2">
+                      {day.warmup.map((w, idx) => {
+                        const exercise = exercises.get(w.exerciseId);
+                        return (
+                          <li key={idx} className="flex items-center justify-between">
+                            <span className="text-foreground">
+                              {exercise?.name || w.exerciseId}
+                            </span>
+                            <Badge variant="secondary" className="text-xs">
+                              {w.reps} reps
+                            </Badge>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </Card>
+                </div>
+              )}
+
+              {/* Supersets */}
+              <div className="space-y-4">
+                {day.supersets.map((superset) => (
+                  <SupersetView
+                    key={superset.id}
+                    superset={superset}
+                    exercises={exercises}
+                  />
+                ))}
+              </div>
+
+              {/* Finisher Section */}
+              {day.finisher && day.finisher.length > 0 && (
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
+                      Finisher
+                    </h3>
+                    <div className="h-px flex-1 bg-border" />
+                  </div>
+                  <Card className="bg-card border-border p-4">
+                    <ul className="space-y-2">
+                      {day.finisher.map((f, idx) => {
+                        const exercise = exercises.get(f.exerciseId);
+                        return (
+                          <li key={idx} className="flex items-center justify-between">
+                            <div>
+                              <span className="text-foreground">
+                                {exercise?.name || f.exerciseId}
+                              </span>
+                              {f.notes && (
+                                <p className="text-xs text-muted-foreground mt-0.5">
+                                  {f.notes}
+                                </p>
+                              )}
+                            </div>
+                            <Badge variant="secondary" className="text-xs">
+                              {f.duration}s
+                            </Badge>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </Card>
+                </div>
+              )}
+            </div>
+          </TabsContent>
+        ))}
+      </Tabs>
+
+      {/* Fixed Start Workout Button */}
+      <div className="fixed bottom-0 left-0 right-0 p-4 pb-safe-bottom bg-background/80 backdrop-blur-lg border-t border-border">
+        <Button
+          size="lg"
+          className="w-full h-14 text-lg font-semibold bg-primary text-primary-foreground hover:bg-primary/90"
+          onClick={() => router.push(`/workout/${selectedDay}`)}
+        >
+          <Play className="w-5 h-5 mr-2" />
+          Start {currentDay?.name || "Workout"}
+        </Button>
+      </div>
     </div>
   );
 }

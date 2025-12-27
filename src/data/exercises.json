@@ -1,0 +1,220 @@
+{
+  "exercises": [
+    {
+      "id": "ex-rfess",
+      "name": "Rear Foot Elevated Split Squat",
+      "videoUrl": "https://www.youtube.com/watch?v=2C-uNgKwPLE",
+      "muscleGroups": ["quads", "glutes"],
+      "equipment": "bench",
+      "isCustom": false
+    },
+    {
+      "id": "ex-chest-dips",
+      "name": "Chest Dips",
+      "videoUrl": "https://www.youtube.com/watch?v=dX_nSOOJIsE",
+      "muscleGroups": ["chest", "triceps"],
+      "equipment": "dip-station",
+      "isCustom": false
+    },
+    {
+      "id": "ex-glute-bridge",
+      "name": "Glute Bridge",
+      "videoUrl": "https://www.youtube.com/watch?v=OUgsJ8-Vi0E",
+      "muscleGroups": ["glutes", "hamstrings"],
+      "equipment": "machine",
+      "isCustom": false
+    },
+    {
+      "id": "ex-lateral-raises",
+      "name": "Lateral Raises",
+      "videoUrl": "https://www.youtube.com/watch?v=3VcKaXpzqRo",
+      "muscleGroups": ["shoulders"],
+      "equipment": "dumbbells",
+      "isCustom": false
+    },
+    {
+      "id": "ex-incline-bicep-curls",
+      "name": "Incline Supinated Bicep Curls",
+      "videoUrl": "https://www.youtube.com/watch?v=soxrZlIl35U",
+      "muscleGroups": ["biceps"],
+      "equipment": "dumbbells",
+      "isCustom": false
+    },
+    {
+      "id": "ex-leg-press-calf",
+      "name": "Leg Press Calf Raise",
+      "videoUrl": "https://www.youtube.com/watch?v=9JTqP0Udo4c",
+      "muscleGroups": ["calves"],
+      "equipment": "leg-press",
+      "isCustom": false
+    },
+    {
+      "id": "ex-lying-ham-curl",
+      "name": "Lying Hamstring Curl",
+      "videoUrl": "https://www.youtube.com/watch?v=1Tq3QdYUuHs",
+      "muscleGroups": ["hamstrings"],
+      "equipment": "machine",
+      "isCustom": false
+    },
+    {
+      "id": "ex-incline-delt-press",
+      "name": "Incline DB Anterior Delt Press",
+      "videoUrl": "https://www.youtube.com/watch?v=HzIiNhHhhtA",
+      "muscleGroups": ["shoulders"],
+      "equipment": "dumbbells",
+      "isCustom": false
+    },
+    {
+      "id": "ex-wide-lat-pulldown",
+      "name": "Wide Grip Lat Pulldown",
+      "videoUrl": "https://www.youtube.com/watch?v=CAwf7n6Luuc",
+      "muscleGroups": ["back", "lats"],
+      "equipment": "cable",
+      "isCustom": false
+    },
+    {
+      "id": "ex-cross-cable-tricep",
+      "name": "Cross Cable Tricep Extension",
+      "videoUrl": "https://www.youtube.com/watch?v=kiuVA0gs3EI",
+      "muscleGroups": ["triceps"],
+      "equipment": "cable",
+      "isCustom": false
+    },
+    {
+      "id": "ex-y-raises",
+      "name": "Y-Raises",
+      "videoUrl": "https://www.youtube.com/watch?v=QprBXxEfPN0",
+      "muscleGroups": ["shoulders", "rear-delts"],
+      "equipment": "cable",
+      "isCustom": false
+    },
+    {
+      "id": "ex-ab-crunch",
+      "name": "Ab Crunch",
+      "videoUrl": "https://www.youtube.com/watch?v=Xyd_fa5zoEU",
+      "muscleGroups": ["abs"],
+      "equipment": "machine",
+      "isCustom": false
+    },
+    {
+      "id": "ex-hack-squat",
+      "name": "Hack Squat",
+      "videoUrl": "https://www.youtube.com/watch?v=0tn5K9NlCfo",
+      "muscleGroups": ["quads", "glutes"],
+      "equipment": "machine",
+      "isCustom": false
+    },
+    {
+      "id": "ex-incline-chest-press",
+      "name": "Incline DB Chest Press",
+      "videoUrl": "https://www.youtube.com/watch?v=8iPEnn-ltC8",
+      "muscleGroups": ["chest", "shoulders"],
+      "equipment": "dumbbells",
+      "isCustom": false
+    },
+    {
+      "id": "ex-leg-extension",
+      "name": "Leg Extension",
+      "videoUrl": "https://www.youtube.com/watch?v=YyvSfVjQeL0",
+      "muscleGroups": ["quads"],
+      "equipment": "machine",
+      "isCustom": false
+    },
+    {
+      "id": "ex-neutral-pulldown",
+      "name": "Unilateral Neutral Grip Pulldown",
+      "videoUrl": "https://www.youtube.com/watch?v=lueEJGjTuPQ",
+      "muscleGroups": ["back", "lats"],
+      "equipment": "cable",
+      "isCustom": false
+    },
+    {
+      "id": "ex-rear-delt-cable-row",
+      "name": "Rear Delt Cable Row",
+      "videoUrl": "https://www.youtube.com/watch?v=D731K7zGbJE",
+      "muscleGroups": ["rear-delts", "back"],
+      "equipment": "cable",
+      "isCustom": false
+    },
+    {
+      "id": "ex-tibialis-raise",
+      "name": "Tibialis Anterior Raise",
+      "videoUrl": "https://www.youtube.com/watch?v=gNS_QjGAs_k",
+      "muscleGroups": ["tibialis"],
+      "equipment": "plate",
+      "isCustom": false
+    },
+    {
+      "id": "ex-dead-hang",
+      "name": "Dead Hang",
+      "videoUrl": "https://www.youtube.com/watch?v=HoE-C85ZlCE",
+      "muscleGroups": ["grip", "shoulders", "spine"],
+      "equipment": "pull-up-bar",
+      "isCustom": false
+    },
+    {
+      "id": "ex-band-pull-aparts",
+      "name": "Band Pull-Aparts",
+      "videoUrl": "https://www.youtube.com/watch?v=AWoAWXNY2k4",
+      "muscleGroups": ["rear-delts", "upper-back"],
+      "equipment": "band",
+      "isCustom": false
+    },
+    {
+      "id": "ex-shoulder-circles",
+      "name": "Shoulder Circles",
+      "videoUrl": null,
+      "muscleGroups": ["shoulders"],
+      "equipment": "bodyweight",
+      "isCustom": false
+    },
+    {
+      "id": "ex-cat-cow",
+      "name": "Cat-Cow",
+      "videoUrl": "https://www.youtube.com/watch?v=kqnua4rHVVA",
+      "muscleGroups": ["spine", "core"],
+      "equipment": "bodyweight",
+      "isCustom": false
+    },
+    {
+      "id": "ex-bw-squats",
+      "name": "Bodyweight Squats",
+      "videoUrl": "https://www.youtube.com/watch?v=aclHkVaku9U",
+      "muscleGroups": ["quads", "glutes"],
+      "equipment": "bodyweight",
+      "isCustom": false
+    },
+    {
+      "id": "ex-band-face-pulls",
+      "name": "Band Face Pulls",
+      "videoUrl": "https://www.youtube.com/watch?v=rep-qVOkqgk",
+      "muscleGroups": ["rear-delts", "upper-back"],
+      "equipment": "band",
+      "isCustom": false
+    },
+    {
+      "id": "ex-arm-circles",
+      "name": "Arm Circles",
+      "videoUrl": null,
+      "muscleGroups": ["shoulders"],
+      "equipment": "bodyweight",
+      "isCustom": false
+    },
+    {
+      "id": "ex-hip-circles",
+      "name": "Hip Circles",
+      "videoUrl": null,
+      "muscleGroups": ["hips"],
+      "equipment": "bodyweight",
+      "isCustom": false
+    },
+    {
+      "id": "ex-glute-bridges-bw",
+      "name": "Glute Bridges (Bodyweight)",
+      "videoUrl": "https://www.youtube.com/watch?v=OUgsJ8-Vi0E",
+      "muscleGroups": ["glutes"],
+      "equipment": "bodyweight",
+      "isCustom": false
+    }
+  ]
+}
