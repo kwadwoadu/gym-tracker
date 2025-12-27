@@ -18,8 +18,14 @@ import {
 } from "lucide-react";
 import { RestTimer } from "@/components/workout/rest-timer";
 import { SetLogger } from "@/components/workout/set-logger";
-import db from "@/lib/db";
+import db, { getSuggestedWeight, checkAndAddPR } from "@/lib/db";
 import type { TrainingDay, Exercise, SetLog, WorkoutLog } from "@/lib/db";
+
+interface NewPR {
+  exerciseName: string;
+  weight: number;
+  reps: number;
+}
 import { audioManager } from "@/lib/audio";
 import { cn } from "@/lib/utils";
 
@@ -50,6 +56,12 @@ export default function WorkoutSession() {
   const [startTime, setStartTime] = useState<Date | null>(null);
   const [audioInitialized, setAudioInitialized] = useState(false);
   const [nextExercisePreview, setNextExercisePreview] = useState<string>("");
+  const [weightSuggestion, setWeightSuggestion] = useState<{
+    weight: number;
+    lastWeekWeight: number;
+    lastWeekReps: number;
+  } | null>(null);
+  const [newPRs, setNewPRs] = useState<NewPR[]>([]);
 
   // Load training day and exercises
   useEffect(() => {
@@ -81,6 +93,36 @@ export default function WorkoutSession() {
 
     loadData();
   }, [dayId, router]);
+
+  // Fetch weight suggestion when exercise or set changes
+  useEffect(() => {
+    async function fetchWeightSuggestion() {
+      if (phase !== "exercise" || !trainingDay) {
+        setWeightSuggestion(null);
+        return;
+      }
+
+      const superset = trainingDay.supersets[workoutState.supersetIndex];
+      if (!superset) return;
+
+      const exerciseData = superset.exercises[workoutState.exerciseIndex];
+      if (!exerciseData) return;
+
+      try {
+        const suggestion = await getSuggestedWeight(
+          exerciseData.exerciseId,
+          dayId,
+          workoutState.setNumber
+        );
+        setWeightSuggestion(suggestion);
+      } catch (error) {
+        console.error("Failed to get weight suggestion:", error);
+        setWeightSuggestion(null);
+      }
+    }
+
+    fetchWeightSuggestion();
+  }, [phase, trainingDay, workoutState.supersetIndex, workoutState.exerciseIndex, workoutState.setNumber, dayId]);
 
   // Initialize audio on first user interaction
   const initAudio = useCallback(async () => {
@@ -242,10 +284,49 @@ export default function WorkoutSession() {
       isComplete: true,
     };
 
-    await db.workoutLogs.add(workoutLog as WorkoutLog);
+    const workoutLogId = await db.workoutLogs.add(workoutLog as WorkoutLog);
 
+    // Check for PRs - find best set for each exercise
+    const exerciseBestSets = new Map<string, SetLog>();
+    for (const set of completedSets) {
+      const existing = exerciseBestSets.get(set.exerciseId);
+      // Compare by weight first, then by reps
+      if (!existing ||
+          set.weight > existing.weight ||
+          (set.weight === existing.weight && set.actualReps > existing.actualReps)) {
+        exerciseBestSets.set(set.exerciseId, set);
+      }
+    }
+
+    // Check each exercise's best set for PR
+    const achievedPRs: NewPR[] = [];
+    for (const [exerciseId, bestSet] of exerciseBestSets) {
+      const isPR = await checkAndAddPR(
+        exerciseId,
+        bestSet.exerciseName,
+        bestSet.weight,
+        bestSet.actualReps,
+        bestSet.unit,
+        String(workoutLogId)
+      );
+      if (isPR) {
+        achievedPRs.push({
+          exerciseName: bestSet.exerciseName,
+          weight: bestSet.weight,
+          reps: bestSet.actualReps,
+        });
+      }
+    }
+
+    setNewPRs(achievedPRs);
     setPhase("complete");
-    audioManager.playWorkoutComplete();
+
+    // Play celebration sound based on PRs achieved
+    if (achievedPRs.length > 0) {
+      audioManager.playPR();
+    } else {
+      audioManager.playWorkoutComplete();
+    }
   };
 
   // Calculate progress
@@ -493,6 +574,9 @@ export default function WorkoutSession() {
                 currentExercise.reps,
                 workoutState.setNumber
               )}
+              lastWeekWeight={weightSuggestion?.lastWeekWeight}
+              lastWeekReps={weightSuggestion?.lastWeekReps}
+              suggestedWeight={weightSuggestion?.weight}
               onComplete={handleSetComplete}
             />
 
@@ -561,6 +645,34 @@ export default function WorkoutSession() {
                 Great job crushing {trainingDay.name}
               </p>
             </div>
+
+            {/* PR Celebration Section */}
+            {newPRs.length > 0 && (
+              <Card className="p-6 bg-primary/10 border-primary/30">
+                <div className="flex items-center justify-center gap-2 mb-4">
+                  <Trophy className="w-6 h-6 text-primary" />
+                  <h3 className="text-xl font-bold text-primary">
+                    {newPRs.length === 1 ? "New PR!" : `${newPRs.length} New PRs!`}
+                  </h3>
+                  <Trophy className="w-6 h-6 text-primary" />
+                </div>
+                <ul className="space-y-3">
+                  {newPRs.map((pr, idx) => (
+                    <li
+                      key={idx}
+                      className="flex items-center justify-between px-4 py-2 bg-background/50 rounded-lg"
+                    >
+                      <span className="text-foreground font-medium">
+                        {pr.exerciseName}
+                      </span>
+                      <Badge variant="default" className="bg-primary text-primary-foreground">
+                        {pr.weight}kg x {pr.reps}
+                      </Badge>
+                    </li>
+                  ))}
+                </ul>
+              </Card>
+            )}
 
             {/* Stats */}
             <div className="grid grid-cols-2 gap-4">
