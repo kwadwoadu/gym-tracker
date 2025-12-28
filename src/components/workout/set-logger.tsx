@@ -6,8 +6,22 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Check, Minus, Plus, TrendingUp } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Check, Minus, Plus, TrendingUp, Play, ChevronDown, ChevronUp } from "lucide-react";
 import { cn } from "@/lib/utils";
+
+// Extract YouTube video ID from URL
+function getYouTubeId(url: string): string | null {
+  const match = url.match(
+    /(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([^&?\s]+)/
+  );
+  return match ? match[1] : null;
+}
 
 // Animation variants for set completion celebration
 const cardCompleteVariants = {
@@ -68,6 +82,7 @@ interface SetLoggerProps {
   lastWeekWeight?: number;
   lastWeekReps?: number;
   suggestedWeight?: number;
+  videoUrl?: string;
   onComplete: (weight: number, reps: number, rpe?: number) => void;
 }
 
@@ -81,6 +96,7 @@ export function SetLogger({
   lastWeekWeight,
   lastWeekReps,
   suggestedWeight,
+  videoUrl,
   onComplete,
 }: SetLoggerProps) {
   const [weight, setWeight] = useState(suggestedWeight || lastWeekWeight || 20);
@@ -89,7 +105,11 @@ export function SetLogger({
   const [isCompleted, setIsCompleted] = useState(false);
   const [isEditingWeight, setIsEditingWeight] = useState(false);
   const [weightInputValue, setWeightInputValue] = useState(weight.toString());
+  const [showVideo, setShowVideo] = useState(false);
+  const [showVideoDialog, setShowVideoDialog] = useState(false);
   const weightInputRef = useRef<HTMLInputElement>(null);
+
+  const videoId = videoUrl ? getYouTubeId(videoUrl) : null;
 
   // Focus input when editing starts
   useEffect(() => {
@@ -210,6 +230,74 @@ export function SetLogger({
           )}
         </div>
       )}
+
+      {/* Video tutorial section */}
+      {videoId && (
+        <div className="mb-6">
+          <button
+            type="button"
+            onClick={() => setShowVideo(!showVideo)}
+            className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors w-full"
+          >
+            {showVideo ? (
+              <ChevronUp className="w-4 h-4" />
+            ) : (
+              <ChevronDown className="w-4 h-4" />
+            )}
+            <Play className="w-4 h-4" />
+            <span>How to do this exercise</span>
+          </button>
+
+          <AnimatePresence>
+            {showVideo && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: "auto", opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                className="overflow-hidden"
+              >
+                <button
+                  type="button"
+                  onClick={() => setShowVideoDialog(true)}
+                  className="relative mt-3 w-full rounded-lg overflow-hidden group"
+                >
+                  <img
+                    src={`https://img.youtube.com/vi/${videoId}/mqdefault.jpg`}
+                    alt={`${exerciseName} tutorial`}
+                    className="w-full aspect-video object-cover"
+                  />
+                  <div className="absolute inset-0 bg-black/40 flex items-center justify-center group-hover:bg-black/50 transition-colors">
+                    <div className="w-14 h-14 rounded-full bg-primary/90 flex items-center justify-center">
+                      <Play className="w-6 h-6 text-primary-foreground fill-current ml-1" />
+                    </div>
+                  </div>
+                </button>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      )}
+
+      {/* Video dialog */}
+      <Dialog open={showVideoDialog} onOpenChange={setShowVideoDialog}>
+        <DialogContent className="max-w-3xl p-0 overflow-hidden bg-black">
+          <DialogHeader className="p-4 pb-0">
+            <DialogTitle className="text-white">{exerciseName}</DialogTitle>
+          </DialogHeader>
+          <div className="aspect-video">
+            {showVideoDialog && videoId && (
+              <iframe
+                src={`https://www.youtube.com/embed/${videoId}?autoplay=1`}
+                title={`${exerciseName} tutorial`}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                className="w-full h-full"
+              />
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Weight input */}
       <div className="mb-6">

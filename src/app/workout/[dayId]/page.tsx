@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -8,6 +8,16 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Checkbox } from "@/components/ui/checkbox";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import {
   ArrowLeft,
   ChevronRight,
@@ -18,6 +28,7 @@ import {
   Check,
   TrendingUp,
   Target,
+  RotateCcw,
 } from "lucide-react";
 import { RestTimer } from "@/components/workout/rest-timer";
 import { SetLogger } from "@/components/workout/set-logger";
@@ -106,6 +117,21 @@ interface WorkoutState {
   setNumber: number;      // Current set number (1-4)
 }
 
+// Session persistence for surviving refresh/back/power loss
+interface SavedSession {
+  phase: WorkoutPhase;
+  workoutState: WorkoutState;
+  completedSets: SetLog[];
+  startTime: string;
+  warmupChecked: boolean[];
+  finisherChecked: boolean[];
+  currentVolume: number;
+  timestamp: number;
+}
+
+const SESSION_KEY_PREFIX = "setflow-session-";
+const SESSION_EXPIRY_HOURS = 6; // Sessions expire after 6 hours
+
 export default function WorkoutSession() {
   const params = useParams();
   const router = useRouter();
@@ -136,6 +162,10 @@ export default function WorkoutSession() {
   const [workoutLogId, setWorkoutLogId] = useState<string | null>(null);
   const [lastWeekVolumeTotal, setLastWeekVolumeTotal] = useState<number | null>(null);
   const [currentVolume, setCurrentVolume] = useState<number>(0);
+  const [showResumeDialog, setShowResumeDialog] = useState(false);
+  const [savedSession, setSavedSession] = useState<SavedSession | null>(null);
+  const hasCheckedSession = useRef(false);
+  const isRestoringSession = useRef(false);
 
   // Load training day and exercises
   useEffect(() => {
@@ -176,6 +206,95 @@ export default function WorkoutSession() {
 
     loadData();
   }, [dayId, router]);
+
+  // Check for saved session on mount
+  useEffect(() => {
+    if (hasCheckedSession.current || isLoading) return;
+    hasCheckedSession.current = true;
+
+    const sessionKey = `${SESSION_KEY_PREFIX}${dayId}`;
+    const savedData = localStorage.getItem(sessionKey);
+
+    if (savedData) {
+      try {
+        const session: SavedSession = JSON.parse(savedData);
+        const ageHours = (Date.now() - session.timestamp) / (1000 * 60 * 60);
+
+        // Check if session is not expired and not already complete
+        if (ageHours < SESSION_EXPIRY_HOURS && session.phase !== "complete" && session.phase !== "preview") {
+          setSavedSession(session);
+          setShowResumeDialog(true);
+        } else {
+          // Expired or complete session, remove it
+          localStorage.removeItem(sessionKey);
+        }
+      } catch (e) {
+        console.error("Failed to parse saved session:", e);
+        localStorage.removeItem(sessionKey);
+      }
+    }
+  }, [dayId, isLoading]);
+
+  // Save session to localStorage on state changes
+  useEffect(() => {
+    // Don't save during loading, preview, complete, or when restoring
+    if (isLoading || phase === "preview" || phase === "complete" || isRestoringSession.current) return;
+
+    const sessionKey = `${SESSION_KEY_PREFIX}${dayId}`;
+    const sessionData: SavedSession = {
+      phase,
+      workoutState,
+      completedSets,
+      startTime: startTime?.toISOString() || new Date().toISOString(),
+      warmupChecked,
+      finisherChecked,
+      currentVolume,
+      timestamp: Date.now(),
+    };
+
+    localStorage.setItem(sessionKey, JSON.stringify(sessionData));
+  }, [dayId, phase, workoutState, completedSets, startTime, warmupChecked, finisherChecked, currentVolume, isLoading]);
+
+  // Resume saved session
+  const resumeSession = async () => {
+    if (!savedSession) return;
+
+    isRestoringSession.current = true;
+
+    setPhase(savedSession.phase);
+    setWorkoutState(savedSession.workoutState);
+    setCompletedSets(savedSession.completedSets);
+    setStartTime(new Date(savedSession.startTime));
+    setWarmupChecked(savedSession.warmupChecked);
+    setFinisherChecked(savedSession.finisherChecked);
+    setCurrentVolume(savedSession.currentVolume);
+
+    // Initialize audio
+    await audioManager.init();
+    setAudioInitialized(true);
+
+    setShowResumeDialog(false);
+    setSavedSession(null);
+
+    // Small delay then allow saving again
+    setTimeout(() => {
+      isRestoringSession.current = false;
+    }, 100);
+  };
+
+  // Discard saved session and start fresh
+  const discardSession = () => {
+    const sessionKey = `${SESSION_KEY_PREFIX}${dayId}`;
+    localStorage.removeItem(sessionKey);
+    setShowResumeDialog(false);
+    setSavedSession(null);
+  };
+
+  // Clear session when workout is complete
+  const clearSession = () => {
+    const sessionKey = `${SESSION_KEY_PREFIX}${dayId}`;
+    localStorage.removeItem(sessionKey);
+  };
 
   // Fetch weight suggestion when exercise or set changes
   useEffect(() => {
@@ -227,6 +346,62 @@ export default function WorkoutSession() {
       ...exerciseData,
       name: exercise?.name || "Unknown",
       supersetLabel: superset.label,
+      videoUrl: exercise?.videoUrl,
+    };
+  };
+
+  // Get next exercise preview (for equipment preparation)
+  const getNextExercisePreview = () => {
+    if (!trainingDay) return null;
+
+    const currentSuperset = trainingDay.supersets[workoutState.supersetIndex];
+    if (!currentSuperset) return null;
+
+    const currentExerciseData = currentSuperset.exercises[workoutState.exerciseIndex];
+    const totalSets = currentExerciseData?.sets || 4;
+    const exercisesInSuperset = currentSuperset.exercises.length;
+
+    // Calculate next position
+    let nextSupersetIndex = workoutState.supersetIndex;
+    let nextExerciseIndex = workoutState.exerciseIndex + 1;
+    let nextSetNumber = workoutState.setNumber;
+
+    if (nextExerciseIndex >= exercisesInSuperset) {
+      nextExerciseIndex = 0;
+      nextSetNumber++;
+
+      if (nextSetNumber > totalSets) {
+        nextSetNumber = 1;
+        nextSupersetIndex++;
+
+        if (nextSupersetIndex >= trainingDay.supersets.length) {
+          // Next is finisher or complete
+          if (trainingDay.finisher && trainingDay.finisher.length > 0) {
+            const finisherExercise = exercises.get(trainingDay.finisher[0].exerciseId);
+            return {
+              name: finisherExercise?.name || "Finisher",
+              label: "Finisher",
+              equipment: finisherExercise?.equipment,
+            };
+          }
+          return null;
+        }
+      }
+    }
+
+    const nextSuperset = trainingDay.supersets[nextSupersetIndex];
+    const nextExerciseData = nextSuperset.exercises[nextExerciseIndex];
+    const nextExercise = exercises.get(nextExerciseData.exerciseId);
+
+    // Check if equipment differs from current
+    const currentExercise = exercises.get(currentExerciseData.exerciseId);
+    const equipmentDiffers = nextExercise?.equipment !== currentExercise?.equipment;
+
+    return {
+      name: nextExercise?.name || "Unknown",
+      label: `${nextSuperset.label}${nextExerciseIndex + 1}`,
+      setNumber: nextSetNumber,
+      equipment: equipmentDiffers ? nextExercise?.equipment : undefined,
     };
   };
 
@@ -427,6 +602,7 @@ export default function WorkoutSession() {
 
     setNewPRs(achievedPRs);
     setPhase("complete");
+    clearSession(); // Clear saved session on completion
 
     // Play celebration sound based on PRs achieved
     if (achievedPRs.length > 0) {
@@ -733,6 +909,36 @@ export default function WorkoutSession() {
               ))}
             </div>
 
+            {/* Up Next preview - helps user prepare equipment */}
+            {(() => {
+              const nextExercise = getNextExercisePreview();
+              if (!nextExercise) return null;
+              return (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="flex items-center gap-3 p-3 rounded-lg bg-muted/30 border border-border/50"
+                >
+                  <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs text-muted-foreground uppercase tracking-wider">
+                      Up Next
+                    </p>
+                    <p className="text-sm text-foreground font-medium truncate">
+                      {nextExercise.label} {nextExercise.name}
+                      {nextExercise.setNumber && ` - Set ${nextExercise.setNumber}`}
+                    </p>
+                  </div>
+                  {nextExercise.equipment && (
+                    <Badge variant="secondary" className="text-xs shrink-0">
+                      <Dumbbell className="w-3 h-3 mr-1" />
+                      {nextExercise.equipment}
+                    </Badge>
+                  )}
+                </motion.div>
+              );
+            })()}
+
             {/* Set logger */}
             <SetLogger
               key={`${workoutState.supersetIndex}-${workoutState.exerciseIndex}-${workoutState.setNumber}`}
@@ -748,6 +954,7 @@ export default function WorkoutSession() {
               lastWeekWeight={weightSuggestion?.lastWeekWeight}
               lastWeekReps={weightSuggestion?.lastWeekReps}
               suggestedWeight={weightSuggestion?.weight}
+              videoUrl={currentExercise.videoUrl}
               onComplete={handleSetComplete}
             />
 
@@ -1095,6 +1302,47 @@ export default function WorkoutSession() {
         )}
         </AnimatePresence>
       </main>
+
+      {/* Resume Session Dialog */}
+      <AlertDialog open={showResumeDialog} onOpenChange={setShowResumeDialog}>
+        <AlertDialogContent className="max-w-sm mx-4">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <RotateCcw className="w-5 h-5 text-primary" />
+              Resume Workout?
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              You have an unfinished workout from{" "}
+              {savedSession
+                ? new Date(savedSession.timestamp).toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })
+                : "earlier"}
+              . Would you like to continue where you left off?
+              <span className="block mt-2 text-foreground font-medium">
+                {savedSession?.completedSets.length || 0} sets completed,{" "}
+                {savedSession?.currentVolume.toLocaleString() || 0}kg volume
+              </span>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="flex-col sm:flex-row gap-2">
+            <AlertDialogCancel
+              onClick={discardSession}
+              className="w-full sm:w-auto"
+            >
+              Start Fresh
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={resumeSession}
+              className="w-full sm:w-auto bg-primary text-primary-foreground"
+            >
+              <RotateCcw className="w-4 h-4 mr-2" />
+              Resume Workout
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

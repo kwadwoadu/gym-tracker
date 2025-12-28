@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
+import { AutoSyncProvider } from "@/components/sync/auto-sync-provider";
 import "./globals.css";
 
 const inter = Inter({
@@ -57,7 +58,9 @@ export default function RootLayout({
           <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         </head>
         <body className={`${inter.variable} font-sans antialiased`}>
-          {children}
+          <AutoSyncProvider>
+            {children}
+          </AutoSyncProvider>
         </body>
       </html>
     </ClerkProvider>

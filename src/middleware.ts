@@ -1,16 +1,14 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 
-// Routes that require authentication
-const isProtectedRoute = createRouteMatcher([
-  "/api/sync(.*)",
+// Public routes - only auth pages are public
+const isPublicRoute = createRouteMatcher([
+  "/sign-in(.*)",
+  "/sign-up(.*)",
 ]);
 
-// Public routes - app works offline-first, only sync API needs auth
-// All routes except /api/sync are public
-
+// All other routes require authentication
 export default clerkMiddleware(async (auth, req) => {
-  // Only protect sync API routes
-  if (isProtectedRoute(req)) {
+  if (!isPublicRoute(req)) {
     await auth.protect();
   }
 });
