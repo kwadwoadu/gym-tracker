@@ -6,7 +6,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Dumbbell, Play, Loader2, BarChart3 } from "lucide-react";
+import { Dumbbell, Play, Loader2, BarChart3, ClipboardList, Settings } from "lucide-react";
 import { SupersetView } from "@/components/workout/superset-view";
 import db from "@/lib/db";
 import type { TrainingDay, Exercise } from "@/lib/db";
@@ -72,14 +72,40 @@ export default function Home() {
               <p className="text-sm text-muted-foreground">NPT 3-Day Hypertrophy</p>
             </div>
           </div>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => router.push("/stats")}
-            className="h-10 w-10"
-          >
-            <BarChart3 className="w-5 h-5 text-muted-foreground" />
-          </Button>
+          <div className="flex items-center gap-1">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => router.push("/exercises")}
+              className="h-10 w-10"
+            >
+              <Dumbbell className="w-5 h-5 text-muted-foreground" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => router.push("/program")}
+              className="h-10 w-10"
+            >
+              <ClipboardList className="w-5 h-5 text-muted-foreground" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => router.push("/stats")}
+              className="h-10 w-10"
+            >
+              <BarChart3 className="w-5 h-5 text-muted-foreground" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => router.push("/settings")}
+              className="h-10 w-10"
+            >
+              <Settings className="w-5 h-5 text-muted-foreground" />
+            </Button>
+          </div>
         </div>
       </header>
 
