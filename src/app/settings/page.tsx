@@ -36,6 +36,7 @@ import {
   clearWorkoutLogs,
   resetToDefault,
 } from "@/lib/export";
+import { SyncButton } from "@/components/sync/sync-button";
 
 const PROGRESSION_OPTIONS = [
   { value: 0.5, label: "0.5 kg" },
@@ -219,6 +220,9 @@ export default function SettingsPage() {
       </header>
 
       <div className="p-4 space-y-6">
+        {/* Cloud Sync Section */}
+        <SyncButton />
+
         {/* Preferences Section */}
         <Card className="bg-card border-border">
           <CardHeader className="pb-4">
