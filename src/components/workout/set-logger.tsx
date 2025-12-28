@@ -111,6 +111,17 @@ export function SetLogger({
 
   const videoId = videoUrl ? getYouTubeId(videoUrl) : null;
 
+  // Update weight when suggestion props arrive (async fetch)
+  useEffect(() => {
+    if (suggestedWeight !== undefined) {
+      setWeight(suggestedWeight);
+      setWeightInputValue(suggestedWeight.toString());
+    } else if (lastWeekWeight !== undefined) {
+      setWeight(lastWeekWeight);
+      setWeightInputValue(lastWeekWeight.toString());
+    }
+  }, [suggestedWeight, lastWeekWeight]);
+
   // Focus input when editing starts
   useEffect(() => {
     if (isEditingWeight && weightInputRef.current) {

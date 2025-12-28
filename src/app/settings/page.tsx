@@ -26,6 +26,7 @@ import {
   RotateCcw,
   CheckCircle,
   AlertCircle,
+  LogOut,
 } from "lucide-react";
 import { getUserSettings, updateUserSettings, type UserSettings } from "@/lib/db";
 import {
@@ -36,7 +37,7 @@ import {
   clearWorkoutLogs,
   resetToDefault,
 } from "@/lib/export";
-import { SyncButton } from "@/components/sync/sync-button";
+import { useUser, SignOutButton } from "@clerk/nextjs";
 
 const PROGRESSION_OPTIONS = [
   { value: 0.5, label: "0.5 kg" },
@@ -54,6 +55,7 @@ interface Toast {
 
 export default function SettingsPage() {
   const router = useRouter();
+  const { user } = useUser();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [settings, setSettings] = useState<UserSettings | null>(null);
@@ -220,8 +222,32 @@ export default function SettingsPage() {
       </header>
 
       <div className="p-4 space-y-6">
-        {/* Cloud Sync Section */}
-        <SyncButton />
+        {/* Account Section */}
+        <Card className="bg-card border-border p-4">
+          <div className="flex items-center gap-3">
+            {user?.imageUrl && (
+              <img
+                src={user.imageUrl}
+                alt={user.fullName || "User"}
+                className="w-12 h-12 rounded-full"
+              />
+            )}
+            <div className="flex-1 min-w-0">
+              <p className="font-medium text-foreground truncate">
+                {user?.fullName || "User"}
+              </p>
+              <p className="text-sm text-muted-foreground truncate">
+                {user?.primaryEmailAddress?.emailAddress}
+              </p>
+            </div>
+          </div>
+          <SignOutButton>
+            <Button variant="ghost" className="w-full mt-4 text-muted-foreground">
+              <LogOut className="w-4 h-4 mr-2" />
+              Sign Out
+            </Button>
+          </SignOutButton>
+        </Card>
 
         {/* Preferences Section */}
         <Card className="bg-card border-border">
