@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { History, ChevronDown, ChevronUp, Clock, Dumbbell } from "lucide-react";
+import { History, ChevronDown, ChevronUp, Clock, Dumbbell, MessageSquare } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { WorkoutLog, Exercise } from "@/lib/db";
 
@@ -151,6 +151,18 @@ export function RecentWorkouts({ workoutLogs, exercises }: RecentWorkoutsProps) 
                       {totalVolume.toLocaleString()} kg
                     </span>
                   </div>
+
+                  {/* Workout Notes */}
+                  {log.notes && (
+                    <div className="mt-3 pt-3 border-t border-border/50">
+                      <div className="flex items-start gap-2">
+                        <MessageSquare className="w-4 h-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+                        <p className="text-sm text-muted-foreground italic">
+                          {log.notes}
+                        </p>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </div>

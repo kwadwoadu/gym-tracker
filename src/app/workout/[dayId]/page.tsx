@@ -19,7 +19,7 @@ import {
 } from "lucide-react";
 import { RestTimer } from "@/components/workout/rest-timer";
 import { SetLogger } from "@/components/workout/set-logger";
-import db, { getSuggestedWeight, checkAndAddPR } from "@/lib/db";
+import db, { getSuggestedWeight, checkAndAddPR, updateWorkoutLog } from "@/lib/db";
 import type { TrainingDay, Exercise, SetLog, WorkoutLog } from "@/lib/db";
 
 // Animation variants for phase transitions
@@ -130,6 +130,8 @@ export default function WorkoutSession() {
     lastWeekReps: number;
   } | null>(null);
   const [newPRs, setNewPRs] = useState<NewPR[]>([]);
+  const [workoutNotes, setWorkoutNotes] = useState<string>("");
+  const [workoutLogId, setWorkoutLogId] = useState<string | null>(null);
 
   // Load training day and exercises
   useEffect(() => {
@@ -265,7 +267,7 @@ export default function WorkoutSession() {
   const allFinisherDone = finisherChecked.every((checked) => checked);
 
   // Handle set completion - simplified progression logic
-  const handleSetComplete = (weight: number, reps: number) => {
+  const handleSetComplete = (weight: number, reps: number, rpe?: number) => {
     if (!trainingDay) return;
 
     const currentExercise = getCurrentExercise();
@@ -286,6 +288,7 @@ export default function WorkoutSession() {
       actualReps: reps,
       weight,
       unit: "kg",
+      rpe,
       isComplete: true,
       completedAt: new Date().toISOString(),
     };
@@ -362,7 +365,9 @@ export default function WorkoutSession() {
     );
 
     // Save workout log
-    const workoutLog: Omit<WorkoutLog, "id"> = {
+    const logId = `workout-${Date.now()}`;
+    const workoutLog: WorkoutLog = {
+      id: logId,
       date: startTime.toISOString().split("T")[0],
       dayId: trainingDay.id,
       dayName: trainingDay.name,
@@ -374,7 +379,8 @@ export default function WorkoutSession() {
       isComplete: true,
     };
 
-    const workoutLogId = await db.workoutLogs.add(workoutLog as WorkoutLog);
+    await db.workoutLogs.add(workoutLog);
+    setWorkoutLogId(logId);
 
     // Check for PRs - find best set for each exercise
     const exerciseBestSets = new Map<string, SetLog>();
@@ -397,7 +403,7 @@ export default function WorkoutSession() {
         bestSet.weight,
         bestSet.actualReps,
         bestSet.unit,
-        String(workoutLogId)
+        logId
       );
       if (isPR) {
         achievedPRs.push({
@@ -417,6 +423,14 @@ export default function WorkoutSession() {
     } else {
       audioManager.playWorkoutComplete();
     }
+  };
+
+  // Handle completing workout with notes
+  const handleFinishWithNotes = async () => {
+    if (workoutLogId && workoutNotes.trim()) {
+      await updateWorkoutLog(workoutLogId, { notes: workoutNotes.trim() });
+    }
+    router.push("/");
   };
 
   // Calculate progress
@@ -973,15 +987,35 @@ export default function WorkoutSession() {
               </Card>
             </motion.div>
 
+            {/* Workout Notes */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6 }}
             >
+              <Card className="p-4 bg-card border-border">
+                <label className="text-xs text-muted-foreground uppercase tracking-wider mb-2 block">
+                  Workout Notes (optional)
+                </label>
+                <textarea
+                  value={workoutNotes}
+                  onChange={(e) => setWorkoutNotes(e.target.value)}
+                  placeholder="How did the workout feel? Any observations..."
+                  className="w-full min-h-[100px] p-3 rounded-lg bg-input border border-border text-foreground placeholder:text-muted-foreground resize-none focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                  rows={3}
+                />
+              </Card>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.7 }}
+            >
               <Button
                 size="lg"
                 className="w-full h-14 text-lg font-semibold"
-                onClick={() => router.push("/")}
+                onClick={handleFinishWithNotes}
               >
                 Back to Home
               </Button>

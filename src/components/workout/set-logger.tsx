@@ -68,7 +68,7 @@ interface SetLoggerProps {
   lastWeekWeight?: number;
   lastWeekReps?: number;
   suggestedWeight?: number;
-  onComplete: (weight: number, reps: number) => void;
+  onComplete: (weight: number, reps: number, rpe?: number) => void;
 }
 
 export function SetLogger({
@@ -85,6 +85,7 @@ export function SetLogger({
 }: SetLoggerProps) {
   const [weight, setWeight] = useState(suggestedWeight || lastWeekWeight || 20);
   const [reps, setReps] = useState(targetReps);
+  const [rpe, setRpe] = useState<number>(7);
   const [isCompleted, setIsCompleted] = useState(false);
   const [isEditingWeight, setIsEditingWeight] = useState(false);
   const [weightInputValue, setWeightInputValue] = useState(weight.toString());
@@ -131,7 +132,17 @@ export function SetLogger({
 
   const handleComplete = () => {
     setIsCompleted(true);
-    onComplete(weight, reps);
+    onComplete(weight, reps, rpe);
+  };
+
+  // Get RPE label based on value
+  const getRpeLabel = (value: number) => {
+    if (value <= 5) return "Easy";
+    if (value === 6) return "Moderate";
+    if (value === 7) return "Challenging";
+    if (value === 8) return "Hard";
+    if (value === 9) return "Very Hard";
+    return "Max Effort";
   };
 
   const showProgressIndicator =
@@ -307,7 +318,7 @@ export function SetLogger({
       </div>
 
       {/* Reps input */}
-      <div className="mb-8">
+      <div className="mb-6">
         <label className="text-xs text-muted-foreground uppercase tracking-wider mb-2 block">
           Reps completed
         </label>
@@ -343,6 +354,79 @@ export function SetLogger({
         </div>
       </div>
 
+      {/* RPE slider */}
+      <div className="mb-8">
+        <label className="text-xs text-muted-foreground uppercase tracking-wider mb-2 block">
+          RPE (Rate of Perceived Exertion)
+        </label>
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <span className={cn(
+              "text-2xl font-bold tabular-nums",
+              rpe <= 7 ? "text-green-500" : rpe === 8 ? "text-yellow-500" : "text-red-500"
+            )}>
+              {rpe}
+            </span>
+            <span className={cn(
+              "text-sm font-medium",
+              rpe <= 7 ? "text-green-500" : rpe === 8 ? "text-yellow-500" : "text-red-500"
+            )}>
+              {getRpeLabel(rpe)}
+            </span>
+          </div>
+          <div className="relative">
+            <input
+              type="range"
+              min="1"
+              max="10"
+              value={rpe}
+              onChange={(e) => setRpe(parseInt(e.target.value))}
+              disabled={isCompleted}
+              className={cn(
+                "w-full h-3 rounded-full appearance-none cursor-pointer",
+                "bg-muted",
+                "[&::-webkit-slider-thumb]:appearance-none",
+                "[&::-webkit-slider-thumb]:w-7",
+                "[&::-webkit-slider-thumb]:h-7",
+                "[&::-webkit-slider-thumb]:rounded-full",
+                "[&::-webkit-slider-thumb]:cursor-pointer",
+                "[&::-webkit-slider-thumb]:shadow-md",
+                rpe <= 7
+                  ? "[&::-webkit-slider-thumb]:bg-green-500"
+                  : rpe === 8
+                  ? "[&::-webkit-slider-thumb]:bg-yellow-500"
+                  : "[&::-webkit-slider-thumb]:bg-red-500",
+                "[&::-moz-range-thumb]:w-7",
+                "[&::-moz-range-thumb]:h-7",
+                "[&::-moz-range-thumb]:rounded-full",
+                "[&::-moz-range-thumb]:cursor-pointer",
+                "[&::-moz-range-thumb]:border-0",
+                rpe <= 7
+                  ? "[&::-moz-range-thumb]:bg-green-500"
+                  : rpe === 8
+                  ? "[&::-moz-range-thumb]:bg-yellow-500"
+                  : "[&::-moz-range-thumb]:bg-red-500",
+                isCompleted && "opacity-50 cursor-not-allowed"
+              )}
+            />
+            {/* Scale markers */}
+            <div className="flex justify-between mt-1 px-1">
+              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => (
+                <span
+                  key={n}
+                  className={cn(
+                    "text-[10px] tabular-nums",
+                    n === rpe ? "text-foreground font-bold" : "text-muted-foreground"
+                  )}
+                >
+                  {n}
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
         {/* Complete button */}
         <AnimatePresence mode="wait">
           {!isCompleted ? (
@@ -370,7 +454,7 @@ export function SetLogger({
               animate="animate"
             >
               <p className="text-success font-medium">
-                Logged: {weight}kg x {reps} reps
+                Logged: {weight}kg x {reps} reps @ RPE {rpe}
               </p>
             </motion.div>
           )}
