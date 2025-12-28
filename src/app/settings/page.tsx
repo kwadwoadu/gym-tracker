@@ -38,6 +38,7 @@ import {
   resetToDefault,
 } from "@/lib/export";
 import { useUser, SignOutButton } from "@clerk/nextjs";
+import Image from "next/image";
 
 const PROGRESSION_OPTIONS = [
   { value: 0.5, label: "0.5 kg" },
@@ -226,9 +227,11 @@ export default function SettingsPage() {
         <Card className="bg-card border-border p-4">
           <div className="flex items-center gap-3">
             {user?.imageUrl && (
-              <img
+              <Image
                 src={user.imageUrl}
                 alt={user.fullName || "User"}
+                width={48}
+                height={48}
                 className="w-12 h-12 rounded-full"
               />
             )}

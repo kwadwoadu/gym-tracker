@@ -13,6 +13,14 @@ const withPWA = withPWAInit({
 const nextConfig: NextConfig = {
   // Empty turbopack config to silence warning - PWA plugin uses webpack
   turbopack: {},
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "img.clerk.com",
+      },
+    ],
+  },
 };
 
 export default withPWA(nextConfig);

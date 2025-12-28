@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json();
-    const { lastSyncedAt, data } = body;
+    const { data } = body;
 
     // Ensure user exists in cloud
     const existingUser = await cloudDb.select().from(users).where(eq(users.id, userId));
