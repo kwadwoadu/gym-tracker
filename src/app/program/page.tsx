@@ -15,10 +15,26 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { ArrowLeft, Calendar, ChevronRight, Loader2, Plus, Trash2 } from "lucide-react";
+import {
+  ArrowLeft,
+  Calendar,
+  ChevronRight,
+  Loader2,
+  Plus,
+  Trash2,
+  CheckCircle,
+  AlertCircle,
+} from "lucide-react";
 import db, { createNewTrainingDay, deleteTrainingDay } from "@/lib/db";
 import type { TrainingDay, Program } from "@/lib/db";
 import { cn } from "@/lib/utils";
+
+type ToastType = "success" | "error";
+
+interface Toast {
+  message: string;
+  type: ToastType;
+}
 
 export default function ProgramPage() {
   const router = useRouter();
@@ -27,6 +43,7 @@ export default function ProgramPage() {
   const [trainingDays, setTrainingDays] = useState<TrainingDay[]>([]);
   const [dayToDelete, setDayToDelete] = useState<TrainingDay | null>(null);
   const [isAdding, setIsAdding] = useState(false);
+  const [toast, setToast] = useState<Toast | null>(null);
 
   useEffect(() => {
     async function loadProgram() {
@@ -55,6 +72,18 @@ export default function ProgramPage() {
     loadProgram();
   }, []);
 
+  // Auto-hide toast after 3 seconds
+  useEffect(() => {
+    if (toast) {
+      const timer = setTimeout(() => setToast(null), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [toast]);
+
+  const showToast = (message: string, type: ToastType) => {
+    setToast({ message, type });
+  };
+
   const handleAddDay = async () => {
     if (!program || isAdding) return;
     setIsAdding(true);
@@ -67,10 +96,12 @@ export default function ProgramPage() {
         .toArray();
       days.sort((a, b) => a.dayNumber - b.dayNumber);
       setTrainingDays(days);
+      showToast("Training day added", "success");
       // Navigate to edit the new day
       router.push(`/program/${newDayId}`);
     } catch (error) {
       console.error("Failed to add day:", error);
+      showToast("Failed to add training day", "error");
     } finally {
       setIsAdding(false);
     }
@@ -78,6 +109,7 @@ export default function ProgramPage() {
 
   const handleDeleteDay = async () => {
     if (!dayToDelete || !program) return;
+    const deletedName = dayToDelete.name;
     try {
       await deleteTrainingDay(dayToDelete.id);
       // Reload training days
@@ -87,8 +119,10 @@ export default function ProgramPage() {
         .toArray();
       days.sort((a, b) => a.dayNumber - b.dayNumber);
       setTrainingDays(days);
+      showToast(`"${deletedName}" deleted`, "success");
     } catch (error) {
       console.error("Failed to delete day:", error);
+      showToast("Failed to delete training day", "error");
     } finally {
       setDayToDelete(null);
     }
@@ -107,6 +141,24 @@ export default function ProgramPage() {
 
   return (
     <div className="min-h-screen pb-8">
+      {/* Toast Notification */}
+      {toast && (
+        <div
+          className={`fixed top-4 left-4 right-4 z-50 p-4 rounded-lg flex items-center gap-3 shadow-lg ${
+            toast.type === "success"
+              ? "bg-green-600 text-white"
+              : "bg-red-600 text-white"
+          }`}
+        >
+          {toast.type === "success" ? (
+            <CheckCircle className="w-5 h-5 shrink-0" />
+          ) : (
+            <AlertCircle className="w-5 h-5 shrink-0" />
+          )}
+          <span className="font-medium">{toast.message}</span>
+        </div>
+      )}
+
       {/* Header */}
       <header className="px-4 pt-safe-top pb-4 border-b border-border">
         <div className="flex items-center gap-3">
