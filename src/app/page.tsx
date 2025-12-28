@@ -6,9 +6,9 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Dumbbell, Play, Loader2, BarChart3, ClipboardList, Settings } from "lucide-react";
+import { Dumbbell, Play, Loader2, BarChart3, ClipboardList, Settings, Flame, Calendar } from "lucide-react";
 import { SupersetView } from "@/components/workout/superset-view";
-import db from "@/lib/db";
+import db, { getWorkoutStreak } from "@/lib/db";
 import type { TrainingDay, Exercise } from "@/lib/db";
 import { seedDatabase } from "@/lib/seed";
 
@@ -18,6 +18,7 @@ export default function Home() {
   const [trainingDays, setTrainingDays] = useState<TrainingDay[]>([]);
   const [exercises, setExercises] = useState<Map<string, Exercise>>(new Map());
   const [selectedDay, setSelectedDay] = useState("day-1");
+  const [streak, setStreak] = useState<{ currentStreak: number; thisWeekCount: number } | null>(null);
 
   useEffect(() => {
     async function init() {
@@ -35,6 +36,10 @@ export default function Home() {
         const exerciseMap = new Map<string, Exercise>();
         allExercises.forEach((ex) => exerciseMap.set(ex.id, ex));
         setExercises(exerciseMap);
+
+        // Load streak data
+        const streakData = await getWorkoutStreak();
+        setStreak(streakData);
       } catch (error) {
         console.error("Failed to initialize:", error);
       } finally {
@@ -108,6 +113,34 @@ export default function Home() {
           </div>
         </div>
       </header>
+
+      {/* Streak Tracker */}
+      {streak && (streak.currentStreak > 0 || streak.thisWeekCount > 0) && (
+        <div className="px-4 py-3 border-b border-border bg-muted/30">
+          <div className="flex items-center justify-center gap-6">
+            {streak.currentStreak > 0 && (
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-full bg-orange-500/20 flex items-center justify-center">
+                  <Flame className="w-4 h-4 text-orange-500" />
+                </div>
+                <div>
+                  <p className="text-lg font-bold text-foreground">{streak.currentStreak}</p>
+                  <p className="text-xs text-muted-foreground">Day Streak</p>
+                </div>
+              </div>
+            )}
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
+                <Calendar className="w-4 h-4 text-primary" />
+              </div>
+              <div>
+                <p className="text-lg font-bold text-foreground">{streak.thisWeekCount}/7</p>
+                <p className="text-xs text-muted-foreground">This Week</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Day Tabs */}
       <Tabs value={selectedDay} onValueChange={setSelectedDay} className="w-full">

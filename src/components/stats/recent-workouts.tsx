@@ -4,15 +4,13 @@ import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { History, ChevronDown, ChevronUp, Clock, Dumbbell, MessageSquare } from "lucide-react";
-import { cn } from "@/lib/utils";
-import type { WorkoutLog, Exercise } from "@/lib/db";
+import type { WorkoutLog } from "@/lib/db";
 
 interface RecentWorkoutsProps {
   workoutLogs: WorkoutLog[];
-  exercises: Map<string, Exercise>;
 }
 
-export function RecentWorkouts({ workoutLogs, exercises }: RecentWorkoutsProps) {
+export function RecentWorkouts({ workoutLogs }: RecentWorkoutsProps) {
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   if (workoutLogs.length === 0) {

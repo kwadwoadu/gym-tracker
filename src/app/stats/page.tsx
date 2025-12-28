@@ -99,7 +99,7 @@ export default function StatsPage() {
         <WorkoutCalendar workoutLogs={workoutLogs} />
 
         {/* Recent Workouts */}
-        <RecentWorkouts workoutLogs={workoutLogs} exercises={exercises} />
+        <RecentWorkouts workoutLogs={workoutLogs} />
       </div>
     </div>
   );

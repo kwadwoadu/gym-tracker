@@ -399,4 +399,129 @@ export async function getSuggestedWeight(
   };
 }
 
+// ============================================================
+// Streak Tracking
+// ============================================================
+
+export async function getWorkoutStreak(): Promise<{
+  currentStreak: number;
+  thisWeekCount: number;
+  lastWorkoutDate: string | null;
+}> {
+  const logs = await db.workoutLogs
+    .where("isComplete")
+    .equals(1)
+    .reverse()
+    .sortBy("date");
+
+  if (logs.length === 0) {
+    return { currentStreak: 0, thisWeekCount: 0, lastWorkoutDate: null };
+  }
+
+  // Calculate this week's workouts (Monday to Sunday)
+  const today = new Date();
+  const dayOfWeek = today.getDay();
+  const mondayOffset = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+  const monday = new Date(today);
+  monday.setDate(today.getDate() - mondayOffset);
+  monday.setHours(0, 0, 0, 0);
+
+  const thisWeekLogs = logs.filter((log) => {
+    const logDate = new Date(log.date);
+    return logDate >= monday;
+  });
+
+  // Count unique days this week
+  const uniqueDays = new Set(thisWeekLogs.map((log) => log.date));
+  const thisWeekCount = uniqueDays.size;
+
+  // Calculate current streak (consecutive days)
+  let currentStreak = 0;
+  const checkDate = new Date(today);
+  checkDate.setHours(0, 0, 0, 0);
+
+  // Check if worked out today
+  const todayStr = checkDate.toISOString().split("T")[0];
+  const workedOutToday = logs.some((log) => log.date === todayStr);
+
+  if (!workedOutToday) {
+    // Start from yesterday
+    checkDate.setDate(checkDate.getDate() - 1);
+  }
+
+  // Count consecutive days
+  while (true) {
+    const dateStr = checkDate.toISOString().split("T")[0];
+    const hasWorkout = logs.some((log) => log.date === dateStr);
+
+    if (hasWorkout) {
+      currentStreak++;
+      checkDate.setDate(checkDate.getDate() - 1);
+    } else {
+      break;
+    }
+
+    // Safety limit
+    if (currentStreak > 365) break;
+  }
+
+  return {
+    currentStreak,
+    thisWeekCount,
+    lastWorkoutDate: logs[0]?.date || null,
+  };
+}
+
+// ============================================================
+// Volume Calculation
+// ============================================================
+
+export function calculateTotalVolume(sets: SetLog[]): number {
+  return sets.reduce((total, set) => {
+    return total + set.weight * set.actualReps;
+  }, 0);
+}
+
+export async function getLastWeekVolume(dayId: string): Promise<number | null> {
+  const lastWorkout = await getLastWorkoutForDay(dayId);
+  if (!lastWorkout) return null;
+  return calculateTotalVolume(lastWorkout.sets);
+}
+
+// ============================================================
+// Weekly Goal / Last Week Performance
+// ============================================================
+
+export async function getWeeklyGoalForExercise(
+  exerciseId: string,
+  dayId: string
+): Promise<{
+  lastWeight: number;
+  lastReps: number;
+  goalWeight: number;
+  hitTarget: boolean;
+} | null> {
+  const lastWorkout = await getLastWorkoutForDay(dayId);
+  if (!lastWorkout) return null;
+
+  // Find best set for this exercise from last workout
+  const exerciseSets = lastWorkout.sets.filter((s) => s.exerciseId === exerciseId);
+  if (exerciseSets.length === 0) return null;
+
+  // Get the best set (highest weight)
+  const bestSet = exerciseSets.reduce((best, set) =>
+    set.weight > best.weight ? set : best
+  );
+
+  const settings = await getUserSettings();
+  const hitTarget = bestSet.actualReps >= bestSet.targetReps;
+
+  return {
+    lastWeight: bestSet.weight,
+    lastReps: bestSet.actualReps,
+    goalWeight: hitTarget ? bestSet.weight + settings.progressionIncrement : bestSet.weight,
+    hitTarget,
+  };
+}
+
 export default db;

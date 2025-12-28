@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
-import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -15,9 +14,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { ArrowLeft, Trash2, Save, Loader2, X, Plus } from "lucide-react";
-import db from "@/lib/db";
-import type { Exercise } from "@/lib/db";
-import { generateId } from "@/lib/db";
+import db, { generateId } from "@/lib/db";
 import { cn } from "@/lib/utils";
 
 const EQUIPMENT_OPTIONS = [
@@ -343,7 +340,7 @@ export default function ExerciseEditorPage() {
           <DialogHeader>
             <DialogTitle>Delete Exercise</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete "{name}"? This action cannot be
+              Are you sure you want to delete &quot;{name}&quot;? This action cannot be
               undone.
             </DialogDescription>
           </DialogHeader>

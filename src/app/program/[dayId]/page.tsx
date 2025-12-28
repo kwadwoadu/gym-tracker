@@ -26,14 +26,12 @@ import {
 } from "lucide-react";
 import db from "@/lib/db";
 import type {
-  TrainingDay,
   Exercise,
   Superset,
   SupersetExercise,
   WarmupExercise,
   FinisherExercise,
 } from "@/lib/db";
-import { generateId } from "@/lib/db";
 import { cn } from "@/lib/utils";
 
 interface ExerciseSelectorProps {
@@ -130,7 +128,6 @@ export default function DayEditorPage() {
   const [warmup, setWarmup] = useState<WarmupExercise[]>([]);
   const [supersets, setSupersets] = useState<Superset[]>([]);
   const [finisher, setFinisher] = useState<FinisherExercise[]>([]);
-  const [programId, setProgramId] = useState("");
   const [dayNumber, setDayNumber] = useState(1);
 
   // Dialog state
@@ -156,7 +153,6 @@ export default function DayEditorPage() {
           setWarmup(day.warmup || []);
           setSupersets(day.supersets);
           setFinisher(day.finisher || []);
-          setProgramId(day.programId);
           setDayNumber(day.dayNumber);
         } else {
           router.push("/program");

@@ -16,10 +16,12 @@ import {
   Clock,
   Dumbbell,
   Check,
+  TrendingUp,
+  Target,
 } from "lucide-react";
 import { RestTimer } from "@/components/workout/rest-timer";
 import { SetLogger } from "@/components/workout/set-logger";
-import db, { getSuggestedWeight, checkAndAddPR, updateWorkoutLog } from "@/lib/db";
+import db, { getSuggestedWeight, checkAndAddPR, updateWorkoutLog, getLastWeekVolume } from "@/lib/db";
 import type { TrainingDay, Exercise, SetLog, WorkoutLog } from "@/lib/db";
 
 // Animation variants for phase transitions
@@ -132,6 +134,8 @@ export default function WorkoutSession() {
   const [newPRs, setNewPRs] = useState<NewPR[]>([]);
   const [workoutNotes, setWorkoutNotes] = useState<string>("");
   const [workoutLogId, setWorkoutLogId] = useState<string | null>(null);
+  const [lastWeekVolumeTotal, setLastWeekVolumeTotal] = useState<number | null>(null);
+  const [currentVolume, setCurrentVolume] = useState<number>(0);
 
   // Load training day and exercises
   useEffect(() => {
@@ -158,6 +162,10 @@ export default function WorkoutSession() {
         const exerciseMap = new Map<string, Exercise>();
         allExercises.forEach((ex) => exerciseMap.set(ex.id, ex));
         setExercises(exerciseMap);
+
+        // Load last week's volume for goal comparison
+        const lastVolume = await getLastWeekVolume(dayId);
+        setLastWeekVolumeTotal(lastVolume);
       } catch (error) {
         console.error("Failed to load workout data:", error);
         router.push("/");
@@ -293,6 +301,9 @@ export default function WorkoutSession() {
       completedAt: new Date().toISOString(),
     };
     setCompletedSets((prev) => [...prev, setLog]);
+
+    // Update live volume counter
+    setCurrentVolume((prev) => prev + weight * reps);
 
     // Determine next state
     const superset = trainingDay.supersets[workoutState.supersetIndex];
@@ -492,7 +503,7 @@ export default function WorkoutSession() {
             </h1>
             {phase !== "preview" && phase !== "warmup" && phase !== "finisher" && phase !== "complete" && (
               <p className="text-xs text-muted-foreground">
-                {completedSets.length} sets completed
+                {completedSets.length} sets - {currentVolume.toLocaleString()}kg volume
               </p>
             )}
           </div>
@@ -542,6 +553,28 @@ export default function WorkoutSession() {
                 exercises
               </p>
             </div>
+
+            {/* Weekly Goal Banner */}
+            {lastWeekVolumeTotal && lastWeekVolumeTotal > 0 && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.2, type: "spring", stiffness: 300, damping: 25 }}
+              >
+                <Card className="p-4 bg-primary/10 border-primary/30">
+                  <div className="flex items-center justify-center gap-3">
+                    <Target className="w-5 h-5 text-primary" />
+                    <div className="text-center">
+                      <p className="text-sm text-muted-foreground">Beat last week</p>
+                      <p className="text-xl font-bold text-primary">
+                        {lastWeekVolumeTotal.toLocaleString()}kg
+                      </p>
+                    </div>
+                    <TrendingUp className="w-5 h-5 text-primary" />
+                  </div>
+                </Card>
+              </motion.div>
+            )}
 
             {/* Warmup preview */}
             {trainingDay.warmup && trainingDay.warmup.length > 0 && (
@@ -984,6 +1017,44 @@ export default function WorkoutSession() {
                   {completedSets.length}
                 </p>
                 <p className="text-xs text-muted-foreground">Sets Completed</p>
+              </Card>
+            </motion.div>
+
+            {/* Volume Summary */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.55 }}
+            >
+              <Card className={`p-4 text-center ${
+                lastWeekVolumeTotal && currentVolume > lastWeekVolumeTotal
+                  ? "bg-success/10 border-success/30"
+                  : "bg-card border-border"
+              }`}>
+                <TrendingUp className={`w-6 h-6 mx-auto mb-2 ${
+                  lastWeekVolumeTotal && currentVolume > lastWeekVolumeTotal
+                    ? "text-success"
+                    : "text-primary"
+                }`} />
+                <p className="text-2xl font-bold text-foreground">
+                  {currentVolume.toLocaleString()}kg
+                </p>
+                <p className="text-xs text-muted-foreground">Total Volume</p>
+                {lastWeekVolumeTotal && lastWeekVolumeTotal > 0 && (
+                  <p className={`text-sm mt-1 font-medium ${
+                    currentVolume > lastWeekVolumeTotal
+                      ? "text-success"
+                      : currentVolume === lastWeekVolumeTotal
+                      ? "text-muted-foreground"
+                      : "text-orange-500"
+                  }`}>
+                    {currentVolume > lastWeekVolumeTotal
+                      ? `+${(currentVolume - lastWeekVolumeTotal).toLocaleString()}kg vs last week!`
+                      : currentVolume === lastWeekVolumeTotal
+                      ? "Matched last week"
+                      : `${(lastWeekVolumeTotal - currentVolume).toLocaleString()}kg less than last week`}
+                  </p>
+                )}
               </Card>
             </motion.div>
 
