@@ -221,6 +221,53 @@ export async function addTrainingDay(day: Omit<TrainingDay, "id">): Promise<stri
   return id;
 }
 
+export async function deleteTrainingDay(dayId: string): Promise<void> {
+  const day = await db.trainingDays.get(dayId);
+  if (!day) return;
+
+  // Delete the training day
+  await db.trainingDays.delete(dayId);
+
+  // Resequence remaining days
+  const remainingDays = await db.trainingDays
+    .where("programId")
+    .equals(day.programId)
+    .sortBy("dayNumber");
+
+  // Update day numbers sequentially
+  for (let i = 0; i < remainingDays.length; i++) {
+    if (remainingDays[i].dayNumber !== i + 1) {
+      await db.trainingDays.update(remainingDays[i].id, { dayNumber: i + 1 });
+    }
+  }
+}
+
+export async function createNewTrainingDay(programId: string): Promise<string> {
+  const existingDays = await db.trainingDays
+    .where("programId")
+    .equals(programId)
+    .toArray();
+
+  const nextDayNumber = existingDays.length + 1;
+  const dayId = generateId();
+
+  await db.trainingDays.add({
+    id: dayId,
+    programId,
+    name: `Day ${nextDayNumber}`,
+    dayNumber: nextDayNumber,
+    warmup: [],
+    supersets: [],
+    finisher: [],
+  });
+
+  return dayId;
+}
+
+export async function updateTrainingDay(dayId: string, updates: Partial<TrainingDay>): Promise<void> {
+  await db.trainingDays.update(dayId, updates);
+}
+
 // ============================================================
 // Workout Log Operations
 // ============================================================

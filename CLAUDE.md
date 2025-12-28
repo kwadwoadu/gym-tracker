@@ -1,4 +1,4 @@
-# Gym Tracker - Project Brain
+# SetFlow - Project Brain
 
 > PWA for tracking gym workouts with progressive overload
 
@@ -121,22 +121,23 @@ A Progressive Web App for iOS/Android that helps track gym workouts with:
 4. **Performance** - Smooth 60fps animations
 5. **Audio feedback** - Web Audio API for timer cues
 
-## NPT Program Structure
+## Default Program Structure
 
-The app is pre-loaded with Kwadwo's NPT 3-Day Full Body Hypertrophy program:
-- Day 1: Full Body A (Mon)
-- Day 2: Full Body B (Tue)
-- Day 3: Full Body C (Thu)
+The app comes pre-loaded with a Full Body Training program:
+- Day 1: Full Body A
+- Day 2: Full Body B
+- Day 3: Full Body C
 
-Each day has:
+Each day can have:
 - Warmup exercises
-- 3 supersets (A, B, C) with 2 exercises each
-- Finisher (dead hang for spine decompression)
+- Multiple supersets with exercises
+- Finisher exercises
+
+Users can add/remove training days and customize the program to their needs.
 
 ## Related Files
 - Design inspiration: `/assets/Gym Mode screens/`
-- NPT program data: `/domains/health/training-program.md`
-- Plan: `~/.claude/plans/foamy-wandering-rossum.md`
+- Program data: `/src/data/program.json`
 
 ---
 *Created: 2025-12-27*

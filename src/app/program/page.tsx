@@ -5,8 +5,18 @@ import { useRouter } from "next/navigation";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Calendar, ChevronRight, Loader2 } from "lucide-react";
-import db from "@/lib/db";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { ArrowLeft, Calendar, ChevronRight, Loader2, Plus, Trash2 } from "lucide-react";
+import db, { createNewTrainingDay, deleteTrainingDay } from "@/lib/db";
 import type { TrainingDay, Program } from "@/lib/db";
 import { cn } from "@/lib/utils";
 
@@ -15,6 +25,8 @@ export default function ProgramPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [program, setProgram] = useState<Program | null>(null);
   const [trainingDays, setTrainingDays] = useState<TrainingDay[]>([]);
+  const [dayToDelete, setDayToDelete] = useState<TrainingDay | null>(null);
+  const [isAdding, setIsAdding] = useState(false);
 
   useEffect(() => {
     async function loadProgram() {
@@ -42,6 +54,45 @@ export default function ProgramPage() {
 
     loadProgram();
   }, []);
+
+  const handleAddDay = async () => {
+    if (!program || isAdding) return;
+    setIsAdding(true);
+    try {
+      const newDayId = await createNewTrainingDay(program.id);
+      // Reload training days
+      const days = await db.trainingDays
+        .where("programId")
+        .equals(program.id)
+        .toArray();
+      days.sort((a, b) => a.dayNumber - b.dayNumber);
+      setTrainingDays(days);
+      // Navigate to edit the new day
+      router.push(`/program/${newDayId}`);
+    } catch (error) {
+      console.error("Failed to add day:", error);
+    } finally {
+      setIsAdding(false);
+    }
+  };
+
+  const handleDeleteDay = async () => {
+    if (!dayToDelete || !program) return;
+    try {
+      await deleteTrainingDay(dayToDelete.id);
+      // Reload training days
+      const days = await db.trainingDays
+        .where("programId")
+        .equals(program.id)
+        .toArray();
+      days.sort((a, b) => a.dayNumber - b.dayNumber);
+      setTrainingDays(days);
+    } catch (error) {
+      console.error("Failed to delete day:", error);
+    } finally {
+      setDayToDelete(null);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -101,21 +152,26 @@ export default function ProgramPage() {
             <Card
               key={day.id}
               className={cn(
-                "bg-card border-border p-4 cursor-pointer transition-all",
+                "bg-card border-border p-4 transition-all",
                 "active:scale-[0.98] touch-target"
               )}
-              onClick={() => router.push(`/program/${day.id}`)}
             >
               <div className="flex items-center gap-4">
                 {/* Day Number */}
-                <div className="w-12 h-12 rounded-xl bg-primary flex items-center justify-center shrink-0">
+                <div
+                  className="w-12 h-12 rounded-xl bg-primary flex items-center justify-center shrink-0 cursor-pointer"
+                  onClick={() => router.push(`/program/${day.id}`)}
+                >
                   <span className="text-primary-foreground font-bold text-lg">
                     {day.dayNumber}
                   </span>
                 </div>
 
                 {/* Day Info */}
-                <div className="flex-1 min-w-0">
+                <div
+                  className="flex-1 min-w-0 cursor-pointer"
+                  onClick={() => router.push(`/program/${day.id}`)}
+                >
                   <h3 className="font-semibold text-lg text-foreground">
                     {day.name}
                   </h3>
@@ -139,8 +195,24 @@ export default function ProgramPage() {
                   </div>
                 </div>
 
+                {/* Delete Button */}
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="shrink-0 text-muted-foreground hover:text-red-500 hover:bg-red-500/10"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setDayToDelete(day);
+                  }}
+                >
+                  <Trash2 className="w-4 h-4" />
+                </Button>
+
                 {/* Arrow */}
-                <ChevronRight className="w-5 h-5 text-muted-foreground shrink-0" />
+                <ChevronRight
+                  className="w-5 h-5 text-muted-foreground shrink-0 cursor-pointer"
+                  onClick={() => router.push(`/program/${day.id}`)}
+                />
               </div>
             </Card>
           );
@@ -152,7 +224,44 @@ export default function ProgramPage() {
             <p className="text-muted-foreground">No training days found</p>
           </div>
         )}
+
+        {/* Add Day Button */}
+        <Button
+          variant="outline"
+          className="w-full h-14 mt-4 border-dashed border-2 text-muted-foreground hover:text-foreground hover:border-primary"
+          onClick={handleAddDay}
+          disabled={isAdding || !program}
+        >
+          {isAdding ? (
+            <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+          ) : (
+            <Plus className="w-5 h-5 mr-2" />
+          )}
+          Add Training Day
+        </Button>
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={!!dayToDelete} onOpenChange={() => setDayToDelete(null)}>
+        <AlertDialogContent className="max-w-sm mx-4">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Training Day?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete &quot;{dayToDelete?.name}&quot; and all its
+              exercises. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteDay}
+              className="bg-red-500 hover:bg-red-600"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

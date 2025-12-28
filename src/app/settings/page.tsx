@@ -433,7 +433,7 @@ export default function SettingsPage() {
                   <AlertDialogDescription>
                     This will delete ALL your data including workouts, personal
                     records, custom exercises, and settings. The app will be reset
-                    to the default NPT program. This action cannot be undone.
+                    to the default program. This action cannot be undone.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
@@ -452,8 +452,7 @@ export default function SettingsPage() {
 
         {/* App Info */}
         <div className="text-center text-sm text-muted-foreground pt-4">
-          <p>Gym Tracker v1.0.0</p>
-          <p className="mt-1">NPT 3-Day Hypertrophy Program</p>
+          <p>SetFlow v1.0.0</p>
         </div>
       </div>
     </div>

@@ -1,14 +1,14 @@
 {
   "program": {
-    "id": "npt-3day-hypertrophy",
-    "name": "NPT 3-Day Full Body Hypertrophy",
-    "description": "Nordic Performance Training 3-Day Full Body program with superset structure and tempo-controlled reps.",
+    "id": "default-program",
+    "name": "Full Body Training",
+    "description": "Full body workout program with superset structure and tempo-controlled reps.",
     "isActive": true
   },
   "trainingDays": [
     {
       "id": "day-1",
-      "programId": "npt-3day-hypertrophy",
+      "programId": "default-program",
       "name": "Full Body A",
       "dayNumber": 1,
       "warmup": [
@@ -85,7 +85,7 @@
     },
     {
       "id": "day-2",
-      "programId": "npt-3day-hypertrophy",
+      "programId": "default-program",
       "name": "Full Body B",
       "dayNumber": 2,
       "warmup": [
@@ -162,7 +162,7 @@
     },
     {
       "id": "day-3",
-      "programId": "npt-3day-hypertrophy",
+      "programId": "default-program",
       "name": "Full Body C",
       "dayNumber": 3,
       "warmup": [

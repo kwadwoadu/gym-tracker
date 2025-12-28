@@ -8,13 +8,13 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Gym Tracker",
+  title: "SetFlow - Workout Tracker",
   description: "Track your workouts with progressive overload",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "Gym Tracker",
+    title: "SetFlow",
   },
   formatDetection: {
     telephone: false,

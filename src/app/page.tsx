@@ -68,8 +68,8 @@ export default function Home() {
               <Dumbbell className="w-5 h-5 text-primary-foreground" />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-foreground">Gym Tracker</h1>
-              <p className="text-sm text-muted-foreground">NPT 3-Day Hypertrophy</p>
+              <h1 className="text-xl font-bold text-foreground">SetFlow</h1>
+              <p className="text-sm text-muted-foreground">Your Training Program</p>
             </div>
           </div>
           <div className="flex items-center gap-1">
