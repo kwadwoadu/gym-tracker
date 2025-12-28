@@ -1,12 +1,62 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Check, Minus, Plus, TrendingUp } from "lucide-react";
 import { cn } from "@/lib/utils";
+
+// Animation variants for set completion celebration
+const cardCompleteVariants = {
+  incomplete: { scale: 1 },
+  complete: {
+    scale: [1, 1.02, 1],
+    transition: {
+      duration: 0.3,
+      ease: "easeOut" as const,
+    },
+  },
+};
+
+// Checkmark animation
+const checkmarkVariants = {
+  initial: { scale: 0, rotate: -180 },
+  animate: {
+    scale: 1,
+    rotate: 0,
+    transition: {
+      type: "spring" as const,
+      stiffness: 300,
+      damping: 20,
+    },
+  },
+};
+
+// Logged text fade in
+const loggedTextVariants = {
+  initial: { opacity: 0, y: 10 },
+  animate: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      delay: 0.2,
+      duration: 0.3,
+    },
+  },
+};
+
+// Button exit animation
+const buttonExitVariants = {
+  initial: { opacity: 1, scale: 1 },
+  exit: {
+    opacity: 0,
+    scale: 0.9,
+    transition: { duration: 0.2 },
+  },
+};
 
 interface SetLoggerProps {
   exerciseName: string;
@@ -88,40 +138,51 @@ export function SetLogger({
     suggestedWeight && lastWeekWeight && suggestedWeight > lastWeekWeight;
 
   return (
-    <Card
-      className={cn(
-        "p-6 transition-all",
-        isCompleted
-          ? "bg-success/10 border-success/50"
-          : "bg-card border-border"
-      )}
+    <motion.div
+      variants={cardCompleteVariants}
+      animate={isCompleted ? "complete" : "incomplete"}
     >
-      {/* Header */}
-      <div className="flex items-start justify-between mb-6">
-        <div className="flex items-center gap-3">
-          <Badge
-            variant="default"
-            className="bg-primary text-primary-foreground font-bold text-lg px-3 py-1"
-          >
-            {supersetLabel}
-            {exerciseLabel}
-          </Badge>
-          <div>
-            <h3 className="font-semibold text-lg text-foreground">
-              {exerciseName}
-            </h3>
-            <p className="text-sm text-muted-foreground">
-              Set {setNumber} of {totalSets}
-            </p>
-          </div>
-        </div>
-
-        {isCompleted && (
-          <div className="w-8 h-8 rounded-full bg-success flex items-center justify-center">
-            <Check className="w-5 h-5 text-success-foreground" />
-          </div>
+      <Card
+        className={cn(
+          "p-6 transition-all",
+          isCompleted
+            ? "bg-success/10 border-success/50"
+            : "bg-card border-border"
         )}
-      </div>
+      >
+        {/* Header */}
+        <div className="flex items-start justify-between mb-6">
+          <div className="flex items-center gap-3">
+            <Badge
+              variant="default"
+              className="bg-primary text-primary-foreground font-bold text-lg px-3 py-1"
+            >
+              {supersetLabel}
+              {exerciseLabel}
+            </Badge>
+            <div>
+              <h3 className="font-semibold text-lg text-foreground">
+                {exerciseName}
+              </h3>
+              <p className="text-sm text-muted-foreground">
+                Set {setNumber} of {totalSets}
+              </p>
+            </div>
+          </div>
+
+          <AnimatePresence>
+            {isCompleted && (
+              <motion.div
+                className="w-8 h-8 rounded-full bg-success flex items-center justify-center"
+                variants={checkmarkVariants}
+                initial="initial"
+                animate="animate"
+              >
+                <Check className="w-5 h-5 text-success-foreground" />
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
 
       {/* Last week reference */}
       {lastWeekWeight && lastWeekReps && (
@@ -282,25 +343,39 @@ export function SetLogger({
         </div>
       </div>
 
-      {/* Complete button */}
-      {!isCompleted && (
-        <Button
-          size="lg"
-          className="w-full h-14 text-lg font-semibold bg-primary text-primary-foreground hover:bg-primary/90"
-          onClick={handleComplete}
-        >
-          <Check className="w-5 h-5 mr-2" />
-          Complete Set
-        </Button>
-      )}
-
-      {isCompleted && (
-        <div className="text-center py-3">
-          <p className="text-success font-medium">
-            Logged: {weight}kg x {reps} reps
-          </p>
-        </div>
-      )}
-    </Card>
+        {/* Complete button */}
+        <AnimatePresence mode="wait">
+          {!isCompleted ? (
+            <motion.div
+              key="button"
+              variants={buttonExitVariants}
+              initial="initial"
+              exit="exit"
+            >
+              <Button
+                size="lg"
+                className="w-full h-14 text-lg font-semibold bg-primary text-primary-foreground hover:bg-primary/90"
+                onClick={handleComplete}
+              >
+                <Check className="w-5 h-5 mr-2" />
+                Complete Set
+              </Button>
+            </motion.div>
+          ) : (
+            <motion.div
+              key="logged"
+              className="text-center py-3"
+              variants={loggedTextVariants}
+              initial="initial"
+              animate="animate"
+            >
+              <p className="text-success font-medium">
+                Logged: {weight}kg x {reps} reps
+              </p>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </Card>
+    </motion.div>
   );
 }

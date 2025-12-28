@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ChevronDown, ChevronUp, Play } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, getYouTubeThumbnail, isYouTubeUrl } from "@/lib/utils";
 
 interface ExerciseCardProps {
   name: string;
@@ -136,18 +136,46 @@ export function ExerciseCard({
               </div>
             </div>
 
-            {/* Video link */}
+            {/* Video thumbnail or link */}
             {videoUrl && (
-              <a
-                href={videoUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={(e) => e.stopPropagation()}
-                className="flex items-center gap-2 text-primary hover:underline text-sm touch-target"
-              >
-                <Play className="w-4 h-4" />
-                Watch demonstration
-              </a>
+              <>
+                {isYouTubeUrl(videoUrl) ? (
+                  <a
+                    href={videoUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={(e) => e.stopPropagation()}
+                    className="block touch-target"
+                  >
+                    <div className="relative rounded-lg overflow-hidden group">
+                      <img
+                        src={getYouTubeThumbnail(videoUrl) || ""}
+                        alt={`${name} demonstration`}
+                        className="w-full h-32 object-cover transition-transform group-hover:scale-105"
+                      />
+                      <div className="absolute inset-0 bg-black/40 flex items-center justify-center group-hover:bg-black/50 transition-colors">
+                        <div className="w-12 h-12 rounded-full bg-primary/90 flex items-center justify-center">
+                          <Play className="w-6 h-6 text-primary-foreground fill-current ml-0.5" />
+                        </div>
+                      </div>
+                      <span className="absolute bottom-2 left-2 text-xs text-white/90 bg-black/60 px-2 py-1 rounded">
+                        Watch demo
+                      </span>
+                    </div>
+                  </a>
+                ) : (
+                  <a
+                    href={videoUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={(e) => e.stopPropagation()}
+                    className="flex items-center gap-2 text-primary hover:underline text-sm touch-target"
+                  >
+                    <Play className="w-4 h-4" />
+                    Watch demonstration
+                  </a>
+                )}
+              </>
             )}
           </div>
         </div>

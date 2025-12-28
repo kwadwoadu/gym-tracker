@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -21,6 +22,72 @@ import { SetLogger } from "@/components/workout/set-logger";
 import db, { getSuggestedWeight, checkAndAddPR } from "@/lib/db";
 import type { TrainingDay, Exercise, SetLog, WorkoutLog } from "@/lib/db";
 
+// Animation variants for phase transitions
+const phaseVariants = {
+  initial: { opacity: 0, x: 20 },
+  animate: { opacity: 1, x: 0 },
+  exit: { opacity: 0, x: -20 },
+};
+
+const phaseTransition = {
+  type: "spring" as const,
+  stiffness: 300,
+  damping: 30,
+};
+
+// Staggered list animation for PR items
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+      delayChildren: 0.2,
+    },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20, scale: 0.9 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: {
+      type: "spring" as const,
+      stiffness: 400,
+      damping: 25,
+    },
+  },
+};
+
+// Trophy bounce animation
+const trophyVariants = {
+  initial: { scale: 0, rotate: -180 },
+  animate: {
+    scale: 1,
+    rotate: 0,
+    transition: {
+      type: "spring" as const,
+      stiffness: 260,
+      damping: 20,
+    },
+  },
+};
+
+// Celebration icon pulse
+const celebrationPulse = {
+  initial: { scale: 1 },
+  animate: {
+    scale: [1, 1.1, 1],
+    transition: {
+      duration: 0.6,
+      repeat: Infinity,
+      repeatDelay: 1,
+    },
+  },
+};
+
 interface NewPR {
   exerciseName: string;
   weight: number;
@@ -29,7 +96,7 @@ interface NewPR {
 import { audioManager } from "@/lib/audio";
 import { cn } from "@/lib/utils";
 
-type WorkoutPhase = "preview" | "warmup" | "exercise" | "rest" | "complete";
+type WorkoutPhase = "preview" | "warmup" | "exercise" | "rest" | "finisher" | "complete";
 
 interface WorkoutState {
   supersetIndex: number;  // Which superset (0=A, 1=B, 2=C)
@@ -52,6 +119,7 @@ export default function WorkoutSession() {
     setNumber: 1,
   });
   const [warmupChecked, setWarmupChecked] = useState<boolean[]>([]);
+  const [finisherChecked, setFinisherChecked] = useState<boolean[]>([]);
   const [completedSets, setCompletedSets] = useState<SetLog[]>([]);
   const [startTime, setStartTime] = useState<Date | null>(null);
   const [audioInitialized, setAudioInitialized] = useState(false);
@@ -77,6 +145,11 @@ export default function WorkoutSession() {
         // Initialize warmup checkboxes
         if (day.warmup) {
           setWarmupChecked(new Array(day.warmup.length).fill(false));
+        }
+
+        // Initialize finisher checkboxes
+        if (day.finisher) {
+          setFinisherChecked(new Array(day.finisher.length).fill(false));
         }
 
         const allExercises = await db.exercises.toArray();
@@ -179,6 +252,18 @@ export default function WorkoutSession() {
   // Check if all warmup exercises are done
   const allWarmupDone = warmupChecked.every((checked) => checked);
 
+  // Toggle finisher checkbox
+  const toggleFinisher = (index: number) => {
+    setFinisherChecked((prev) => {
+      const newChecked = [...prev];
+      newChecked[index] = !newChecked[index];
+      return newChecked;
+    });
+  };
+
+  // Check if all finisher exercises are done
+  const allFinisherDone = finisherChecked.every((checked) => checked);
+
   // Handle set completion - simplified progression logic
   const handleSetComplete = (weight: number, reps: number) => {
     if (!trainingDay) return;
@@ -230,8 +315,13 @@ export default function WorkoutSession() {
         nextSupersetIndex++;
 
         if (nextSupersetIndex >= trainingDay.supersets.length) {
-          // Workout complete!
-          finishWorkout();
+          // All supersets done - check if finisher exists
+          if (trainingDay.finisher && trainingDay.finisher.length > 0) {
+            setPhase("finisher");
+            audioManager.playSetStart();
+          } else {
+            finishWorkout();
+          }
           return;
         }
       }
@@ -386,7 +476,7 @@ export default function WorkoutSession() {
             <h1 className="text-lg font-semibold text-foreground">
               {trainingDay.name}
             </h1>
-            {phase !== "preview" && phase !== "warmup" && phase !== "complete" && (
+            {phase !== "preview" && phase !== "warmup" && phase !== "finisher" && phase !== "complete" && (
               <p className="text-xs text-muted-foreground">
                 {completedSets.length} sets completed
               </p>
@@ -397,21 +487,35 @@ export default function WorkoutSession() {
         </div>
 
         {/* Progress bar */}
-        {phase !== "preview" && phase !== "warmup" && phase !== "complete" && (
+        {phase !== "preview" && phase !== "warmup" && phase !== "finisher" && phase !== "complete" && (
           <div className="mt-3">
             <Progress value={calculateProgress()} className="h-2" />
           </div>
         )}
       </header>
 
-      <main className="p-4">
+      <main className="p-4 overflow-hidden">
+        <AnimatePresence mode="wait">
         {/* Preview Phase */}
         {phase === "preview" && (
-          <div className="space-y-6">
+          <motion.div
+            key="preview"
+            variants={phaseVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            transition={phaseTransition}
+            className="space-y-6"
+          >
             <div className="text-center py-8">
-              <div className="w-20 h-20 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-4">
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ type: "spring", stiffness: 260, damping: 20, delay: 0.1 }}
+                className="w-20 h-20 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-4"
+              >
                 <Play className="w-10 h-10 text-primary" />
-              </div>
+              </motion.div>
               <h2 className="text-2xl font-bold text-foreground mb-2">
                 Ready to Train?
               </h2>
@@ -468,12 +572,20 @@ export default function WorkoutSession() {
                 ? "Start Warmup"
                 : "Start Workout"}
             </Button>
-          </div>
+          </motion.div>
         )}
 
         {/* Warmup Phase */}
         {phase === "warmup" && trainingDay.warmup && (
-          <div className="space-y-6">
+          <motion.div
+            key="warmup"
+            variants={phaseVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            transition={phaseTransition}
+            className="space-y-6"
+          >
             <div className="text-center py-4">
               <h2 className="text-2xl font-bold text-foreground mb-2">
                 Warmup
@@ -537,28 +649,40 @@ export default function WorkoutSession() {
                 <>Complete warmup to continue</>
               )}
             </Button>
-          </div>
+          </motion.div>
         )}
 
         {/* Exercise Phase */}
         {phase === "exercise" && currentExercise && (
-          <div className="space-y-6">
+          <motion.div
+            key={`exercise-${workoutState.supersetIndex}-${workoutState.exerciseIndex}-${workoutState.setNumber}`}
+            variants={phaseVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            transition={phaseTransition}
+            className="space-y-6"
+          >
             {/* Current superset indicator */}
             <div className="flex items-center justify-center gap-2">
               {trainingDay.supersets.map((ss, idx) => (
-                <div
+                <motion.div
                   key={ss.id}
+                  animate={{
+                    scale: idx === workoutState.supersetIndex ? 1.1 : 1,
+                  }}
+                  transition={{ type: "spring", stiffness: 400, damping: 25 }}
                   className={cn(
-                    "w-10 h-10 rounded-full flex items-center justify-center font-bold transition-all",
+                    "w-10 h-10 rounded-full flex items-center justify-center font-bold",
                     idx === workoutState.supersetIndex
-                      ? "bg-primary text-primary-foreground scale-110"
+                      ? "bg-primary text-primary-foreground"
                       : idx < workoutState.supersetIndex
                       ? "bg-success text-success-foreground"
                       : "bg-muted text-muted-foreground"
                   )}
                 >
                   {ss.label}
-                </div>
+                </motion.div>
               ))}
             </div>
 
@@ -601,12 +725,20 @@ export default function WorkoutSession() {
                 </div>
               </div>
             </Card>
-          </div>
+          </motion.div>
         )}
 
         {/* Rest Phase */}
         {phase === "rest" && currentExercise && (
-          <div className="py-8">
+          <motion.div
+            key="rest"
+            variants={phaseVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            transition={phaseTransition}
+            className="py-8"
+          >
             <RestTimer
               seconds={currentExercise.restSeconds}
               onComplete={handleRestComplete}
@@ -614,68 +746,212 @@ export default function WorkoutSession() {
             />
 
             {/* Next exercise preview */}
-            <Card className="mt-8 p-4 bg-muted/30 border-border">
-              <div className="flex items-center gap-3">
-                <ChevronRight className="w-5 h-5 text-muted-foreground" />
-                <div>
-                  <p className="text-xs text-muted-foreground uppercase tracking-wider">
-                    Up Next
-                  </p>
-                  <p className="text-foreground font-medium">
-                    {nextExercisePreview}
-                  </p>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3, type: "spring", stiffness: 300, damping: 25 }}
+            >
+              <Card className="mt-8 p-4 bg-muted/30 border-border">
+                <div className="flex items-center gap-3">
+                  <ChevronRight className="w-5 h-5 text-muted-foreground" />
+                  <div>
+                    <p className="text-xs text-muted-foreground uppercase tracking-wider">
+                      Up Next
+                    </p>
+                    <p className="text-foreground font-medium">
+                      {nextExercisePreview}
+                    </p>
+                  </div>
                 </div>
-              </div>
+              </Card>
+            </motion.div>
+          </motion.div>
+        )}
+
+        {/* Finisher Phase */}
+        {phase === "finisher" && trainingDay.finisher && (
+          <motion.div
+            key="finisher"
+            variants={phaseVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            transition={phaseTransition}
+            className="space-y-6"
+          >
+            <div className="text-center py-4">
+              <h2 className="text-2xl font-bold text-foreground mb-2">
+                Finisher
+              </h2>
+              <p className="text-muted-foreground">
+                Complete the finisher exercises to wrap up
+              </p>
+            </div>
+
+            <Card className="p-4 bg-card border-border">
+              <ul className="space-y-4">
+                {trainingDay.finisher.map((f, idx) => {
+                  const exercise = exercises.get(f.exerciseId);
+                  return (
+                    <li
+                      key={idx}
+                      className="flex items-center gap-4 py-2"
+                    >
+                      <Checkbox
+                        id={`finisher-${idx}`}
+                        checked={finisherChecked[idx]}
+                        onCheckedChange={() => toggleFinisher(idx)}
+                        className="h-6 w-6"
+                      />
+                      <label
+                        htmlFor={`finisher-${idx}`}
+                        className={cn(
+                          "flex-1 flex items-center justify-between cursor-pointer",
+                          finisherChecked[idx] && "opacity-50"
+                        )}
+                      >
+                        <div>
+                          <span
+                            className={cn(
+                              "text-foreground block",
+                              finisherChecked[idx] && "line-through"
+                            )}
+                          >
+                            {exercise?.name || f.exerciseId}
+                          </span>
+                          {f.notes && (
+                            <span className="text-sm text-muted-foreground">
+                              {f.notes}
+                            </span>
+                          )}
+                        </div>
+                        {f.duration && (
+                          <Badge variant="secondary">{f.duration}s</Badge>
+                        )}
+                      </label>
+                    </li>
+                  );
+                })}
+              </ul>
             </Card>
-          </div>
+
+            {/* Complete button */}
+            <Button
+              size="lg"
+              className="w-full h-16 text-xl font-semibold bg-primary text-primary-foreground hover:bg-primary/90"
+              onClick={finishWorkout}
+              disabled={!allFinisherDone}
+            >
+              {allFinisherDone ? (
+                <>
+                  <Check className="w-6 h-6 mr-2" />
+                  Complete Workout
+                </>
+              ) : (
+                <>Complete finisher to finish</>
+              )}
+            </Button>
+          </motion.div>
         )}
 
         {/* Complete Phase */}
         {phase === "complete" && startTime && (
-          <div className="py-12 text-center space-y-8">
-            <div className="w-24 h-24 rounded-full bg-success/20 flex items-center justify-center mx-auto">
-              <Trophy className="w-12 h-12 text-success" />
-            </div>
+          <motion.div
+            key="complete"
+            variants={phaseVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            transition={phaseTransition}
+            className="py-12 text-center space-y-8"
+          >
+            <motion.div
+              variants={trophyVariants}
+              initial="initial"
+              animate="animate"
+              className="w-24 h-24 rounded-full bg-success/20 flex items-center justify-center mx-auto"
+            >
+              <motion.div
+                variants={celebrationPulse}
+                initial="initial"
+                animate="animate"
+              >
+                <Trophy className="w-12 h-12 text-success" />
+              </motion.div>
+            </motion.div>
 
-            <div>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+            >
               <h2 className="text-3xl font-bold text-foreground mb-2">
                 Workout Complete!
               </h2>
               <p className="text-muted-foreground">
                 Great job crushing {trainingDay.name}
               </p>
-            </div>
+            </motion.div>
 
             {/* PR Celebration Section */}
             {newPRs.length > 0 && (
-              <Card className="p-6 bg-primary/10 border-primary/30">
-                <div className="flex items-center justify-center gap-2 mb-4">
-                  <Trophy className="w-6 h-6 text-primary" />
-                  <h3 className="text-xl font-bold text-primary">
-                    {newPRs.length === 1 ? "New PR!" : `${newPRs.length} New PRs!`}
-                  </h3>
-                  <Trophy className="w-6 h-6 text-primary" />
-                </div>
-                <ul className="space-y-3">
-                  {newPRs.map((pr, idx) => (
-                    <li
-                      key={idx}
-                      className="flex items-center justify-between px-4 py-2 bg-background/50 rounded-lg"
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.4, type: "spring", stiffness: 300, damping: 25 }}
+              >
+                <Card className="p-6 bg-primary/10 border-primary/30">
+                  <div className="flex items-center justify-center gap-2 mb-4">
+                    <motion.div
+                      variants={celebrationPulse}
+                      initial="initial"
+                      animate="animate"
                     >
-                      <span className="text-foreground font-medium">
-                        {pr.exerciseName}
-                      </span>
-                      <Badge variant="default" className="bg-primary text-primary-foreground">
-                        {pr.weight}kg x {pr.reps}
-                      </Badge>
-                    </li>
-                  ))}
-                </ul>
-              </Card>
+                      <Trophy className="w-6 h-6 text-primary" />
+                    </motion.div>
+                    <h3 className="text-xl font-bold text-primary">
+                      {newPRs.length === 1 ? "New PR!" : `${newPRs.length} New PRs!`}
+                    </h3>
+                    <motion.div
+                      variants={celebrationPulse}
+                      initial="initial"
+                      animate="animate"
+                    >
+                      <Trophy className="w-6 h-6 text-primary" />
+                    </motion.div>
+                  </div>
+                  <motion.ul
+                    variants={containerVariants}
+                    initial="hidden"
+                    animate="visible"
+                    className="space-y-3"
+                  >
+                    {newPRs.map((pr, idx) => (
+                      <motion.li
+                        key={idx}
+                        variants={itemVariants}
+                        className="flex items-center justify-between px-4 py-2 bg-background/50 rounded-lg"
+                      >
+                        <span className="text-foreground font-medium">
+                          {pr.exerciseName}
+                        </span>
+                        <Badge variant="default" className="bg-primary text-primary-foreground">
+                          {pr.weight}kg x {pr.reps}
+                        </Badge>
+                      </motion.li>
+                    ))}
+                  </motion.ul>
+                </Card>
+              </motion.div>
             )}
 
             {/* Stats */}
-            <div className="grid grid-cols-2 gap-4">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
+              className="grid grid-cols-2 gap-4"
+            >
               <Card className="p-4 bg-card border-border text-center">
                 <Clock className="w-6 h-6 text-primary mx-auto mb-2" />
                 <p className="text-2xl font-bold text-foreground">
@@ -695,17 +971,24 @@ export default function WorkoutSession() {
                 </p>
                 <p className="text-xs text-muted-foreground">Sets Completed</p>
               </Card>
-            </div>
+            </motion.div>
 
-            <Button
-              size="lg"
-              className="w-full h-14 text-lg font-semibold"
-              onClick={() => router.push("/")}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.6 }}
             >
-              Back to Home
-            </Button>
-          </div>
+              <Button
+                size="lg"
+                className="w-full h-14 text-lg font-semibold"
+                onClick={() => router.push("/")}
+              >
+                Back to Home
+              </Button>
+            </motion.div>
+          </motion.div>
         )}
+        </AnimatePresence>
       </main>
     </div>
   );

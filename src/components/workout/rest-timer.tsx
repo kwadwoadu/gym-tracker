@@ -1,10 +1,44 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
+import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Play, Pause, SkipForward, RotateCcw } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { audioManager } from "@/lib/audio";
+
+// Animation variants for timer warning pulse
+const timerPulseVariants = {
+  normal: { scale: 1 },
+  warning: {
+    scale: [1, 1.05, 1],
+    transition: {
+      duration: 0.5,
+      repeat: Infinity,
+      ease: "easeInOut" as const,
+    },
+  },
+  critical: {
+    scale: [1, 1.1, 1],
+    transition: {
+      duration: 0.3,
+      repeat: Infinity,
+      ease: "easeInOut" as const,
+    },
+  },
+};
+
+// Scale effect when timer reaches zero
+const completeScaleVariants = {
+  initial: { scale: 1 },
+  complete: {
+    scale: [1, 1.2, 0.9, 1],
+    transition: {
+      duration: 0.4,
+      ease: "easeOut" as const,
+    },
+  },
+};
 
 interface RestTimerProps {
   seconds: number;
@@ -99,6 +133,14 @@ export function RestTimer({
     return "text-primary stroke-primary";
   };
 
+  // Determine animation state based on time left
+  const getAnimationState = () => {
+    if (timeLeft === 0) return "complete";
+    if (timeLeft <= 5) return "critical";
+    if (timeLeft <= 10) return "warning";
+    return "normal";
+  };
+
   return (
     <div className="flex flex-col items-center gap-6">
       {/* Label */}
@@ -107,7 +149,11 @@ export function RestTimer({
       </p>
 
       {/* Circular Timer */}
-      <div className="relative w-52 h-52">
+      <motion.div
+        className="relative w-52 h-52"
+        variants={timerPulseVariants}
+        animate={getAnimationState()}
+      >
         {/* Background circle */}
         <svg className="w-full h-full transform -rotate-90" viewBox="0 0 200 200">
           <circle
@@ -138,19 +184,23 @@ export function RestTimer({
 
         {/* Time display */}
         <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <span
+          <motion.span
             className={cn(
               "text-5xl font-bold tabular-nums transition-colors",
               getTimerColor().split(" ")[0]
             )}
+            key={timeLeft === 0 ? "complete" : "counting"}
+            variants={completeScaleVariants}
+            initial="initial"
+            animate={timeLeft === 0 ? "complete" : "initial"}
           >
             {formatTime(timeLeft)}
-          </span>
+          </motion.span>
           <span className="text-sm text-muted-foreground mt-1">
             {isRunning ? "remaining" : "paused"}
           </span>
         </div>
-      </div>
+      </motion.div>
 
       {/* Controls */}
       <div className="flex items-center gap-4">
