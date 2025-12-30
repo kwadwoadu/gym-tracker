@@ -108,6 +108,21 @@ export interface UserSettings {
   progressionIncrement: number; // kg
 }
 
+export interface OnboardingProfile {
+  id: string;
+  goals: string[]; // "build_muscle", "lose_fat", "get_stronger", "stay_healthy"
+  experienceLevel: "beginner" | "intermediate" | "advanced" | null;
+  trainingDaysPerWeek: number | null;
+  equipment: "full_gym" | "home_gym" | "bodyweight" | null;
+  heightCm: number | null;
+  weightKg: number | null;
+  bodyFatPercent: number | null;
+  injuries: string[]; // "shoulder", "back", "knee", "hip", "wrist"
+  hasCompletedOnboarding: boolean;
+  skippedOnboarding: boolean;
+  completedAt: string | null;
+}
+
 // ============================================================
 // Database Definition
 // ============================================================
@@ -119,6 +134,7 @@ const db = new Dexie("GymTrackerDB") as Dexie & {
   workoutLogs: EntityTable<WorkoutLog, "id">;
   personalRecords: EntityTable<PersonalRecord, "id">;
   userSettings: EntityTable<UserSettings, "id">;
+  onboardingProfiles: EntityTable<OnboardingProfile, "id">;
 };
 
 db.version(1).stores({
@@ -128,6 +144,16 @@ db.version(1).stores({
   workoutLogs: "id, date, programId, dayId, isComplete",
   personalRecords: "id, exerciseId, date",
   userSettings: "id",
+});
+
+db.version(2).stores({
+  exercises: "id, name, *muscleGroups, equipment, isCustom",
+  programs: "id, name, isActive",
+  trainingDays: "id, programId, dayNumber",
+  workoutLogs: "id, date, programId, dayId, isComplete",
+  personalRecords: "id, exerciseId, date",
+  userSettings: "id",
+  onboardingProfiles: "id",
 });
 
 // ============================================================
@@ -522,6 +548,60 @@ export async function getWeeklyGoalForExercise(
     goalWeight: hitTarget ? bestSet.weight + settings.progressionIncrement : bestSet.weight,
     hitTarget,
   };
+}
+
+// ============================================================
+// Onboarding Profile Operations
+// ============================================================
+
+const DEFAULT_ONBOARDING_PROFILE: OnboardingProfile = {
+  id: "onboarding-profile",
+  goals: [],
+  experienceLevel: null,
+  trainingDaysPerWeek: null,
+  equipment: null,
+  heightCm: null,
+  weightKg: null,
+  bodyFatPercent: null,
+  injuries: [],
+  hasCompletedOnboarding: false,
+  skippedOnboarding: false,
+  completedAt: null,
+};
+
+export async function getOnboardingProfile(): Promise<OnboardingProfile> {
+  const profile = await db.onboardingProfiles.get("onboarding-profile");
+  return profile || DEFAULT_ONBOARDING_PROFILE;
+}
+
+export async function updateOnboardingProfile(updates: Partial<OnboardingProfile>): Promise<void> {
+  const current = await getOnboardingProfile();
+  await db.onboardingProfiles.put({ ...current, ...updates, id: "onboarding-profile" });
+}
+
+export async function completeOnboarding(): Promise<void> {
+  await updateOnboardingProfile({
+    hasCompletedOnboarding: true,
+    skippedOnboarding: false,
+    completedAt: new Date().toISOString(),
+  });
+}
+
+export async function skipOnboarding(): Promise<void> {
+  await updateOnboardingProfile({
+    hasCompletedOnboarding: true,
+    skippedOnboarding: true,
+    completedAt: new Date().toISOString(),
+  });
+}
+
+export async function hasCompletedOnboarding(): Promise<boolean> {
+  const profile = await getOnboardingProfile();
+  return profile.hasCompletedOnboarding;
+}
+
+export async function resetOnboarding(): Promise<void> {
+  await db.onboardingProfiles.put(DEFAULT_ONBOARDING_PROFILE);
 }
 
 export default db;

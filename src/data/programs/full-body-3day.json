@@ -1,0 +1,246 @@
+{
+  "id": "preset-full-body-3day",
+  "meta": {
+    "name": "Full Body 3-Day",
+    "description": "Hit every muscle group 3x per week. Perfect for beginners or those with limited gym time.",
+    "difficulty": "beginner",
+    "daysPerWeek": 3,
+    "targetAudience": "Beginners, busy schedules"
+  },
+  "program": {
+    "id": "full-body-3day",
+    "name": "Full Body Training",
+    "description": "Full body workout program with superset structure and tempo-controlled reps.",
+    "isActive": true
+  },
+  "trainingDays": [
+    {
+      "id": "day-1",
+      "name": "Full Body A",
+      "dayNumber": 1,
+      "warmup": [
+        { "exerciseId": "ex-band-pull-aparts", "reps": 15 },
+        { "exerciseId": "ex-shoulder-circles", "reps": 15 },
+        { "exerciseId": "ex-cat-cow", "reps": 10 },
+        { "exerciseId": "ex-bw-squats", "reps": 10 }
+      ],
+      "supersets": [
+        {
+          "id": "day1-ss-a",
+          "label": "A",
+          "exercises": [
+            {
+              "exerciseId": "ex-rfess",
+              "sets": 4,
+              "reps": "10,10,8,8",
+              "tempo": "T:20X0",
+              "restSeconds": 60
+            },
+            {
+              "exerciseId": "ex-chest-dips",
+              "sets": 4,
+              "reps": "10,10,8,8",
+              "tempo": "T:2010",
+              "restSeconds": 90
+            }
+          ]
+        },
+        {
+          "id": "day1-ss-b",
+          "label": "B",
+          "exercises": [
+            {
+              "exerciseId": "ex-glute-bridge",
+              "sets": 4,
+              "reps": "10,10,8,8",
+              "tempo": "T:2011",
+              "restSeconds": 60
+            },
+            {
+              "exerciseId": "ex-lateral-raises",
+              "sets": 4,
+              "reps": "10,10,8,8",
+              "tempo": "T:30A0",
+              "restSeconds": 90
+            }
+          ]
+        },
+        {
+          "id": "day1-ss-c",
+          "label": "C",
+          "exercises": [
+            {
+              "exerciseId": "ex-incline-bicep-curls",
+              "sets": 4,
+              "reps": "10,10,8,8",
+              "tempo": "T:3010",
+              "restSeconds": 60
+            },
+            {
+              "exerciseId": "ex-leg-press-calf",
+              "sets": 4,
+              "reps": "10,10,8,8",
+              "tempo": "T:2111",
+              "restSeconds": 90
+            }
+          ]
+        }
+      ],
+      "finisher": [
+        { "exerciseId": "ex-dead-hang", "duration": 45, "notes": "Spine decompression - mandatory" }
+      ]
+    },
+    {
+      "id": "day-2",
+      "name": "Full Body B",
+      "dayNumber": 2,
+      "warmup": [
+        { "exerciseId": "ex-band-face-pulls", "reps": 15 },
+        { "exerciseId": "ex-arm-circles", "reps": 15 },
+        { "exerciseId": "ex-cat-cow", "reps": 10 },
+        { "exerciseId": "ex-hip-circles", "reps": 10 }
+      ],
+      "supersets": [
+        {
+          "id": "day2-ss-a",
+          "label": "A",
+          "exercises": [
+            {
+              "exerciseId": "ex-lying-ham-curl",
+              "sets": 4,
+              "reps": "10,10,8,8",
+              "tempo": "T:30A1",
+              "restSeconds": 60
+            },
+            {
+              "exerciseId": "ex-incline-delt-press",
+              "sets": 4,
+              "reps": "10,10,8,8",
+              "tempo": "T:3010",
+              "restSeconds": 90
+            }
+          ]
+        },
+        {
+          "id": "day2-ss-b",
+          "label": "B",
+          "exercises": [
+            {
+              "exerciseId": "ex-wide-lat-pulldown",
+              "sets": 4,
+              "reps": "10,10,8,8",
+              "tempo": "T:30A0",
+              "restSeconds": 60
+            },
+            {
+              "exerciseId": "ex-cross-cable-tricep",
+              "sets": 4,
+              "reps": "10,10,8,8",
+              "tempo": "T:30A1",
+              "restSeconds": 90
+            }
+          ]
+        },
+        {
+          "id": "day2-ss-c",
+          "label": "C",
+          "exercises": [
+            {
+              "exerciseId": "ex-y-raises",
+              "sets": 4,
+              "reps": "10,10,8,8",
+              "tempo": "T:30A1",
+              "restSeconds": 60
+            },
+            {
+              "exerciseId": "ex-ab-crunch",
+              "sets": 4,
+              "reps": "10,10,8,8",
+              "tempo": "T:2010",
+              "restSeconds": 90
+            }
+          ]
+        }
+      ],
+      "finisher": [
+        { "exerciseId": "ex-dead-hang", "duration": 45, "notes": "Spine decompression - mandatory" }
+      ]
+    },
+    {
+      "id": "day-3",
+      "name": "Full Body C",
+      "dayNumber": 3,
+      "warmup": [
+        { "exerciseId": "ex-bw-squats", "reps": 15 },
+        { "exerciseId": "ex-hip-circles", "reps": 10 },
+        { "exerciseId": "ex-cat-cow", "reps": 10 },
+        { "exerciseId": "ex-glute-bridges-bw", "reps": 12 }
+      ],
+      "supersets": [
+        {
+          "id": "day3-ss-a",
+          "label": "A",
+          "exercises": [
+            {
+              "exerciseId": "ex-hack-squat",
+              "sets": 4,
+              "reps": "10,10,8,8",
+              "tempo": "T:3010",
+              "restSeconds": 60
+            },
+            {
+              "exerciseId": "ex-incline-chest-press",
+              "sets": 4,
+              "reps": "10,10,8,8",
+              "tempo": "T:3010",
+              "restSeconds": 90
+            }
+          ]
+        },
+        {
+          "id": "day3-ss-b",
+          "label": "B",
+          "exercises": [
+            {
+              "exerciseId": "ex-leg-extension",
+              "sets": 4,
+              "reps": "10,10,8,8",
+              "tempo": "T:30A1",
+              "restSeconds": 60
+            },
+            {
+              "exerciseId": "ex-neutral-pulldown",
+              "sets": 4,
+              "reps": "10,10,8,8",
+              "tempo": "T:30A0",
+              "restSeconds": 90
+            }
+          ]
+        },
+        {
+          "id": "day3-ss-c",
+          "label": "C",
+          "exercises": [
+            {
+              "exerciseId": "ex-rear-delt-cable-row",
+              "sets": 4,
+              "reps": "10,10,8,8",
+              "tempo": "T:30A1",
+              "restSeconds": 60
+            },
+            {
+              "exerciseId": "ex-tibialis-raise",
+              "sets": 4,
+              "reps": "10,10,8,8",
+              "tempo": "T:2010",
+              "restSeconds": 90
+            }
+          ]
+        }
+      ],
+      "finisher": [
+        { "exerciseId": "ex-dead-hang", "duration": 45, "notes": "Spine decompression - mandatory" }
+      ]
+    }
+  ]
+}

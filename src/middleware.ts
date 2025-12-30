@@ -7,6 +7,12 @@ const isPublicRoute = createRouteMatcher([
   "/sign-up(.*)",
 ]);
 
+// Onboarding routes - accessible but require auth
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const isOnboardingRoute = createRouteMatcher([
+  "/onboarding(.*)",
+]);
+
 // API routes need special handling
 const isApiRoute = createRouteMatcher(["/api(.*)"]);
 
@@ -25,8 +31,12 @@ export default clerkMiddleware(async (auth, req) => {
     return;
   }
 
-  // For other routes, protect with redirect
+  // Protect all non-public routes
   await auth.protect();
+
+  // Note: Onboarding check happens client-side via IndexedDB
+  // We can't check IndexedDB from middleware (server-side)
+  // The main app page will redirect to /onboarding if needed
 });
 
 export const config = {

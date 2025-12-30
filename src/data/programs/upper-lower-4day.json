@@ -1,0 +1,367 @@
+{
+  "id": "preset-upper-lower-4day",
+  "meta": {
+    "name": "Upper/Lower Split",
+    "description": "Classic 4-day split alternating upper and lower body. Great balance of volume and recovery.",
+    "difficulty": "intermediate",
+    "daysPerWeek": 4,
+    "targetAudience": "Intermediate, balanced approach"
+  },
+  "program": {
+    "id": "upper-lower-4day",
+    "name": "Upper/Lower Split",
+    "description": "4-day split with dedicated upper and lower body days",
+    "isActive": true
+  },
+  "trainingDays": [
+    {
+      "id": "ul-upper-a",
+      "name": "Upper A",
+      "dayNumber": 1,
+      "warmup": [
+        { "exerciseId": "ex-band-pull-aparts", "reps": 15 },
+        { "exerciseId": "ex-shoulder-circles", "reps": 15 },
+        { "exerciseId": "ex-arm-circles", "reps": 10 }
+      ],
+      "supersets": [
+        {
+          "id": "upper-a-ss-a",
+          "label": "A",
+          "exercises": [
+            {
+              "exerciseId": "ex-barbell-bench",
+              "sets": 4,
+              "reps": "8,8,6,6",
+              "tempo": "T:3010",
+              "restSeconds": 90
+            },
+            {
+              "exerciseId": "ex-wide-lat-pulldown",
+              "sets": 4,
+              "reps": "10,10,8,8",
+              "tempo": "T:30A0",
+              "restSeconds": 90
+            }
+          ]
+        },
+        {
+          "id": "upper-a-ss-b",
+          "label": "B",
+          "exercises": [
+            {
+              "exerciseId": "ex-incline-db-press",
+              "sets": 4,
+              "reps": "10,10,8,8",
+              "tempo": "T:3010",
+              "restSeconds": 90
+            },
+            {
+              "exerciseId": "ex-seated-cable-row",
+              "sets": 4,
+              "reps": "10,10,8,8",
+              "tempo": "T:20A1",
+              "restSeconds": 90
+            }
+          ]
+        },
+        {
+          "id": "upper-a-ss-c",
+          "label": "C",
+          "exercises": [
+            {
+              "exerciseId": "ex-lateral-raises",
+              "sets": 4,
+              "reps": "12,12,12,12",
+              "tempo": "T:30A0",
+              "restSeconds": 60
+            },
+            {
+              "exerciseId": "ex-face-pulls",
+              "sets": 4,
+              "reps": "15,15,15,15",
+              "tempo": "T:20A1",
+              "restSeconds": 60
+            }
+          ]
+        },
+        {
+          "id": "upper-a-ss-d",
+          "label": "D",
+          "exercises": [
+            {
+              "exerciseId": "ex-barbell-curl",
+              "sets": 3,
+              "reps": "10,10,10",
+              "tempo": "T:30A1",
+              "restSeconds": 60
+            },
+            {
+              "exerciseId": "ex-tricep-pushdown",
+              "sets": 3,
+              "reps": "12,12,12",
+              "tempo": "T:20A1",
+              "restSeconds": 60
+            }
+          ]
+        }
+      ],
+      "finisher": []
+    },
+    {
+      "id": "ul-lower-a",
+      "name": "Lower A",
+      "dayNumber": 2,
+      "warmup": [
+        { "exerciseId": "ex-bw-squats", "reps": 15 },
+        { "exerciseId": "ex-hip-circles", "reps": 10 },
+        { "exerciseId": "ex-glute-bridges-bw", "reps": 12 }
+      ],
+      "supersets": [
+        {
+          "id": "lower-a-ss-a",
+          "label": "A",
+          "exercises": [
+            {
+              "exerciseId": "ex-barbell-squat",
+              "sets": 4,
+              "reps": "8,8,6,6",
+              "tempo": "T:3010",
+              "restSeconds": 120
+            },
+            {
+              "exerciseId": "ex-rdl",
+              "sets": 4,
+              "reps": "10,10,8,8",
+              "tempo": "T:30A0",
+              "restSeconds": 90
+            }
+          ]
+        },
+        {
+          "id": "lower-a-ss-b",
+          "label": "B",
+          "exercises": [
+            {
+              "exerciseId": "ex-leg-press",
+              "sets": 4,
+              "reps": "10,10,10,10",
+              "tempo": "T:3010",
+              "restSeconds": 90
+            },
+            {
+              "exerciseId": "ex-lying-ham-curl",
+              "sets": 4,
+              "reps": "12,12,10,10",
+              "tempo": "T:30A1",
+              "restSeconds": 60
+            }
+          ]
+        },
+        {
+          "id": "lower-a-ss-c",
+          "label": "C",
+          "exercises": [
+            {
+              "exerciseId": "ex-leg-extension",
+              "sets": 3,
+              "reps": "12,12,12",
+              "tempo": "T:30A1",
+              "restSeconds": 60
+            },
+            {
+              "exerciseId": "ex-standing-calf-raise",
+              "sets": 4,
+              "reps": "15,15,12,12",
+              "tempo": "T:2111",
+              "restSeconds": 60
+            }
+          ]
+        }
+      ],
+      "finisher": [
+        { "exerciseId": "ex-dead-hang", "duration": 45, "notes": "Spine decompression" }
+      ]
+    },
+    {
+      "id": "ul-upper-b",
+      "name": "Upper B",
+      "dayNumber": 3,
+      "warmup": [
+        { "exerciseId": "ex-band-face-pulls", "reps": 15 },
+        { "exerciseId": "ex-cat-cow", "reps": 10 },
+        { "exerciseId": "ex-arm-circles", "reps": 10 }
+      ],
+      "supersets": [
+        {
+          "id": "upper-b-ss-a",
+          "label": "A",
+          "exercises": [
+            {
+              "exerciseId": "ex-ohp",
+              "sets": 4,
+              "reps": "8,8,6,6",
+              "tempo": "T:2010",
+              "restSeconds": 90
+            },
+            {
+              "exerciseId": "ex-pullup",
+              "sets": 4,
+              "reps": "8,8,6,6",
+              "tempo": "T:2010",
+              "restSeconds": 90
+            }
+          ]
+        },
+        {
+          "id": "upper-b-ss-b",
+          "label": "B",
+          "exercises": [
+            {
+              "exerciseId": "ex-cable-fly",
+              "sets": 4,
+              "reps": "12,12,12,12",
+              "tempo": "T:30A1",
+              "restSeconds": 60
+            },
+            {
+              "exerciseId": "ex-barbell-row",
+              "sets": 4,
+              "reps": "10,10,8,8",
+              "tempo": "T:20A1",
+              "restSeconds": 90
+            }
+          ]
+        },
+        {
+          "id": "upper-b-ss-c",
+          "label": "C",
+          "exercises": [
+            {
+              "exerciseId": "ex-db-shoulder-press",
+              "sets": 3,
+              "reps": "10,10,10",
+              "tempo": "T:2010",
+              "restSeconds": 90
+            },
+            {
+              "exerciseId": "ex-rear-delt-fly",
+              "sets": 3,
+              "reps": "12,12,12",
+              "tempo": "T:30A1",
+              "restSeconds": 60
+            }
+          ]
+        },
+        {
+          "id": "upper-b-ss-d",
+          "label": "D",
+          "exercises": [
+            {
+              "exerciseId": "ex-hammer-curl",
+              "sets": 3,
+              "reps": "12,12,12",
+              "tempo": "T:30A1",
+              "restSeconds": 60
+            },
+            {
+              "exerciseId": "ex-overhead-tricep-ext",
+              "sets": 3,
+              "reps": "12,12,12",
+              "tempo": "T:30A1",
+              "restSeconds": 60
+            }
+          ]
+        }
+      ],
+      "finisher": []
+    },
+    {
+      "id": "ul-lower-b",
+      "name": "Lower B",
+      "dayNumber": 4,
+      "warmup": [
+        { "exerciseId": "ex-bw-squats", "reps": 15 },
+        { "exerciseId": "ex-hip-circles", "reps": 10 },
+        { "exerciseId": "ex-glute-bridges-bw", "reps": 12 }
+      ],
+      "supersets": [
+        {
+          "id": "lower-b-ss-a",
+          "label": "A",
+          "exercises": [
+            {
+              "exerciseId": "ex-hip-thrust",
+              "sets": 4,
+              "reps": "10,10,10,10",
+              "tempo": "T:2011",
+              "restSeconds": 90
+            },
+            {
+              "exerciseId": "ex-hack-squat",
+              "sets": 4,
+              "reps": "10,10,8,8",
+              "tempo": "T:3010",
+              "restSeconds": 90
+            }
+          ]
+        },
+        {
+          "id": "lower-b-ss-b",
+          "label": "B",
+          "exercises": [
+            {
+              "exerciseId": "ex-walking-lunge",
+              "sets": 3,
+              "reps": "12,12,12",
+              "tempo": "T:2010",
+              "restSeconds": 90
+            },
+            {
+              "exerciseId": "ex-seated-leg-curl",
+              "sets": 4,
+              "reps": "12,12,10,10",
+              "tempo": "T:30A1",
+              "restSeconds": 60
+            }
+          ]
+        },
+        {
+          "id": "lower-b-ss-c",
+          "label": "C",
+          "exercises": [
+            {
+              "exerciseId": "ex-seated-calf-raise",
+              "sets": 4,
+              "reps": "15,15,15,15",
+              "tempo": "T:2111",
+              "restSeconds": 45
+            },
+            {
+              "exerciseId": "ex-tibialis-raise",
+              "sets": 3,
+              "reps": "15,15,15",
+              "tempo": "T:2010",
+              "restSeconds": 45
+            }
+          ]
+        },
+        {
+          "id": "lower-b-ss-d",
+          "label": "D",
+          "exercises": [
+            {
+              "exerciseId": "ex-ab-crunch",
+              "sets": 3,
+              "reps": "15,15,15",
+              "tempo": "T:2010",
+              "restSeconds": 45
+            }
+          ]
+        }
+      ],
+      "finisher": [
+        { "exerciseId": "ex-dead-hang", "duration": 45, "notes": "Spine decompression" }
+      ]
+    }
+  ]
+}

@@ -123,6 +123,27 @@ export const syncMetadata = pgTable("sync_metadata", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
+// Onboarding profiles table - stores user preferences from onboarding flow
+export const onboardingProfiles = pgTable("onboarding_profiles", {
+  id: text("id").primaryKey(),
+  userId: text("user_id").notNull().references(() => users.id).unique(),
+  goals: jsonb("goals").$type<string[]>().notNull().default([]),
+  experienceLevel: text("experience_level").$type<"beginner" | "intermediate" | "advanced">(),
+  trainingDaysPerWeek: integer("training_days_per_week"),
+  equipment: text("equipment").$type<"full_gym" | "home_gym" | "bodyweight">(),
+  heightCm: integer("height_cm"),
+  weightKg: integer("weight_kg"),
+  bodyFatPercent: integer("body_fat_percent"),
+  injuries: jsonb("injuries").$type<string[]>().notNull().default([]),
+  hasCompletedOnboarding: boolean("has_completed_onboarding").notNull().default(false),
+  skippedOnboarding: boolean("skipped_onboarding").notNull().default(false),
+  completedAt: timestamp("completed_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => [
+  index("onboarding_profiles_user_idx").on(table.userId),
+]);
+
 // Type definitions for JSONB columns
 interface WarmupExercise {
   exerciseId: string;

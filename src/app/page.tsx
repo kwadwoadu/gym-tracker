@@ -8,9 +8,10 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Dumbbell, Play, Loader2, BarChart3, ClipboardList, Settings, Flame, Calendar } from "lucide-react";
 import { SupersetView } from "@/components/workout/superset-view";
-import db, { getWorkoutStreak } from "@/lib/db";
+import db, { getWorkoutStreak, hasCompletedOnboarding } from "@/lib/db";
 import type { TrainingDay, Exercise } from "@/lib/db";
-import { seedDatabase } from "@/lib/seed";
+import { seedExercisesOnly } from "@/lib/seed";
+import { hasInstalledProgram } from "@/lib/programs";
 
 export default function Home() {
   const router = useRouter();
@@ -23,13 +24,34 @@ export default function Home() {
   useEffect(() => {
     async function init() {
       try {
-        // Seed database on first load
-        await seedDatabase();
+        // Check if user needs onboarding
+        const hasProgram = await hasInstalledProgram();
+        if (!hasProgram) {
+          // Check if they've been through onboarding at all
+          const completedOnboarding = await hasCompletedOnboarding();
+          if (!completedOnboarding) {
+            // New user - send to onboarding
+            router.replace("/onboarding");
+            return;
+          } else {
+            // Completed onboarding but no program - send to plan selection
+            router.replace("/onboarding/plans");
+            return;
+          }
+        }
+
+        // Seed exercises (but not the program - user selected their own)
+        await seedExercisesOnly();
 
         // Load training days
         const days = await db.trainingDays.toArray();
         days.sort((a, b) => a.dayNumber - b.dayNumber);
         setTrainingDays(days);
+
+        // Set selected day to first available
+        if (days.length > 0) {
+          setSelectedDay(days[0].id);
+        }
 
         // Load all exercises into a map for quick lookup
         const allExercises = await db.exercises.toArray();
@@ -48,7 +70,7 @@ export default function Home() {
     }
 
     init();
-  }, []);
+  }, [router]);
 
   const currentDay = trainingDays.find((d) => d.id === selectedDay);
 

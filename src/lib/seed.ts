@@ -2,6 +2,45 @@ import db from "./db";
 import exercisesData from "@/data/exercises.json";
 import programData from "@/data/program.json";
 
+/**
+ * Seeds only exercises and user settings (not the program).
+ * Used when user selects their own program during onboarding.
+ */
+export async function seedExercisesOnly(): Promise<void> {
+  // Check if exercises already seeded
+  const existingExercises = await db.exercises.count();
+  if (existingExercises > 0) {
+    console.log("Exercises already seeded");
+  } else {
+    console.log("Seeding exercises...");
+    const exercises = exercisesData.exercises.map((ex) => ({
+      ...ex,
+      videoUrl: ex.videoUrl ?? undefined,
+      createdAt: new Date().toISOString(),
+    }));
+    await db.exercises.bulkAdd(exercises);
+    console.log(`Seeded ${exercises.length} exercises`);
+  }
+
+  // Seed default user settings if not exists
+  const existingSettings = await db.userSettings.count();
+  if (existingSettings === 0) {
+    await db.userSettings.add({
+      id: "user-settings",
+      weightUnit: "kg",
+      defaultRestSeconds: 90,
+      soundEnabled: true,
+      autoProgressWeight: true,
+      progressionIncrement: 2.5,
+    });
+    console.log("Seeded user settings");
+  }
+}
+
+/**
+ * Seeds the full database including the default program.
+ * Used for legacy compatibility - new users go through onboarding.
+ */
 export async function seedDatabase(): Promise<void> {
   // Check if already seeded
   const existingExercises = await db.exercises.count();
