@@ -28,7 +28,8 @@ import {
   AlertCircle,
   LogOut,
 } from "lucide-react";
-import { getUserSettings, updateUserSettings, type UserSettings } from "@/lib/db";
+import db, { getUserSettings, updateUserSettings, type UserSettings, type Program } from "@/lib/db";
+import { getCurrentProgram } from "@/lib/programs";
 import {
   exportAllData,
   downloadExportedData,
@@ -60,6 +61,8 @@ export default function SettingsPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [settings, setSettings] = useState<UserSettings | null>(null);
+  const [currentProgram, setCurrentProgram] = useState<Program | null>(null);
+  const [trainingDaysCount, setTrainingDaysCount] = useState(0);
   const [toast, setToast] = useState<Toast | null>(null);
 
   useEffect(() => {
@@ -67,6 +70,16 @@ export default function SettingsPage() {
       try {
         const userSettings = await getUserSettings();
         setSettings(userSettings);
+
+        // Load current program
+        const program = await getCurrentProgram();
+        setCurrentProgram(program ?? null);
+
+        // Get training days count
+        if (program) {
+          const days = await db.trainingDays.where("programId").equals(program.id).count();
+          setTrainingDaysCount(days);
+        }
       } catch (error) {
         console.error("Failed to load settings:", error);
       } finally {
@@ -378,6 +391,45 @@ export default function SettingsPage() {
                 }
               />
             </div>
+          </CardContent>
+        </Card>
+
+        {/* Training Program Section */}
+        <Card className="bg-card border-border">
+          <CardHeader className="pb-4">
+            <CardTitle className="text-lg">Training Program</CardTitle>
+            <CardDescription>Your current workout program</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {currentProgram ? (
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-medium text-foreground">{currentProgram.name}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {trainingDaysCount} training {trainingDaysCount === 1 ? "day" : "days"} per week
+                    </p>
+                  </div>
+                </div>
+                <Button
+                  variant="outline"
+                  className="w-full h-12"
+                  onClick={() => router.push("/onboarding/plans")}
+                >
+                  Change Program
+                </Button>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <p className="text-sm text-muted-foreground">No program selected</p>
+                <Button
+                  className="w-full h-12"
+                  onClick={() => router.push("/onboarding/plans")}
+                >
+                  Select a Program
+                </Button>
+              </div>
+            )}
           </CardContent>
         </Card>
 
