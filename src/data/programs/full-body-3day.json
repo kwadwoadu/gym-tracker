@@ -189,7 +189,7 @@
               "restSeconds": 60
             },
             {
-              "exerciseId": "ex-incline-chest-press",
+              "exerciseId": "ex-incline-db-press",
               "sets": 4,
               "reps": "10,10,8,8",
               "tempo": "T:3010",

@@ -1,161 +1,610 @@
 {
   "exercises": [
     {
-      "id": "ex-rfess",
-      "name": "Rear Foot Elevated Split Squat",
-      "videoUrl": "https://www.youtube.com/watch?v=2C-uNgKwPLE",
-      "muscleGroups": ["quads", "glutes"],
-      "equipment": "bench",
+      "id": "ex-barbell-bench",
+      "name": "Barbell Bench Press",
+      "muscleGroups": ["chest", "triceps", "shoulders"],
+      "equipment": "barbell",
+      "isCustom": false
+    },
+    {
+      "id": "ex-incline-barbell-bench",
+      "name": "Incline Barbell Bench Press",
+      "muscleGroups": ["chest", "shoulders", "triceps"],
+      "equipment": "barbell",
+      "isCustom": false
+    },
+    {
+      "id": "ex-decline-barbell-bench",
+      "name": "Decline Barbell Bench Press",
+      "muscleGroups": ["chest", "triceps"],
+      "equipment": "barbell",
+      "isCustom": false
+    },
+    {
+      "id": "ex-incline-db-press",
+      "name": "Incline Dumbbell Press",
+      "muscleGroups": ["chest", "shoulders"],
+      "equipment": "dumbbells",
+      "isCustom": false
+    },
+    {
+      "id": "ex-flat-db-press",
+      "name": "Flat Dumbbell Press",
+      "muscleGroups": ["chest", "triceps"],
+      "equipment": "dumbbells",
+      "isCustom": false
+    },
+    {
+      "id": "ex-decline-db-press",
+      "name": "Decline Dumbbell Press",
+      "muscleGroups": ["chest", "triceps"],
+      "equipment": "dumbbells",
+      "isCustom": false
+    },
+    {
+      "id": "ex-cable-fly",
+      "name": "Cable Fly",
+      "muscleGroups": ["chest"],
+      "equipment": "cable",
+      "isCustom": false
+    },
+    {
+      "id": "ex-incline-cable-fly",
+      "name": "Incline Cable Fly",
+      "muscleGroups": ["chest"],
+      "equipment": "cable",
       "isCustom": false
     },
     {
       "id": "ex-chest-dips",
       "name": "Chest Dips",
-      "videoUrl": "https://www.youtube.com/watch?v=dX_nSOOJIsE",
       "muscleGroups": ["chest", "triceps"],
       "equipment": "dip-station",
       "isCustom": false
     },
     {
-      "id": "ex-glute-bridge",
-      "name": "Glute Bridge",
-      "videoUrl": "https://www.youtube.com/watch?v=OUgsJ8-Vi0E",
-      "muscleGroups": ["glutes", "hamstrings"],
-      "equipment": "machine",
-      "isCustom": false
-    },
-    {
-      "id": "ex-lateral-raises",
-      "name": "Lateral Raises",
-      "videoUrl": "https://www.youtube.com/watch?v=3VcKaXpzqRo",
-      "muscleGroups": ["shoulders"],
-      "equipment": "dumbbells",
-      "isCustom": false
-    },
-    {
-      "id": "ex-incline-bicep-curls",
-      "name": "Incline Supinated Bicep Curls",
-      "videoUrl": "https://www.youtube.com/watch?v=soxrZlIl35U",
-      "muscleGroups": ["biceps"],
-      "equipment": "dumbbells",
-      "isCustom": false
-    },
-    {
-      "id": "ex-leg-press-calf",
-      "name": "Leg Press Calf Raise",
-      "videoUrl": "https://www.youtube.com/watch?v=9JTqP0Udo4c",
-      "muscleGroups": ["calves"],
-      "equipment": "leg-press",
-      "isCustom": false
-    },
-    {
-      "id": "ex-lying-ham-curl",
-      "name": "Lying Hamstring Curl",
-      "videoUrl": "https://www.youtube.com/watch?v=1Tq3QdYUuHs",
-      "muscleGroups": ["hamstrings"],
-      "equipment": "machine",
-      "isCustom": false
-    },
-    {
-      "id": "ex-incline-delt-press",
-      "name": "Incline DB Anterior Delt Press",
-      "videoUrl": "https://www.youtube.com/watch?v=HzIiNhHhhtA",
-      "muscleGroups": ["shoulders"],
-      "equipment": "dumbbells",
-      "isCustom": false
-    },
-    {
-      "id": "ex-wide-lat-pulldown",
-      "name": "Wide Grip Lat Pulldown",
-      "videoUrl": "https://www.youtube.com/watch?v=CAwf7n6Luuc",
-      "muscleGroups": ["back", "lats"],
-      "equipment": "cable",
-      "isCustom": false
-    },
-    {
-      "id": "ex-cross-cable-tricep",
-      "name": "Cross Cable Tricep Extension",
-      "videoUrl": "https://www.youtube.com/watch?v=kiuVA0gs3EI",
-      "muscleGroups": ["triceps"],
-      "equipment": "cable",
-      "isCustom": false
-    },
-    {
-      "id": "ex-y-raises",
-      "name": "Y-Raises",
-      "videoUrl": "https://www.youtube.com/watch?v=QprBXxEfPN0",
-      "muscleGroups": ["shoulders", "rear-delts"],
-      "equipment": "cable",
-      "isCustom": false
-    },
-    {
-      "id": "ex-ab-crunch",
-      "name": "Ab Crunch",
-      "videoUrl": "https://www.youtube.com/watch?v=Xyd_fa5zoEU",
-      "muscleGroups": ["abs"],
-      "equipment": "machine",
-      "isCustom": false
-    },
-    {
-      "id": "ex-hack-squat",
-      "name": "Hack Squat",
-      "videoUrl": "https://www.youtube.com/watch?v=0tn5K9NlCfo",
-      "muscleGroups": ["quads", "glutes"],
+      "id": "ex-machine-chest-press",
+      "name": "Machine Chest Press",
+      "muscleGroups": ["chest", "triceps"],
       "equipment": "machine",
       "isCustom": false
     },
     {
       "id": "ex-incline-chest-press",
       "name": "Incline DB Chest Press",
-      "videoUrl": "https://www.youtube.com/watch?v=8iPEnn-ltC8",
       "muscleGroups": ["chest", "shoulders"],
       "equipment": "dumbbells",
       "isCustom": false
     },
     {
-      "id": "ex-leg-extension",
-      "name": "Leg Extension",
-      "videoUrl": "https://www.youtube.com/watch?v=YyvSfVjQeL0",
-      "muscleGroups": ["quads"],
-      "equipment": "machine",
+      "id": "ex-pullup",
+      "name": "Pull-up",
+      "muscleGroups": ["lats", "biceps", "back"],
+      "equipment": "pull-up-bar",
+      "isCustom": false
+    },
+    {
+      "id": "ex-chinup",
+      "name": "Chin-up",
+      "muscleGroups": ["lats", "biceps"],
+      "equipment": "pull-up-bar",
+      "isCustom": false
+    },
+    {
+      "id": "ex-wide-lat-pulldown",
+      "name": "Wide Grip Lat Pulldown",
+      "muscleGroups": ["lats", "back"],
+      "equipment": "cable",
       "isCustom": false
     },
     {
       "id": "ex-neutral-pulldown",
-      "name": "Unilateral Neutral Grip Pulldown",
-      "videoUrl": "https://www.youtube.com/watch?v=lueEJGjTuPQ",
+      "name": "Neutral Grip Pulldown",
+      "muscleGroups": ["lats", "back"],
+      "equipment": "cable",
+      "isCustom": false
+    },
+    {
+      "id": "ex-close-grip-pulldown",
+      "name": "Close Grip Pulldown",
+      "muscleGroups": ["lats", "back"],
+      "equipment": "cable",
+      "isCustom": false
+    },
+    {
+      "id": "ex-barbell-row",
+      "name": "Barbell Row",
+      "muscleGroups": ["back", "lats", "biceps"],
+      "equipment": "barbell",
+      "isCustom": false
+    },
+    {
+      "id": "ex-dumbbell-row",
+      "name": "Dumbbell Row",
       "muscleGroups": ["back", "lats"],
+      "equipment": "dumbbells",
+      "isCustom": false
+    },
+    {
+      "id": "ex-seated-cable-row",
+      "name": "Seated Cable Row",
+      "muscleGroups": ["back", "lats", "biceps"],
+      "equipment": "cable",
+      "isCustom": false
+    },
+    {
+      "id": "ex-t-bar-row",
+      "name": "T-Bar Row",
+      "muscleGroups": ["back", "lats"],
+      "equipment": "machine",
+      "isCustom": false
+    },
+    {
+      "id": "ex-chest-supported-row",
+      "name": "Chest Supported Row",
+      "muscleGroups": ["back", "lats"],
+      "equipment": "dumbbells",
+      "isCustom": false
+    },
+    {
+      "id": "ex-straight-arm-pulldown",
+      "name": "Straight Arm Pulldown",
+      "muscleGroups": ["lats"],
+      "equipment": "cable",
+      "isCustom": false
+    },
+    {
+      "id": "ex-deadlift",
+      "name": "Conventional Deadlift",
+      "muscleGroups": ["back", "glutes", "hamstrings"],
+      "equipment": "barbell",
+      "isCustom": false
+    },
+    {
+      "id": "ex-ohp",
+      "name": "Overhead Press",
+      "muscleGroups": ["shoulders", "triceps"],
+      "equipment": "barbell",
+      "isCustom": false
+    },
+    {
+      "id": "ex-db-shoulder-press",
+      "name": "Dumbbell Shoulder Press",
+      "muscleGroups": ["shoulders", "triceps"],
+      "equipment": "dumbbells",
+      "isCustom": false
+    },
+    {
+      "id": "ex-arnold-press",
+      "name": "Arnold Press",
+      "muscleGroups": ["shoulders", "triceps"],
+      "equipment": "dumbbells",
+      "isCustom": false
+    },
+    {
+      "id": "ex-lateral-raises",
+      "name": "Lateral Raises",
+      "muscleGroups": ["shoulders"],
+      "equipment": "dumbbells",
+      "isCustom": false
+    },
+    {
+      "id": "ex-cable-lateral-raises",
+      "name": "Cable Lateral Raises",
+      "muscleGroups": ["shoulders"],
+      "equipment": "cable",
+      "isCustom": false
+    },
+    {
+      "id": "ex-front-raises",
+      "name": "Front Raises",
+      "muscleGroups": ["shoulders"],
+      "equipment": "dumbbells",
+      "isCustom": false
+    },
+    {
+      "id": "ex-incline-delt-press",
+      "name": "Incline DB Anterior Delt Press",
+      "muscleGroups": ["shoulders"],
+      "equipment": "dumbbells",
+      "isCustom": false
+    },
+    {
+      "id": "ex-machine-shoulder-press",
+      "name": "Machine Shoulder Press",
+      "muscleGroups": ["shoulders"],
+      "equipment": "machine",
+      "isCustom": false
+    },
+    {
+      "id": "ex-face-pulls",
+      "name": "Face Pulls",
+      "muscleGroups": ["rear-delts", "upper-back"],
+      "equipment": "cable",
+      "isCustom": false
+    },
+    {
+      "id": "ex-y-raises",
+      "name": "Y-Raises",
+      "muscleGroups": ["rear-delts", "shoulders"],
+      "equipment": "cable",
+      "isCustom": false
+    },
+    {
+      "id": "ex-rear-delt-fly",
+      "name": "Rear Delt Fly",
+      "muscleGroups": ["rear-delts"],
+      "equipment": "dumbbells",
+      "isCustom": false
+    },
+    {
+      "id": "ex-rear-delt-cable-fly",
+      "name": "Rear Delt Cable Fly",
+      "muscleGroups": ["rear-delts"],
       "equipment": "cable",
       "isCustom": false
     },
     {
       "id": "ex-rear-delt-cable-row",
       "name": "Rear Delt Cable Row",
-      "videoUrl": "https://www.youtube.com/watch?v=D731K7zGbJE",
       "muscleGroups": ["rear-delts", "back"],
       "equipment": "cable",
       "isCustom": false
     },
     {
-      "id": "ex-tibialis-raise",
-      "name": "Tibialis Anterior Raise",
-      "videoUrl": "https://www.youtube.com/watch?v=gNS_QjGAs_k",
-      "muscleGroups": ["tibialis"],
-      "equipment": "plate",
-      "isCustom": false
-    },
-    {
-      "id": "ex-dead-hang",
-      "name": "Dead Hang",
-      "videoUrl": "https://www.youtube.com/watch?v=HoE-C85ZlCE",
-      "muscleGroups": ["grip", "shoulders", "spine"],
-      "equipment": "pull-up-bar",
+      "id": "ex-reverse-pec-deck",
+      "name": "Reverse Pec Deck",
+      "muscleGroups": ["rear-delts"],
+      "equipment": "machine",
       "isCustom": false
     },
     {
       "id": "ex-band-pull-aparts",
       "name": "Band Pull-Aparts",
-      "videoUrl": "https://www.youtube.com/watch?v=AWoAWXNY2k4",
+      "muscleGroups": ["rear-delts", "upper-back"],
+      "equipment": "band",
+      "isCustom": false
+    },
+    {
+      "id": "ex-tricep-pushdown",
+      "name": "Tricep Pushdown",
+      "muscleGroups": ["triceps"],
+      "equipment": "cable",
+      "isCustom": false
+    },
+    {
+      "id": "ex-rope-pushdown",
+      "name": "Rope Tricep Pushdown",
+      "muscleGroups": ["triceps"],
+      "equipment": "cable",
+      "isCustom": false
+    },
+    {
+      "id": "ex-overhead-tricep-ext",
+      "name": "Overhead Tricep Extension",
+      "muscleGroups": ["triceps"],
+      "equipment": "cable",
+      "isCustom": false
+    },
+    {
+      "id": "ex-cross-cable-tricep",
+      "name": "Cross Cable Tricep Extension",
+      "muscleGroups": ["triceps"],
+      "equipment": "cable",
+      "isCustom": false
+    },
+    {
+      "id": "ex-skull-crushers",
+      "name": "Skull Crushers",
+      "muscleGroups": ["triceps"],
+      "equipment": "barbell",
+      "isCustom": false
+    },
+    {
+      "id": "ex-dumbbell-kickback",
+      "name": "Dumbbell Kickback",
+      "muscleGroups": ["triceps"],
+      "equipment": "dumbbells",
+      "isCustom": false
+    },
+    {
+      "id": "ex-close-grip-bench",
+      "name": "Close Grip Bench Press",
+      "muscleGroups": ["triceps", "chest"],
+      "equipment": "barbell",
+      "isCustom": false
+    },
+    {
+      "id": "ex-tricep-dips",
+      "name": "Tricep Dips",
+      "muscleGroups": ["triceps"],
+      "equipment": "dip-station",
+      "isCustom": false
+    },
+    {
+      "id": "ex-barbell-curl",
+      "name": "Barbell Curl",
+      "muscleGroups": ["biceps"],
+      "equipment": "barbell",
+      "isCustom": false
+    },
+    {
+      "id": "ex-ez-bar-curl",
+      "name": "EZ Bar Curl",
+      "muscleGroups": ["biceps"],
+      "equipment": "barbell",
+      "isCustom": false
+    },
+    {
+      "id": "ex-dumbbell-curl",
+      "name": "Dumbbell Curl",
+      "muscleGroups": ["biceps"],
+      "equipment": "dumbbells",
+      "isCustom": false
+    },
+    {
+      "id": "ex-hammer-curl",
+      "name": "Hammer Curl",
+      "muscleGroups": ["biceps", "forearms"],
+      "equipment": "dumbbells",
+      "isCustom": false
+    },
+    {
+      "id": "ex-incline-bicep-curls",
+      "name": "Incline Supinated Bicep Curls",
+      "muscleGroups": ["biceps"],
+      "equipment": "dumbbells",
+      "isCustom": false
+    },
+    {
+      "id": "ex-preacher-curl",
+      "name": "Preacher Curl",
+      "muscleGroups": ["biceps"],
+      "equipment": "machine",
+      "isCustom": false
+    },
+    {
+      "id": "ex-cable-curl",
+      "name": "Cable Curl",
+      "muscleGroups": ["biceps"],
+      "equipment": "cable",
+      "isCustom": false
+    },
+    {
+      "id": "ex-concentration-curl",
+      "name": "Concentration Curl",
+      "muscleGroups": ["biceps"],
+      "equipment": "dumbbells",
+      "isCustom": false
+    },
+    {
+      "id": "ex-barbell-squat",
+      "name": "Barbell Back Squat",
+      "muscleGroups": ["quads", "glutes"],
+      "equipment": "barbell",
+      "isCustom": false
+    },
+    {
+      "id": "ex-front-squat",
+      "name": "Front Squat",
+      "muscleGroups": ["quads", "core"],
+      "equipment": "barbell",
+      "isCustom": false
+    },
+    {
+      "id": "ex-hack-squat",
+      "name": "Hack Squat",
+      "muscleGroups": ["quads", "glutes"],
+      "equipment": "machine",
+      "isCustom": false
+    },
+    {
+      "id": "ex-leg-press",
+      "name": "Leg Press",
+      "muscleGroups": ["quads", "glutes"],
+      "equipment": "machine",
+      "isCustom": false
+    },
+    {
+      "id": "ex-leg-extension",
+      "name": "Leg Extension",
+      "muscleGroups": ["quads"],
+      "equipment": "machine",
+      "isCustom": false
+    },
+    {
+      "id": "ex-rfess",
+      "name": "Rear Foot Elevated Split Squat",
+      "muscleGroups": ["quads", "glutes"],
+      "equipment": "bench",
+      "isCustom": false
+    },
+    {
+      "id": "ex-walking-lunge",
+      "name": "Walking Lunge",
+      "muscleGroups": ["quads", "glutes"],
+      "equipment": "dumbbells",
+      "isCustom": false
+    },
+    {
+      "id": "ex-goblet-squat",
+      "name": "Goblet Squat",
+      "muscleGroups": ["quads", "glutes"],
+      "equipment": "dumbbells",
+      "isCustom": false
+    },
+    {
+      "id": "ex-rdl",
+      "name": "Romanian Deadlift",
+      "muscleGroups": ["hamstrings", "glutes", "back"],
+      "equipment": "barbell",
+      "isCustom": false
+    },
+    {
+      "id": "ex-dumbbell-rdl",
+      "name": "Dumbbell Romanian Deadlift",
+      "muscleGroups": ["hamstrings", "glutes"],
+      "equipment": "dumbbells",
+      "isCustom": false
+    },
+    {
+      "id": "ex-lying-ham-curl",
+      "name": "Lying Hamstring Curl",
+      "muscleGroups": ["hamstrings"],
+      "equipment": "machine",
+      "isCustom": false
+    },
+    {
+      "id": "ex-seated-leg-curl",
+      "name": "Seated Leg Curl",
+      "muscleGroups": ["hamstrings"],
+      "equipment": "machine",
+      "isCustom": false
+    },
+    {
+      "id": "ex-nordic-curl",
+      "name": "Nordic Hamstring Curl",
+      "muscleGroups": ["hamstrings"],
+      "equipment": "bodyweight",
+      "isCustom": false
+    },
+    {
+      "id": "ex-good-morning",
+      "name": "Good Morning",
+      "muscleGroups": ["hamstrings", "back"],
+      "equipment": "barbell",
+      "isCustom": false
+    },
+    {
+      "id": "ex-hip-thrust",
+      "name": "Barbell Hip Thrust",
+      "muscleGroups": ["glutes", "hamstrings"],
+      "equipment": "barbell",
+      "isCustom": false
+    },
+    {
+      "id": "ex-glute-bridge",
+      "name": "Glute Bridge (Machine)",
+      "muscleGroups": ["glutes", "hamstrings"],
+      "equipment": "machine",
+      "isCustom": false
+    },
+    {
+      "id": "ex-cable-kickback",
+      "name": "Cable Glute Kickback",
+      "muscleGroups": ["glutes"],
+      "equipment": "cable",
+      "isCustom": false
+    },
+    {
+      "id": "ex-sumo-deadlift",
+      "name": "Sumo Deadlift",
+      "muscleGroups": ["glutes", "quads", "back"],
+      "equipment": "barbell",
+      "isCustom": false
+    },
+    {
+      "id": "ex-hip-abduction",
+      "name": "Hip Abduction Machine",
+      "muscleGroups": ["glutes"],
+      "equipment": "machine",
+      "isCustom": false
+    },
+    {
+      "id": "ex-step-ups",
+      "name": "Step-Ups",
+      "muscleGroups": ["glutes", "quads"],
+      "equipment": "dumbbells",
+      "isCustom": false
+    },
+    {
+      "id": "ex-standing-calf-raise",
+      "name": "Standing Calf Raise",
+      "muscleGroups": ["calves"],
+      "equipment": "machine",
+      "isCustom": false
+    },
+    {
+      "id": "ex-seated-calf-raise",
+      "name": "Seated Calf Raise",
+      "muscleGroups": ["calves"],
+      "equipment": "machine",
+      "isCustom": false
+    },
+    {
+      "id": "ex-leg-press-calf",
+      "name": "Leg Press Calf Raise",
+      "muscleGroups": ["calves"],
+      "equipment": "leg-press",
+      "isCustom": false
+    },
+    {
+      "id": "ex-tibialis-raise",
+      "name": "Tibialis Anterior Raise",
+      "muscleGroups": ["tibialis"],
+      "equipment": "plate",
+      "isCustom": false
+    },
+    {
+      "id": "ex-ab-crunch",
+      "name": "Ab Crunch Machine",
+      "muscleGroups": ["abs"],
+      "equipment": "machine",
+      "isCustom": false
+    },
+    {
+      "id": "ex-cable-crunch",
+      "name": "Cable Crunch",
+      "muscleGroups": ["abs"],
+      "equipment": "cable",
+      "isCustom": false
+    },
+    {
+      "id": "ex-hanging-leg-raise",
+      "name": "Hanging Leg Raise",
+      "muscleGroups": ["abs", "hip-flexors"],
+      "equipment": "pull-up-bar",
+      "isCustom": false
+    },
+    {
+      "id": "ex-leg-raise",
+      "name": "Lying Leg Raise",
+      "muscleGroups": ["abs"],
+      "equipment": "bodyweight",
+      "isCustom": false
+    },
+    {
+      "id": "ex-plank",
+      "name": "Plank",
+      "muscleGroups": ["core"],
+      "equipment": "bodyweight",
+      "isCustom": false
+    },
+    {
+      "id": "ex-russian-twist",
+      "name": "Russian Twist",
+      "muscleGroups": ["abs", "obliques"],
+      "equipment": "dumbbells",
+      "isCustom": false
+    },
+    {
+      "id": "ex-ab-wheel",
+      "name": "Ab Wheel Rollout",
+      "muscleGroups": ["abs", "core"],
+      "equipment": "ab-wheel",
+      "isCustom": false
+    },
+    {
+      "id": "ex-woodchop",
+      "name": "Cable Woodchop",
+      "muscleGroups": ["obliques", "core"],
+      "equipment": "cable",
+      "isCustom": false
+    },
+    {
+      "id": "ex-band-face-pulls",
+      "name": "Band Face Pulls",
       "muscleGroups": ["rear-delts", "upper-back"],
       "equipment": "band",
       "isCustom": false
@@ -163,39 +612,13 @@
     {
       "id": "ex-shoulder-circles",
       "name": "Shoulder Circles",
-      "videoUrl": null,
       "muscleGroups": ["shoulders"],
       "equipment": "bodyweight",
       "isCustom": false
     },
     {
-      "id": "ex-cat-cow",
-      "name": "Cat-Cow",
-      "videoUrl": "https://www.youtube.com/watch?v=kqnua4rHVVA",
-      "muscleGroups": ["spine", "core"],
-      "equipment": "bodyweight",
-      "isCustom": false
-    },
-    {
-      "id": "ex-bw-squats",
-      "name": "Bodyweight Squats",
-      "videoUrl": "https://www.youtube.com/watch?v=aclHkVaku9U",
-      "muscleGroups": ["quads", "glutes"],
-      "equipment": "bodyweight",
-      "isCustom": false
-    },
-    {
-      "id": "ex-band-face-pulls",
-      "name": "Band Face Pulls",
-      "videoUrl": "https://www.youtube.com/watch?v=rep-qVOkqgk",
-      "muscleGroups": ["rear-delts", "upper-back"],
-      "equipment": "band",
-      "isCustom": false
-    },
-    {
       "id": "ex-arm-circles",
       "name": "Arm Circles",
-      "videoUrl": null,
       "muscleGroups": ["shoulders"],
       "equipment": "bodyweight",
       "isCustom": false
@@ -203,16 +626,56 @@
     {
       "id": "ex-hip-circles",
       "name": "Hip Circles",
-      "videoUrl": null,
       "muscleGroups": ["hips"],
+      "equipment": "bodyweight",
+      "isCustom": false
+    },
+    {
+      "id": "ex-cat-cow",
+      "name": "Cat-Cow",
+      "muscleGroups": ["spine", "core"],
+      "equipment": "bodyweight",
+      "isCustom": false
+    },
+    {
+      "id": "ex-bw-squats",
+      "name": "Bodyweight Squats",
+      "muscleGroups": ["quads", "glutes"],
       "equipment": "bodyweight",
       "isCustom": false
     },
     {
       "id": "ex-glute-bridges-bw",
       "name": "Glute Bridges (Bodyweight)",
-      "videoUrl": "https://www.youtube.com/watch?v=OUgsJ8-Vi0E",
       "muscleGroups": ["glutes"],
+      "equipment": "bodyweight",
+      "isCustom": false
+    },
+    {
+      "id": "ex-dead-hang",
+      "name": "Dead Hang",
+      "muscleGroups": ["grip", "shoulders", "spine"],
+      "equipment": "pull-up-bar",
+      "isCustom": false
+    },
+    {
+      "id": "ex-world-greatest-stretch",
+      "name": "World's Greatest Stretch",
+      "muscleGroups": ["hips", "hamstrings", "thoracic"],
+      "equipment": "bodyweight",
+      "isCustom": false
+    },
+    {
+      "id": "ex-leg-swings",
+      "name": "Leg Swings",
+      "muscleGroups": ["hips", "hamstrings"],
+      "equipment": "bodyweight",
+      "isCustom": false
+    },
+    {
+      "id": "ex-thoracic-rotation",
+      "name": "Thoracic Rotation",
+      "muscleGroups": ["spine"],
       "equipment": "bodyweight",
       "isCustom": false
     }
