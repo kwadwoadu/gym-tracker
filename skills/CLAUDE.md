@@ -8,6 +8,7 @@ Reusable workflows for SetFlow - the gym workout tracking PWA. Skills standardiz
 
 | Skill | Purpose | Key Agents |
 |-------|---------|------------|
+| **agent-creation** | Create new agents for SetFlow | SetFlow Lead, PRD Specialist |
 | **exercise-creation** | Add new exercises to the library | Movement, Periodization, Database |
 | **program-creation** | Build training programs | Periodization, Movement, Injury |
 | **progression-logic** | Define overload rules | Periodization, Progress Analyst |
@@ -31,6 +32,7 @@ Each skill file contains:
 
 ### Automatic Invocation
 Skills are invoked automatically when the task matches the skill's purpose:
+- "Add a new agent to the team" -> `agent-creation`
 - "Add a new exercise" -> `exercise-creation`
 - "Create a training program" -> `program-creation`
 - "Set up progressive overload" -> `progression-logic`
@@ -72,4 +74,4 @@ SetFlow can leverage core AduOS skills for common operations:
 
 ---
 
-*SetFlow Skills | 3 Skills | Created: January 1, 2026*
+*SetFlow Skills | 4 Skills | Created: January 1, 2026*
