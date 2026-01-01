@@ -1,7 +1,7 @@
 import { auth } from "@clerk/nextjs/server";
 import { NextRequest, NextResponse } from "next/server";
 import { cloudDb, isCloudSyncEnabled } from "@/lib/db/neon";
-import { eq, and, gt } from "drizzle-orm";
+import { eq, and, gte } from "drizzle-orm";
 import {
   users,
   exercises,
@@ -12,6 +12,7 @@ import {
   userSettings,
   syncMetadata,
   onboardingProfiles,
+  achievements,
 } from "@/lib/db/schema";
 
 // POST /api/sync - Push local changes to cloud
@@ -184,6 +185,21 @@ export async function POST(request: NextRequest) {
         });
     }
 
+    // Sync achievements
+    if (data.achievements) {
+      for (const achievement of data.achievements) {
+        await cloudDb
+          .insert(achievements)
+          .values({
+            id: achievement.id,
+            userId,
+            achievementId: achievement.achievementId,
+            unlockedAt: new Date(achievement.unlockedAt),
+          })
+          .onConflictDoNothing(); // Achievements are immutable once unlocked
+      }
+    }
+
     // Update sync metadata
     const now = new Date();
     await cloudDb
@@ -242,29 +258,31 @@ export async function GET(request: NextRequest) {
       userPersonalRecords,
       userSettingsData,
       userOnboardingProfile,
+      userAchievements,
     ] = await Promise.all([
       cloudDb
         .select()
         .from(exercises)
-        .where(and(eq(exercises.userId, userId), gt(exercises.updatedAt, sinceDate))),
+        .where(and(eq(exercises.userId, userId), gte(exercises.updatedAt, sinceDate))),
       cloudDb
         .select()
         .from(programs)
-        .where(and(eq(programs.userId, userId), gt(programs.updatedAt, sinceDate))),
+        .where(and(eq(programs.userId, userId), gte(programs.updatedAt, sinceDate))),
       cloudDb
         .select()
         .from(trainingDays)
-        .where(and(eq(trainingDays.userId, userId), gt(trainingDays.updatedAt, sinceDate))),
+        .where(and(eq(trainingDays.userId, userId), gte(trainingDays.updatedAt, sinceDate))),
       cloudDb
         .select()
         .from(workoutLogs)
-        .where(and(eq(workoutLogs.userId, userId), gt(workoutLogs.updatedAt, sinceDate))),
+        .where(and(eq(workoutLogs.userId, userId), gte(workoutLogs.updatedAt, sinceDate))),
       cloudDb
         .select()
         .from(personalRecords)
-        .where(and(eq(personalRecords.userId, userId), gt(personalRecords.updatedAt, sinceDate))),
+        .where(and(eq(personalRecords.userId, userId), gte(personalRecords.updatedAt, sinceDate))),
       cloudDb.select().from(userSettings).where(eq(userSettings.userId, userId)),
       cloudDb.select().from(onboardingProfiles).where(eq(onboardingProfiles.userId, userId)),
+      cloudDb.select().from(achievements).where(eq(achievements.userId, userId)),
     ]);
 
     // Transform onboarding profile to match local format
@@ -295,6 +313,11 @@ export async function GET(request: NextRequest) {
         personalRecords: userPersonalRecords,
         settings: userSettingsData[0] || null,
         onboardingProfile,
+        achievements: userAchievements.map((a) => ({
+          id: a.id,
+          achievementId: a.achievementId,
+          unlockedAt: a.unlockedAt.toISOString(),
+        })),
       },
       syncedAt: new Date().toISOString(),
     });

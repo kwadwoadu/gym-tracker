@@ -83,9 +83,11 @@ export function AutoSyncProvider({ children }: { children: React.ReactNode }) {
       setTimeout(performSync, 500);
     }
 
-    // Reset the flag when user signs out
+    // Reset the flag and clear sync timestamp when user signs out
     if (isLoaded && !isSignedIn) {
       hasSyncedOnLoginRef.current = false;
+      // Clear the timestamp so next login does a full pull from epoch
+      localStorage.removeItem("setflow-last-synced-at");
     }
   }, [isLoaded, isSignedIn, user?.primaryEmailAddress, performSync]);
 
