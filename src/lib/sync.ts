@@ -25,7 +25,7 @@ function setLastSyncedAt(timestamp: string): void {
 
 // Export all local data for sync
 async function exportLocalData() {
-  const [exercises, programs, trainingDays, workoutLogs, personalRecords, settings] =
+  const [exercises, programs, trainingDays, workoutLogs, personalRecords, settings, onboardingProfile] =
     await Promise.all([
       db.exercises.toArray(),
       db.programs.toArray(),
@@ -33,6 +33,7 @@ async function exportLocalData() {
       db.workoutLogs.toArray(),
       db.personalRecords.toArray(),
       db.userSettings.get("user-settings"),
+      db.onboardingProfiles.get("onboarding-profile"),
     ]);
 
   return {
@@ -42,6 +43,7 @@ async function exportLocalData() {
     workoutLogs,
     personalRecords,
     settings,
+    onboardingProfile,
   };
 }
 
@@ -53,6 +55,7 @@ async function importCloudData(data: {
   workoutLogs?: Array<{ id: string; date: string; programId: string; dayId: string; dayName: string; sets: unknown[]; startTime: string; endTime?: string; duration?: number; notes?: string; isComplete: boolean }>;
   personalRecords?: Array<{ id: string; exerciseId: string; exerciseName: string; weight: number; reps: number; unit: "kg" | "lbs"; date: string; workoutLogId: string }>;
   settings?: { id: string; weightUnit: "kg" | "lbs"; defaultRestSeconds: number; soundEnabled: boolean; autoProgressWeight: boolean; progressionIncrement: number } | null;
+  onboardingProfile?: { id: string; goals: string[]; experienceLevel: string | null; trainingDaysPerWeek: number | null; equipment: string | null; heightCm: number | null; weightKg: number | null; bodyFatPercent: number | null; injuries: string[]; hasCompletedOnboarding: boolean; skippedOnboarding: boolean; completedAt: string | null } | null;
 }) {
   // Merge cloud data with local (cloud wins on conflict)
   if (data.exercises) {
@@ -137,6 +140,23 @@ async function importCloudData(data: {
       soundEnabled: data.settings.soundEnabled,
       autoProgressWeight: data.settings.autoProgressWeight,
       progressionIncrement: data.settings.progressionIncrement,
+    });
+  }
+
+  if (data.onboardingProfile) {
+    await db.onboardingProfiles.put({
+      id: "onboarding-profile",
+      goals: data.onboardingProfile.goals || [],
+      experienceLevel: data.onboardingProfile.experienceLevel as "beginner" | "intermediate" | "advanced" | null,
+      trainingDaysPerWeek: data.onboardingProfile.trainingDaysPerWeek,
+      equipment: data.onboardingProfile.equipment as "full_gym" | "home_gym" | "bodyweight" | null,
+      heightCm: data.onboardingProfile.heightCm,
+      weightKg: data.onboardingProfile.weightKg,
+      bodyFatPercent: data.onboardingProfile.bodyFatPercent,
+      injuries: data.onboardingProfile.injuries || [],
+      hasCompletedOnboarding: data.onboardingProfile.hasCompletedOnboarding,
+      skippedOnboarding: data.onboardingProfile.skippedOnboarding,
+      completedAt: data.onboardingProfile.completedAt,
     });
   }
 }

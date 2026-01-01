@@ -11,6 +11,7 @@ import {
   personalRecords,
   userSettings,
   syncMetadata,
+  onboardingProfiles,
 } from "@/lib/db/schema";
 
 // POST /api/sync - Push local changes to cloud
@@ -146,6 +147,43 @@ export async function POST(request: NextRequest) {
         });
     }
 
+    if (data.onboardingProfile) {
+      await cloudDb
+        .insert(onboardingProfiles)
+        .values({
+          id: `onboarding-${userId}`,
+          userId,
+          goals: data.onboardingProfile.goals || [],
+          experienceLevel: data.onboardingProfile.experienceLevel,
+          trainingDaysPerWeek: data.onboardingProfile.trainingDaysPerWeek,
+          equipment: data.onboardingProfile.equipment,
+          heightCm: data.onboardingProfile.heightCm,
+          weightKg: data.onboardingProfile.weightKg,
+          bodyFatPercent: data.onboardingProfile.bodyFatPercent,
+          injuries: data.onboardingProfile.injuries || [],
+          hasCompletedOnboarding: data.onboardingProfile.hasCompletedOnboarding,
+          skippedOnboarding: data.onboardingProfile.skippedOnboarding,
+          completedAt: data.onboardingProfile.completedAt ? new Date(data.onboardingProfile.completedAt) : null,
+        })
+        .onConflictDoUpdate({
+          target: onboardingProfiles.id,
+          set: {
+            goals: data.onboardingProfile.goals || [],
+            experienceLevel: data.onboardingProfile.experienceLevel,
+            trainingDaysPerWeek: data.onboardingProfile.trainingDaysPerWeek,
+            equipment: data.onboardingProfile.equipment,
+            heightCm: data.onboardingProfile.heightCm,
+            weightKg: data.onboardingProfile.weightKg,
+            bodyFatPercent: data.onboardingProfile.bodyFatPercent,
+            injuries: data.onboardingProfile.injuries || [],
+            hasCompletedOnboarding: data.onboardingProfile.hasCompletedOnboarding,
+            skippedOnboarding: data.onboardingProfile.skippedOnboarding,
+            completedAt: data.onboardingProfile.completedAt ? new Date(data.onboardingProfile.completedAt) : null,
+            updatedAt: new Date(),
+          },
+        });
+    }
+
     // Update sync metadata
     const now = new Date();
     await cloudDb
@@ -203,6 +241,7 @@ export async function GET(request: NextRequest) {
       userWorkoutLogs,
       userPersonalRecords,
       userSettingsData,
+      userOnboardingProfile,
     ] = await Promise.all([
       cloudDb
         .select()
@@ -225,7 +264,26 @@ export async function GET(request: NextRequest) {
         .from(personalRecords)
         .where(and(eq(personalRecords.userId, userId), gt(personalRecords.updatedAt, sinceDate))),
       cloudDb.select().from(userSettings).where(eq(userSettings.userId, userId)),
+      cloudDb.select().from(onboardingProfiles).where(eq(onboardingProfiles.userId, userId)),
     ]);
+
+    // Transform onboarding profile to match local format
+    const onboardingProfile = userOnboardingProfile[0]
+      ? {
+          id: "onboarding-profile",
+          goals: userOnboardingProfile[0].goals || [],
+          experienceLevel: userOnboardingProfile[0].experienceLevel,
+          trainingDaysPerWeek: userOnboardingProfile[0].trainingDaysPerWeek,
+          equipment: userOnboardingProfile[0].equipment,
+          heightCm: userOnboardingProfile[0].heightCm,
+          weightKg: userOnboardingProfile[0].weightKg,
+          bodyFatPercent: userOnboardingProfile[0].bodyFatPercent,
+          injuries: userOnboardingProfile[0].injuries || [],
+          hasCompletedOnboarding: userOnboardingProfile[0].hasCompletedOnboarding,
+          skippedOnboarding: userOnboardingProfile[0].skippedOnboarding,
+          completedAt: userOnboardingProfile[0].completedAt?.toISOString() || null,
+        }
+      : null;
 
     return NextResponse.json({
       success: true,
@@ -236,6 +294,7 @@ export async function GET(request: NextRequest) {
         workoutLogs: userWorkoutLogs,
         personalRecords: userPersonalRecords,
         settings: userSettingsData[0] || null,
+        onboardingProfile,
       },
       syncedAt: new Date().toISOString(),
     });
