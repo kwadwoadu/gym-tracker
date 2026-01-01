@@ -3,15 +3,45 @@
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { History, ChevronDown, ChevronUp, Clock, Dumbbell, MessageSquare } from "lucide-react";
-import type { WorkoutLog } from "@/lib/db";
+import { History, ChevronDown, ChevronUp, Clock, Dumbbell, MessageSquare, Pencil } from "lucide-react";
+import { EditSetDrawer } from "@/components/workout/edit-set-drawer";
+import { updateSetInWorkoutLog } from "@/lib/db";
+import type { WorkoutLog, SetLog } from "@/lib/db";
+import { cn } from "@/lib/utils";
 
 interface RecentWorkoutsProps {
   workoutLogs: WorkoutLog[];
+  onSetEdited?: () => void;
 }
 
-export function RecentWorkouts({ workoutLogs }: RecentWorkoutsProps) {
+export function RecentWorkouts({ workoutLogs, onSetEdited }: RecentWorkoutsProps) {
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [editingSet, setEditingSet] = useState<SetLog | null>(null);
+  const [editingWorkoutId, setEditingWorkoutId] = useState<string | null>(null);
+  const [showEditDrawer, setShowEditDrawer] = useState(false);
+
+  const handleEditSet = (workoutId: string, set: SetLog) => {
+    setEditingWorkoutId(workoutId);
+    setEditingSet(set);
+    setShowEditDrawer(true);
+  };
+
+  const handleSaveEditedSet = async (updates: { weight: number; actualReps: number; rpe?: number }) => {
+    if (!editingSet || !editingWorkoutId) return;
+
+    // Update in database
+    const success = await updateSetInWorkoutLog(editingWorkoutId, editingSet.id, updates);
+
+    if (success) {
+      // Trigger refresh in parent
+      onSetEdited?.();
+    }
+
+    // Close drawer
+    setShowEditDrawer(false);
+    setEditingSet(null);
+    setEditingWorkoutId(null);
+  };
 
   if (workoutLogs.length === 0) {
     return (
@@ -127,13 +157,20 @@ export function RecentWorkouts({ workoutLogs }: RecentWorkoutsProps) {
                             </span>
                             <div className="flex items-center gap-2">
                               {sets.map((set, idx) => (
-                                <Badge
+                                <button
                                   key={idx}
-                                  variant="secondary"
-                                  className="text-xs"
+                                  type="button"
+                                  onClick={() => handleEditSet(log.id, set)}
+                                  className={cn(
+                                    "inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium",
+                                    "bg-secondary text-secondary-foreground",
+                                    "hover:bg-primary/20 hover:text-primary active:scale-95",
+                                    "transition-all cursor-pointer"
+                                  )}
                                 >
-                                  {set.weight}kg x {set.actualReps}
-                                </Badge>
+                                  <span>{set.weight}kg x {set.actualReps}</span>
+                                  <Pencil className="w-3 h-3 opacity-50" />
+                                </button>
                               ))}
                             </div>
                           </div>
@@ -167,6 +204,18 @@ export function RecentWorkouts({ workoutLogs }: RecentWorkoutsProps) {
           );
         })}
       </div>
+
+      {/* Edit Set Drawer */}
+      <EditSetDrawer
+        isOpen={showEditDrawer}
+        onClose={() => {
+          setShowEditDrawer(false);
+          setEditingSet(null);
+          setEditingWorkoutId(null);
+        }}
+        set={editingSet}
+        onSave={handleSaveEditedSet}
+      />
     </Card>
   );
 }

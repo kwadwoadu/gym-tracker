@@ -32,7 +32,9 @@ import {
 } from "lucide-react";
 import { RestTimer } from "@/components/workout/rest-timer";
 import { SetLogger } from "@/components/workout/set-logger";
-import db, { getSuggestedWeight, checkAndAddPR, updateWorkoutLog, getLastWeekVolume } from "@/lib/db";
+import { EditSetDrawer } from "@/components/workout/edit-set-drawer";
+import { ChallengeCard } from "@/components/workout/challenge-card";
+import db, { getSuggestedWeight, getGlobalWeightSuggestion, checkAndAddPR, updateWorkoutLog, getLastWeekVolume } from "@/lib/db";
 import type { TrainingDay, Exercise, SetLog, WorkoutLog } from "@/lib/db";
 
 // Animation variants for phase transitions
@@ -166,6 +168,20 @@ export default function WorkoutSession() {
   const [savedSession, setSavedSession] = useState<SavedSession | null>(null);
   const hasCheckedSession = useRef(false);
   const isRestoringSession = useRef(false);
+
+  // Global weight memory + edit sets state
+  const [globalSuggestion, setGlobalSuggestion] = useState<{
+    suggestedWeight: number;
+    lastWeight: number;
+    lastReps: number;
+    lastDate: string;
+    hitTargetLastTime: boolean;
+    shouldNudgeIncrease: boolean;
+    nudgeWeight: number | null;
+  } | null>(null);
+  const [editingSet, setEditingSet] = useState<SetLog | null>(null);
+  const [showEditDrawer, setShowEditDrawer] = useState(false);
+  const [challengeDismissedExercises, setChallengeDismissedExercises] = useState<Set<string>>(new Set());
 
   // Load training day and exercises
   useEffect(() => {
@@ -301,6 +317,7 @@ export default function WorkoutSession() {
     async function fetchWeightSuggestion() {
       if (phase !== "exercise" || !trainingDay) {
         setWeightSuggestion(null);
+        setGlobalSuggestion(null);
         return;
       }
 
@@ -311,15 +328,22 @@ export default function WorkoutSession() {
       if (!exerciseData) return;
 
       try {
-        const suggestion = await getSuggestedWeight(
-          exerciseData.exerciseId,
-          dayId,
-          workoutState.setNumber
-        );
-        setWeightSuggestion(suggestion);
+        // Fetch both day-specific and global suggestions
+        const [daySuggestion, globalSug] = await Promise.all([
+          getSuggestedWeight(
+            exerciseData.exerciseId,
+            dayId,
+            workoutState.setNumber
+          ),
+          getGlobalWeightSuggestion(exerciseData.exerciseId),
+        ]);
+
+        setWeightSuggestion(daySuggestion);
+        setGlobalSuggestion(globalSug);
       } catch (error) {
         console.error("Failed to get weight suggestion:", error);
         setWeightSuggestion(null);
+        setGlobalSuggestion(null);
       }
     }
 
@@ -539,6 +563,57 @@ export default function WorkoutSession() {
   const handleRestComplete = () => {
     setPhase("exercise");
     audioManager.playSetStart();
+  };
+
+  // Handle challenge card accept
+  const handleChallengeAccept = (exerciseId: string) => {
+    // The nudge weight will be used as the starting weight in SetLogger
+    // The challenge card is hidden after acceptance
+    setChallengeDismissedExercises((prev) => new Set(prev).add(exerciseId));
+  };
+
+  // Handle challenge card dismiss
+  const handleChallengeDismiss = (exerciseId: string) => {
+    setChallengeDismissedExercises((prev) => new Set(prev).add(exerciseId));
+  };
+
+  // Handle opening edit drawer for a completed set
+  const handleEditSet = (set: SetLog) => {
+    setEditingSet(set);
+    setShowEditDrawer(true);
+  };
+
+  // Handle saving edited set
+  const handleSaveEditedSet = (updates: { weight: number; actualReps: number; rpe?: number }) => {
+    if (!editingSet) return;
+
+    // Calculate volume difference for live update
+    const oldVolume = editingSet.weight * editingSet.actualReps;
+    const newVolume = updates.weight * updates.actualReps;
+    const volumeDiff = newVolume - oldVolume;
+
+    // Update the set in completedSets state
+    setCompletedSets((prev) =>
+      prev.map((s) =>
+        s.id === editingSet.id
+          ? { ...s, weight: updates.weight, actualReps: updates.actualReps, rpe: updates.rpe }
+          : s
+      )
+    );
+
+    // Update live volume counter
+    setCurrentVolume((prev) => prev + volumeDiff);
+
+    // Close drawer
+    setShowEditDrawer(false);
+    setEditingSet(null);
+  };
+
+  // Get completed sets for current exercise
+  const getCompletedSetsForCurrentExercise = () => {
+    const currentExercise = getCurrentExercise();
+    if (!currentExercise) return [];
+    return completedSets.filter((s) => s.exerciseId === currentExercise.exerciseId);
   };
 
   // Finish workout
@@ -939,6 +1014,58 @@ export default function WorkoutSession() {
               );
             })()}
 
+            {/* Challenge Card - Progressive overload nudge */}
+            {globalSuggestion?.shouldNudgeIncrease &&
+              globalSuggestion.nudgeWeight &&
+              !challengeDismissedExercises.has(currentExercise.exerciseId) && (
+                <ChallengeCard
+                  currentWeight={globalSuggestion.lastWeight}
+                  challengeWeight={globalSuggestion.nudgeWeight}
+                  lastReps={globalSuggestion.lastReps}
+                  isVisible={true}
+                  onAccept={() => handleChallengeAccept(currentExercise.exerciseId)}
+                  onDismiss={() => handleChallengeDismiss(currentExercise.exerciseId)}
+                />
+              )}
+
+            {/* Completed sets for this exercise - tap to edit */}
+            {(() => {
+              const exerciseCompletedSets = getCompletedSetsForCurrentExercise();
+              if (exerciseCompletedSets.length === 0) return null;
+              return (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="mb-4"
+                >
+                  <p className="text-xs text-muted-foreground uppercase tracking-wider mb-2">
+                    Completed Sets (tap to edit)
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {exerciseCompletedSets.map((set) => (
+                      <button
+                        key={set.id}
+                        type="button"
+                        onClick={() => handleEditSet(set)}
+                        className={cn(
+                          "px-3 py-2 rounded-lg text-sm font-medium",
+                          "bg-success/20 text-success border border-success/30",
+                          "hover:bg-success/30 active:scale-95 transition-all",
+                          "flex items-center gap-1.5"
+                        )}
+                      >
+                        <Check className="w-3.5 h-3.5" />
+                        <span>Set {set.setNumber}</span>
+                        <span className="text-success/70">
+                          {set.weight}kg x {set.actualReps}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                </motion.div>
+              );
+            })()}
+
             {/* Set logger */}
             <SetLogger
               key={`${workoutState.supersetIndex}-${workoutState.exerciseIndex}-${workoutState.setNumber}`}
@@ -951,9 +1078,15 @@ export default function WorkoutSession() {
                 currentExercise.reps,
                 workoutState.setNumber
               )}
-              lastWeekWeight={weightSuggestion?.lastWeekWeight}
-              lastWeekReps={weightSuggestion?.lastWeekReps}
-              suggestedWeight={weightSuggestion?.weight}
+              lastWeekWeight={globalSuggestion?.lastWeight ?? weightSuggestion?.lastWeekWeight}
+              lastWeekReps={globalSuggestion?.lastReps ?? weightSuggestion?.lastWeekReps}
+              suggestedWeight={
+                // Use nudge weight if challenge was accepted, otherwise use global or day-specific
+                challengeDismissedExercises.has(currentExercise.exerciseId) &&
+                globalSuggestion?.nudgeWeight
+                  ? globalSuggestion.nudgeWeight
+                  : globalSuggestion?.suggestedWeight ?? weightSuggestion?.weight
+              }
               videoUrl={currentExercise.videoUrl}
               onComplete={handleSetComplete}
             />
@@ -1343,6 +1476,17 @@ export default function WorkoutSession() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Edit Set Drawer */}
+      <EditSetDrawer
+        isOpen={showEditDrawer}
+        onClose={() => {
+          setShowEditDrawer(false);
+          setEditingSet(null);
+        }}
+        set={editingSet}
+        onSave={handleSaveEditedSet}
+      />
     </div>
   );
 }

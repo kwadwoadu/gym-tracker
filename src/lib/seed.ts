@@ -15,7 +15,7 @@ export async function seedExercisesOnly(): Promise<void> {
     console.log("Seeding exercises...");
     const exercises = exercisesData.exercises.map((ex) => ({
       ...ex,
-      videoUrl: ex.videoUrl ?? undefined,
+      videoUrl: undefined,
       createdAt: new Date().toISOString(),
     }));
     await db.exercises.bulkAdd(exercises);
@@ -54,7 +54,7 @@ export async function seedDatabase(): Promise<void> {
   // Seed exercises
   const exercises = exercisesData.exercises.map((ex) => ({
     ...ex,
-    videoUrl: ex.videoUrl ?? undefined, // Convert null to undefined
+    videoUrl: undefined,
     createdAt: new Date().toISOString(),
   }));
   await db.exercises.bulkAdd(exercises);

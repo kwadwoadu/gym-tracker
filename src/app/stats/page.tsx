@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Loader2 } from "lucide-react";
@@ -19,35 +19,40 @@ export default function StatsPage() {
   const [personalRecords, setPersonalRecords] = useState<PersonalRecord[]>([]);
   const [exercises, setExercises] = useState<Map<string, Exercise>>(new Map());
 
-  useEffect(() => {
-    async function loadData() {
-      try {
-        // Load all workout logs
-        const logs = await db.workoutLogs
-          .filter((log) => log.isComplete)
-          .toArray();
-        logs.sort((a, b) => b.date.localeCompare(a.date)); // Most recent first
-        setWorkoutLogs(logs);
+  const loadData = useCallback(async () => {
+    try {
+      // Load all workout logs
+      const logs = await db.workoutLogs
+        .filter((log) => log.isComplete)
+        .toArray();
+      logs.sort((a, b) => b.date.localeCompare(a.date)); // Most recent first
+      setWorkoutLogs(logs);
 
-        // Load all personal records
-        const prs = await db.personalRecords.toArray();
-        prs.sort((a, b) => b.date.localeCompare(a.date)); // Most recent first
-        setPersonalRecords(prs);
+      // Load all personal records
+      const prs = await db.personalRecords.toArray();
+      prs.sort((a, b) => b.date.localeCompare(a.date)); // Most recent first
+      setPersonalRecords(prs);
 
-        // Load exercises for reference
-        const allExercises = await db.exercises.toArray();
-        const exerciseMap = new Map<string, Exercise>();
-        allExercises.forEach((ex) => exerciseMap.set(ex.id, ex));
-        setExercises(exerciseMap);
-      } catch (error) {
-        console.error("Failed to load stats data:", error);
-      } finally {
-        setIsLoading(false);
-      }
+      // Load exercises for reference
+      const allExercises = await db.exercises.toArray();
+      const exerciseMap = new Map<string, Exercise>();
+      allExercises.forEach((ex) => exerciseMap.set(ex.id, ex));
+      setExercises(exerciseMap);
+    } catch (error) {
+      console.error("Failed to load stats data:", error);
+    } finally {
+      setIsLoading(false);
     }
-
-    loadData();
   }, []);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
+
+  // Callback when a set is edited in RecentWorkouts
+  const handleSetEdited = useCallback(() => {
+    loadData();
+  }, [loadData]);
 
   if (isLoading) {
     return (
@@ -99,7 +104,7 @@ export default function StatsPage() {
         <WorkoutCalendar workoutLogs={workoutLogs} />
 
         {/* Recent Workouts */}
-        <RecentWorkouts workoutLogs={workoutLogs} />
+        <RecentWorkouts workoutLogs={workoutLogs} onSetEdited={handleSetEdited} />
       </div>
     </div>
   );

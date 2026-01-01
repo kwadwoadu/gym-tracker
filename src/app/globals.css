@@ -156,3 +156,17 @@
     min-width: 56px;
   }
 }
+
+/* Challenge card glow animation */
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(205, 255, 0, 0.15), 0 0 40px rgba(205, 255, 0, 0.08);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(205, 255, 0, 0.25), 0 0 60px rgba(205, 255, 0, 0.12);
+  }
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}

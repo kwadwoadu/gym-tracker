@@ -394,7 +394,115 @@ export async function updateUserSettings(updates: Partial<UserSettings>): Promis
 }
 
 // ============================================================
-// Progressive Overload Helper
+// Global Weight Memory
+// ============================================================
+
+/**
+ * Get the last used weight for an exercise across ALL workout logs (global).
+ * Returns the most recent completed set for this exercise.
+ */
+export async function getLastWeightForExercise(
+  exerciseId: string
+): Promise<{
+  weight: number;
+  reps: number;
+  targetReps: number;
+  date: string;
+  hitTarget: boolean;
+} | null> {
+  // Get all completed workout logs, sorted by date descending
+  const logs = await db.workoutLogs
+    .filter((log) => log.isComplete)
+    .reverse()
+    .sortBy("date");
+
+  // Search through logs to find most recent set for this exercise
+  for (const log of logs) {
+    const exerciseSets = log.sets.filter(
+      (s) => s.exerciseId === exerciseId && s.isComplete
+    );
+
+    if (exerciseSets.length > 0) {
+      // Get the last set (highest set number typically has progressive weight)
+      const lastSet = exerciseSets.reduce((best, set) =>
+        set.setNumber > best.setNumber ? set : best
+      );
+      return {
+        weight: lastSet.weight,
+        reps: lastSet.actualReps,
+        targetReps: lastSet.targetReps,
+        date: log.date,
+        hitTarget: lastSet.actualReps >= lastSet.targetReps,
+      };
+    }
+  }
+
+  return null;
+}
+
+/**
+ * Get weight suggestion with progressive overload logic.
+ * Combines global weight memory with progression nudge.
+ */
+export async function getGlobalWeightSuggestion(
+  exerciseId: string
+): Promise<{
+  suggestedWeight: number;
+  lastWeight: number;
+  lastReps: number;
+  lastDate: string;
+  hitTargetLastTime: boolean;
+  shouldNudgeIncrease: boolean;
+  nudgeWeight: number | null;
+} | null> {
+  const lastData = await getLastWeightForExercise(exerciseId);
+  if (!lastData) return null;
+
+  const settings = await getUserSettings();
+  const shouldNudge = lastData.hitTarget && settings.autoProgressWeight;
+  const nudgeWeight = shouldNudge
+    ? lastData.weight + settings.progressionIncrement
+    : null;
+
+  return {
+    suggestedWeight: lastData.weight, // Pre-fill with last weight (not auto-increased)
+    lastWeight: lastData.weight,
+    lastReps: lastData.reps,
+    lastDate: lastData.date,
+    hitTargetLastTime: lastData.hitTarget,
+    shouldNudgeIncrease: shouldNudge,
+    nudgeWeight,
+  };
+}
+
+/**
+ * Update a specific set within a workout log.
+ * Used for editing completed sets during or after workout.
+ */
+export async function updateSetInWorkoutLog(
+  workoutLogId: string,
+  setId: string,
+  updates: { weight?: number; actualReps?: number; rpe?: number }
+): Promise<boolean> {
+  const log = await db.workoutLogs.get(workoutLogId);
+  if (!log) return false;
+
+  const setIndex = log.sets.findIndex((s) => s.id === setId);
+  if (setIndex === -1) return false;
+
+  // Update the set
+  const updatedSets = [...log.sets];
+  updatedSets[setIndex] = {
+    ...updatedSets[setIndex],
+    ...updates,
+  };
+
+  await db.workoutLogs.update(workoutLogId, { sets: updatedSets });
+  return true;
+}
+
+// ============================================================
+// Progressive Overload Helper (Day-Based - Legacy)
 // ============================================================
 
 export async function getSuggestedWeight(
