@@ -106,6 +106,7 @@ export interface UserSettings {
   soundEnabled: boolean;
   autoProgressWeight: boolean;
   progressionIncrement: number; // kg
+  autoStartRestTimer: boolean;
 }
 
 export interface OnboardingProfile {
@@ -416,6 +417,7 @@ const DEFAULT_SETTINGS: UserSettings = {
   soundEnabled: true,
   autoProgressWeight: true,
   progressionIncrement: 2.5,
+  autoStartRestTimer: true,
 };
 
 export async function getUserSettings(): Promise<UserSettings> {

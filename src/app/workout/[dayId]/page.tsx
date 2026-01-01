@@ -36,8 +36,8 @@ import { EditSetDrawer } from "@/components/workout/edit-set-drawer";
 import { ChallengeCard } from "@/components/workout/challenge-card";
 import { AchievementToast, useAchievementToasts } from "@/components/gamification";
 import { checkAchievements, type AchievementUnlock } from "@/lib/gamification";
-import db, { getSuggestedWeight, getGlobalWeightSuggestion, checkAndAddPR, updateWorkoutLog, getLastWeekVolume } from "@/lib/db";
-import type { TrainingDay, Exercise, SetLog, WorkoutLog } from "@/lib/db";
+import db, { getSuggestedWeight, getGlobalWeightSuggestion, checkAndAddPR, updateWorkoutLog, getLastWeekVolume, getUserSettings } from "@/lib/db";
+import type { TrainingDay, Exercise, SetLog, WorkoutLog, UserSettings } from "@/lib/db";
 
 // Animation variants for phase transitions
 const phaseVariants = {
@@ -184,6 +184,7 @@ export default function WorkoutSession() {
   const [editingSet, setEditingSet] = useState<SetLog | null>(null);
   const [showEditDrawer, setShowEditDrawer] = useState(false);
   const [challengeDismissedExercises, setChallengeDismissedExercises] = useState<Set<string>>(new Set());
+  const [autoStartRestTimer, setAutoStartRestTimer] = useState(true);
 
   // Achievement toasts
   const { toasts: achievementToasts, addToasts: addAchievementToasts, removeToast: removeAchievementToast, currentToast } = useAchievementToasts();
@@ -217,6 +218,10 @@ export default function WorkoutSession() {
         // Load last week's volume for goal comparison
         const lastVolume = await getLastWeekVolume(dayId);
         setLastWeekVolumeTotal(lastVolume);
+
+        // Load user settings for rest timer auto-start preference
+        const userSettings = await getUserSettings();
+        setAutoStartRestTimer(userSettings.autoStartRestTimer ?? true);
       } catch (error) {
         console.error("Failed to load workout data:", error);
         router.push("/");
@@ -1150,6 +1155,7 @@ export default function WorkoutSession() {
             <RestTimer
               seconds={currentExercise.restSeconds}
               onComplete={handleRestComplete}
+              autoStart={autoStartRestTimer}
               label="Rest Time"
             />
 

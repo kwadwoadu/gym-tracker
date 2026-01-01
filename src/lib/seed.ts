@@ -32,6 +32,7 @@ export async function seedExercisesOnly(): Promise<void> {
       soundEnabled: true,
       autoProgressWeight: true,
       progressionIncrement: 2.5,
+      autoStartRestTimer: true,
     });
     console.log("Seeded user settings");
   }
@@ -81,6 +82,7 @@ export async function seedDatabase(): Promise<void> {
     soundEnabled: true,
     autoProgressWeight: true,
     progressionIncrement: 2.5,
+    autoStartRestTimer: true,
   });
   console.log("Seeded user settings");
 

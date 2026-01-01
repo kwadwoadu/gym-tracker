@@ -56,7 +56,7 @@ async function importCloudData(data: {
   trainingDays?: Array<{ id: string; programId: string; name: string; dayNumber: number; warmup: unknown[]; supersets: unknown[]; finisher: unknown[] }>;
   workoutLogs?: Array<{ id: string; date: string; programId: string; dayId: string; dayName: string; sets: unknown[]; startTime: string; endTime?: string; duration?: number; notes?: string; isComplete: boolean }>;
   personalRecords?: Array<{ id: string; exerciseId: string; exerciseName: string; weight: number; reps: number; unit: "kg" | "lbs"; date: string; workoutLogId: string }>;
-  settings?: { id: string; weightUnit: "kg" | "lbs"; defaultRestSeconds: number; soundEnabled: boolean; autoProgressWeight: boolean; progressionIncrement: number } | null;
+  settings?: { id: string; weightUnit: "kg" | "lbs"; defaultRestSeconds: number; soundEnabled: boolean; autoProgressWeight: boolean; progressionIncrement: number; autoStartRestTimer?: boolean } | null;
   onboardingProfile?: { id: string; goals: string[]; experienceLevel: string | null; trainingDaysPerWeek: number | null; equipment: string | null; heightCm: number | null; weightKg: number | null; bodyFatPercent: number | null; injuries: string[]; hasCompletedOnboarding: boolean; skippedOnboarding: boolean; completedAt: string | null } | null;
   achievements?: Array<{ id: string; achievementId: string; unlockedAt: string }>;
 }) {
@@ -143,6 +143,7 @@ async function importCloudData(data: {
       soundEnabled: data.settings.soundEnabled,
       autoProgressWeight: data.settings.autoProgressWeight,
       progressionIncrement: data.settings.progressionIncrement,
+      autoStartRestTimer: data.settings.autoStartRestTimer ?? true,
     });
   }
 

@@ -107,6 +107,7 @@ export const userSettings = pgTable("user_settings", {
   soundEnabled: boolean("sound_enabled").notNull().default(true),
   autoProgressWeight: boolean("auto_progress_weight").notNull().default(true),
   progressionIncrement: integer("progression_increment").notNull().default(2.5),
+  autoStartRestTimer: boolean("auto_start_rest_timer").notNull().default(true),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 }, (table) => [

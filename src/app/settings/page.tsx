@@ -391,6 +391,22 @@ export default function SettingsPage() {
                 }
               />
             </div>
+
+            {/* Auto-Start Rest Timer */}
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="font-medium text-foreground">Auto-Start Rest Timer</p>
+                <p className="text-sm text-muted-foreground">
+                  Start timer automatically after logging a set
+                </p>
+              </div>
+              <Switch
+                checked={settings.autoStartRestTimer ?? true}
+                onCheckedChange={(checked) =>
+                  handleSettingChange("autoStartRestTimer", checked)
+                }
+              />
+            </div>
           </CardContent>
         </Card>
 
