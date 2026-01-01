@@ -40,6 +40,7 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { SortableExerciseItem } from "@/components/program/sortable-exercise-item";
+import { ExerciseCreator } from "@/components/program/exercise-creator";
 import db from "@/lib/db";
 import type {
   Exercise,
@@ -54,6 +55,7 @@ interface ExerciseSelectorProps {
   exercises: Exercise[];
   onSelect: (exerciseId: string) => void;
   onClose: () => void;
+  onCreateCustom: () => void;
   excludeIds?: string[];
 }
 
@@ -61,17 +63,24 @@ function ExerciseSelector({
   exercises,
   onSelect,
   onClose,
+  onCreateCustom,
   excludeIds = [],
 }: ExerciseSelectorProps) {
   const [search, setSearch] = useState("");
 
-  const filteredExercises = useMemo(() => {
-    return exercises
+  // Separate custom exercises and library exercises
+  const { customExercises, libraryExercises } = useMemo(() => {
+    const filtered = exercises
       .filter((ex) => !excludeIds.includes(ex.id))
       .filter((ex) =>
         search ? ex.name.toLowerCase().includes(search.toLowerCase()) : true
       )
       .sort((a, b) => a.name.localeCompare(b.name));
+
+    return {
+      customExercises: filtered.filter((ex) => ex.isCustom),
+      libraryExercises: filtered.filter((ex) => !ex.isCustom),
+    };
   }, [exercises, search, excludeIds]);
 
   return (
@@ -79,7 +88,7 @@ function ExerciseSelector({
       <DialogHeader>
         <DialogTitle>Add Exercise</DialogTitle>
         <DialogDescription>
-          Select an exercise to add to this section
+          Select an exercise or create a custom one
         </DialogDescription>
       </DialogHeader>
 
@@ -93,35 +102,78 @@ function ExerciseSelector({
         />
       </div>
 
-      <div className="flex-1 overflow-y-auto space-y-2 max-h-[50vh]">
-        {filteredExercises.map((ex) => (
-          <Card
-            key={ex.id}
-            className="p-3 cursor-pointer hover:bg-accent/50 transition-colors"
-            onClick={() => {
-              onSelect(ex.id);
-              onClose();
-            }}
-          >
-            <div className="font-medium text-foreground">{ex.name}</div>
-            <div className="flex gap-1 mt-1 flex-wrap">
-              {ex.muscleGroups.slice(0, 2).map((m) => (
-                <Badge key={m} variant="secondary" className="text-xs capitalize">
-                  {m.replace("-", " ")}
-                </Badge>
-              ))}
-            </div>
-          </Card>
-        ))}
-        {filteredExercises.length === 0 && (
+      <div className="flex-1 overflow-y-auto space-y-4 max-h-[50vh]">
+        {/* Custom Exercises Section */}
+        {customExercises.length > 0 && (
+          <div className="space-y-2">
+            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+              My Exercises
+            </p>
+            {customExercises.map((ex) => (
+              <Card
+                key={ex.id}
+                className="p-3 cursor-pointer hover:bg-accent/50 transition-colors border-primary/30"
+                onClick={() => {
+                  onSelect(ex.id);
+                  onClose();
+                }}
+              >
+                <div className="font-medium text-foreground">{ex.name}</div>
+                <div className="flex gap-1 mt-1 flex-wrap">
+                  {ex.muscleGroups.slice(0, 2).map((m) => (
+                    <Badge key={m} variant="secondary" className="text-xs capitalize">
+                      {m.replace("-", " ")}
+                    </Badge>
+                  ))}
+                </div>
+              </Card>
+            ))}
+          </div>
+        )}
+
+        {/* Library Exercises Section */}
+        {libraryExercises.length > 0 && (
+          <div className="space-y-2">
+            {customExercises.length > 0 && (
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                Exercise Library
+              </p>
+            )}
+            {libraryExercises.map((ex) => (
+              <Card
+                key={ex.id}
+                className="p-3 cursor-pointer hover:bg-accent/50 transition-colors"
+                onClick={() => {
+                  onSelect(ex.id);
+                  onClose();
+                }}
+              >
+                <div className="font-medium text-foreground">{ex.name}</div>
+                <div className="flex gap-1 mt-1 flex-wrap">
+                  {ex.muscleGroups.slice(0, 2).map((m) => (
+                    <Badge key={m} variant="secondary" className="text-xs capitalize">
+                      {m.replace("-", " ")}
+                    </Badge>
+                  ))}
+                </div>
+              </Card>
+            ))}
+          </div>
+        )}
+
+        {customExercises.length === 0 && libraryExercises.length === 0 && (
           <p className="text-center text-muted-foreground py-8">
             No exercises found
           </p>
         )}
       </div>
 
-      <DialogFooter>
-        <Button variant="outline" onClick={onClose}>
+      <DialogFooter className="flex-row justify-between sm:justify-between">
+        <Button variant="outline" onClick={onCreateCustom}>
+          <Plus className="w-4 h-4 mr-2" />
+          Create Custom
+        </Button>
+        <Button variant="ghost" onClick={onClose}>
           Cancel
         </Button>
       </DialogFooter>
@@ -148,6 +200,7 @@ export default function DayEditorPage() {
 
   // Dialog state
   const [showExerciseSelector, setShowExerciseSelector] = useState(false);
+  const [showExerciseCreator, setShowExerciseCreator] = useState(false);
   const [exerciseSelectorTarget, setExerciseSelectorTarget] = useState<{
     type: "warmup" | "superset" | "finisher";
     supersetIndex?: number;
@@ -364,6 +417,22 @@ export default function DayEditorPage() {
   ) => {
     setExerciseSelectorTarget({ type, supersetIndex });
     setShowExerciseSelector(true);
+  };
+
+  const openExerciseCreator = () => {
+    setShowExerciseSelector(false);
+    setShowExerciseCreator(true);
+  };
+
+  const handleExerciseCreated = async (exerciseId: string) => {
+    // Refresh exercises list
+    const allExercises = await db.exercises.toArray();
+    const exerciseMap = new Map<string, Exercise>();
+    allExercises.forEach((ex) => exerciseMap.set(ex.id, ex));
+    setExercises(exerciseMap);
+
+    // Add the new exercise to the target section
+    handleAddExercise(exerciseId);
   };
 
   if (isLoading) {
@@ -749,8 +818,16 @@ export default function DayEditorPage() {
           exercises={Array.from(exercises.values())}
           onSelect={handleAddExercise}
           onClose={() => setShowExerciseSelector(false)}
+          onCreateCustom={openExerciseCreator}
         />
       </Dialog>
+
+      {/* Exercise Creator Dialog */}
+      <ExerciseCreator
+        open={showExerciseCreator}
+        onOpenChange={setShowExerciseCreator}
+        onCreated={handleExerciseCreated}
+      />
     </div>
   );
 }
