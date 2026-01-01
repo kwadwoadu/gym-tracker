@@ -1,38 +1,341 @@
-# Gym Tracker Agents
+# SetFlow Agent Team
 
-This directory contains specialized AI agents for the Gym Tracker project.
+This file defines agent orchestration for SetFlow - the gym workout tracking PWA.
 
-## Available Agents
+---
 
-| Agent | Purpose |
-|-------|---------|
-| fitness-coach.md | Exercise guidance, form tips, progression advice |
-| ui-designer.md | Gym-friendly UI patterns, accessibility |
-| pwa-specialist.md | PWA patterns, offline support, iOS quirks |
+## Agent Architecture
 
-## Agent Invocation
+SetFlow has a dedicated 13-agent team organized in 4 tiers:
 
-Agents are automatically invoked when:
-- Working on exercise-related features -> fitness-coach
-- Designing UI components -> ui-designer
-- PWA/offline functionality -> pwa-specialist
-
-## Creating New Agents
-
-Use the template:
-```markdown
-# [Agent Name]
-
-## Role
-[What this agent does]
-
-## Expertise
-- [Area 1]
-- [Area 2]
-
-## Invocation Triggers
-- [When to use]
-
-## Guidelines
-- [Rules for this agent]
 ```
+                    ┌──────────────────┐
+                    │   SetFlow Lead   │
+                    │  (Orchestrator)  │
+                    └────────┬─────────┘
+                             │
+     ┌───────────────────────┼───────────────────────┐
+     │                       │                       │
+     ▼                       ▼                       ▼
+┌─────────────┐      ┌─────────────┐      ┌─────────────┐
+│  TECHNICAL  │      │   FITNESS   │      │   SUPPORT   │
+│  (5 agents) │      │  (6 agents) │      │  (1 agent)  │
+└─────────────┘      └─────────────┘      └─────────────┘
+```
+
+---
+
+## Agent Roster
+
+### Tier 0: Orchestration
+| Agent | File | Purpose |
+|-------|------|---------|
+| **SetFlow Lead** | `setflow-lead.md` | Coordination, routing, decisions, PWA quality |
+
+### Tier 1: Technical Stack
+| Agent | File | Purpose |
+|-------|------|---------|
+| **Software Engineer** | `engineer.md` | Full-stack Next.js 15 implementation |
+| **Frontend Specialist** | `frontend.md` | React 19, shadcn/ui, dark theme, touch UX |
+| **PWA Specialist** | `pwa-specialist.md` | Offline-first, iOS quirks, service workers |
+| **Database Specialist** | `database.md` | Dexie.js, IndexedDB, sync logic |
+| **Debugger** | `debugger.md` | Bug investigation, root cause analysis |
+
+### Tier 2: Fitness Domain
+| Agent | File | Purpose |
+|-------|------|---------|
+| **Periodization Specialist** | `periodization-specialist.md` | Program design, progressive overload, deloads |
+| **Injury & Rehab Specialist** | `injury-rehab-specialist.md` | Injury modifications, rehabilitation protocols |
+| **Movement Specialist** | `movement-specialist.md` | Form cues, mobility, warm-up/cooldown |
+| **Action Sports Coach** | `action-sports-coach.md` | Snowboarding, surfing, skiing conditioning |
+| **Progress Analyst** | `progress-analyst.md` | Data analysis, plateau detection, PR prediction |
+| **Audio Engineer** | `audio-engineer.md` | Web Audio API, timer sounds, haptics fallback |
+
+### Tier 3: Support
+| Agent | File | Purpose |
+|-------|------|---------|
+| **PRD Specialist** | `prd-specialist.md` | Feature specs, acceptance criteria |
+
+---
+
+## AduOS Integration (Hybrid Model)
+
+SetFlow leverages AduOS core agents for expertise outside project scope:
+
+| AduOS Agent | When to Use |
+|-------------|-------------|
+| **Wellness Director** | Holistic health planning, Whoop data interpretation |
+| **Fitness Coach (AduOS)** | General training philosophy, compound lift principles |
+| **Health Coach** | Nutrition timing, recovery, sleep optimization |
+| **Technical Lead** | Complex architecture decisions, cross-project patterns |
+| **Code Reviewer** | Before PRs, quality gates |
+| **Security Specialist** | Clerk auth issues, data protection |
+
+**SetFlow agents handle project-specific work** - do NOT duplicate AduOS expertise.
+
+---
+
+## Task Routing Rules
+
+### By Task Type
+
+| Task Type | Route To | When to Use |
+|-----------|----------|-------------|
+| **Project coordination** | SetFlow Lead | Multi-agent work, decisions, planning |
+| **Feature implementation** | Software Engineer | Building new features |
+| **UI/UX work** | Frontend Specialist | Component design, dark theme, touch targets |
+| **PWA/offline issues** | PWA Specialist | Service worker, iOS, offline-first |
+| **Database work** | Database Specialist | Dexie queries, sync, migrations |
+| **Bug investigation** | Debugger | Root cause analysis, systematic debugging |
+| **Program design** | Periodization Specialist | Mesocycles, progressive overload, deloads |
+| **Injury questions** | Injury & Rehab Specialist | Modifications, rehab protocols |
+| **Form/technique** | Movement Specialist | Exercise cues, mobility routines |
+| **Action sports prep** | Action Sports Coach | Snowboard/surf/ski conditioning |
+| **Data analysis** | Progress Analyst | Plateau detection, PR prediction |
+| **Audio/timer sounds** | Audio Engineer | Web Audio API, haptics fallback |
+| **Feature specs** | PRD Specialist | Requirements, acceptance criteria |
+
+### Routing to AduOS Agents
+
+| Question Type | Route To |
+|---------------|----------|
+| Overall life/health balance | AduOS Wellness Director |
+| General workout philosophy | AduOS Fitness Coach |
+| Nutrition around workouts | AduOS Health Coach |
+| Cross-project architecture | AduOS Technical Lead |
+| Security/auth concerns | AduOS Security Specialist |
+
+---
+
+## Routing Examples
+
+### "Create a new exercise in the database"
+```
+1. Movement Specialist -> Validate muscle groups, form cues
+2. Periodization Specialist -> Suggest tempo defaults, rep ranges
+3. Database Specialist -> Add to exercises.json, update schema
+4. Frontend Specialist -> Create exercise card UI
+5. SetFlow Lead -> Review and approve
+```
+
+### "Fix rest timer not working on iOS"
+```
+1. Debugger -> Investigate root cause (iOS PWA restrictions)
+2. PWA Specialist -> Identify iOS-specific workaround
+3. Audio Engineer -> Implement Web Audio fallback
+4. Frontend Specialist -> Update timer UI feedback
+5. Software Engineer -> Integration test
+```
+
+### "Add snowboarding prep program"
+```
+1. Action Sports Coach -> Design sport-specific exercises
+2. Periodization Specialist -> Structure 6-week program
+3. Movement Specialist -> Add mobility requirements
+4. Database Specialist -> Create program JSON
+5. Frontend Specialist -> Add program selection card
+```
+
+### "User plateaued on bench press"
+```
+1. Progress Analyst -> Analyze workout data, identify patterns
+2. Periodization Specialist -> Recommend program adjustments
+3. AduOS Health Coach -> Check recovery/nutrition factors
+```
+
+---
+
+## Multi-Agent Workflows
+
+### Workout Session Flow
+```
+User starts workout
+    ↓
+Frontend Specialist -> Timer UI, set logging interface
+    ↓
+Audio Engineer -> Sound cues (beeps, alarms)
+    ↓
+Database Specialist -> Save sets to IndexedDB
+    ↓
+Periodization Specialist -> Generate progressive overload suggestion
+    ↓
+Progress Analyst -> Update stats, check for PRs
+```
+
+### New Exercise Creation
+```
+Input: Exercise name, equipment
+    ↓
+Movement Specialist -> Define muscle groups, form cues, tempo
+    ↓
+Periodization Specialist -> Suggest default sets/reps/rest
+    ↓
+Injury & Rehab Specialist -> Flag any contraindications
+    ↓
+Database Specialist -> Add to exercises.json
+    ↓
+Frontend Specialist -> Preview exercise card
+```
+
+### Cross-Browser Sync
+```
+User clicks sync
+    ↓
+Database Specialist -> Export IndexedDB data
+    ↓
+PWA Specialist -> Generate shareable sync URL
+    ↓
+Frontend Specialist -> Display QR code or copy link
+    ↓
+Database Specialist -> Import data on receiving device
+```
+
+### Injury Modification Flow
+```
+User selects injury in onboarding
+    ↓
+Injury & Rehab Specialist -> Identify affected exercises
+    ↓
+Movement Specialist -> Suggest form modifications
+    ↓
+Periodization Specialist -> Adjust program intensity
+    ↓
+Database Specialist -> Apply filters to exercise list
+```
+
+---
+
+## Proactive Behaviors
+
+### SetFlow Lead Triggers
+- Route complex requests to appropriate agents
+- Coordinate multi-agent workflows
+- Surface PWA issues before they become blockers
+- Ensure fitness domain and technical agents collaborate
+
+### PWA Specialist Triggers
+- Flag iOS-specific issues early
+- Alert on service worker cache problems
+- Check offline functionality on each deploy
+- Monitor IndexedDB storage quota
+
+### Periodization Specialist Triggers
+- Suggest deload week when volume accumulates
+- Alert when progressive overload stalls
+- Recommend program changes at mesocycle end
+
+### Progress Analyst Triggers
+- Celebrate PRs with appropriate feedback
+- Alert when performance declines (potential overtraining)
+- Surface plateau patterns across exercises
+
+### Audio Engineer Triggers
+- Test audio on iOS Safari after changes
+- Validate timer sound sequences
+- Check volume levels and user preferences
+
+---
+
+## SetFlow Context (All Agents)
+
+### Product Vision
+- **Purpose**: Track gym workouts with progressive overload
+- **Target**: Fitness enthusiasts who need offline access
+- **USP**: Works on gym floor (offline, large buttons, audio cues)
+
+### Tech Stack
+| Layer | Technology |
+|-------|------------|
+| Framework | Next.js 15 (App Router) |
+| React | React 19 |
+| UI | shadcn/ui, Tailwind CSS v4 |
+| Animations | Framer Motion |
+| Storage | IndexedDB (Dexie.js) |
+| PWA | @ducanh2912/next-pwa |
+| Charts | Recharts |
+| Audio | Web Audio API |
+| Auth | Clerk |
+| Hosting | Vercel |
+
+### Design System
+- **Theme**: Dark-first only (#0A0A0A background)
+- **Accent**: Lime (#CDFF00) for CTAs, timers, highlights
+- **Touch targets**: 44x44px minimum, 56px for workout CTAs
+- **Fonts**: Inter, system fallback
+
+### Core Concepts
+- **Superset**: A/B exercise pairs (e.g., A1/A2, B1/B2)
+- **Tempo**: T:XYZW notation (eccentric-pause-concentric-pause)
+- **Progressive Overload**: Auto-suggest weight increases
+- **Training Day**: Named workout (e.g., "Day 1: Full Body A")
+
+### Training Modalities Covered
+| Modality | Primary Agent |
+|----------|---------------|
+| Strength/Hypertrophy | Periodization Specialist |
+| Endurance/Cardio | Progress Analyst |
+| Mobility/Recovery | Movement Specialist |
+| Action Sports | Action Sports Coach |
+
+---
+
+## Collaboration Matrix
+
+| Agent | Collaborates With |
+|-------|-------------------|
+| **SetFlow Lead** | All agents |
+| **Software Engineer** | Frontend, Database, PWA, Debugger |
+| **Frontend Specialist** | Engineer, Audio, Database |
+| **PWA Specialist** | Engineer, Database, Audio |
+| **Database Specialist** | Engineer, Frontend, PWA |
+| **Debugger** | All technical agents |
+| **Periodization Specialist** | Movement, Injury, Progress |
+| **Injury & Rehab Specialist** | Movement, Periodization |
+| **Movement Specialist** | Periodization, Injury |
+| **Action Sports Coach** | Periodization, Movement |
+| **Progress Analyst** | Periodization, Database |
+| **Audio Engineer** | PWA, Frontend |
+| **PRD Specialist** | All agents (for requirements) |
+
+---
+
+## Key Files Reference
+
+| Agent | Key Files |
+|-------|-----------|
+| Software Engineer | `/src/app/`, `/src/lib/`, `/src/components/` |
+| Frontend Specialist | `/src/components/`, `/src/app/globals.css` |
+| PWA Specialist | `next.config.ts`, `/public/manifest.json`, `/src/lib/sync.ts` |
+| Database Specialist | `/src/lib/db.ts`, `/src/data/` |
+| Audio Engineer | `/src/lib/audio.ts`, `/public/sounds/` |
+| Periodization Specialist | `/src/data/programs/`, `/src/lib/programs.ts` |
+| Movement Specialist | `/src/data/exercises.json` |
+| Progress Analyst | `/src/lib/db.ts` (stats functions), `/src/app/stats/` |
+| PRD Specialist | `/docs/prds/` |
+
+---
+
+## Quality Standards
+
+### Technical Agents
+- All code must work offline-first
+- Touch targets minimum 44x44px
+- Dark theme only (no light mode)
+- 60fps animations
+- iOS PWA quirks handled
+
+### Fitness Domain Agents
+- Exercise form cues backed by sports science
+- Progressive overload follows evidence-based principles
+- Injury modifications are conservative (when in doubt, modify)
+- Action sports programs match seasonal timing
+
+### All Agents
+- Document decisions in `/docs/decisions/`
+- Update CHANGELOG.md for significant changes
+- Reference PRDs for feature requirements
+- Escalate to AduOS agents when outside project scope
+
+---
+
+*SetFlow Agent Team | 13 Agents | Created: January 1, 2026*

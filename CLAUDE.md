@@ -121,6 +121,76 @@ A Progressive Web App for iOS/Android that helps track gym workouts with:
 4. **Performance** - Smooth 60fps animations
 5. **Audio feedback** - Web Audio API for timer cues
 
+---
+
+## Agent Team
+
+SetFlow has a dedicated 13-agent team organized in 4 tiers. See `/agents/CLAUDE.md` for full routing and workflows.
+
+### Architecture
+```
+                    ┌──────────────────┐
+                    │   SetFlow Lead   │
+                    │  (Orchestrator)  │
+                    └────────┬─────────┘
+                             │
+     ┌───────────────────────┼───────────────────────┐
+     │                       │                       │
+     ▼                       ▼                       ▼
+┌─────────────┐      ┌─────────────┐      ┌─────────────┐
+│  TECHNICAL  │      │   FITNESS   │      │   SUPPORT   │
+│  (5 agents) │      │  (6 agents) │      │  (1 agent)  │
+└─────────────┘      └─────────────┘      └─────────────┘
+```
+
+### Tier 0: Orchestration
+| Agent | Purpose |
+|-------|---------|
+| SetFlow Lead | Coordination, routing, decisions |
+
+### Tier 1: Technical (5 agents)
+| Agent | Purpose |
+|-------|---------|
+| Software Engineer | Full-stack Next.js 15 implementation |
+| Frontend Specialist | React 19, shadcn/ui, dark theme |
+| PWA Specialist | Offline-first, iOS quirks, service workers |
+| Database Specialist | Dexie.js, IndexedDB, sync logic |
+| Debugger | Bug investigation, root cause analysis |
+
+### Tier 2: Fitness Domain (6 agents)
+| Agent | Purpose |
+|-------|---------|
+| Periodization Specialist | Program design, progressive overload, deloads |
+| Injury & Rehab Specialist | Injury modifications, rehabilitation protocols |
+| Movement Specialist | Form cues, mobility, warm-up/cooldown |
+| Action Sports Coach | Snowboarding, surfing, skiing conditioning |
+| Progress Analyst | Data analysis, plateau detection, PR prediction |
+| Audio Engineer | Web Audio API, timer sounds, haptics fallback |
+
+### Tier 3: Support (1 agent)
+| Agent | Purpose |
+|-------|---------|
+| PRD Specialist | Feature specs, acceptance criteria |
+
+### AduOS Integration (Hybrid Model)
+
+SetFlow leverages AduOS core agents for expertise outside project scope:
+- **Wellness Director** - Whoop integration, holistic health planning
+- **Fitness Coach (AduOS)** - General training philosophy
+- **Health Coach** - Nutrition timing, recovery optimization
+- **Technical Lead** - Complex architecture decisions
+- **Code Reviewer** - Before PRs, quality gates
+- **Security Specialist** - Clerk auth, data protection
+
+---
+
+## Domain Linkage
+
+**Primary Domain**: Health
+**Secondary Domain**: Career (potential product)
+
+---
+
 ## Default Program Structure
 
 The app comes pre-loaded with a Full Body Training program:
