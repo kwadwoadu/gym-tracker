@@ -320,6 +320,44 @@ export default function DayEditorPage() {
     setSupersets(newSupersets);
   };
 
+  const addSuperset = () => {
+    // Generate next label (A, B, C, ... Z, AA, AB, ...)
+    const labels = supersets.map((s) => s.label);
+    let nextLabel = "A";
+    const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+    // Find the next available label
+    for (let i = 0; i < 26; i++) {
+      const label = alphabet[i];
+      if (!labels.includes(label)) {
+        nextLabel = label;
+        break;
+      }
+      if (i === 25) {
+        // All single letters used, try double letters
+        for (let j = 0; j < 26; j++) {
+          const doubleLabel = "A" + alphabet[j];
+          if (!labels.includes(doubleLabel)) {
+            nextLabel = doubleLabel;
+            break;
+          }
+        }
+      }
+    }
+
+    const newSuperset: Superset = {
+      id: crypto.randomUUID(),
+      label: nextLabel,
+      exercises: [],
+    };
+
+    setSupersets([...supersets, newSuperset]);
+  };
+
+  const removeSuperset = (index: number) => {
+    setSupersets(supersets.filter((_, i) => i !== index));
+  };
+
   const openExerciseSelector = (
     type: "warmup" | "superset" | "finisher",
     supersetIndex?: number
@@ -449,15 +487,25 @@ export default function DayEditorPage() {
               <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
                 Superset {superset.label}
               </h2>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => openExerciseSelector("superset", ssIndex)}
-                className="h-8"
-              >
-                <Plus className="w-4 h-4 mr-1" />
-                Add
-              </Button>
+              <div className="flex items-center gap-1">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => openExerciseSelector("superset", ssIndex)}
+                  className="h-8"
+                >
+                  <Plus className="w-4 h-4 mr-1" />
+                  Add
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => removeSuperset(ssIndex)}
+                  className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </Button>
+              </div>
             </div>
 
             {superset.exercises.length === 0 ? (
@@ -581,6 +629,16 @@ export default function DayEditorPage() {
             )}
           </div>
         ))}
+
+        {/* Add Superset Button */}
+        <Button
+          variant="outline"
+          className="w-full h-12 border-dashed border-2 text-muted-foreground hover:text-foreground hover:border-primary"
+          onClick={addSuperset}
+        >
+          <Plus className="w-5 h-5 mr-2" />
+          Add Superset
+        </Button>
 
         {/* Finisher Section */}
         <div className="space-y-3">
