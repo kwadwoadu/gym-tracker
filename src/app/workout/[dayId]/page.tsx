@@ -36,6 +36,8 @@ import { EditSetDrawer } from "@/components/workout/edit-set-drawer";
 import { ChallengeCard } from "@/components/workout/challenge-card";
 import { AchievementToast, useAchievementToasts } from "@/components/gamification";
 import { checkAchievements, type AchievementUnlock } from "@/lib/gamification";
+import { pushToCloud, isSyncAvailable } from "@/lib/sync";
+import { useUser } from "@clerk/nextjs";
 import db, { getSuggestedWeight, getGlobalWeightSuggestion, checkAndAddPR, updateWorkoutLog, getLastWeekVolume, getUserSettings } from "@/lib/db";
 import type { TrainingDay, Exercise, SetLog, WorkoutLog, UserSettings } from "@/lib/db";
 
@@ -139,6 +141,7 @@ const SESSION_EXPIRY_HOURS = 6; // Sessions expire after 6 hours
 export default function WorkoutSession() {
   const params = useParams();
   const router = useRouter();
+  const { user } = useUser();
   const dayId = params.dayId as string;
 
   const [isLoading, setIsLoading] = useState(true);
@@ -700,6 +703,13 @@ export default function WorkoutSession() {
     const newAchievements = await checkAchievements();
     if (newAchievements.length > 0) {
       addAchievementToasts(newAchievements);
+    }
+
+    // Immediately sync to cloud so workout appears on other devices
+    if (isSyncAvailable()) {
+      pushToCloud(user?.primaryEmailAddress?.emailAddress).catch((err) =>
+        console.error("Failed to sync after workout:", err)
+      );
     }
   };
 

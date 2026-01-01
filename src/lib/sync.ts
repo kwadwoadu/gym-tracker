@@ -232,15 +232,19 @@ export async function pullFromCloud(): Promise<{ success: boolean; error?: strin
 
 // Full sync (pull then push)
 export async function fullSync(userEmail?: string): Promise<{ success: boolean; error?: string }> {
-  // First pull to get any changes from other devices
+  // Pull first to get any changes from other devices
   const pullResult = await pullFromCloud();
-  if (!pullResult.success) {
-    return pullResult;
+
+  // Always attempt push, even if pull fails
+  // This ensures local changes get to cloud even with network hiccups
+  const pushResult = await pushToCloud(userEmail);
+
+  // Only fail if BOTH operations fail
+  if (!pullResult.success && !pushResult.success) {
+    return { success: false, error: `Pull: ${pullResult.error}, Push: ${pushResult.error}` };
   }
 
-  // Then push local changes
-  const pushResult = await pushToCloud(userEmail);
-  return pushResult;
+  return { success: true };
 }
 
 // Check if sync is available (user is signed in)
