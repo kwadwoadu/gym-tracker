@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -21,9 +21,25 @@ import {
   Trash2,
   Plus,
   X,
-  GripVertical,
   Search,
 } from "lucide-react";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  TouchSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { SortableExerciseItem } from "@/components/program/sortable-exercise-item";
 import db from "@/lib/db";
 import type {
   Exercise,
@@ -136,6 +152,65 @@ export default function DayEditorPage() {
     type: "warmup" | "superset" | "finisher";
     supersetIndex?: number;
   } | null>(null);
+
+  // Drag and drop sensors
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        delay: 200,
+        tolerance: 5,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  // Drag handlers
+  const handleWarmupDragEnd = useCallback((event: DragEndEvent) => {
+    const { active, over } = event;
+    if (over && active.id !== over.id) {
+      setWarmup((items) => {
+        const oldIndex = items.findIndex((_, i) => `warmup-${i}` === active.id);
+        const newIndex = items.findIndex((_, i) => `warmup-${i}` === over.id);
+        return arrayMove(items, oldIndex, newIndex);
+      });
+    }
+  }, []);
+
+  const handleFinisherDragEnd = useCallback((event: DragEndEvent) => {
+    const { active, over } = event;
+    if (over && active.id !== over.id) {
+      setFinisher((items) => {
+        const oldIndex = items.findIndex((_, i) => `finisher-${i}` === active.id);
+        const newIndex = items.findIndex((_, i) => `finisher-${i}` === over.id);
+        return arrayMove(items, oldIndex, newIndex);
+      });
+    }
+  }, []);
+
+  const handleSupersetDragEnd = useCallback((supersetIndex: number) => (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (over && active.id !== over.id) {
+      setSupersets((ss) => {
+        const newSupersets = [...ss];
+        const exercises = newSupersets[supersetIndex].exercises;
+        const prefix = `superset-${supersetIndex}-`;
+        const oldIndex = exercises.findIndex((_, i) => `${prefix}${i}` === active.id);
+        const newIndex = exercises.findIndex((_, i) => `${prefix}${i}` === over.id);
+        newSupersets[supersetIndex] = {
+          ...newSupersets[supersetIndex],
+          exercises: arrayMove(exercises, oldIndex, newIndex),
+        };
+        return newSupersets;
+      });
+    }
+  }, []);
 
   useEffect(() => {
     async function load() {
@@ -321,37 +396,49 @@ export default function DayEditorPage() {
               <p className="text-muted-foreground text-sm">No warmup exercises</p>
             </Card>
           ) : (
-            <div className="space-y-2">
-              {warmup.map((w, index) => {
-                const exercise = exercises.get(w.exerciseId);
-                return (
-                  <Card
-                    key={`warmup-${index}`}
-                    className="bg-card border-border p-3"
-                  >
-                    <div className="flex items-center gap-3">
-                      <GripVertical className="w-4 h-4 text-muted-foreground shrink-0" />
-                      <div className="flex-1 min-w-0">
-                        <p className="font-medium text-foreground truncate">
-                          {exercise?.name || w.exerciseId}
-                        </p>
-                      </div>
-                      <Badge variant="secondary" className="shrink-0">
-                        {w.reps} reps
-                      </Badge>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => removeWarmupExercise(index)}
-                        className="h-8 w-8 text-muted-foreground hover:text-destructive shrink-0"
+            <DndContext
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragEnd={handleWarmupDragEnd}
+            >
+              <SortableContext
+                items={warmup.map((_, i) => `warmup-${i}`)}
+                strategy={verticalListSortingStrategy}
+              >
+                <div className="space-y-2">
+                  {warmup.map((w, index) => {
+                    const exercise = exercises.get(w.exerciseId);
+                    return (
+                      <Card
+                        key={`warmup-${index}`}
+                        className="bg-card border-border p-3"
                       >
-                        <X className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  </Card>
-                );
-              })}
-            </div>
+                        <SortableExerciseItem id={`warmup-${index}`}>
+                          <div className="flex items-center gap-3">
+                            <div className="flex-1 min-w-0">
+                              <p className="font-medium text-foreground truncate">
+                                {exercise?.name || w.exerciseId}
+                              </p>
+                            </div>
+                            <Badge variant="secondary" className="shrink-0">
+                              {w.reps} reps
+                            </Badge>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => removeWarmupExercise(index)}
+                              className="h-8 w-8 text-muted-foreground hover:text-destructive shrink-0"
+                            >
+                              <X className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        </SortableExerciseItem>
+                      </Card>
+                    );
+                  })}
+                </div>
+              </SortableContext>
+            </DndContext>
           )}
         </div>
 
@@ -378,106 +465,119 @@ export default function DayEditorPage() {
                 <p className="text-muted-foreground text-sm">No exercises</p>
               </Card>
             ) : (
-              <div className="space-y-3">
-                {superset.exercises.map((ssEx, exIndex) => {
-                  const exercise = exercises.get(ssEx.exerciseId);
-                  return (
-                    <Card
-                      key={`${superset.id}-${exIndex}`}
-                      className="bg-card border-border p-4"
-                    >
-                      <div className="flex items-start gap-3">
-                        <Badge
-                          variant="default"
-                          className="bg-primary text-primary-foreground font-bold shrink-0"
+              <DndContext
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragEnd={handleSupersetDragEnd(ssIndex)}
+              >
+                <SortableContext
+                  items={superset.exercises.map((_, i) => `superset-${ssIndex}-${i}`)}
+                  strategy={verticalListSortingStrategy}
+                >
+                  <div className="space-y-3">
+                    {superset.exercises.map((ssEx, exIndex) => {
+                      const exercise = exercises.get(ssEx.exerciseId);
+                      return (
+                        <Card
+                          key={`${superset.id}-${exIndex}`}
+                          className="bg-card border-border p-4"
                         >
-                          {superset.label}
-                          {exIndex + 1}
-                        </Badge>
-                        <div className="flex-1 min-w-0">
-                          <p className="font-medium text-foreground truncate">
-                            {exercise?.name || ssEx.exerciseId}
-                          </p>
+                          <SortableExerciseItem id={`superset-${ssIndex}-${exIndex}`}>
+                            <div className="flex items-start gap-3">
+                              <Badge
+                                variant="default"
+                                className="bg-primary text-primary-foreground font-bold shrink-0"
+                              >
+                                {superset.label}
+                                {exIndex + 1}
+                              </Badge>
+                              <div className="flex-1 min-w-0">
+                                <p className="font-medium text-foreground truncate">
+                                  {exercise?.name || ssEx.exerciseId}
+                                </p>
 
-                          {/* Editable fields */}
-                          <div className="grid grid-cols-2 gap-2 mt-3">
-                            <div>
-                              <label className="text-xs text-muted-foreground">
-                                Sets
-                              </label>
-                              <Input
-                                type="number"
-                                value={ssEx.sets}
-                                onChange={(e) =>
-                                  updateSupersetExercise(ssIndex, exIndex, {
-                                    sets: parseInt(e.target.value) || 0,
-                                  })
+                                {/* Editable fields */}
+                                <div className="grid grid-cols-2 gap-2 mt-3">
+                                  <div>
+                                    <label className="text-xs text-muted-foreground">
+                                      Sets
+                                    </label>
+                                    <Input
+                                      type="number"
+                                      value={ssEx.sets}
+                                      onChange={(e) =>
+                                        updateSupersetExercise(ssIndex, exIndex, {
+                                          sets: parseInt(e.target.value) || 0,
+                                        })
+                                      }
+                                      className="h-9 mt-1"
+                                    />
+                                  </div>
+                                  <div>
+                                    <label className="text-xs text-muted-foreground">
+                                      Reps
+                                    </label>
+                                    <Input
+                                      value={ssEx.reps}
+                                      onChange={(e) =>
+                                        updateSupersetExercise(ssIndex, exIndex, {
+                                          reps: e.target.value,
+                                        })
+                                      }
+                                      placeholder="10,10,8,8"
+                                      className="h-9 mt-1"
+                                    />
+                                  </div>
+                                  <div>
+                                    <label className="text-xs text-muted-foreground">
+                                      Tempo
+                                    </label>
+                                    <Input
+                                      value={ssEx.tempo}
+                                      onChange={(e) =>
+                                        updateSupersetExercise(ssIndex, exIndex, {
+                                          tempo: e.target.value,
+                                        })
+                                      }
+                                      placeholder="T:3010"
+                                      className="h-9 mt-1"
+                                    />
+                                  </div>
+                                  <div>
+                                    <label className="text-xs text-muted-foreground">
+                                      Rest (s)
+                                    </label>
+                                    <Input
+                                      type="number"
+                                      value={ssEx.restSeconds}
+                                      onChange={(e) =>
+                                        updateSupersetExercise(ssIndex, exIndex, {
+                                          restSeconds: parseInt(e.target.value) || 0,
+                                        })
+                                      }
+                                      className="h-9 mt-1"
+                                    />
+                                  </div>
+                                </div>
+                              </div>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() =>
+                                  removeSupersetExercise(ssIndex, exIndex)
                                 }
-                                className="h-9 mt-1"
-                              />
+                                className="h-8 w-8 text-muted-foreground hover:text-destructive shrink-0"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
                             </div>
-                            <div>
-                              <label className="text-xs text-muted-foreground">
-                                Reps
-                              </label>
-                              <Input
-                                value={ssEx.reps}
-                                onChange={(e) =>
-                                  updateSupersetExercise(ssIndex, exIndex, {
-                                    reps: e.target.value,
-                                  })
-                                }
-                                placeholder="10,10,8,8"
-                                className="h-9 mt-1"
-                              />
-                            </div>
-                            <div>
-                              <label className="text-xs text-muted-foreground">
-                                Tempo
-                              </label>
-                              <Input
-                                value={ssEx.tempo}
-                                onChange={(e) =>
-                                  updateSupersetExercise(ssIndex, exIndex, {
-                                    tempo: e.target.value,
-                                  })
-                                }
-                                placeholder="T:3010"
-                                className="h-9 mt-1"
-                              />
-                            </div>
-                            <div>
-                              <label className="text-xs text-muted-foreground">
-                                Rest (s)
-                              </label>
-                              <Input
-                                type="number"
-                                value={ssEx.restSeconds}
-                                onChange={(e) =>
-                                  updateSupersetExercise(ssIndex, exIndex, {
-                                    restSeconds: parseInt(e.target.value) || 0,
-                                  })
-                                }
-                                className="h-9 mt-1"
-                              />
-                            </div>
-                          </div>
-                        </div>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() =>
-                            removeSupersetExercise(ssIndex, exIndex)
-                          }
-                          className="h-8 w-8 text-muted-foreground hover:text-destructive shrink-0"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    </Card>
-                  );
-                })}
-              </div>
+                          </SortableExerciseItem>
+                        </Card>
+                      );
+                    })}
+                  </div>
+                </SortableContext>
+              </DndContext>
             )}
           </div>
         ))}
@@ -504,42 +604,54 @@ export default function DayEditorPage() {
               <p className="text-muted-foreground text-sm">No finisher exercises</p>
             </Card>
           ) : (
-            <div className="space-y-2">
-              {finisher.map((f, index) => {
-                const exercise = exercises.get(f.exerciseId);
-                return (
-                  <Card
-                    key={`finisher-${index}`}
-                    className="bg-card border-border p-3"
-                  >
-                    <div className="flex items-center gap-3">
-                      <GripVertical className="w-4 h-4 text-muted-foreground shrink-0" />
-                      <div className="flex-1 min-w-0">
-                        <p className="font-medium text-foreground truncate">
-                          {exercise?.name || f.exerciseId}
-                        </p>
-                        {f.notes && (
-                          <p className="text-xs text-muted-foreground mt-0.5">
-                            {f.notes}
-                          </p>
-                        )}
-                      </div>
-                      <Badge variant="secondary" className="shrink-0">
-                        {f.duration}s
-                      </Badge>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => removeFinisherExercise(index)}
-                        className="h-8 w-8 text-muted-foreground hover:text-destructive shrink-0"
+            <DndContext
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragEnd={handleFinisherDragEnd}
+            >
+              <SortableContext
+                items={finisher.map((_, i) => `finisher-${i}`)}
+                strategy={verticalListSortingStrategy}
+              >
+                <div className="space-y-2">
+                  {finisher.map((f, index) => {
+                    const exercise = exercises.get(f.exerciseId);
+                    return (
+                      <Card
+                        key={`finisher-${index}`}
+                        className="bg-card border-border p-3"
                       >
-                        <X className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  </Card>
-                );
-              })}
-            </div>
+                        <SortableExerciseItem id={`finisher-${index}`}>
+                          <div className="flex items-center gap-3">
+                            <div className="flex-1 min-w-0">
+                              <p className="font-medium text-foreground truncate">
+                                {exercise?.name || f.exerciseId}
+                              </p>
+                              {f.notes && (
+                                <p className="text-xs text-muted-foreground mt-0.5">
+                                  {f.notes}
+                                </p>
+                              )}
+                            </div>
+                            <Badge variant="secondary" className="shrink-0">
+                              {f.duration}s
+                            </Badge>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => removeFinisherExercise(index)}
+                              className="h-8 w-8 text-muted-foreground hover:text-destructive shrink-0"
+                            >
+                              <X className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        </SortableExerciseItem>
+                      </Card>
+                    );
+                  })}
+                </div>
+              </SortableContext>
+            </DndContext>
           )}
         </div>
       </div>

@@ -240,6 +240,23 @@ export async function addProgram(program: Omit<Program, "id" | "createdAt" | "up
   return id;
 }
 
+export async function updateProgram(
+  programId: string,
+  updates: Partial<Pick<Program, "name" | "description">>
+): Promise<void> {
+  await db.programs.update(programId, {
+    ...updates,
+    updatedAt: new Date().toISOString(),
+  });
+}
+
+export async function deleteProgram(programId: string): Promise<void> {
+  // Delete all training days for this program
+  await db.trainingDays.where("programId").equals(programId).delete();
+  // Delete the program
+  await db.programs.delete(programId);
+}
+
 export async function setActiveProgram(programId: string): Promise<void> {
   // Deactivate all programs
   await db.programs.toCollection().modify({ isActive: false });

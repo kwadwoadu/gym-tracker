@@ -24,8 +24,10 @@ import {
   Trash2,
   CheckCircle,
   AlertCircle,
+  Pencil,
 } from "lucide-react";
-import db, { createNewTrainingDay, deleteTrainingDay } from "@/lib/db";
+import db, { createNewTrainingDay, deleteTrainingDay, updateProgram, deleteProgram } from "@/lib/db";
+import { ProgramEditorModal } from "@/components/program/program-editor-modal";
 import type { TrainingDay, Program } from "@/lib/db";
 import { cn } from "@/lib/utils";
 
@@ -44,6 +46,7 @@ export default function ProgramPage() {
   const [dayToDelete, setDayToDelete] = useState<TrainingDay | null>(null);
   const [isAdding, setIsAdding] = useState(false);
   const [toast, setToast] = useState<Toast | null>(null);
+  const [showProgramEditor, setShowProgramEditor] = useState(false);
 
   useEffect(() => {
     async function loadProgram() {
@@ -128,6 +131,20 @@ export default function ProgramPage() {
     }
   };
 
+  const handleSaveProgram = async (name: string, description: string) => {
+    if (!program) return;
+    await updateProgram(program.id, { name, description: description || undefined });
+    setProgram({ ...program, name, description: description || undefined });
+    showToast("Program updated", "success");
+  };
+
+  const handleDeleteProgram = async () => {
+    if (!program) return;
+    await deleteProgram(program.id);
+    showToast("Program deleted", "success");
+    router.push("/");
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -176,6 +193,16 @@ export default function ProgramPage() {
               <p className="text-sm text-muted-foreground">{program.name}</p>
             )}
           </div>
+          {program && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setShowProgramEditor(true)}
+              className="h-10 w-10 shrink-0"
+            >
+              <Pencil className="w-4 h-4" />
+            </Button>
+          )}
         </div>
       </header>
 
@@ -314,6 +341,15 @@ export default function ProgramPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Program Editor Modal */}
+      <ProgramEditorModal
+        program={program}
+        open={showProgramEditor}
+        onOpenChange={setShowProgramEditor}
+        onSave={handleSaveProgram}
+        onDelete={handleDeleteProgram}
+      />
     </div>
   );
 }
