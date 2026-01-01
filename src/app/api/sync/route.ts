@@ -104,7 +104,13 @@ export async function POST(request: NextRequest) {
           .onConflictDoUpdate({
             target: workoutLogs.id,
             set: {
+              // All mutable fields must be included
+              date: log.date,
+              programId: log.programId,
+              dayId: log.dayId,
+              dayName: log.dayName,
               sets: log.sets,
+              startTime: log.startTime,
               endTime: log.endTime,
               duration: log.duration,
               notes: log.notes,
