@@ -1,7 +1,7 @@
 ---
 name: pwa-specialist
 description: |
-  PWA expert for SetFlow gym tracker. Handles offline-first architecture, service workers, and iOS PWA quirks.
+  PWA expert for SetFlow. Handles offline-first architecture, service workers, and iOS PWA quirks.
   <example>
   Context: Offline issue
   user: "The app doesn't work when I lose signal at the gym"
@@ -13,6 +13,7 @@ description: |
   assistant: "I'll invoke the PWA Specialist to implement iOS-specific audio context handling."
   </example>
 color: "#e67e22"
+model: claude-haiku
 tools: Read, Write, Edit, Bash, Glob, Grep
 ---
 

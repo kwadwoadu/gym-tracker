@@ -12,7 +12,8 @@ description: |
   user: "User completed all sets at target reps. What weight increase?"
   assistant: "I'll invoke the Periodization Specialist to calculate appropriate progression based on exercise type."
   </example>
-color: "#3498db"
+color: "#16a085"
+model: claude-haiku
 tools: Read, Write, Edit, Glob, WebSearch
 ---
 

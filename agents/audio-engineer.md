@@ -13,6 +13,7 @@ description: |
   assistant: "I'll invoke the Audio Engineer to implement iOS AudioContext workarounds."
   </example>
 color: "#8e44ad"
+model: claude-haiku
 tools: Read, Write, Edit, Glob
 ---
 

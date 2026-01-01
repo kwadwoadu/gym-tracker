@@ -1,3 +1,10 @@
+---
+name: program-creation
+type: skill
+description: Build complete training programs for SetFlow with proper periodization, exercise selection, and progression rules.
+agents: [periodization-specialist, movement-specialist, injury-rehab-specialist, action-sports-coach, database-specialist, frontend-specialist]
+---
+
 # Skill: Program Creation
 
 Build complete training programs for SetFlow with proper periodization, exercise selection, and progression rules.

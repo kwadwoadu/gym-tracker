@@ -91,10 +91,10 @@ Implement a comprehensive 13-agent architecture for SetFlow, the gym workout tra
 |------|-------|---------|
 | `agents/CLAUDE.md` | ~340 | Orchestration rules |
 | `agents/setflow-lead.md` | ~200 | Tier 0 orchestrator |
-| `agents/engineer.md` | ~250 | Full-stack development |
-| `agents/frontend.md` | ~320 | React/UI specialist |
+| `agents/software-engineer.md` | ~250 | Full-stack development |
+| `agents/frontend-specialist.md` | ~320 | React/UI specialist |
 | `agents/pwa-specialist.md` | ~280 | Offline-first expert |
-| `agents/database.md` | ~300 | Dexie.js specialist |
+| `agents/database-specialist.md` | ~300 | Dexie.js specialist |
 | `agents/debugger.md` | ~280 | Bug investigation |
 | `agents/periodization-specialist.md` | ~380 | Program design |
 | `agents/injury-rehab-specialist.md` | ~300 | Injury modifications |
@@ -158,10 +158,10 @@ Agent files are not deployed with the app.
 
 ### Phase 2: Technical Agents (Complete)
 - Created 5 technical specialists:
-  - `engineer.md` - Full-stack Next.js 15
-  - `frontend.md` - React 19, shadcn/ui, dark theme
+  - `software-engineer.md` - Full-stack Next.js 15
+  - `frontend-specialist.md` - React 19, shadcn/ui, dark theme
   - `pwa-specialist.md` - Offline-first, iOS quirks
-  - `database.md` - Dexie.js, IndexedDB
+  - `database-specialist.md` - Dexie.js, IndexedDB
   - `debugger.md` - Systematic bug investigation
 
 ### Phase 3: Fitness Domain Agents (Complete)

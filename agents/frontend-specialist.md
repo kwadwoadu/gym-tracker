@@ -1,7 +1,7 @@
 ---
 name: frontend-specialist
 description: |
-  Frontend specialist for SetFlow gym tracker. Expert in React 19, shadcn/ui, Tailwind v4, and gym-friendly UI patterns.
+  Frontend specialist for SetFlow. Expert in React 19, shadcn/ui, Tailwind v4, and gym-friendly UI patterns.
   <example>
   Context: UI component design
   user: "Design a rest timer component that's easy to see mid-workout"
@@ -13,6 +13,7 @@ description: |
   assistant: "I'll invoke the Frontend Specialist to increase touch targets to 56px for workout CTAs."
   </example>
 color: "#9b59b6"
+model: claude-haiku
 tools: Read, Write, Edit, Glob
 ---
 

@@ -12,7 +12,8 @@ description: |
   user: "Design a pre-leg-day mobility routine"
   assistant: "I'll invoke the Movement Specialist for targeted hip and ankle mobility exercises."
   </example>
-color: "#9b59b6"
+color: "#a569bd"
+model: claude-haiku
 tools: Read, Write, Edit, WebSearch, WebFetch
 ---
 

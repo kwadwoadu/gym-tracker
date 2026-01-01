@@ -1,3 +1,10 @@
+---
+name: exercise-creation
+type: skill
+description: Add new exercises to the SetFlow exercise library with proper categorization, form cues, and integration.
+agents: [movement-specialist, periodization-specialist, injury-rehab-specialist, database-specialist, frontend-specialist]
+---
+
 # Skill: Exercise Creation
 
 Add new exercises to the SetFlow exercise library with proper categorization, form cues, and integration.

@@ -1,7 +1,7 @@
 ---
 name: database-specialist
 description: |
-  Database expert for SetFlow gym tracker. Manages Dexie.js, IndexedDB operations, and cross-browser sync.
+  Database expert for SetFlow. Manages Dexie.js, IndexedDB operations, and cross-browser sync.
   <example>
   Context: Schema change
   user: "Add a notes field to workout logs"
@@ -13,6 +13,7 @@ description: |
   assistant: "I'll invoke the Database Specialist to optimize the IndexedDB query with proper indexing."
   </example>
 color: "#27ae60"
+model: claude-haiku
 tools: Read, Write, Edit, Glob, Grep
 ---
 

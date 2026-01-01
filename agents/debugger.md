@@ -1,7 +1,7 @@
 ---
 name: debugger
 description: |
-  Bug investigation specialist for SetFlow gym tracker. Uses systematic debugging to find root causes before fixes.
+  Bug investigation specialist for SetFlow. Uses systematic debugging to find root causes before fixes.
   <example>
   Context: Bug report
   user: "The rest timer stops counting when the screen locks"
@@ -13,6 +13,7 @@ description: |
   assistant: "I'll invoke the Debugger to trace the IndexedDB operations and find where data was lost."
   </example>
 color: "#e74c3c"
+model: claude-haiku
 tools: Read, Bash, Glob, Grep
 ---
 

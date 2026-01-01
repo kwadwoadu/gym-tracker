@@ -1,7 +1,7 @@
 ---
 name: software-engineer
 description: |
-  Full-stack engineer for SetFlow gym tracker. Implements features using Next.js 15, React 19, and TypeScript.
+  Full-stack engineer for SetFlow. Implements features using Next.js 15, React 19, and TypeScript.
   <example>
   Context: New feature implementation
   user: "Build the workout session page with set logging"
@@ -13,6 +13,7 @@ description: |
   assistant: "I'll invoke the Software Engineer to fix the Dexie.js transaction issue."
   </example>
 color: "#3498db"
+model: claude-haiku
 tools: Read, Write, Edit, Bash, Glob, Grep
 ---
 

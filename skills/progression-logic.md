@@ -1,3 +1,10 @@
+---
+name: progression-logic
+type: skill
+description: Define and implement progressive overload rules for SetFlow to auto-suggest weight increases.
+agents: [periodization-specialist, progress-analyst, database-specialist, frontend-specialist]
+---
+
 # Skill: Progression Logic
 
 Define and implement progressive overload rules for SetFlow to auto-suggest weight increases.

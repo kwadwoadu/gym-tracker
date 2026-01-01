@@ -13,6 +13,7 @@ description: |
   assistant: "I'll invoke the Progress Analyst to project strength progression and recommend timing."
   </example>
 color: "#f39c12"
+model: claude-haiku
 tools: Read, Glob, Grep
 ---
 

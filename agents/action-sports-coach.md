@@ -13,6 +13,7 @@ description: |
   assistant: "I'll invoke the Action Sports Coach for surf-specific conditioning."
   </example>
 color: "#1abc9c"
+model: claude-haiku
 tools: Read, Write, Edit, WebSearch, WebFetch
 ---
 

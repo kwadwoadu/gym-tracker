@@ -35,10 +35,10 @@ SetFlow has a dedicated 13-agent team organized in 4 tiers:
 ### Tier 1: Technical Stack
 | Agent | File | Purpose |
 |-------|------|---------|
-| **Software Engineer** | `engineer.md` | Full-stack Next.js 15 implementation |
-| **Frontend Specialist** | `frontend.md` | React 19, shadcn/ui, dark theme, touch UX |
+| **Software Engineer** | `software-engineer.md` | Full-stack Next.js 15 implementation |
+| **Frontend Specialist** | `frontend-specialist.md` | React 19, shadcn/ui, dark theme, touch UX |
 | **PWA Specialist** | `pwa-specialist.md` | Offline-first, iOS quirks, service workers |
-| **Database Specialist** | `database.md` | Dexie.js, IndexedDB, sync logic |
+| **Database Specialist** | `database-specialist.md` | Dexie.js, IndexedDB, sync logic |
 | **Debugger** | `debugger.md` | Bug investigation, root cause analysis |
 
 ### Tier 2: Fitness Domain

@@ -1,7 +1,7 @@
 ---
 name: setflow-lead
 description: |
-  Primary coordinator for SetFlow gym tracker, ensuring alignment between fitness objectives and technical execution.
+  Primary coordinator for SetFlow, ensuring alignment between fitness objectives and technical execution.
   <example>
   Context: Complex feature coordination
   user: "Add Whoop recovery integration to adjust workout intensity"

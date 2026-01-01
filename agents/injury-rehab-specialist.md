@@ -12,7 +12,8 @@ description: |
   user: "What can replace barbell bench press for someone with shoulder impingement?"
   assistant: "I'll invoke the Injury & Rehab Specialist for safe pressing alternatives."
   </example>
-color: "#e74c3c"
+color: "#c0392b"
+model: claude-haiku
 tools: Read, Write, Edit, WebSearch, WebFetch
 ---
 

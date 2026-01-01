@@ -12,7 +12,8 @@ description: |
   user: "What should the rest timer do exactly?"
   assistant: "I'll invoke the PRD Specialist to define the requirements and acceptance criteria."
   </example>
-color: "#3498db"
+color: "#2980b9"
+model: claude-haiku
 tools: Read, Write, Edit, Glob, Grep
 ---
 
