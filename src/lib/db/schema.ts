@@ -123,6 +123,17 @@ export const syncMetadata = pgTable("sync_metadata", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
+// Achievements table - tracks unlocked achievements
+export const achievements = pgTable("achievements", {
+  id: text("id").primaryKey(),
+  userId: text("user_id").notNull().references(() => users.id),
+  achievementId: text("achievement_id").notNull(), // Maps to ACHIEVEMENTS array
+  unlockedAt: timestamp("unlocked_at").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [
+  index("achievements_user_idx").on(table.userId),
+]);
+
 // Onboarding profiles table - stores user preferences from onboarding flow
 export const onboardingProfiles = pgTable("onboarding_profiles", {
   id: text("id").primaryKey(),

@@ -12,7 +12,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Check, Minus, Plus, TrendingUp, Play, ChevronDown, ChevronUp } from "lucide-react";
+import { Check, Minus, Plus, TrendingUp, TrendingDown, Play, ChevronDown, ChevronUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 // Extract YouTube video ID from URL
@@ -82,6 +82,8 @@ interface SetLoggerProps {
   lastWeekWeight?: number;
   lastWeekReps?: number;
   suggestedWeight?: number;
+  lastWorkoutDate?: string;  // ISO date of last time this exercise was done
+  hitTargetLastTime?: boolean;  // Whether target reps were hit last time
   videoUrl?: string;
   onComplete: (weight: number, reps: number, rpe?: number) => void;
 }
@@ -96,6 +98,8 @@ export function SetLogger({
   lastWeekWeight,
   lastWeekReps,
   suggestedWeight,
+  lastWorkoutDate,
+  hitTargetLastTime,
   videoUrl,
   onComplete,
 }: SetLoggerProps) {
@@ -179,6 +183,21 @@ export function SetLogger({
   const showProgressIndicator =
     suggestedWeight && lastWeekWeight && suggestedWeight > lastWeekWeight;
 
+  // Format the last workout date for display
+  const formatLastDate = (isoDate?: string): string => {
+    if (!isoDate) return "Last time";
+    const date = new Date(isoDate);
+    const now = new Date();
+    const diffDays = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
+
+    if (diffDays === 0) return "Today";
+    if (diffDays === 1) return "Yesterday";
+    if (diffDays < 7) return `${diffDays} days ago`;
+    if (diffDays < 14) return "Last week";
+    if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`;
+    return date.toLocaleDateString("en-GB", { day: "numeric", month: "short" });
+  };
+
   return (
     <motion.div
       variants={cardCompleteVariants}
@@ -226,17 +245,34 @@ export function SetLogger({
           </AnimatePresence>
         </div>
 
-      {/* Last week reference */}
+      {/* Last workout reference */}
       {lastWeekWeight && lastWeekReps && (
         <div className="flex items-center gap-2 mb-6 p-3 rounded-lg bg-muted/50">
-          <span className="text-sm text-muted-foreground">Last week:</span>
+          <span className="text-sm text-muted-foreground">{formatLastDate(lastWorkoutDate)}:</span>
           <span className="text-sm font-medium text-foreground">
             {lastWeekWeight}kg x {lastWeekReps} reps
           </span>
+          {hitTargetLastTime !== undefined && (
+            <Badge
+              variant="outline"
+              className={cn(
+                "text-xs",
+                hitTargetLastTime ? "border-success/50 text-success" : "border-warning/50 text-warning"
+              )}
+            >
+              {hitTargetLastTime ? "Hit target" : "Missed target"}
+            </Badge>
+          )}
           {showProgressIndicator && (
-            <Badge variant="secondary" className="ml-auto text-xs">
+            <Badge variant="secondary" className="ml-auto text-xs bg-success/20 text-success border-success/30">
               <TrendingUp className="w-3 h-3 mr-1" />
               +{(suggestedWeight - lastWeekWeight).toFixed(1)}kg
+            </Badge>
+          )}
+          {suggestedWeight && lastWeekWeight && suggestedWeight < lastWeekWeight && (
+            <Badge variant="secondary" className="ml-auto text-xs bg-warning/20 text-warning border-warning/30">
+              <TrendingDown className="w-3 h-3 mr-1" />
+              {(suggestedWeight - lastWeekWeight).toFixed(1)}kg
             </Badge>
           )}
         </div>

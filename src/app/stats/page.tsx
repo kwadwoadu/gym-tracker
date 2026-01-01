@@ -11,6 +11,8 @@ import { WeightChart } from "@/components/stats/weight-chart";
 import { PRList } from "@/components/stats/pr-list";
 import { WorkoutCalendar } from "@/components/stats/workout-calendar";
 import { RecentWorkouts } from "@/components/stats/recent-workouts";
+import { AchievementGallery } from "@/components/gamification";
+import { getAchievementProgress, getAchievementStats, type AchievementProgress } from "@/lib/gamification";
 
 export default function StatsPage() {
   const router = useRouter();
@@ -18,6 +20,14 @@ export default function StatsPage() {
   const [workoutLogs, setWorkoutLogs] = useState<WorkoutLog[]>([]);
   const [personalRecords, setPersonalRecords] = useState<PersonalRecord[]>([]);
   const [exercises, setExercises] = useState<Map<string, Exercise>>(new Map());
+  const [achievementProgress, setAchievementProgress] = useState<AchievementProgress[]>([]);
+  const [achievementStats, setAchievementStats] = useState({
+    totalAchievements: 0,
+    unlockedCount: 0,
+    bronzeCount: 0,
+    silverCount: 0,
+    goldCount: 0,
+  });
 
   const loadData = useCallback(async () => {
     try {
@@ -38,6 +48,14 @@ export default function StatsPage() {
       const exerciseMap = new Map<string, Exercise>();
       allExercises.forEach((ex) => exerciseMap.set(ex.id, ex));
       setExercises(exerciseMap);
+
+      // Load achievement data
+      const [progress, stats] = await Promise.all([
+        getAchievementProgress(),
+        getAchievementStats(),
+      ]);
+      setAchievementProgress(progress);
+      setAchievementStats(stats);
     } catch (error) {
       console.error("Failed to load stats data:", error);
     } finally {
@@ -96,6 +114,12 @@ export default function StatsPage() {
 
         {/* Weight Progression Chart */}
         <WeightChart workoutLogs={workoutLogs} exercises={exercises} />
+
+        {/* Achievements */}
+        <section>
+          <h2 className="text-lg font-semibold text-foreground mb-4">Achievements</h2>
+          <AchievementGallery progress={achievementProgress} stats={achievementStats} />
+        </section>
 
         {/* Personal Records */}
         <PRList personalRecords={personalRecords} />

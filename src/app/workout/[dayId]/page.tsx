@@ -34,6 +34,8 @@ import { RestTimer } from "@/components/workout/rest-timer";
 import { SetLogger } from "@/components/workout/set-logger";
 import { EditSetDrawer } from "@/components/workout/edit-set-drawer";
 import { ChallengeCard } from "@/components/workout/challenge-card";
+import { AchievementToast, useAchievementToasts } from "@/components/gamification";
+import { checkAchievements, type AchievementUnlock } from "@/lib/gamification";
 import db, { getSuggestedWeight, getGlobalWeightSuggestion, checkAndAddPR, updateWorkoutLog, getLastWeekVolume } from "@/lib/db";
 import type { TrainingDay, Exercise, SetLog, WorkoutLog } from "@/lib/db";
 
@@ -182,6 +184,9 @@ export default function WorkoutSession() {
   const [editingSet, setEditingSet] = useState<SetLog | null>(null);
   const [showEditDrawer, setShowEditDrawer] = useState(false);
   const [challengeDismissedExercises, setChallengeDismissedExercises] = useState<Set<string>>(new Set());
+
+  // Achievement toasts
+  const { toasts: achievementToasts, addToasts: addAchievementToasts, removeToast: removeAchievementToast, currentToast } = useAchievementToasts();
 
   // Load training day and exercises
   useEffect(() => {
@@ -685,6 +690,12 @@ export default function WorkoutSession() {
     } else {
       audioManager.playWorkoutComplete();
     }
+
+    // Check for new achievements after workout completion
+    const newAchievements = await checkAchievements();
+    if (newAchievements.length > 0) {
+      addAchievementToasts(newAchievements);
+    }
   };
 
   // Handle completing workout with notes
@@ -736,6 +747,14 @@ export default function WorkoutSession() {
 
   return (
     <div className="min-h-screen pb-safe-bottom">
+      {/* Achievement Toast */}
+      {currentToast && (
+        <AchievementToast
+          achievement={currentToast.achievement}
+          onClose={() => removeAchievementToast(currentToast.achievement.id)}
+        />
+      )}
+
       {/* Header */}
       <header className="px-4 pt-safe-top pb-4 border-b border-border bg-background/80 backdrop-blur-lg sticky top-0 z-50">
         <div className="flex items-center justify-between">
@@ -1087,6 +1106,8 @@ export default function WorkoutSession() {
                   ? globalSuggestion.nudgeWeight
                   : globalSuggestion?.suggestedWeight ?? weightSuggestion?.weight
               }
+              lastWorkoutDate={globalSuggestion?.lastDate}
+              hitTargetLastTime={globalSuggestion?.hitTargetLastTime}
               videoUrl={currentExercise.videoUrl}
               onComplete={handleSetComplete}
             />

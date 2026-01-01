@@ -123,6 +123,12 @@ export interface OnboardingProfile {
   completedAt: string | null;
 }
 
+export interface Achievement {
+  id: string;
+  achievementId: string; // Maps to ACHIEVEMENTS array in achievements.ts
+  unlockedAt: string; // ISO date
+}
+
 // ============================================================
 // Database Definition
 // ============================================================
@@ -135,6 +141,7 @@ const db = new Dexie("GymTrackerDB") as Dexie & {
   personalRecords: EntityTable<PersonalRecord, "id">;
   userSettings: EntityTable<UserSettings, "id">;
   onboardingProfiles: EntityTable<OnboardingProfile, "id">;
+  achievements: EntityTable<Achievement, "id">;
 };
 
 db.version(1).stores({
@@ -154,6 +161,17 @@ db.version(2).stores({
   personalRecords: "id, exerciseId, date",
   userSettings: "id",
   onboardingProfiles: "id",
+});
+
+db.version(3).stores({
+  exercises: "id, name, *muscleGroups, equipment, isCustom",
+  programs: "id, name, isActive",
+  trainingDays: "id, programId, dayNumber",
+  workoutLogs: "id, date, programId, dayId, isComplete",
+  personalRecords: "id, exerciseId, date",
+  userSettings: "id",
+  onboardingProfiles: "id",
+  achievements: "id, achievementId, unlockedAt",
 });
 
 // ============================================================

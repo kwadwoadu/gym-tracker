@@ -25,7 +25,7 @@ function setLastSyncedAt(timestamp: string): void {
 
 // Export all local data for sync
 async function exportLocalData() {
-  const [exercises, programs, trainingDays, workoutLogs, personalRecords, settings, onboardingProfile] =
+  const [exercises, programs, trainingDays, workoutLogs, personalRecords, settings, onboardingProfile, achievements] =
     await Promise.all([
       db.exercises.toArray(),
       db.programs.toArray(),
@@ -34,6 +34,7 @@ async function exportLocalData() {
       db.personalRecords.toArray(),
       db.userSettings.get("user-settings"),
       db.onboardingProfiles.get("onboarding-profile"),
+      db.achievements.toArray(),
     ]);
 
   return {
@@ -44,6 +45,7 @@ async function exportLocalData() {
     personalRecords,
     settings,
     onboardingProfile,
+    achievements,
   };
 }
 
@@ -56,6 +58,7 @@ async function importCloudData(data: {
   personalRecords?: Array<{ id: string; exerciseId: string; exerciseName: string; weight: number; reps: number; unit: "kg" | "lbs"; date: string; workoutLogId: string }>;
   settings?: { id: string; weightUnit: "kg" | "lbs"; defaultRestSeconds: number; soundEnabled: boolean; autoProgressWeight: boolean; progressionIncrement: number } | null;
   onboardingProfile?: { id: string; goals: string[]; experienceLevel: string | null; trainingDaysPerWeek: number | null; equipment: string | null; heightCm: number | null; weightKg: number | null; bodyFatPercent: number | null; injuries: string[]; hasCompletedOnboarding: boolean; skippedOnboarding: boolean; completedAt: string | null } | null;
+  achievements?: Array<{ id: string; achievementId: string; unlockedAt: string }>;
 }) {
   // Merge cloud data with local (cloud wins on conflict)
   if (data.exercises) {
@@ -158,6 +161,16 @@ async function importCloudData(data: {
       skippedOnboarding: data.onboardingProfile.skippedOnboarding,
       completedAt: data.onboardingProfile.completedAt,
     });
+  }
+
+  if (data.achievements) {
+    for (const achievement of data.achievements) {
+      await db.achievements.put({
+        id: achievement.id,
+        achievementId: achievement.achievementId,
+        unlockedAt: achievement.unlockedAt,
+      });
+    }
   }
 }
 
