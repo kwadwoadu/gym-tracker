@@ -22,7 +22,7 @@ const workouts = indexedDB.transaction('workouts')...;
 | `/lib/audio.ts` | Web Audio API sounds (iOS-compatible) |
 | `/lib/gamification.ts` | Achievement unlocking logic |
 | `/lib/sync.ts` | Cross-device sync via URL/QR |
-| `/lib/calculations.ts` | Volume, 1RM estimates |
+| `/lib/utils.ts` | Volume calculations, 1RM estimates, helpers |
 
 ## Offline Requirements
 - NEVER assume network availability
