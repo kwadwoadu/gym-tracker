@@ -177,10 +177,19 @@ async function importCloudData(data: {
 
 // Push local changes to cloud
 export async function pushToCloud(userEmail?: string): Promise<{ success: boolean; error?: string }> {
+  console.log("[Sync] pushToCloud starting", { email: userEmail });
   try {
     const data = await exportLocalData();
     const lastSyncedAt = getLastSyncedAt();
     const deviceId = getDeviceId();
+
+    console.log("[Sync] pushToCloud data", {
+      lastSyncedAt,
+      deviceId,
+      exerciseCount: data.exercises?.length || 0,
+      programCount: data.programs?.length || 0,
+      workoutCount: data.workoutLogs?.length || 0,
+    });
 
     const response = await fetch("/api/sync", {
       method: "POST",
@@ -194,53 +203,73 @@ export async function pushToCloud(userEmail?: string): Promise<{ success: boolea
       }),
     });
 
+    console.log("[Sync] pushToCloud response", { status: response.status, ok: response.ok });
+
     if (!response.ok) {
       const error = await response.json();
+      console.log("[Sync] pushToCloud error body", error);
       return { success: false, error: error.error || "Push failed" };
     }
 
     const result = await response.json();
+    console.log("[Sync] pushToCloud success", { syncedAt: result.syncedAt });
     setLastSyncedAt(result.syncedAt);
     return { success: true };
   } catch (error) {
-    console.error("Push to cloud failed:", error);
+    console.error("[Sync] pushToCloud exception:", error);
     return { success: false, error: error instanceof Error ? error.message : "Network error" };
   }
 }
 
 // Pull cloud changes to local
 export async function pullFromCloud(): Promise<{ success: boolean; error?: string }> {
+  console.log("[Sync] pullFromCloud starting");
   try {
     const lastSyncedAt = getLastSyncedAt();
     const url = `/api/sync${lastSyncedAt ? `?since=${encodeURIComponent(lastSyncedAt)}` : ""}`;
+
+    console.log("[Sync] pullFromCloud request", { lastSyncedAt, url });
 
     const response = await fetch(url, {
       credentials: "include",
     });
 
+    console.log("[Sync] pullFromCloud response", { status: response.status, ok: response.ok });
+
     if (!response.ok) {
       const error = await response.json();
+      console.log("[Sync] pullFromCloud error body", error);
       return { success: false, error: error.error || "Pull failed" };
     }
 
     const result = await response.json();
+    console.log("[Sync] pullFromCloud data received", {
+      syncedAt: result.syncedAt,
+      exerciseCount: result.data?.exercises?.length || 0,
+      workoutCount: result.data?.workoutLogs?.length || 0,
+    });
     await importCloudData(result.data);
     setLastSyncedAt(result.syncedAt);
+    console.log("[Sync] pullFromCloud success");
     return { success: true };
   } catch (error) {
-    console.error("Pull from cloud failed:", error);
+    console.error("[Sync] pullFromCloud exception:", error);
     return { success: false, error: error instanceof Error ? error.message : "Network error" };
   }
 }
 
 // Full sync (pull then push)
 export async function fullSync(userEmail?: string): Promise<{ success: boolean; error?: string; details?: { pull: boolean; push: boolean } }> {
+  console.log("[Sync] fullSync starting", { email: userEmail });
+
   // Pull first to get any changes from other devices
   const pullResult = await pullFromCloud();
+  console.log("[Sync] fullSync pull completed", pullResult);
 
   // Always attempt push, even if pull fails
   // This ensures local changes get to cloud even with network hiccups
   const pushResult = await pushToCloud(userEmail);
+  console.log("[Sync] fullSync push completed", pushResult);
 
   // Include details about what succeeded/failed
   const details = {
@@ -254,9 +283,11 @@ export async function fullSync(userEmail?: string): Promise<{ success: boolean; 
     const errors: string[] = [];
     if (!pullResult.success) errors.push(`Pull failed: ${pullResult.error}`);
     if (!pushResult.success) errors.push(`Push failed: ${pushResult.error}`);
+    console.log("[Sync] fullSync failed", { errors, details });
     return { success: false, error: errors.join("; "), details };
   }
 
+  console.log("[Sync] fullSync completed successfully");
   return { success: true, details };
 }
 

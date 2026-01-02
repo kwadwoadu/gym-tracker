@@ -17,19 +17,29 @@ import {
 
 // POST /api/sync - Push local changes to cloud
 export async function POST(request: NextRequest) {
+  console.log("[API Sync] POST received");
   const { userId } = await auth();
+  console.log("[API Sync] POST auth result", { userId: userId ? userId.substring(0, 10) + "..." : null });
 
   if (!userId) {
+    console.log("[API Sync] POST unauthorized - no userId");
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   if (!isCloudSyncEnabled() || !cloudDb) {
+    console.log("[API Sync] POST cloud sync not configured", { isEnabled: isCloudSyncEnabled(), hasDb: !!cloudDb });
     return NextResponse.json({ error: "Cloud sync not configured" }, { status: 503 });
   }
 
   try {
     const body = await request.json();
     const { data } = body;
+    console.log("[API Sync] POST data received", {
+      exerciseCount: data?.exercises?.length || 0,
+      programCount: data?.programs?.length || 0,
+      workoutCount: data?.workoutLogs?.length || 0,
+      deviceId: body.deviceId,
+    });
 
     // Ensure user exists in cloud
     const existingUser = await cloudDb.select().from(users).where(eq(users.id, userId));
@@ -225,12 +235,13 @@ export async function POST(request: NextRequest) {
         },
       });
 
+    console.log("[API Sync] POST success", { syncedAt: now.toISOString() });
     return NextResponse.json({
       success: true,
       syncedAt: now.toISOString(),
     });
   } catch (error) {
-    console.error("Sync error:", error);
+    console.error("[API Sync] POST error:", error);
     return NextResponse.json(
       { error: "Sync failed", details: error instanceof Error ? error.message : "Unknown error" },
       { status: 500 }
@@ -240,13 +251,17 @@ export async function POST(request: NextRequest) {
 
 // GET /api/sync - Pull cloud changes to local
 export async function GET(request: NextRequest) {
+  console.log("[API Sync] GET received");
   const { userId } = await auth();
+  console.log("[API Sync] GET auth result", { userId: userId ? userId.substring(0, 10) + "..." : null });
 
   if (!userId) {
+    console.log("[API Sync] GET unauthorized - no userId");
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   if (!isCloudSyncEnabled() || !cloudDb) {
+    console.log("[API Sync] GET cloud sync not configured", { isEnabled: isCloudSyncEnabled(), hasDb: !!cloudDb });
     return NextResponse.json({ error: "Cloud sync not configured" }, { status: 503 });
   }
 
@@ -254,6 +269,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const since = searchParams.get("since");
     const sinceDate = since ? new Date(since) : new Date(0);
+    console.log("[API Sync] GET params", { since, sinceDate });
 
     // Fetch all user data that's been updated since the last sync
     const [
@@ -309,6 +325,11 @@ export async function GET(request: NextRequest) {
         }
       : null;
 
+    console.log("[API Sync] GET success", {
+      exerciseCount: userExercises.length,
+      programCount: userPrograms.length,
+      workoutCount: userWorkoutLogs.length,
+    });
     return NextResponse.json({
       success: true,
       data: {
@@ -328,7 +349,7 @@ export async function GET(request: NextRequest) {
       syncedAt: new Date().toISOString(),
     });
   } catch (error) {
-    console.error("Sync fetch error:", error);
+    console.error("[API Sync] GET error:", error);
     return NextResponse.json(
       { error: "Failed to fetch data", details: error instanceof Error ? error.message : "Unknown error" },
       { status: 500 }

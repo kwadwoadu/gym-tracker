@@ -6,7 +6,7 @@ This file defines agent orchestration for SetFlow - the gym workout tracking PWA
 
 ## Agent Architecture
 
-SetFlow has a dedicated 13-agent team organized in 4 tiers:
+SetFlow has a dedicated 14-agent team organized in 4 tiers:
 
 ```
                     ┌──────────────────┐
@@ -19,7 +19,7 @@ SetFlow has a dedicated 13-agent team organized in 4 tiers:
      ▼                       ▼                       ▼
 ┌─────────────┐      ┌─────────────┐      ┌─────────────┐
 │  TECHNICAL  │      │   FITNESS   │      │   SUPPORT   │
-│  (5 agents) │      │  (6 agents) │      │  (1 agent)  │
+│  (6 agents) │      │  (6 agents) │      │  (1 agent)  │
 └─────────────┘      └─────────────┘      └─────────────┘
 ```
 
@@ -38,7 +38,8 @@ SetFlow has a dedicated 13-agent team organized in 4 tiers:
 | **Software Engineer** | `software-engineer.md` | Full-stack Next.js 15 implementation |
 | **Frontend Specialist** | `frontend-specialist.md` | React 19, shadcn/ui, dark theme, touch UX |
 | **PWA Specialist** | `pwa-specialist.md` | Offline-first, iOS quirks, service workers |
-| **Database Specialist** | `database-specialist.md` | Dexie.js, IndexedDB, sync logic |
+| **Database Specialist** | `database-specialist.md` | Dexie.js, IndexedDB, data layer |
+| **Sync Specialist** | `sync-specialist.md` | Cross-device sync, Clerk auth, cloud sync debugging |
 | **Debugger** | `debugger.md` | Bug investigation, root cause analysis |
 
 ### Tier 2: Fitness Domain
@@ -85,7 +86,8 @@ SetFlow leverages AduOS core agents for expertise outside project scope:
 | **Feature implementation** | Software Engineer | Building new features |
 | **UI/UX work** | Frontend Specialist | Component design, dark theme, touch targets |
 | **PWA/offline issues** | PWA Specialist | Service worker, iOS, offline-first |
-| **Database work** | Database Specialist | Dexie queries, sync, migrations |
+| **Database work** | Database Specialist | Dexie queries, IndexedDB, migrations |
+| **Sync issues** | Sync Specialist | Cross-device sync, auth, cloud sync debugging |
 | **Bug investigation** | Debugger | Root cause analysis, systematic debugging |
 | **Program design** | Periodization Specialist | Mesocycles, progressive overload, deloads |
 | **Injury questions** | Injury & Rehab Specialist | Modifications, rehab protocols |
@@ -177,17 +179,19 @@ Database Specialist -> Add to exercises.json
 Frontend Specialist -> Preview exercise card
 ```
 
-### Cross-Browser Sync
+### Cross-Device Cloud Sync
 ```
 User clicks sync
     ↓
+Sync Specialist -> Orchestrate push/pull flow
+    ↓
 Database Specialist -> Export IndexedDB data
     ↓
-PWA Specialist -> Generate shareable sync URL
+Sync Specialist -> Authenticate with Clerk, POST to cloud
     ↓
-Frontend Specialist -> Display QR code or copy link
+Database Specialist -> Import cloud data on receiving device
     ↓
-Database Specialist -> Import data on receiving device
+Sync Specialist -> Update sync timestamps, handle errors
 ```
 
 ### Injury Modification Flow
@@ -284,10 +288,11 @@ Database Specialist -> Apply filters to exercise list
 | Agent | Collaborates With |
 |-------|-------------------|
 | **SetFlow Lead** | All agents |
-| **Software Engineer** | Frontend, Database, PWA, Debugger |
-| **Frontend Specialist** | Engineer, Audio, Database |
-| **PWA Specialist** | Engineer, Database, Audio |
-| **Database Specialist** | Engineer, Frontend, PWA |
+| **Software Engineer** | Frontend, Database, PWA, Sync, Debugger |
+| **Frontend Specialist** | Engineer, Audio, Database, Sync |
+| **PWA Specialist** | Engineer, Database, Sync, Audio |
+| **Database Specialist** | Engineer, Frontend, PWA, Sync |
+| **Sync Specialist** | Database, PWA, Debugger, Engineer |
 | **Debugger** | All technical agents |
 | **Periodization Specialist** | Movement, Injury, Progress |
 | **Injury & Rehab Specialist** | Movement, Periodization |
@@ -305,8 +310,9 @@ Database Specialist -> Apply filters to exercise list
 |-------|-----------|
 | Software Engineer | `/src/app/`, `/src/lib/`, `/src/components/` |
 | Frontend Specialist | `/src/components/`, `/src/app/globals.css` |
-| PWA Specialist | `next.config.ts`, `/public/manifest.json`, `/src/lib/sync.ts` |
+| PWA Specialist | `next.config.ts`, `/public/manifest.json` |
 | Database Specialist | `/src/lib/db.ts`, `/src/data/` |
+| Sync Specialist | `/src/lib/sync.ts`, `/src/app/api/sync/`, `/src/components/sync/` |
 | Audio Engineer | `/src/lib/audio.ts`, `/public/sounds/` |
 | Periodization Specialist | `/src/data/programs/`, `/src/lib/programs.ts` |
 | Movement Specialist | `/src/data/exercises.json` |
@@ -338,4 +344,4 @@ Database Specialist -> Apply filters to exercise list
 
 ---
 
-*SetFlow Agent Team | 13 Agents | Created: January 1, 2026*
+*SetFlow Agent Team | 14 Agents | Updated: January 3, 2026*

@@ -38,16 +38,28 @@ export function AutoSyncProvider({ children }: { children: React.ReactNode }) {
   const lastSyncTimeRef = useRef<number>(0);
 
   const performSync = useCallback(async () => {
+    console.log("[Sync] performSync called", { isSignedIn, email: user?.primaryEmailAddress?.emailAddress });
+
     // Prevent concurrent syncs
-    if (isSyncingRef.current) return;
+    if (isSyncingRef.current) {
+      console.log("[Sync] Blocked: already syncing");
+      return;
+    }
 
     // Prevent syncing too frequently
     const now = Date.now();
-    if (now - lastSyncTimeRef.current < MIN_SYNC_GAP) return;
+    if (now - lastSyncTimeRef.current < MIN_SYNC_GAP) {
+      console.log("[Sync] Blocked: too soon since last sync", { gap: now - lastSyncTimeRef.current, minGap: MIN_SYNC_GAP });
+      return;
+    }
 
     const email = user?.primaryEmailAddress?.emailAddress;
-    if (!email) return;
+    if (!email) {
+      console.log("[Sync] Blocked: no email available");
+      return;
+    }
 
+    console.log("[Sync] Starting sync for", email);
     isSyncingRef.current = true;
     lastSyncTimeRef.current = now;
     setSyncStatus("syncing");
@@ -55,8 +67,10 @@ export function AutoSyncProvider({ children }: { children: React.ReactNode }) {
 
     try {
       const result = await fullSync(email);
+      console.log("[Sync] fullSync result", result);
 
       if (result.success) {
+        console.log("[Sync] Success");
         setSyncStatus("success");
         const syncTime = new Date().toISOString();
         setLastSyncedAt(syncTime);
@@ -64,20 +78,23 @@ export function AutoSyncProvider({ children }: { children: React.ReactNode }) {
         // Reset to idle after a brief success indicator
         setTimeout(() => setSyncStatus("idle"), 2000);
       } else {
+        console.log("[Sync] Failed:", result.error);
         setSyncStatus("error");
         setSyncError(result.error || "Sync failed");
       }
     } catch (error) {
+      console.error("[Sync] Exception:", error);
       setSyncStatus("error");
       setSyncError(error instanceof Error ? error.message : "Sync failed");
     } finally {
       isSyncingRef.current = false;
     }
-  }, [user?.primaryEmailAddress?.emailAddress]);
+  }, [isSignedIn, user?.primaryEmailAddress?.emailAddress]);
 
   // Sync on initial sign-in
   useEffect(() => {
     if (isLoaded && isSignedIn && user?.primaryEmailAddress && !hasSyncedOnLoginRef.current) {
+      console.log("[Sync] Trigger: login detected, scheduling sync");
       hasSyncedOnLoginRef.current = true;
       // Small delay to ensure everything is ready
       setTimeout(performSync, 500);
@@ -85,6 +102,7 @@ export function AutoSyncProvider({ children }: { children: React.ReactNode }) {
 
     // Reset the flag and clear sync timestamp when user signs out
     if (isLoaded && !isSignedIn) {
+      console.log("[Sync] User signed out, clearing sync state");
       hasSyncedOnLoginRef.current = false;
       // Clear the timestamp so next login does a full pull from epoch
       localStorage.removeItem("setflow-last-synced-at");
@@ -95,7 +113,9 @@ export function AutoSyncProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (!isSignedIn) return;
 
+    console.log("[Sync] Setting up periodic sync (every 5 min)");
     const interval = setInterval(() => {
+      console.log("[Sync] Trigger: periodic interval");
       performSync();
     }, SYNC_INTERVAL);
 
@@ -108,10 +128,13 @@ export function AutoSyncProvider({ children }: { children: React.ReactNode }) {
 
     const handleVisibilityChange = () => {
       if (document.visibilityState === "visible") {
+        console.log("[Sync] Trigger: tab became visible");
         // Only sync if enough time has passed
         const now = Date.now();
         if (now - lastSyncTimeRef.current >= MIN_SYNC_GAP) {
           performSync();
+        } else {
+          console.log("[Sync] Visibility sync skipped: too soon");
         }
       }
     };
