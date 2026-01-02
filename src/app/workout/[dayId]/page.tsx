@@ -29,6 +29,9 @@ import {
   TrendingUp,
   Target,
   RotateCcw,
+  AlertCircle,
+  Cloud,
+  CloudOff,
 } from "lucide-react";
 import { RestTimer } from "@/components/workout/rest-timer";
 import { SetLogger } from "@/components/workout/set-logger";
@@ -191,6 +194,10 @@ export default function WorkoutSession() {
 
   // Achievement toasts
   const { toasts: achievementToasts, addToasts: addAchievementToasts, removeToast: removeAchievementToast, currentToast } = useAchievementToasts();
+
+  // Sync status toast
+  const [syncError, setSyncError] = useState<string | null>(null);
+  const [isSyncing, setIsSyncing] = useState(false);
 
   // Load training day and exercises
   useEffect(() => {
@@ -707,9 +714,22 @@ export default function WorkoutSession() {
 
     // Immediately sync to cloud so workout appears on other devices
     if (isSyncAvailable()) {
-      pushToCloud(user?.primaryEmailAddress?.emailAddress).catch((err) =>
-        console.error("Failed to sync after workout:", err)
-      );
+      setIsSyncing(true);
+      try {
+        const result = await pushToCloud(user?.primaryEmailAddress?.emailAddress);
+        if (!result.success) {
+          console.error("Sync failed after workout:", result.error);
+          setSyncError(result.error || "Failed to sync workout to cloud");
+          // Auto-dismiss after 5 seconds
+          setTimeout(() => setSyncError(null), 5000);
+        }
+      } catch (err) {
+        console.error("Failed to sync after workout:", err);
+        setSyncError(err instanceof Error ? err.message : "Network error during sync");
+        setTimeout(() => setSyncError(null), 5000);
+      } finally {
+        setIsSyncing(false);
+      }
     }
   };
 
@@ -768,6 +788,29 @@ export default function WorkoutSession() {
           achievement={currentToast.achievement}
           onClose={() => removeAchievementToast(currentToast.achievement.id)}
         />
+      )}
+
+      {/* Sync Error Toast */}
+      {syncError && (
+        <div className="fixed top-4 left-4 right-4 z-50 p-4 rounded-lg flex items-center gap-3 shadow-lg bg-red-600 text-white">
+          <CloudOff className="w-5 h-5 shrink-0" />
+          <div className="flex-1">
+            <p className="font-medium">Sync Failed</p>
+            <p className="text-sm opacity-90">{syncError}</p>
+          </div>
+          <button onClick={() => setSyncError(null)} className="p-1 hover:bg-red-700 rounded">
+            <span className="sr-only">Dismiss</span>
+            &times;
+          </button>
+        </div>
+      )}
+
+      {/* Syncing Indicator */}
+      {isSyncing && (
+        <div className="fixed top-4 left-4 right-4 z-50 p-4 rounded-lg flex items-center gap-3 shadow-lg bg-blue-600 text-white">
+          <Cloud className="w-5 h-5 shrink-0 animate-pulse" />
+          <span className="font-medium">Syncing workout to cloud...</span>
+        </div>
       )}
 
       {/* Header */}

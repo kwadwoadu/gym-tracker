@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Dumbbell, Play, Loader2, BarChart3, ClipboardList, Settings, Flame, Calendar } from "lucide-react";
 import { SupersetView } from "@/components/workout/superset-view";
+import { SyncIndicator } from "@/components/sync/sync-indicator";
 import db, { getWorkoutStreak, hasCompletedOnboarding } from "@/lib/db";
 import type { TrainingDay, Exercise } from "@/lib/db";
 import { seedExercisesOnly } from "@/lib/seed";
@@ -124,6 +125,7 @@ export default function Home() {
             >
               <BarChart3 className="w-5 h-5 text-muted-foreground" />
             </Button>
+            <SyncIndicator />
             <Button
               variant="ghost"
               size="icon"

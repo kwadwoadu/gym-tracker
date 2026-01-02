@@ -231,7 +231,7 @@ export async function pullFromCloud(): Promise<{ success: boolean; error?: strin
 }
 
 // Full sync (pull then push)
-export async function fullSync(userEmail?: string): Promise<{ success: boolean; error?: string }> {
+export async function fullSync(userEmail?: string): Promise<{ success: boolean; error?: string; details?: { pull: boolean; push: boolean } }> {
   // Pull first to get any changes from other devices
   const pullResult = await pullFromCloud();
 
@@ -239,12 +239,22 @@ export async function fullSync(userEmail?: string): Promise<{ success: boolean; 
   // This ensures local changes get to cloud even with network hiccups
   const pushResult = await pushToCloud(userEmail);
 
-  // Only fail if BOTH operations fail
-  if (!pullResult.success && !pushResult.success) {
-    return { success: false, error: `Pull: ${pullResult.error}, Push: ${pushResult.error}` };
+  // Include details about what succeeded/failed
+  const details = {
+    pull: pullResult.success,
+    push: pushResult.success,
+  };
+
+  // Return failure if EITHER operation fails (not just both)
+  // This ensures user knows when sync partially failed
+  if (!pullResult.success || !pushResult.success) {
+    const errors: string[] = [];
+    if (!pullResult.success) errors.push(`Pull failed: ${pullResult.error}`);
+    if (!pushResult.success) errors.push(`Push failed: ${pushResult.error}`);
+    return { success: false, error: errors.join("; "), details };
   }
 
-  return { success: true };
+  return { success: true, details };
 }
 
 // Check if sync is available (user is signed in)
