@@ -185,6 +185,7 @@ export async function pushToCloud(userEmail?: string): Promise<{ success: boolea
     const response = await fetch("/api/sync", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify({
         lastSyncedAt,
         deviceId,
@@ -213,7 +214,9 @@ export async function pullFromCloud(): Promise<{ success: boolean; error?: strin
     const lastSyncedAt = getLastSyncedAt();
     const url = `/api/sync${lastSyncedAt ? `?since=${encodeURIComponent(lastSyncedAt)}` : ""}`;
 
-    const response = await fetch(url);
+    const response = await fetch(url, {
+      credentials: "include",
+    });
 
     if (!response.ok) {
       const error = await response.json();
