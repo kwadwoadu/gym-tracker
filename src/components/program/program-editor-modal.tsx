@@ -24,7 +24,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Loader2, Trash2 } from "lucide-react";
-import type { Program } from "@/lib/db";
+import type { Program } from "@/lib/api-client";
 
 interface ProgramEditorModalProps {
   program: Program | null;

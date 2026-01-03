@@ -10,8 +10,8 @@ interface ExerciseCardProps {
   name: string;
   sets: number;
   reps: string;
-  tempo: string;
-  restSeconds: number;
+  tempo?: string;
+  restSeconds?: number;
   videoUrl?: string | null;
   muscleGroups: string[];
   supersetLabel: string;
@@ -86,12 +86,16 @@ export function ExerciseCard({
             {sets} sets x {reps} reps
           </p>
           <div className="flex items-center gap-2 mt-2 flex-wrap">
-            <Badge variant="secondary" className="text-xs">
-              {tempo}
-            </Badge>
-            <Badge variant="secondary" className="text-xs">
-              {restSeconds}s rest
-            </Badge>
+            {tempo && (
+              <Badge variant="secondary" className="text-xs">
+                {tempo}
+              </Badge>
+            )}
+            {restSeconds !== undefined && (
+              <Badge variant="secondary" className="text-xs">
+                {restSeconds}s rest
+              </Badge>
+            )}
           </div>
           {lastWeekWeight && lastWeekReps && (
             <p className="text-xs text-muted-foreground mt-2">
@@ -115,12 +119,14 @@ export function ExerciseCard({
         <div className="mt-4 pt-4 border-t border-border">
           <div className="space-y-3">
             {/* Tempo explanation */}
-            <div>
-              <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">
-                Tempo
-              </p>
-              <p className="text-sm text-foreground">{formatTempo(tempo)}</p>
-            </div>
+            {tempo && (
+              <div>
+                <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">
+                  Tempo
+                </p>
+                <p className="text-sm text-foreground">{formatTempo(tempo)}</p>
+              </div>
+            )}
 
             {/* Muscle groups */}
             <div>

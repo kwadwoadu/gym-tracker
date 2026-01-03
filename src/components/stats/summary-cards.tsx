@@ -2,7 +2,7 @@
 
 import { Card } from "@/components/ui/card";
 import { Dumbbell, Flame, Clock, Trophy } from "lucide-react";
-import type { WorkoutLog, PersonalRecord } from "@/lib/db";
+import type { WorkoutLog, PersonalRecord } from "@/lib/api-client";
 
 interface SummaryCardsProps {
   workoutLogs: WorkoutLog[];

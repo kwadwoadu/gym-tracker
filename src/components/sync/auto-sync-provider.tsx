@@ -1,8 +1,6 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect } from "react";
-import type { SyncState } from "dexie-cloud-addon";
-import db from "@/lib/db";
 
 type SyncStatus = "idle" | "syncing" | "success" | "error" | "offline";
 
@@ -35,7 +33,10 @@ export function AutoSyncProvider({ children }: { children: React.ReactNode }) {
     if (typeof window === "undefined") return;
 
     // Track online/offline status
-    const handleOnline = () => setIsOnline(true);
+    const handleOnline = () => {
+      setIsOnline(true);
+      setSyncStatus("idle");
+    };
     const handleOffline = () => {
       setIsOnline(false);
       setSyncStatus("offline");
@@ -44,43 +45,9 @@ export function AutoSyncProvider({ children }: { children: React.ReactNode }) {
     window.addEventListener("online", handleOnline);
     window.addEventListener("offline", handleOffline);
     setIsOnline(navigator.onLine);
-
-    // Subscribe to Dexie Cloud sync state
-    const subscription = db.cloud.syncState.subscribe((state: SyncState) => {
-      console.log("[Dexie Cloud] Sync state:", state.phase, state.status);
-
-      switch (state.phase) {
-        case "pushing":
-        case "pulling":
-          setSyncStatus("syncing");
-          setSyncError(null);
-          break;
-        case "in-sync":
-          setSyncStatus("success");
-          setSyncError(null);
-          const now = new Date().toISOString();
-          setLastSyncedAt(now);
-          localStorage.setItem("setflow-last-synced-at", now);
-          // Reset to idle after brief success indicator
-          setTimeout(() => setSyncStatus("idle"), 2000);
-          break;
-        case "error":
-          setSyncStatus("error");
-          setSyncError(state.error?.message || "Sync failed");
-          break;
-        case "offline":
-          setSyncStatus("offline");
-          break;
-        case "not-in-sync":
-        case "initial":
-        default:
-          if (!navigator.onLine) {
-            setSyncStatus("offline");
-          } else {
-            setSyncStatus("idle");
-          }
-      }
-    });
+    if (!navigator.onLine) {
+      setSyncStatus("offline");
+    }
 
     // Load last synced time from localStorage
     const stored = localStorage.getItem("setflow-last-synced-at");
@@ -91,23 +58,27 @@ export function AutoSyncProvider({ children }: { children: React.ReactNode }) {
     return () => {
       window.removeEventListener("online", handleOnline);
       window.removeEventListener("offline", handleOffline);
-      subscription.unsubscribe();
     };
   }, []);
 
+  // With server-based architecture, sync is handled by React Query
+  // This is just a placeholder for UI compatibility
   const triggerSync = async () => {
     if (syncStatus === "syncing" || !isOnline) return;
 
-    console.log("[Dexie Cloud] Manual sync triggered");
     setSyncStatus("syncing");
     setSyncError(null);
 
     try {
-      // Simple sync call - syncState subscription handles UI updates
-      await db.cloud.sync();
-      console.log("[Dexie Cloud] Manual sync completed");
+      // React Query handles data fetching automatically
+      // Just update the last synced timestamp
+      const now = new Date().toISOString();
+      setLastSyncedAt(now);
+      localStorage.setItem("setflow-last-synced-at", now);
+      setSyncStatus("success");
+      setTimeout(() => setSyncStatus("idle"), 2000);
     } catch (error) {
-      console.error("[Dexie Cloud] Manual sync failed:", error);
+      console.error("Sync failed:", error);
       setSyncStatus("error");
       setSyncError(error instanceof Error ? error.message : "Sync failed");
     }

@@ -26,9 +26,8 @@ import {
   AlertCircle,
   Pencil,
 } from "lucide-react";
-import db, { createNewTrainingDay, deleteTrainingDay, updateProgram, deleteProgram } from "@/lib/db";
+import { programsApi, trainingDaysApi, type TrainingDay, type Program } from "@/lib/api-client";
 import { ProgramEditorModal } from "@/components/program/program-editor-modal";
-import type { TrainingDay, Program } from "@/lib/db";
 import { cn } from "@/lib/utils";
 
 type ToastType = "success" | "error";
@@ -52,16 +51,13 @@ export default function ProgramPage() {
     async function loadProgram() {
       try {
         // Get active program
-        const programs = await db.programs.toArray();
+        const programs = await programsApi.list();
         const activeProgram = programs.find((p) => p.isActive) || programs[0];
         setProgram(activeProgram || null);
 
         if (activeProgram) {
           // Get training days for this program
-          const days = await db.trainingDays
-            .where("programId")
-            .equals(activeProgram.id)
-            .toArray();
+          const days = await trainingDaysApi.list(activeProgram.id);
           days.sort((a, b) => a.dayNumber - b.dayNumber);
           setTrainingDays(days);
         }
@@ -91,17 +87,21 @@ export default function ProgramPage() {
     if (!program || isAdding) return;
     setIsAdding(true);
     try {
-      const newDayId = await createNewTrainingDay(program.id);
+      const newDay = await trainingDaysApi.create({
+        programId: program.id,
+        name: `Day ${trainingDays.length + 1}`,
+        dayNumber: trainingDays.length + 1,
+        warmup: [],
+        supersets: [],
+        finisher: [],
+      });
       // Reload training days
-      const days = await db.trainingDays
-        .where("programId")
-        .equals(program.id)
-        .toArray();
+      const days = await trainingDaysApi.list(program.id);
       days.sort((a, b) => a.dayNumber - b.dayNumber);
       setTrainingDays(days);
       showToast("Training day added", "success");
       // Navigate to edit the new day
-      router.push(`/program/${newDayId}`);
+      router.push(`/program/${newDay.id}`);
     } catch (error) {
       console.error("Failed to add day:", error);
       showToast("Failed to add training day", "error");
@@ -114,12 +114,9 @@ export default function ProgramPage() {
     if (!dayToDelete || !program) return;
     const deletedName = dayToDelete.name;
     try {
-      await deleteTrainingDay(dayToDelete.id);
+      await trainingDaysApi.delete(dayToDelete.id);
       // Reload training days
-      const days = await db.trainingDays
-        .where("programId")
-        .equals(program.id)
-        .toArray();
+      const days = await trainingDaysApi.list(program.id);
       days.sort((a, b) => a.dayNumber - b.dayNumber);
       setTrainingDays(days);
       showToast(`"${deletedName}" deleted`, "success");
@@ -133,14 +130,14 @@ export default function ProgramPage() {
 
   const handleSaveProgram = async (name: string, description: string) => {
     if (!program) return;
-    await updateProgram(program.id, { name, description: description || undefined });
-    setProgram({ ...program, name, description: description || undefined });
+    await programsApi.update(program.id, { name, description: description || null });
+    setProgram({ ...program, name, description: description || null });
     showToast("Program updated", "success");
   };
 
   const handleDeleteProgram = async () => {
     if (!program) return;
-    await deleteProgram(program.id);
+    await programsApi.delete(program.id);
     showToast("Program deleted", "success");
     router.push("/");
   };

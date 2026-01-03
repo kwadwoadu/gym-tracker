@@ -41,15 +41,17 @@ import {
 } from "@dnd-kit/sortable";
 import { SortableExerciseItem } from "@/components/program/sortable-exercise-item";
 import { ExerciseCreator } from "@/components/program/exercise-creator";
-import db from "@/lib/db";
-import type {
-  Exercise,
-  Superset,
-  SupersetExercise,
-  WarmupExercise,
-  FinisherExercise,
-} from "@/lib/db";
+import {
+  exercisesApi,
+  trainingDaysApi,
+  type Exercise,
+  type Superset,
+  type SupersetExercise,
+  type WarmupExercise,
+} from "@/lib/api-client";
 import { cn } from "@/lib/utils";
+
+type FinisherExercise = WarmupExercise;
 
 interface ExerciseSelectorProps {
   exercises: Exercise[];
@@ -269,13 +271,13 @@ export default function DayEditorPage() {
     async function load() {
       try {
         // Load all exercises
-        const allExercises = await db.exercises.toArray();
+        const allExercises = await exercisesApi.list();
         const exerciseMap = new Map<string, Exercise>();
         allExercises.forEach((ex) => exerciseMap.set(ex.id, ex));
         setExercises(exerciseMap);
 
         // Load training day
-        const day = await db.trainingDays.get(dayId);
+        const day = await trainingDaysApi.get(dayId);
         if (day) {
           setDayName(day.name);
           setWarmup(day.warmup || []);
@@ -301,7 +303,7 @@ export default function DayEditorPage() {
 
     setIsSaving(true);
     try {
-      await db.trainingDays.update(dayId, {
+      await trainingDaysApi.update(dayId, {
         name: dayName.trim(),
         warmup,
         supersets,
@@ -426,7 +428,7 @@ export default function DayEditorPage() {
 
   const handleExerciseCreated = async (exerciseId: string) => {
     // Refresh exercises list
-    const allExercises = await db.exercises.toArray();
+    const allExercises = await exercisesApi.list();
     const exerciseMap = new Map<string, Exercise>();
     allExercises.forEach((ex) => exerciseMap.set(ex.id, ex));
     setExercises(exerciseMap);

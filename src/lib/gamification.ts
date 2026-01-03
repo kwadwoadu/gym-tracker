@@ -4,7 +4,13 @@
  * Handles achievement checking, unlocking, and progress tracking
  */
 
-import db, { generateId, type WorkoutLog, type Achievement, type PersonalRecord } from "./db";
+import {
+  workoutLogsApi,
+  personalRecordsApi,
+  achievementsApi,
+  type WorkoutLog,
+  type Achievement,
+} from "./api-client";
 import { ACHIEVEMENTS, getAchievementById, type AchievementDefinition } from "@/data/achievements";
 
 // ============================================================
@@ -32,18 +38,19 @@ export interface AchievementUnlock {
  * Calculate total number of completed workouts
  */
 export async function getTotalWorkouts(): Promise<number> {
-  const workouts = await db.workoutLogs.filter((w: WorkoutLog) => w.isComplete).count();
-  return workouts;
+  const workouts = await workoutLogsApi.list();
+  return workouts.filter((w: WorkoutLog) => w.isComplete).length;
 }
 
 /**
  * Calculate total volume lifted (in kg)
  */
 export async function getTotalVolume(): Promise<number> {
-  const workouts = await db.workoutLogs.filter((w: WorkoutLog) => w.isComplete).toArray();
+  const workouts = await workoutLogsApi.list();
+  const completedWorkouts = workouts.filter((w: WorkoutLog) => w.isComplete);
   let totalVolume = 0;
 
-  for (const workout of workouts) {
+  for (const workout of completedWorkouts) {
     for (const set of workout.sets) {
       if (set.isComplete) {
         // Convert lbs to kg if needed
@@ -60,22 +67,21 @@ export async function getTotalVolume(): Promise<number> {
  * Calculate total number of personal records
  */
 export async function getTotalPRs(): Promise<number> {
-  const prs = await db.personalRecords.count();
-  return prs;
+  const prs = await personalRecordsApi.list();
+  return prs.length;
 }
 
 /**
  * Calculate current streak (consecutive workout days)
  */
 export async function getCurrentStreak(): Promise<number> {
-  const workouts = await db.workoutLogs
-    .filter((w: WorkoutLog) => w.isComplete)
-    .toArray();
+  const workouts = await workoutLogsApi.list();
+  const completedWorkouts = workouts.filter((w: WorkoutLog) => w.isComplete);
 
-  if (workouts.length === 0) return 0;
+  if (completedWorkouts.length === 0) return 0;
 
   // Get unique dates sorted descending
-  const dates: string[] = [...new Set(workouts.map((w: WorkoutLog) => w.date))].sort().reverse();
+  const dates: string[] = [...new Set(completedWorkouts.map((w: WorkoutLog) => w.date))].sort().reverse();
 
   const today = new Date().toISOString().split("T")[0];
   const yesterday = new Date(Date.now() - 86400000).toISOString().split("T")[0];
@@ -109,15 +115,15 @@ export async function getCurrentStreak(): Promise<number> {
  * Get all unlocked achievements
  */
 export async function getUnlockedAchievements(): Promise<Achievement[]> {
-  return db.achievements.toArray();
+  return achievementsApi.list();
 }
 
 /**
  * Check if a specific achievement is unlocked
  */
 export async function isAchievementUnlocked(achievementId: string): Promise<boolean> {
-  const achievement = await db.achievements.where("achievementId").equals(achievementId).first();
-  return !!achievement;
+  const achievements = await achievementsApi.list();
+  return achievements.some(a => a.achievementId === achievementId);
 }
 
 /**
@@ -135,19 +141,17 @@ export async function unlockAchievement(achievementId: string): Promise<Achievem
     return null;
   }
 
-  const now = new Date().toISOString();
-  const achievement: Achievement = {
-    id: generateId(),
-    achievementId,
-    unlockedAt: now,
-  };
+  try {
+    const achievement = await achievementsApi.unlock(achievementId);
 
-  await db.achievements.add(achievement);
-
-  return {
-    achievement: definition,
-    unlockedAt: now,
-  };
+    return {
+      achievement: definition,
+      unlockedAt: achievement.unlockedAt,
+    };
+  } catch (error) {
+    console.error(`Failed to unlock achievement: ${achievementId}`, error);
+    return null;
+  }
 }
 
 /**

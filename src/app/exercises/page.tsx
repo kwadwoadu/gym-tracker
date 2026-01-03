@@ -1,50 +1,38 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { ArrowLeft, Plus, Search, Dumbbell, Loader2 } from "lucide-react";
-import db from "@/lib/db";
-import type { Exercise } from "@/lib/db";
+import { useExercises } from "@/lib/queries";
 import { cn } from "@/lib/utils";
 
 export default function ExercisesPage() {
   const router = useRouter();
-  const [isLoading, setIsLoading] = useState(true);
-  const [exercises, setExercises] = useState<Exercise[]>([]);
+  const { data: exercises = [], isLoading } = useExercises();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedMuscle, setSelectedMuscle] = useState<string | null>(null);
 
-  useEffect(() => {
-    async function loadExercises() {
-      try {
-        const allExercises = await db.exercises.toArray();
-        allExercises.sort((a, b) => a.name.localeCompare(b.name));
-        setExercises(allExercises);
-      } catch (error) {
-        console.error("Failed to load exercises:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    }
-    loadExercises();
-  }, []);
+  // Sort exercises alphabetically
+  const sortedExercises = useMemo(() => {
+    return [...exercises].sort((a, b) => a.name.localeCompare(b.name));
+  }, [exercises]);
 
   // Get all unique muscle groups
   const muscleGroups = useMemo(() => {
     const groups = new Set<string>();
-    exercises.forEach((ex) => {
+    sortedExercises.forEach((ex) => {
       ex.muscleGroups.forEach((mg) => groups.add(mg));
     });
     return Array.from(groups).sort();
-  }, [exercises]);
+  }, [sortedExercises]);
 
   // Filter exercises based on search and muscle group
   const filteredExercises = useMemo(() => {
-    return exercises.filter((ex) => {
+    return sortedExercises.filter((ex) => {
       const matchesSearch = searchQuery
         ? ex.name.toLowerCase().includes(searchQuery.toLowerCase())
         : true;
@@ -53,7 +41,7 @@ export default function ExercisesPage() {
         : true;
       return matchesSearch && matchesMuscle;
     });
-  }, [exercises, searchQuery, selectedMuscle]);
+  }, [sortedExercises, searchQuery, selectedMuscle]);
 
   if (isLoading) {
     return (

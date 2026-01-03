@@ -36,8 +36,8 @@ import { EditSetDrawer } from "@/components/workout/edit-set-drawer";
 import { ChallengeCard } from "@/components/workout/challenge-card";
 import { AchievementToast, useAchievementToasts } from "@/components/gamification";
 import { checkAchievements } from "@/lib/gamification";
-import db, { getSuggestedWeight, getGlobalWeightSuggestion, checkAndAddPR, updateWorkoutLog, getLastWeekVolume, getUserSettings } from "@/lib/db";
-import type { TrainingDay, Exercise, SetLog, WorkoutLog } from "@/lib/db";
+import { trainingDaysApi, exercisesApi, workoutLogsApi, type TrainingDay, type Exercise, type SetLog, type WorkoutLog } from "@/lib/api-client";
+import { getSuggestedWeight, getGlobalWeightSuggestion, checkAndAddPR, updateWorkoutLog, getLastWeekVolume, getUserSettings } from "@/lib/workout-helpers";
 
 // Animation variants for phase transitions
 const phaseVariants = {
@@ -193,7 +193,7 @@ export default function WorkoutSession() {
   useEffect(() => {
     async function loadData() {
       try {
-        const day = await db.trainingDays.get(dayId);
+        const day = await trainingDaysApi.get(dayId);
         if (!day) {
           router.push("/");
           return;
@@ -201,16 +201,18 @@ export default function WorkoutSession() {
         setTrainingDay(day);
 
         // Initialize warmup checkboxes
-        if (day.warmup) {
-          setWarmupChecked(new Array(day.warmup.length).fill(false));
+        const warmup = day.warmup as Array<{ exerciseId: string; reps: number }> | null;
+        if (warmup) {
+          setWarmupChecked(new Array(warmup.length).fill(false));
         }
 
         // Initialize finisher checkboxes
-        if (day.finisher) {
-          setFinisherChecked(new Array(day.finisher.length).fill(false));
+        const finisher = day.finisher as Array<{ exerciseId: string; reps: number }> | null;
+        if (finisher) {
+          setFinisherChecked(new Array(finisher.length).fill(false));
         }
 
-        const allExercises = await db.exercises.toArray();
+        const allExercises = await exercisesApi.list();
         const exerciseMap = new Map<string, Exercise>();
         allExercises.forEach((ex) => exerciseMap.set(ex.id, ex));
         setExercises(exerciseMap);
@@ -635,10 +637,8 @@ export default function WorkoutSession() {
       (endTime.getTime() - startTime.getTime()) / 1000
     );
 
-    // Save workout log
-    const logId = `workout-${Date.now()}`;
-    const workoutLog: WorkoutLog = {
-      id: logId,
+    // Save workout log via API
+    const workoutLogData = {
       date: startTime.toISOString().split("T")[0],
       dayId: trainingDay.id,
       dayName: trainingDay.name,
@@ -650,8 +650,8 @@ export default function WorkoutSession() {
       isComplete: true,
     };
 
-    await db.workoutLogs.add(workoutLog);
-    setWorkoutLogId(logId);
+    const savedLog = await workoutLogsApi.create(workoutLogData);
+    setWorkoutLogId(savedLog.id);
 
     // Check for PRs - find best set for each exercise
     const exerciseBestSets = new Map<string, SetLog>();
@@ -672,9 +672,7 @@ export default function WorkoutSession() {
         exerciseId,
         bestSet.exerciseName,
         bestSet.weight,
-        bestSet.actualReps,
-        bestSet.unit,
-        logId
+        bestSet.actualReps
       );
       if (isPR) {
         achievedPRs.push({
@@ -1114,7 +1112,7 @@ export default function WorkoutSession() {
               }
               lastWorkoutDate={globalSuggestion?.lastDate}
               hitTargetLastTime={globalSuggestion?.hitTargetLastTime}
-              videoUrl={currentExercise.videoUrl}
+              videoUrl={currentExercise.videoUrl ?? undefined}
               onComplete={handleSetComplete}
             />
 
@@ -1154,7 +1152,7 @@ export default function WorkoutSession() {
             className="py-8"
           >
             <RestTimer
-              seconds={currentExercise.restSeconds}
+              seconds={currentExercise.restSeconds ?? 60}
               onComplete={handleRestComplete}
               autoStart={autoStartRestTimer}
               label="Rest Time"

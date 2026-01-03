@@ -69,14 +69,38 @@ export const exercisesApi = {
 // Programs
 // ============================================================
 
+// Warmup/Finisher exercise in a training day
+export interface WarmupExercise {
+  exerciseId: string;
+  reps?: number;
+  duration?: number;
+  notes?: string;
+}
+
+// Superset exercise in a training day
+export interface SupersetExercise {
+  exerciseId: string;
+  sets: number;
+  reps: string;
+  tempo?: string;
+  restSeconds?: number;
+}
+
+// Superset group in a training day
+export interface Superset {
+  id: string;
+  label: string;
+  exercises: SupersetExercise[];
+}
+
 export interface TrainingDay {
   id: string;
   name: string;
   dayNumber: number;
   programId: string;
-  warmup: unknown[];
-  supersets: unknown[];
-  finisher: unknown[];
+  warmup: WarmupExercise[];
+  supersets: Superset[];
+  finisher: WarmupExercise[];
 }
 
 export interface Program {
@@ -186,13 +210,20 @@ export const trainingDaysApi = {
 // ============================================================
 
 export interface SetLog {
+  id?: string;
   exerciseId: string;
   exerciseName: string;
   setNumber: number;
   weight: number;
-  reps: number;
+  reps?: number;
+  actualReps: number;
+  targetReps?: number;
   rpe?: number;
   tempo?: string;
+  unit?: string;
+  supersetLabel?: string;
+  isComplete?: boolean;
+  completedAt?: string;
 }
 
 export interface WorkoutLog {
@@ -244,10 +275,14 @@ export const workoutLogsApi = {
   },
 
   create: async (data: {
-    programId: string;
+    programId?: string;
     dayId: string;
     dayName: string;
     date?: string;
+    duration?: number;
+    sets?: SetLog[];
+    notes?: string;
+    isComplete?: boolean;
   }): Promise<WorkoutLog> => {
     const res = await fetch(`${API_BASE}/workout-logs`, {
       method: "POST",
@@ -305,12 +340,19 @@ export const personalRecordsApi = {
     reps: number;
     unit?: string;
     date?: string;
-    workoutLogId: string;
+    workoutLogId?: string;
   }): Promise<PersonalRecord> => {
     const res = await fetch(`${API_BASE}/personal-records`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
+    });
+    return handleResponse(res);
+  },
+
+  delete: async (id: string): Promise<void> => {
+    const res = await fetch(`${API_BASE}/personal-records/${id}`, {
+      method: "DELETE",
     });
     return handleResponse(res);
   },
@@ -424,6 +466,7 @@ export interface Stats {
   totalReps: number;
   dayFrequency: number[];
   currentStreak: number;
+  thisWeekCount: number;
   personalRecordsCount: number;
   recentPRs: PersonalRecord[];
 }

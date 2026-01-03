@@ -5,7 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Calendar, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { WorkoutLog } from "@/lib/db";
+import type { WorkoutLog } from "@/lib/api-client";
 
 interface WorkoutCalendarProps {
   workoutLogs: WorkoutLog[];

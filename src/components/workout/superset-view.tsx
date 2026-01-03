@@ -1,7 +1,19 @@
 "use client";
 
 import { ExerciseCard } from "./exercise-card";
-import type { Exercise, Superset } from "@/lib/db";
+import type { Exercise } from "@/lib/api-client";
+
+interface Superset {
+  id: string;
+  label: string;
+  exercises: Array<{
+    exerciseId: string;
+    sets: number;
+    reps: string;
+    tempo?: string;
+    restSeconds?: number;
+  }>;
+}
 
 interface SupersetViewProps {
   superset: Superset;

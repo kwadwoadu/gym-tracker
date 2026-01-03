@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { CheckCircle2, Dumbbell, Calendar, Target, Sparkles } from "lucide-react";
-import type { OnboardingProfile } from "@/lib/db";
+import type { OnboardingProfile } from "@/lib/api-client";
 
 interface CompletionStepProps {
   profile: Partial<OnboardingProfile>;

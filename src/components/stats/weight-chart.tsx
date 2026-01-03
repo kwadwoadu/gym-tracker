@@ -12,7 +12,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-import type { WorkoutLog, Exercise } from "@/lib/db";
+import type { WorkoutLog, Exercise } from "@/lib/api-client";
 
 interface WeightChartProps {
   workoutLogs: WorkoutLog[];

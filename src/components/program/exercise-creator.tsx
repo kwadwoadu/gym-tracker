@@ -21,7 +21,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Loader2, X } from "lucide-react";
-import db from "@/lib/db";
+import { exercisesApi } from "@/lib/api-client";
 
 const MUSCLE_GROUPS = [
   { value: "chest", label: "Chest" },
@@ -122,18 +122,14 @@ export function ExerciseCreator({
     setError("");
 
     try {
-      const exerciseId = `ex-custom-${Date.now()}`;
-      await db.exercises.add({
-        id: exerciseId,
+      const newExercise = await exercisesApi.create({
         name: name.trim(),
         muscleGroups,
         equipment,
-        videoUrl: videoUrl.trim() || undefined,
-        isCustom: true,
-        createdAt: new Date().toISOString(),
+        videoUrl: videoUrl.trim() || null,
       });
 
-      onCreated(exerciseId);
+      onCreated(newExercise.id);
       handleClose();
     } catch (err) {
       console.error("Failed to create exercise:", err);

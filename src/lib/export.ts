@@ -1,12 +1,17 @@
-import db, {
+import {
+  exercisesApi,
+  programsApi,
+  trainingDaysApi,
+  workoutLogsApi,
+  personalRecordsApi,
+  settingsApi,
   type Exercise,
   type Program,
   type TrainingDay,
   type WorkoutLog,
   type PersonalRecord,
   type UserSettings,
-} from "./db";
-import { seedDatabase, clearDatabase } from "./seed";
+} from "./api-client";
 
 // ============================================================
 // Export Data Types
@@ -33,12 +38,19 @@ interface ExportData {
  * Exports all data from the database as a JSON string
  */
 export async function exportAllData(): Promise<string> {
-  const exercises = await db.exercises.toArray();
-  const programs = await db.programs.toArray();
-  const trainingDays = await db.trainingDays.toArray();
-  const workoutLogs = await db.workoutLogs.toArray();
-  const personalRecords = await db.personalRecords.toArray();
-  const userSettings = await db.userSettings.get("user-settings");
+  const exercises = await exercisesApi.list();
+  const programs = await programsApi.list();
+
+  // Get training days for all programs
+  const trainingDays: TrainingDay[] = [];
+  for (const program of programs) {
+    const days = await trainingDaysApi.list(program.id);
+    trainingDays.push(...days);
+  }
+
+  const workoutLogs = await workoutLogsApi.list();
+  const personalRecords = await personalRecordsApi.list();
+  const userSettings = await settingsApi.get();
 
   const exportData: ExportData = {
     version: 1,
@@ -110,34 +122,84 @@ export async function importData(jsonString: string): Promise<void> {
     throw new Error("Invalid data structure");
   }
 
-  // Clear existing data
-  await clearDatabase();
+  // Clear existing data (delete all via API)
+  const existingPrograms = await programsApi.list();
+  for (const program of existingPrograms) {
+    await programsApi.delete(program.id);
+  }
+
+  const existingExercises = await exercisesApi.list();
+  for (const exercise of existingExercises) {
+    await exercisesApi.delete(exercise.id);
+  }
+
+  const existingWorkouts = await workoutLogsApi.list();
+  for (const workout of existingWorkouts) {
+    await workoutLogsApi.delete(workout.id);
+  }
+
+  const existingPRs = await personalRecordsApi.list();
+  for (const pr of existingPRs) {
+    await personalRecordsApi.delete(pr.id);
+  }
 
   // Import new data
   const { data } = parsedData;
 
-  if (data.exercises.length > 0) {
-    await db.exercises.bulkAdd(data.exercises);
+  // Import exercises first
+  for (const exercise of data.exercises) {
+    await exercisesApi.create({
+      name: exercise.name,
+      muscleGroups: exercise.muscleGroups,
+      equipment: exercise.equipment,
+      videoUrl: exercise.videoUrl,
+    });
   }
 
-  if (data.programs.length > 0) {
-    await db.programs.bulkAdd(data.programs);
+  // Import programs with training days
+  for (const program of data.programs) {
+    const programDays = data.trainingDays.filter(d => d.programId === program.id);
+    await programsApi.create({
+      name: program.name,
+      description: program.description || undefined,
+      isActive: program.isActive,
+      trainingDays: programDays.map(day => ({
+        name: day.name,
+        dayNumber: day.dayNumber,
+        warmup: day.warmup,
+        supersets: day.supersets,
+        finisher: day.finisher,
+      })),
+    });
   }
 
-  if (data.trainingDays.length > 0) {
-    await db.trainingDays.bulkAdd(data.trainingDays);
+  // Import workout logs
+  for (const workout of data.workoutLogs) {
+    await workoutLogsApi.create({
+      date: workout.date,
+      dayId: workout.dayId,
+      dayName: workout.dayName,
+      duration: workout.duration ?? undefined,
+      sets: workout.sets,
+      notes: workout.notes ?? undefined,
+      isComplete: workout.isComplete ?? undefined,
+    });
   }
 
-  if (data.workoutLogs.length > 0) {
-    await db.workoutLogs.bulkAdd(data.workoutLogs);
+  // Import personal records
+  for (const pr of data.personalRecords) {
+    await personalRecordsApi.create({
+      exerciseId: pr.exerciseId,
+      exerciseName: pr.exerciseName,
+      weight: pr.weight,
+      reps: pr.reps,
+      date: pr.date,
+    });
   }
 
-  if (data.personalRecords.length > 0) {
-    await db.personalRecords.bulkAdd(data.personalRecords);
-  }
-
+  // Import settings
   if (data.userSettings) {
-    await db.userSettings.add(data.userSettings);
+    await settingsApi.update(data.userSettings);
   }
 }
 
@@ -167,8 +229,16 @@ export function readFileAsString(file: File): Promise<string> {
  * Clears only workout logs (keeps program and exercises)
  */
 export async function clearWorkoutLogs(): Promise<void> {
-  await db.workoutLogs.clear();
-  await db.personalRecords.clear();
+  const workouts = await workoutLogsApi.list();
+  for (const workout of workouts) {
+    await workoutLogsApi.delete(workout.id);
+  }
+
+  const prs = await personalRecordsApi.list();
+  for (const pr of prs) {
+    await personalRecordsApi.delete(pr.id);
+  }
+
   console.log("Workout logs and personal records cleared");
 }
 
@@ -177,12 +247,19 @@ export async function clearWorkoutLogs(): Promise<void> {
 // ============================================================
 
 /**
- * Resets all data to default program
+ * Resets all data to default (clears everything - user must reinstall program)
  */
 export async function resetToDefault(): Promise<void> {
-  // Clear all data
-  await clearDatabase();
-  // Re-seed with default data
-  await seedDatabase();
-  console.log("Database reset to default");
+  // Clear all programs (cascade deletes training days)
+  const programs = await programsApi.list();
+  for (const program of programs) {
+    await programsApi.delete(program.id);
+  }
+
+  // Clear workout logs and PRs
+  await clearWorkoutLogs();
+
+  // Note: Exercises are seeded from preset programs,
+  // so they'll be re-created when user selects a program
+  console.log("Database reset - user must select a program");
 }

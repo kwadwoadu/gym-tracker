@@ -120,6 +120,20 @@ export async function GET(request: Request) {
       }
     }
 
+    // Calculate this week's workout count (always based on current week)
+    const startOfWeek = new Date(now);
+    startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
+    startOfWeek.setHours(0, 0, 0, 0);
+
+    const thisWeekLogs = await prisma.workoutLog.findMany({
+      where: {
+        userId: user.id,
+        isComplete: true,
+        startTime: { gte: startOfWeek },
+      },
+    });
+    const thisWeekCount = new Set(thisWeekLogs.map((log) => log.date)).size;
+
     return NextResponse.json({
       period,
       totalWorkouts,
@@ -130,6 +144,7 @@ export async function GET(request: Request) {
       totalReps,
       dayFrequency,
       currentStreak,
+      thisWeekCount,
       personalRecordsCount: personalRecords.length,
       recentPRs: personalRecords.slice(0, 5),
     });

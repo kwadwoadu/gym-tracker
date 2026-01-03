@@ -1,76 +1,140 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useMemo, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Loader2 } from "lucide-react";
-import db from "@/lib/db";
-import type { WorkoutLog, PersonalRecord, Exercise } from "@/lib/db";
+import { useWorkoutLogs, usePersonalRecords, useExercises, useAchievements, useStats } from "@/lib/queries";
+import type { Exercise, WorkoutLog, PersonalRecord } from "@/lib/api-client";
 import { SummaryCards } from "@/components/stats/summary-cards";
 import { WeightChart } from "@/components/stats/weight-chart";
 import { PRList } from "@/components/stats/pr-list";
 import { WorkoutCalendar } from "@/components/stats/workout-calendar";
 import { RecentWorkouts } from "@/components/stats/recent-workouts";
 import { AchievementGallery } from "@/components/gamification";
-import { getAchievementProgress, getAchievementStats, type AchievementProgress } from "@/lib/gamification";
+import { ACHIEVEMENTS } from "@/data/achievements";
+import type { AchievementProgress } from "@/lib/gamification";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function StatsPage() {
   const router = useRouter();
-  const [isLoading, setIsLoading] = useState(true);
-  const [workoutLogs, setWorkoutLogs] = useState<WorkoutLog[]>([]);
-  const [personalRecords, setPersonalRecords] = useState<PersonalRecord[]>([]);
-  const [exercises, setExercises] = useState<Map<string, Exercise>>(new Map());
-  const [achievementProgress, setAchievementProgress] = useState<AchievementProgress[]>([]);
-  const [achievementStats, setAchievementStats] = useState({
-    totalAchievements: 0,
-    unlockedCount: 0,
-    bronzeCount: 0,
-    silverCount: 0,
-    goldCount: 0,
-  });
+  const queryClient = useQueryClient();
 
-  const loadData = useCallback(async () => {
-    try {
-      // Load all workout logs
-      const logs = await db.workoutLogs
-        .filter((log) => log.isComplete)
-        .toArray();
-      logs.sort((a, b) => b.date.localeCompare(a.date)); // Most recent first
-      setWorkoutLogs(logs);
+  // React Query hooks
+  const { data: workoutLogs, isLoading: logsLoading } = useWorkoutLogs({ isComplete: true });
+  const { data: personalRecords, isLoading: prsLoading } = usePersonalRecords();
+  const { data: exercisesList, isLoading: exercisesLoading } = useExercises();
+  const { data: unlockedAchievements, isLoading: achievementsLoading } = useAchievements();
+  const { data: stats } = useStats();
 
-      // Load all personal records
-      const prs = await db.personalRecords.toArray();
-      prs.sort((a, b) => b.date.localeCompare(a.date)); // Most recent first
-      setPersonalRecords(prs);
+  // Create exercise map for quick lookup
+  const exercises = useMemo(() => {
+    const map = new Map<string, Exercise>();
+    exercisesList?.forEach((ex) => map.set(ex.id, ex));
+    return map;
+  }, [exercisesList]);
 
-      // Load exercises for reference
-      const allExercises = await db.exercises.toArray();
-      const exerciseMap = new Map<string, Exercise>();
-      allExercises.forEach((ex) => exerciseMap.set(ex.id, ex));
-      setExercises(exerciseMap);
+  // Sort workout logs by date (most recent first)
+  const sortedLogs = useMemo(() => {
+    if (!workoutLogs) return [];
+    return [...workoutLogs].sort((a, b) => b.date.localeCompare(a.date));
+  }, [workoutLogs]);
 
-      // Load achievement data
-      const [progress, stats] = await Promise.all([
-        getAchievementProgress(),
-        getAchievementStats(),
-      ]);
-      setAchievementProgress(progress);
-      setAchievementStats(stats);
-    } catch (error) {
-      console.error("Failed to load stats data:", error);
-    } finally {
-      setIsLoading(false);
+  // Sort personal records by date (most recent first)
+  const sortedPRs = useMemo(() => {
+    if (!personalRecords) return [];
+    return [...personalRecords].sort((a, b) => b.date.localeCompare(a.date));
+  }, [personalRecords]);
+
+  // Calculate achievement progress client-side
+  const achievementProgress = useMemo((): AchievementProgress[] => {
+    if (!stats || !unlockedAchievements) return [];
+
+    const unlockedMap = new Map(unlockedAchievements.map(a => [a.achievementId, a.unlockedAt]));
+
+    return ACHIEVEMENTS.map(achievement => {
+      let currentValue = 0;
+
+      switch (achievement.checkType) {
+        case "streak":
+          currentValue = stats.currentStreak;
+          break;
+        case "total_workouts":
+          currentValue = stats.totalWorkouts;
+          break;
+        case "total_volume":
+          currentValue = stats.totalVolume;
+          break;
+        case "total_prs":
+          currentValue = stats.personalRecordsCount;
+          break;
+        default:
+          currentValue = 0;
+      }
+
+      const isUnlocked = unlockedMap.has(achievement.id);
+      const percentComplete = isUnlocked ? 100 : Math.min(100, Math.round((currentValue / achievement.requirement) * 100));
+
+      return {
+        achievement,
+        currentValue,
+        isUnlocked,
+        unlockedAt: unlockedMap.get(achievement.id),
+        percentComplete,
+      };
+    });
+  }, [stats, unlockedAchievements]);
+
+  // Calculate achievement stats
+  const achievementStats = useMemo(() => {
+    if (!unlockedAchievements) {
+      return {
+        totalAchievements: ACHIEVEMENTS.length,
+        unlockedCount: 0,
+        bronzeCount: 0,
+        silverCount: 0,
+        goldCount: 0,
+      };
     }
-  }, []);
 
-  useEffect(() => {
-    loadData();
-  }, [loadData]);
+    const unlockedIds = new Set(unlockedAchievements.map(a => a.achievementId));
+    let bronzeCount = 0;
+    let silverCount = 0;
+    let goldCount = 0;
+
+    for (const achievement of ACHIEVEMENTS) {
+      if (unlockedIds.has(achievement.id)) {
+        switch (achievement.tier) {
+          case "bronze":
+            bronzeCount++;
+            break;
+          case "silver":
+            silverCount++;
+            break;
+          case "gold":
+            goldCount++;
+            break;
+        }
+      }
+    }
+
+    return {
+      totalAchievements: ACHIEVEMENTS.length,
+      unlockedCount: unlockedAchievements.length,
+      bronzeCount,
+      silverCount,
+      goldCount,
+    };
+  }, [unlockedAchievements]);
 
   // Callback when a set is edited in RecentWorkouts
   const handleSetEdited = useCallback(() => {
-    loadData();
-  }, [loadData]);
+    queryClient.invalidateQueries({ queryKey: ["workout-logs"] });
+    queryClient.invalidateQueries({ queryKey: ["stats"] });
+    queryClient.invalidateQueries({ queryKey: ["personal-records"] });
+  }, [queryClient]);
+
+  const isLoading = logsLoading || prsLoading || exercisesLoading || achievementsLoading;
 
   if (isLoading) {
     return (
@@ -99,7 +163,7 @@ export default function StatsPage() {
           <div>
             <h1 className="text-xl font-bold text-foreground">Stats & Progress</h1>
             <p className="text-sm text-muted-foreground">
-              {workoutLogs.length} workouts completed
+              {sortedLogs.length} workouts completed
             </p>
           </div>
         </div>
@@ -108,12 +172,12 @@ export default function StatsPage() {
       <div className="p-4 space-y-6">
         {/* Summary Cards */}
         <SummaryCards
-          workoutLogs={workoutLogs}
-          personalRecords={personalRecords}
+          workoutLogs={sortedLogs as WorkoutLog[]}
+          personalRecords={sortedPRs as PersonalRecord[]}
         />
 
         {/* Weight Progression Chart */}
-        <WeightChart workoutLogs={workoutLogs} exercises={exercises} />
+        <WeightChart workoutLogs={sortedLogs as WorkoutLog[]} exercises={exercises} />
 
         {/* Achievements */}
         <section>
@@ -122,13 +186,13 @@ export default function StatsPage() {
         </section>
 
         {/* Personal Records */}
-        <PRList personalRecords={personalRecords} />
+        <PRList personalRecords={sortedPRs as PersonalRecord[]} />
 
         {/* Workout Calendar */}
-        <WorkoutCalendar workoutLogs={workoutLogs} />
+        <WorkoutCalendar workoutLogs={sortedLogs as WorkoutLog[]} />
 
         {/* Recent Workouts */}
-        <RecentWorkouts workoutLogs={workoutLogs} onSetEdited={handleSetEdited} />
+        <RecentWorkouts workoutLogs={sortedLogs as WorkoutLog[]} onSetEdited={handleSetEdited} />
       </div>
     </div>
   );

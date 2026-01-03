@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/drawer";
 import { Minus, Plus, X } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { SetLog } from "@/lib/db";
+import type { SetLog } from "@/lib/api-client";
 
 interface EditSetDrawerProps {
   isOpen: boolean;
@@ -230,9 +230,11 @@ export function EditSetDrawer({ isOpen, onClose, set, onSave }: EditSetDrawerPro
                 <span className="text-4xl font-bold text-foreground tabular-nums">
                   {reps}
                 </span>
-                <span className="text-xl text-muted-foreground ml-1">
-                  / {set.targetReps}
-                </span>
+                {set.targetReps && (
+                  <span className="text-xl text-muted-foreground ml-1">
+                    / {set.targetReps}
+                  </span>
+                )}
               </div>
 
               <Button

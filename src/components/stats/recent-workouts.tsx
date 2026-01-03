@@ -5,8 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { History, ChevronDown, ChevronUp, Clock, Dumbbell, MessageSquare, Pencil } from "lucide-react";
 import { EditSetDrawer } from "@/components/workout/edit-set-drawer";
-import { updateSetInWorkoutLog } from "@/lib/db";
-import type { WorkoutLog, SetLog } from "@/lib/db";
+import { workoutLogsApi, type WorkoutLog, type SetLog } from "@/lib/api-client";
 import { cn } from "@/lib/utils";
 
 interface RecentWorkoutsProps {
@@ -29,12 +28,31 @@ export function RecentWorkouts({ workoutLogs, onSetEdited }: RecentWorkoutsProps
   const handleSaveEditedSet = async (updates: { weight: number; actualReps: number; rpe?: number }) => {
     if (!editingSet || !editingWorkoutId) return;
 
-    // Update in database
-    const success = await updateSetInWorkoutLog(editingWorkoutId, editingSet.id, updates);
+    try {
+      // Find the workout log and update the specific set
+      const workoutLog = workoutLogs.find(log => log.id === editingWorkoutId);
+      if (!workoutLog) return;
 
-    if (success) {
+      // Update the set in the sets array
+      const updatedSets = workoutLog.sets.map(set => {
+        if (set.exerciseId === editingSet.exerciseId && set.setNumber === editingSet.setNumber) {
+          return {
+            ...set,
+            weight: updates.weight,
+            reps: updates.actualReps,
+            rpe: updates.rpe,
+          };
+        }
+        return set;
+      });
+
+      // Update via API
+      await workoutLogsApi.update(editingWorkoutId, { sets: updatedSets });
+
       // Trigger refresh in parent
       onSetEdited?.();
+    } catch (error) {
+      console.error("Failed to update set:", error);
     }
 
     // Close drawer

@@ -13,12 +13,7 @@ import {
   InjuriesStep,
   CompletionStep,
 } from "@/components/onboarding";
-import {
-  updateOnboardingProfile,
-  completeOnboarding,
-  skipOnboarding,
-  type OnboardingProfile,
-} from "@/lib/db";
+import { onboardingApi, type OnboardingProfile } from "@/lib/api-client";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -47,9 +42,9 @@ export default function OnboardingPage() {
   const [bodyFatPercent, setBodyFatPercent] = useState<number | null>(null);
   const [injuries, setInjuries] = useState<string[]>([]);
 
-  // Save progress to IndexedDB after each step
+  // Save progress to database after each step
   const saveProgress = useCallback(async () => {
-    await updateOnboardingProfile({
+    await onboardingApi.update({
       goals,
       experienceLevel,
       trainingDaysPerWeek,
@@ -63,22 +58,22 @@ export default function OnboardingPage() {
 
   const handleGoalsChange = async (newGoals: string[]) => {
     setGoals(newGoals);
-    await updateOnboardingProfile({ goals: newGoals });
+    await onboardingApi.update({ goals: newGoals });
   };
 
   const handleExperienceChange = async (level: ExperienceLevel) => {
     setExperienceLevel(level);
-    await updateOnboardingProfile({ experienceLevel: level });
+    await onboardingApi.update({ experienceLevel: level });
   };
 
   const handleScheduleChange = async (days: number) => {
     setTrainingDaysPerWeek(days);
-    await updateOnboardingProfile({ trainingDaysPerWeek: days });
+    await onboardingApi.update({ trainingDaysPerWeek: days });
   };
 
   const handleEquipmentChange = async (eq: EquipmentType) => {
     setEquipment(eq);
-    await updateOnboardingProfile({ equipment: eq });
+    await onboardingApi.update({ equipment: eq });
   };
 
   const handleBodyMetricsUpdate = async (
@@ -88,12 +83,12 @@ export default function OnboardingPage() {
     if (field === "heightCm") setHeightCm(value);
     else if (field === "weightKg") setWeightKg(value);
     else if (field === "bodyFatPercent") setBodyFatPercent(value);
-    await updateOnboardingProfile({ [field]: value });
+    await onboardingApi.update({ [field]: value });
   };
 
   const handleInjuriesChange = async (newInjuries: string[]) => {
     setInjuries(newInjuries);
-    await updateOnboardingProfile({ injuries: newInjuries });
+    await onboardingApi.update({ injuries: newInjuries });
   };
 
   const handleSkip = () => {
@@ -101,13 +96,21 @@ export default function OnboardingPage() {
   };
 
   const handleConfirmSkip = async () => {
-    await skipOnboarding();
+    await onboardingApi.update({
+      hasCompletedOnboarding: true,
+      skippedOnboarding: true,
+      completedAt: new Date().toISOString(),
+    });
     router.push("/onboarding/plans");
   };
 
   const handleComplete = async () => {
     await saveProgress();
-    await completeOnboarding();
+    await onboardingApi.update({
+      hasCompletedOnboarding: true,
+      skippedOnboarding: false,
+      completedAt: new Date().toISOString(),
+    });
     router.push("/onboarding/plans");
   };
 

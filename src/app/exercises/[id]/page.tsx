@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -14,7 +15,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { ArrowLeft, Trash2, Save, Loader2, X, Plus } from "lucide-react";
-import db, { generateId } from "@/lib/db";
+import { useExercise, queryKeys } from "@/lib/queries";
+import { exercisesApi } from "@/lib/api-client";
 import { cn } from "@/lib/utils";
 
 const EQUIPMENT_OPTIONS = [
@@ -56,10 +58,13 @@ const COMMON_MUSCLE_GROUPS = [
 export default function ExerciseEditorPage() {
   const router = useRouter();
   const params = useParams();
+  const queryClient = useQueryClient();
   const id = params.id as string;
   const isNew = id === "new";
 
-  const [isLoading, setIsLoading] = useState(!isNew);
+  // Fetch exercise data (only if editing existing)
+  const { data: exercise, isLoading: exerciseLoading } = useExercise(isNew ? "" : id);
+
   const [isSaving, setIsSaving] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
@@ -70,32 +75,27 @@ export default function ExerciseEditorPage() {
   const [muscleGroups, setMuscleGroups] = useState<string[]>([]);
   const [equipment, setEquipment] = useState("dumbbells");
   const [customMuscle, setCustomMuscle] = useState("");
+  const [formInitialized, setFormInitialized] = useState(isNew);
 
+  // Initialize form when exercise loads
   useEffect(() => {
-    async function loadExercise() {
-      if (isNew) return;
-
-      try {
-        const exercise = await db.exercises.get(id);
-        if (exercise) {
-          setName(exercise.name);
-          setVideoUrl(exercise.videoUrl || "");
-          setMuscleGroups(exercise.muscleGroups);
-          setEquipment(exercise.equipment);
-        } else {
-          // Exercise not found, redirect to list
-          router.push("/exercises");
-        }
-      } catch (error) {
-        console.error("Failed to load exercise:", error);
-        router.push("/exercises");
-      } finally {
-        setIsLoading(false);
-      }
+    if (exercise && !formInitialized) {
+      setName(exercise.name);
+      setVideoUrl(exercise.videoUrl || "");
+      setMuscleGroups(exercise.muscleGroups);
+      setEquipment(exercise.equipment);
+      setFormInitialized(true);
     }
+  }, [exercise, formInitialized]);
 
-    loadExercise();
-  }, [id, isNew, router]);
+  // Redirect if exercise not found
+  useEffect(() => {
+    if (!isNew && !exerciseLoading && !exercise) {
+      router.push("/exercises");
+    }
+  }, [isNew, exerciseLoading, exercise, router]);
+
+  const isLoading = !isNew && exerciseLoading;
 
   const handleSave = async () => {
     if (!name.trim()) return;
@@ -104,22 +104,19 @@ export default function ExerciseEditorPage() {
     try {
       const exerciseData = {
         name: name.trim(),
-        videoUrl: videoUrl.trim() || undefined,
+        videoUrl: videoUrl.trim() || null,
         muscleGroups,
         equipment,
-        isCustom: true,
       };
 
       if (isNew) {
-        const newId = generateId();
-        await db.exercises.add({
-          ...exerciseData,
-          id: newId,
-          createdAt: new Date().toISOString(),
-        });
+        await exercisesApi.create(exerciseData);
       } else {
-        await db.exercises.update(id, exerciseData);
+        await exercisesApi.update(id, exerciseData);
       }
+
+      // Invalidate exercises cache
+      await queryClient.invalidateQueries({ queryKey: queryKeys.exercises });
 
       setSaveSuccess(true);
       setTimeout(() => {
@@ -133,7 +130,8 @@ export default function ExerciseEditorPage() {
 
   const handleDelete = async () => {
     try {
-      await db.exercises.delete(id);
+      await exercisesApi.delete(id);
+      await queryClient.invalidateQueries({ queryKey: queryKeys.exercises });
       router.push("/exercises");
     } catch (error) {
       console.error("Failed to delete exercise:", error);

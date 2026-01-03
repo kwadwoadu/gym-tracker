@@ -1,5 +1,4 @@
-import db from "./db";
-import type { Program, TrainingDay } from "./db";
+import { programsApi, type Program, type TrainingDay } from "./api-client";
 
 // Import preset program data
 import fullBody3Day from "@/data/programs/full-body-3day.json";
@@ -65,7 +64,7 @@ export function getRecommendedProgram(
 }
 
 /**
- * Install a preset program to IndexedDB
+ * Install a preset program to database
  * This creates a user's copy of the program
  */
 export async function installPresetProgram(presetId: string): Promise<void> {
@@ -74,73 +73,66 @@ export async function installPresetProgram(presetId: string): Promise<void> {
     throw new Error(`Preset program not found: ${presetId}`);
   }
 
-  // Clear existing program data
-  await db.programs.clear();
-  await db.trainingDays.clear();
-
-  // Create the program
-  const program: Program = {
-    ...preset.program,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  };
-  await db.programs.add(program);
-
-  // Create training days
-  for (const day of preset.trainingDays) {
-    const trainingDay: TrainingDay = {
-      ...day,
-      programId: program.id,
-    };
-    await db.trainingDays.add(trainingDay);
+  // Delete existing programs first (API will cascade delete training days)
+  const existingPrograms = await programsApi.list();
+  for (const program of existingPrograms) {
+    await programsApi.delete(program.id);
   }
+
+  // Create the program with training days
+  await programsApi.create({
+    name: preset.program.name,
+    description: preset.program.description || undefined,
+    isActive: preset.program.isActive,
+    trainingDays: preset.trainingDays.map((day, index) => ({
+      name: day.name,
+      dayNumber: day.dayNumber || index + 1,
+      warmup: day.warmup,
+      supersets: day.supersets,
+      finisher: day.finisher,
+    })),
+  });
 }
 
 /**
  * Create an empty program for "Start from Scratch" option
  */
 export async function createEmptyProgram(): Promise<void> {
-  // Clear existing program data
-  await db.programs.clear();
-  await db.trainingDays.clear();
+  // Delete existing programs first (API will cascade delete training days)
+  const existingPrograms = await programsApi.list();
+  for (const program of existingPrograms) {
+    await programsApi.delete(program.id);
+  }
 
-  // Create empty program
-  const program: Program = {
-    id: "custom-program",
+  // Create empty program with one training day
+  await programsApi.create({
     name: "My Training Program",
     description: "Your custom workout program",
     isActive: true,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  };
-  await db.programs.add(program);
-
-  // Create one empty training day to start
-  const trainingDay: TrainingDay = {
-    id: "day-1",
-    name: "Day 1",
-    dayNumber: 1,
-    programId: program.id,
-    warmup: [],
-    supersets: [],
-    finisher: [],
-  };
-  await db.trainingDays.add(trainingDay);
+    trainingDays: [{
+      name: "Day 1",
+      dayNumber: 1,
+      warmup: [],
+      supersets: [],
+      finisher: [],
+    }],
+  });
 }
 
 /**
  * Check if user has a program installed
  */
 export async function hasInstalledProgram(): Promise<boolean> {
-  const count = await db.programs.count();
-  return count > 0;
+  const programs = await programsApi.list();
+  return programs.length > 0;
 }
 
 /**
  * Get the user's current program
  */
 export async function getCurrentProgram(): Promise<Program | undefined> {
-  return db.programs.toCollection().first();
+  const programs = await programsApi.list();
+  return programs.find(p => p.isActive) || programs[0];
 }
 
 /**

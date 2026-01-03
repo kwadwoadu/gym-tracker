@@ -13,7 +13,7 @@ import {
   createEmptyProgram,
   type PresetProgram,
 } from "@/lib/programs";
-import { getOnboardingProfile } from "@/lib/db";
+import { onboardingApi } from "@/lib/api-client";
 
 type Selection = { type: "preset"; id: string } | { type: "scratch" };
 
@@ -27,10 +27,10 @@ export default function PlansPage() {
   // Load onboarding profile to determine recommendation
   useEffect(() => {
     async function loadRecommendation() {
-      const profile = await getOnboardingProfile();
+      const profile = await onboardingApi.get();
       if (profile) {
         const recommended = getRecommendedProgram(
-          profile.experienceLevel,
+          profile.experienceLevel as "beginner" | "intermediate" | "advanced" | null,
           profile.trainingDaysPerWeek
         );
         setRecommendedId(recommended.id);

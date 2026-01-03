@@ -40,34 +40,34 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider
-      appearance={{
-        variables: {
-          colorPrimary: "#CDFF00",
-          colorBackground: "#0A0A0A",
-          colorText: "#FFFFFF",
-          colorTextSecondary: "#A0A0A0",
-          colorInputBackground: "#1A1A1A",
-          colorInputText: "#FFFFFF",
-        },
-      }}
-    >
-      <html lang="en">
-        <head>
-          <link rel="icon" type="image/png" href="/favicon.png" />
-          <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
-          <meta name="apple-mobile-web-app-capable" content="yes" />
-          <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-        </head>
-        <body className={`${inter.variable} font-sans antialiased`}>
+    <html lang="en">
+      <head>
+        <link rel="icon" type="image/png" href="/favicon.png" />
+        <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+      </head>
+      <body className={`${inter.variable} font-sans antialiased`}>
+        <ClerkProvider
+          appearance={{
+            variables: {
+              colorPrimary: "#CDFF00",
+              colorBackground: "#0A0A0A",
+              colorText: "#FFFFFF",
+              colorTextSecondary: "#A0A0A0",
+              colorInputBackground: "#1A1A1A",
+              colorInputText: "#FFFFFF",
+            },
+          }}
+        >
           <QueryProvider>
             <AutoSyncProvider>
               {children}
               <PWAPrompt />
             </AutoSyncProvider>
           </QueryProvider>
-        </body>
-      </html>
-    </ClerkProvider>
+        </ClerkProvider>
+      </body>
+    </html>
   );
 }
