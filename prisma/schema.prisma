@@ -1,0 +1,195 @@
+// SetFlow Database Schema
+// Migrated from Dexie/IndexedDB to Prisma/PostgreSQL
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================
+// Core Models
+// ============================================================
+
+model User {
+  id        String   @id @default(cuid())
+  clerkId   String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  exercises         Exercise[]
+  programs          Program[]
+  workoutLogs       WorkoutLog[]
+  personalRecords   PersonalRecord[]
+  settings          UserSettings?
+  onboardingProfile OnboardingProfile?
+  achievements      Achievement[]
+}
+
+model Exercise {
+  id           String   @id @default(cuid())
+  name         String
+  videoUrl     String?
+  muscleGroups String[]
+  equipment    String
+  isCustom     Boolean  @default(false)
+  createdAt    DateTime @default(now())
+
+  // User relation (null for built-in exercises)
+  userId String?
+  user   User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Back relations
+  personalRecords PersonalRecord[]
+
+  @@index([userId])
+  @@index([name])
+}
+
+model Program {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  isActive    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // User relation
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Relations
+  trainingDays TrainingDay[]
+  workoutLogs  WorkoutLog[]
+
+  @@index([userId])
+  @@index([isActive])
+}
+
+model TrainingDay {
+  id        String @id @default(cuid())
+  name      String
+  dayNumber Int
+
+  // Program relation
+  programId String
+  program   Program @relation(fields: [programId], references: [id], onDelete: Cascade)
+
+  // JSON fields for complex nested structures
+  warmup    Json @default("[]") // WarmupExercise[]
+  supersets Json @default("[]") // Superset[]
+  finisher  Json @default("[]") // FinisherExercise[]
+
+  // Back relations
+  workoutLogs WorkoutLog[]
+
+  @@index([programId])
+  @@index([dayNumber])
+}
+
+model WorkoutLog {
+  id        String   @id @default(cuid())
+  date      String   // ISO date string (YYYY-MM-DD)
+  dayName   String
+  startTime DateTime
+  endTime   DateTime?
+  duration  Int?     // minutes
+  notes     String?
+  isComplete Boolean @default(false)
+
+  // Relations
+  programId String
+  program   Program @relation(fields: [programId], references: [id], onDelete: Cascade)
+
+  dayId String
+  day   TrainingDay @relation(fields: [dayId], references: [id], onDelete: Cascade)
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // JSON field for sets (SetLog[])
+  sets Json @default("[]")
+
+  // Back relations
+  personalRecords PersonalRecord[]
+
+  @@index([userId])
+  @@index([date])
+  @@index([programId])
+  @@index([dayId])
+  @@index([isComplete])
+}
+
+model PersonalRecord {
+  id           String   @id @default(cuid())
+  exerciseName String
+  weight       Float
+  reps         Int
+  unit         String   // "kg" or "lbs"
+  date         String   // ISO date string
+
+  // Relations
+  exerciseId String
+  exercise   Exercise @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+
+  workoutLogId String
+  workoutLog   WorkoutLog @relation(fields: [workoutLogId], references: [id], onDelete: Cascade)
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([exerciseId])
+  @@index([userId])
+  @@index([date])
+}
+
+model UserSettings {
+  id                   String  @id @default(cuid())
+  weightUnit           String  @default("kg") // "kg" or "lbs"
+  defaultRestSeconds   Int     @default(90)
+  soundEnabled         Boolean @default(true)
+  autoProgressWeight   Boolean @default(true)
+  progressionIncrement Float   @default(2.5) // kg
+  autoStartRestTimer   Boolean @default(true)
+
+  // One-to-one with User
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model OnboardingProfile {
+  id                     String   @id @default(cuid())
+  goals                  String[] // ["build_muscle", "lose_fat", etc.]
+  experienceLevel        String?  // "beginner" | "intermediate" | "advanced"
+  trainingDaysPerWeek    Int?
+  equipment              String?  // "full_gym" | "home_gym" | "bodyweight"
+  heightCm               Float?
+  weightKg               Float?
+  bodyFatPercent         Float?
+  injuries               String[] // ["shoulder", "back", etc.]
+  hasCompletedOnboarding Boolean  @default(false)
+  skippedOnboarding      Boolean  @default(false)
+  completedAt            DateTime?
+
+  // One-to-one with User
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Achievement {
+  id            String   @id @default(cuid())
+  achievementId String   // Maps to ACHIEVEMENTS array in achievements.ts
+  unlockedAt    DateTime @default(now())
+
+  // User relation
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, achievementId])
+  @@index([userId])
+  @@index([achievementId])
+}
