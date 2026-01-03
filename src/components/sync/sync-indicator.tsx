@@ -1,23 +1,37 @@
 "use client";
 
-import { Cloud, CloudOff, RefreshCw, Check } from "lucide-react";
+import { Cloud, CloudOff, RefreshCw, Check, WifiOff } from "lucide-react";
 import { useSyncStatus } from "./auto-sync-provider";
+import db from "@/lib/db";
 
 export function SyncIndicator() {
-  const { syncStatus, syncError, triggerSync } = useSyncStatus();
+  const { syncStatus, syncError, isOnline } = useSyncStatus();
 
-  const handleClick = () => {
-    if (syncStatus !== "syncing") {
-      triggerSync();
+  const handleClick = async () => {
+    if (syncStatus !== "syncing" && isOnline) {
+      // Trigger manual sync via Dexie Cloud
+      try {
+        await db.cloud.sync();
+      } catch (error) {
+        console.error("[Dexie Cloud] Manual sync failed:", error);
+      }
     }
   };
 
   return (
     <button
       onClick={handleClick}
-      disabled={syncStatus === "syncing"}
-      className="relative p-2 rounded-lg hover:bg-muted transition-colors"
-      title={syncError || (syncStatus === "error" ? "Sync failed - tap to retry" : "Sync status")}
+      disabled={syncStatus === "syncing" || !isOnline}
+      className="relative p-2 rounded-lg hover:bg-muted transition-colors disabled:opacity-50"
+      title={
+        !isOnline
+          ? "Offline - changes saved locally"
+          : syncError
+          ? `Sync failed: ${syncError}`
+          : syncStatus === "syncing"
+          ? "Syncing..."
+          : "Tap to sync"
+      }
     >
       {syncStatus === "syncing" && (
         <RefreshCw className="w-5 h-5 text-blue-500 animate-spin" />
@@ -27,6 +41,9 @@ export function SyncIndicator() {
       )}
       {syncStatus === "error" && (
         <CloudOff className="w-5 h-5 text-red-500" />
+      )}
+      {syncStatus === "offline" && (
+        <WifiOff className="w-5 h-5 text-yellow-500" />
       )}
       {syncStatus === "idle" && (
         <Cloud className="w-5 h-5 text-muted-foreground" />

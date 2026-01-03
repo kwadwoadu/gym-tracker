@@ -29,20 +29,15 @@ import {
   TrendingUp,
   Target,
   RotateCcw,
-  AlertCircle,
-  Cloud,
-  CloudOff,
 } from "lucide-react";
 import { RestTimer } from "@/components/workout/rest-timer";
 import { SetLogger } from "@/components/workout/set-logger";
 import { EditSetDrawer } from "@/components/workout/edit-set-drawer";
 import { ChallengeCard } from "@/components/workout/challenge-card";
 import { AchievementToast, useAchievementToasts } from "@/components/gamification";
-import { checkAchievements, type AchievementUnlock } from "@/lib/gamification";
-import { pushToCloud, isSyncAvailable } from "@/lib/sync";
-import { useUser } from "@clerk/nextjs";
+import { checkAchievements } from "@/lib/gamification";
 import db, { getSuggestedWeight, getGlobalWeightSuggestion, checkAndAddPR, updateWorkoutLog, getLastWeekVolume, getUserSettings } from "@/lib/db";
-import type { TrainingDay, Exercise, SetLog, WorkoutLog, UserSettings } from "@/lib/db";
+import type { TrainingDay, Exercise, SetLog, WorkoutLog } from "@/lib/db";
 
 // Animation variants for phase transitions
 const phaseVariants = {
@@ -144,7 +139,6 @@ const SESSION_EXPIRY_HOURS = 6; // Sessions expire after 6 hours
 export default function WorkoutSession() {
   const params = useParams();
   const router = useRouter();
-  const { user } = useUser();
   const dayId = params.dayId as string;
 
   const [isLoading, setIsLoading] = useState(true);
@@ -194,10 +188,6 @@ export default function WorkoutSession() {
 
   // Achievement toasts
   const { toasts: achievementToasts, addToasts: addAchievementToasts, removeToast: removeAchievementToast, currentToast } = useAchievementToasts();
-
-  // Sync status toast
-  const [syncError, setSyncError] = useState<string | null>(null);
-  const [isSyncing, setIsSyncing] = useState(false);
 
   // Load training day and exercises
   useEffect(() => {
@@ -711,26 +701,7 @@ export default function WorkoutSession() {
     if (newAchievements.length > 0) {
       addAchievementToasts(newAchievements);
     }
-
-    // Immediately sync to cloud so workout appears on other devices
-    if (isSyncAvailable()) {
-      setIsSyncing(true);
-      try {
-        const result = await pushToCloud(user?.primaryEmailAddress?.emailAddress);
-        if (!result.success) {
-          console.error("Sync failed after workout:", result.error);
-          setSyncError(result.error || "Failed to sync workout to cloud");
-          // Auto-dismiss after 5 seconds
-          setTimeout(() => setSyncError(null), 5000);
-        }
-      } catch (err) {
-        console.error("Failed to sync after workout:", err);
-        setSyncError(err instanceof Error ? err.message : "Network error during sync");
-        setTimeout(() => setSyncError(null), 5000);
-      } finally {
-        setIsSyncing(false);
-      }
-    }
+    // Note: Dexie Cloud handles sync automatically in the background
   };
 
   // Handle completing workout with notes
@@ -788,29 +759,6 @@ export default function WorkoutSession() {
           achievement={currentToast.achievement}
           onClose={() => removeAchievementToast(currentToast.achievement.id)}
         />
-      )}
-
-      {/* Sync Error Toast */}
-      {syncError && (
-        <div className="fixed top-4 left-4 right-4 z-50 p-4 rounded-lg flex items-center gap-3 shadow-lg bg-red-600 text-white">
-          <CloudOff className="w-5 h-5 shrink-0" />
-          <div className="flex-1">
-            <p className="font-medium">Sync Failed</p>
-            <p className="text-sm opacity-90">{syncError}</p>
-          </div>
-          <button onClick={() => setSyncError(null)} className="p-1 hover:bg-red-700 rounded">
-            <span className="sr-only">Dismiss</span>
-            &times;
-          </button>
-        </div>
-      )}
-
-      {/* Syncing Indicator */}
-      {isSyncing && (
-        <div className="fixed top-4 left-4 right-4 z-50 p-4 rounded-lg flex items-center gap-3 shadow-lg bg-blue-600 text-white">
-          <Cloud className="w-5 h-5 shrink-0 animate-pulse" />
-          <span className="font-medium">Syncing workout to cloud...</span>
-        </div>
       )}
 
       {/* Header */}

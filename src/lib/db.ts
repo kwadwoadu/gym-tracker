@@ -1,4 +1,5 @@
 import Dexie, { type EntityTable } from "dexie";
+import dexieCloud from "dexie-cloud-addon";
 
 // ============================================================
 // Type Definitions
@@ -131,10 +132,10 @@ export interface Achievement {
 }
 
 // ============================================================
-// Database Definition
+// Database Definition with Dexie Cloud
 // ============================================================
 
-const db = new Dexie("GymTrackerDB") as Dexie & {
+const db = new Dexie("GymTrackerDB", { addons: [dexieCloud] }) as Dexie & {
   exercises: EntityTable<Exercise, "id">;
   programs: EntityTable<Program, "id">;
   trainingDays: EntityTable<TrainingDay, "id">;
@@ -144,6 +145,12 @@ const db = new Dexie("GymTrackerDB") as Dexie & {
   onboardingProfiles: EntityTable<OnboardingProfile, "id">;
   achievements: EntityTable<Achievement, "id">;
 };
+
+// Configure Dexie Cloud
+db.cloud.configure({
+  databaseUrl: process.env.NEXT_PUBLIC_DEXIE_CLOUD_URL!,
+  requireAuth: false, // We'll use anonymous sync first, add auth later
+});
 
 db.version(1).stores({
   exercises: "id, name, *muscleGroups, equipment, isCustom",
@@ -173,6 +180,18 @@ db.version(3).stores({
   userSettings: "id",
   onboardingProfiles: "id",
   achievements: "id, achievementId, unlockedAt",
+});
+
+// Version 4: Dexie Cloud compatible schema with @ prefix for auto-generated IDs
+db.version(4).stores({
+  exercises: "@id, name, *muscleGroups, equipment, isCustom",
+  programs: "@id, name, isActive",
+  trainingDays: "@id, programId, dayNumber",
+  workoutLogs: "@id, date, programId, dayId, isComplete",
+  personalRecords: "@id, exerciseId, date",
+  userSettings: "@id",
+  onboardingProfiles: "@id",
+  achievements: "@id, achievementId, unlockedAt",
 });
 
 // ============================================================
