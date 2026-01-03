@@ -14,6 +14,7 @@ import {
   onboardingProfiles,
   achievements,
 } from "@/lib/db/schema";
+import { toDate, toDateRequired } from "@/lib/db/utils";
 
 // POST /api/sync - Push local changes to cloud
 export async function POST(request: NextRequest) {
@@ -55,13 +56,23 @@ export async function POST(request: NextRequest) {
       for (const exercise of data.exercises) {
         await cloudDb
           .insert(exercises)
-          .values({ ...exercise, userId })
+          .values({
+            id: exercise.id,
+            userId,
+            name: exercise.name,
+            videoUrl: exercise.videoUrl,
+            muscleGroups: exercise.muscleGroups || [],
+            equipment: exercise.equipment,
+            isCustom: exercise.isCustom ?? true,
+            createdAt: toDateRequired(exercise.createdAt),
+            updatedAt: new Date(),
+          })
           .onConflictDoUpdate({
             target: exercises.id,
             set: {
               name: exercise.name,
               videoUrl: exercise.videoUrl,
-              muscleGroups: exercise.muscleGroups,
+              muscleGroups: exercise.muscleGroups || [],
               equipment: exercise.equipment,
               isCustom: exercise.isCustom,
               updatedAt: new Date(),
@@ -74,7 +85,15 @@ export async function POST(request: NextRequest) {
       for (const program of data.programs) {
         await cloudDb
           .insert(programs)
-          .values({ ...program, userId })
+          .values({
+            id: program.id,
+            userId,
+            name: program.name,
+            description: program.description,
+            isActive: program.isActive ?? false,
+            createdAt: toDateRequired(program.createdAt),
+            updatedAt: new Date(),
+          })
           .onConflictDoUpdate({
             target: programs.id,
             set: {
@@ -91,15 +110,26 @@ export async function POST(request: NextRequest) {
       for (const day of data.trainingDays) {
         await cloudDb
           .insert(trainingDays)
-          .values({ ...day, userId })
+          .values({
+            id: day.id,
+            userId,
+            programId: day.programId,
+            name: day.name,
+            dayNumber: day.dayNumber,
+            warmup: day.warmup || [],
+            supersets: day.supersets || [],
+            finisher: day.finisher || [],
+            createdAt: toDateRequired(day.createdAt),
+            updatedAt: new Date(),
+          })
           .onConflictDoUpdate({
             target: trainingDays.id,
             set: {
               name: day.name,
               dayNumber: day.dayNumber,
-              warmup: day.warmup,
-              supersets: day.supersets,
-              finisher: day.finisher,
+              warmup: day.warmup || [],
+              supersets: day.supersets || [],
+              finisher: day.finisher || [],
               updatedAt: new Date(),
             },
           });
@@ -110,16 +140,30 @@ export async function POST(request: NextRequest) {
       for (const log of data.workoutLogs) {
         await cloudDb
           .insert(workoutLogs)
-          .values({ ...log, userId })
+          .values({
+            id: log.id,
+            userId,
+            date: log.date, // TEXT column - keep as string
+            programId: log.programId,
+            dayId: log.dayId,
+            dayName: log.dayName,
+            sets: log.sets || [],
+            startTime: log.startTime, // TEXT column - keep as string
+            endTime: log.endTime, // TEXT column - keep as string
+            duration: log.duration,
+            notes: log.notes,
+            isComplete: log.isComplete ?? false,
+            createdAt: toDateRequired(log.createdAt),
+            updatedAt: new Date(),
+          })
           .onConflictDoUpdate({
             target: workoutLogs.id,
             set: {
-              // All mutable fields must be included
               date: log.date,
               programId: log.programId,
               dayId: log.dayId,
               dayName: log.dayName,
-              sets: log.sets,
+              sets: log.sets || [],
               startTime: log.startTime,
               endTime: log.endTime,
               duration: log.duration,
@@ -135,7 +179,19 @@ export async function POST(request: NextRequest) {
       for (const pr of data.personalRecords) {
         await cloudDb
           .insert(personalRecords)
-          .values({ ...pr, userId })
+          .values({
+            id: pr.id,
+            userId,
+            exerciseId: pr.exerciseId,
+            exerciseName: pr.exerciseName,
+            weight: pr.weight,
+            reps: pr.reps,
+            unit: pr.unit || "kg",
+            date: pr.date, // TEXT column - keep as string
+            workoutLogId: pr.workoutLogId,
+            createdAt: toDateRequired(pr.createdAt),
+            updatedAt: new Date(),
+          })
           .onConflictDoUpdate({
             target: personalRecords.id,
             set: {
@@ -150,7 +206,18 @@ export async function POST(request: NextRequest) {
     if (data.settings) {
       await cloudDb
         .insert(userSettings)
-        .values({ ...data.settings, userId })
+        .values({
+          id: data.settings.id,
+          userId,
+          weightUnit: data.settings.weightUnit || "kg",
+          defaultRestSeconds: data.settings.defaultRestSeconds ?? 90,
+          soundEnabled: data.settings.soundEnabled ?? true,
+          autoProgressWeight: data.settings.autoProgressWeight ?? true,
+          progressionIncrement: data.settings.progressionIncrement ?? 2.5,
+          autoStartRestTimer: data.settings.autoStartRestTimer ?? true,
+          createdAt: toDateRequired(data.settings.createdAt),
+          updatedAt: new Date(),
+        })
         .onConflictDoUpdate({
           target: userSettings.id,
           set: {
@@ -195,7 +262,7 @@ export async function POST(request: NextRequest) {
             injuries: data.onboardingProfile.injuries || [],
             hasCompletedOnboarding: data.onboardingProfile.hasCompletedOnboarding,
             skippedOnboarding: data.onboardingProfile.skippedOnboarding,
-            completedAt: data.onboardingProfile.completedAt ? new Date(data.onboardingProfile.completedAt) : null,
+            completedAt: toDate(data.onboardingProfile.completedAt),
             updatedAt: new Date(),
           },
         });
@@ -204,13 +271,20 @@ export async function POST(request: NextRequest) {
     // Sync achievements
     if (data.achievements) {
       for (const achievement of data.achievements) {
+        // Skip achievements with invalid unlockedAt
+        const unlockedAt = toDate(achievement.unlockedAt);
+        if (!unlockedAt) {
+          console.warn("[API Sync] Skipping achievement with invalid unlockedAt:", achievement);
+          continue;
+        }
         await cloudDb
           .insert(achievements)
           .values({
             id: achievement.id,
             userId,
             achievementId: achievement.achievementId,
-            unlockedAt: new Date(achievement.unlockedAt),
+            unlockedAt,
+            createdAt: new Date(),
           })
           .onConflictDoNothing(); // Achievements are immutable once unlocked
       }

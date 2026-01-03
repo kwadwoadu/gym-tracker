@@ -336,6 +336,12 @@ Database Specialist -> Apply filters to exercise list
 - Injury modifications are conservative (when in doubt, modify)
 - Action sports programs match seasonal timing
 
+### Pattern Enforcement
+- All agents must check `/docs/patterns/` before implementation
+- Reference specific patterns when reviewing code
+- Propose new patterns when repeated approaches emerge
+- Use pattern format: when to use, implementation, gotchas, testing
+
 ### All Agents
 - Document decisions in `/docs/decisions/`
 - Update CHANGELOG.md for significant changes

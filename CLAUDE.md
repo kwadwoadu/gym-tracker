@@ -123,6 +123,27 @@ A Progressive Web App for iOS/Android that helps track gym workouts with:
 
 ---
 
+## Pattern-Driven Development
+
+Patterns live in `/docs/patterns/`. Before implementing:
+1. Check if a pattern exists
+2. Follow the pattern exactly
+3. If creating new patterns, document them
+
+### Available Patterns
+
+| Pattern | Purpose |
+|---------|---------|
+| [PWA Offline Sync](/docs/patterns/pwa-offline-sync.md) | Device sync with IndexedDB |
+| [Audio Cue System](/docs/patterns/audio-cue-system.md) | iOS-compatible Web Audio |
+| [Local-First Data Model](/docs/patterns/local-first-data.md) | Dexie.js schema design |
+| [Workout Session Lifecycle](/docs/patterns/workout-session-lifecycle.md) | Session start/end/save |
+| [Progressive Overload](/docs/patterns/progressive-overload.md) | Weight suggestion logic |
+
+Pattern files include: when to use, implementation, gotchas, testing.
+
+---
+
 ## Agent Team
 
 SetFlow has a dedicated 13-agent team organized in 4 tiers. See `/agents/CLAUDE.md` for full routing and workflows.

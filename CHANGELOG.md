@@ -4,6 +4,51 @@ All notable changes to the SetFlow project.
 
 ---
 
+## [2026-01-03] Sync Date Serialization Fix
+
+### Fixed
+- **Critical sync bug**: `toISOString is not a function` error when pushing to cloud
+- Root cause: IndexedDB stores dates as ISO strings, but PostgreSQL via Drizzle expects Date objects
+- Created `/src/lib/db/utils.ts` with `toDate()` and `toDateRequired()` helpers
+- Transformed all timestamp fields in `/src/app/api/sync/route.ts` before database insert
+- Achievements with invalid dates are now skipped with warning log
+- PRD: `/docs/prds/sync-date-serialization.md`
+
+### Technical Details
+- Affected tables: exercises, programs, trainingDays, workoutLogs, personalRecords, userSettings, achievements, onboardingProfiles
+- `toDateRequired()` used for required fields (createdAt) with fallback to `new Date()`
+- `toDate()` used for nullable fields (completedAt, deletedAt)
+- workoutLogs.date, startTime, endTime remain TEXT columns (no conversion needed)
+
+---
+
+## [2026-01-03] Pattern Documentation
+
+### Added
+- `/docs/patterns/` folder with 5 documented patterns:
+  - PWA Offline Sync - Device sync with IndexedDB
+  - Audio Cue System - iOS-compatible Web Audio
+  - Local-First Data Model - Dexie.js schema design
+  - Workout Session Lifecycle - Session start/end/save
+  - Progressive Overload - Weight suggestion logic
+- Pattern-driven development references in CLAUDE.md files
+
+---
+
+## [2026-01-02] Cloud Sync & Sync Specialist
+
+### Added
+- Sync Specialist agent for debugging sync issues
+- Comprehensive sync logging (`[Sync] pushToCloud`, `[Sync] pullFromCloud`)
+- Layer-specific CLAUDE.md governance files (`/app/`, `/lib/`)
+
+### Fixed
+- Sync fetch calls now include `credentials: "include"`
+- Push continues even if pull fails
+- Clear sync timestamp on sign-out
+
+---
+
 ## [2026-01-01] Agent Architecture v1.0
 
 ### Added

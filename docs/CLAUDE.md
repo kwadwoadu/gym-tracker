@@ -55,7 +55,39 @@ When a bug is found:
 
 ## File Organization
 - `/docs/prds/` - Feature specifications
+- `/docs/patterns/` - Reusable implementation patterns
 - `/docs/architecture.md` - System design
 - `/agents/` - AI agent definitions
 - `/skills/` - Reusable workflows
 - `/data/` - Static data (exercises, programs, achievements)
+
+---
+
+## Pattern System
+
+Patterns in `/docs/patterns/` document proven implementations:
+
+| Pattern | Key File |
+|---------|----------|
+| PWA Offline Sync | `/lib/sync.ts` |
+| Audio Cue System | `/lib/audio.ts` |
+| Local-First Data Model | `/lib/db.ts` |
+| Workout Session Lifecycle | `/lib/db.ts` |
+| Progressive Overload | `/lib/db.ts` |
+
+### When to Create New Patterns
+- Implementation was non-obvious
+- Same approach used in 3+ places
+- Has gotchas that cost debugging time
+- Required research or experimentation
+
+### Pattern File Format
+```markdown
+# Pattern Name
+## When to Use
+## Core Principle
+## Implementation (correct vs wrong)
+## Files Using This Pattern
+## Gotchas
+## Testing
+```
