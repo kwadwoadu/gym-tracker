@@ -11,6 +11,7 @@ interface SyncContextValue {
   lastSyncedAt: string | null;
   syncError: string | null;
   isOnline: boolean;
+  triggerSync: () => Promise<void>;
 }
 
 const SyncContext = createContext<SyncContextValue | null>(null);
@@ -94,11 +95,31 @@ export function AutoSyncProvider({ children }: { children: React.ReactNode }) {
     };
   }, []);
 
+  const triggerSync = async () => {
+    if (syncStatus === "syncing" || !isOnline) return;
+
+    console.log("[Dexie Cloud] Manual sync triggered");
+    setSyncStatus("syncing");
+    setSyncError(null);
+
+    try {
+      // Wait for full sync (push + pull) to complete
+      await db.cloud.sync({ wait: true, purpose: "push" });
+      await db.cloud.sync({ wait: true, purpose: "pull" });
+      console.log("[Dexie Cloud] Manual sync completed");
+    } catch (error) {
+      console.error("[Dexie Cloud] Manual sync failed:", error);
+      setSyncStatus("error");
+      setSyncError(error instanceof Error ? error.message : "Sync failed");
+    }
+  };
+
   const value: SyncContextValue = {
     syncStatus,
     lastSyncedAt,
     syncError,
     isOnline,
+    triggerSync,
   };
 
   return (

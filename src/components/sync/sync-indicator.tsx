@@ -2,19 +2,13 @@
 
 import { Cloud, CloudOff, RefreshCw, Check, WifiOff } from "lucide-react";
 import { useSyncStatus } from "./auto-sync-provider";
-import db from "@/lib/db";
 
 export function SyncIndicator() {
-  const { syncStatus, syncError, isOnline } = useSyncStatus();
+  const { syncStatus, syncError, isOnline, triggerSync } = useSyncStatus();
 
   const handleClick = async () => {
     if (syncStatus !== "syncing" && isOnline) {
-      // Trigger manual sync via Dexie Cloud
-      try {
-        await db.cloud.sync();
-      } catch (error) {
-        console.error("[Dexie Cloud] Manual sync failed:", error);
-      }
+      await triggerSync();
     }
   };
 
