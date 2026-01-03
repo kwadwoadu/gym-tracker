@@ -28,18 +28,14 @@ import {
   AlertCircle,
   LogOut,
 } from "lucide-react";
-import db, { getUserSettings, updateUserSettings, type UserSettings, type Program } from "@/lib/db";
-import { getCurrentProgram } from "@/lib/programs";
-import {
-  exportAllData,
-  downloadExportedData,
-  importData,
-  readFileAsString,
-  clearWorkoutLogs,
-  resetToDefault,
-} from "@/lib/export";
 import { useUser, SignOutButton } from "@clerk/nextjs";
 import Image from "next/image";
+import {
+  useSettings,
+  useUpdateSettings,
+  usePrograms,
+} from "@/lib/queries";
+import type { UserSettings } from "@/lib/api-client";
 
 const PROGRESSION_OPTIONS = [
   { value: 0.5, label: "0.5 kg" },
@@ -59,36 +55,16 @@ export default function SettingsPage() {
   const router = useRouter();
   const { user } = useUser();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [settings, setSettings] = useState<UserSettings | null>(null);
-  const [currentProgram, setCurrentProgram] = useState<Program | null>(null);
-  const [trainingDaysCount, setTrainingDaysCount] = useState(0);
   const [toast, setToast] = useState<Toast | null>(null);
 
-  useEffect(() => {
-    async function loadSettings() {
-      try {
-        const userSettings = await getUserSettings();
-        setSettings(userSettings);
+  // React Query hooks
+  const { data: settings, isLoading: settingsLoading } = useSettings();
+  const { data: programs } = usePrograms();
+  const updateSettingsMutation = useUpdateSettings();
 
-        // Load current program
-        const program = await getCurrentProgram();
-        setCurrentProgram(program ?? null);
-
-        // Get training days count
-        if (program) {
-          const days = await db.trainingDays.where("programId").equals(program.id).count();
-          setTrainingDaysCount(days);
-        }
-      } catch (error) {
-        console.error("Failed to load settings:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    }
-
-    loadSettings();
-  }, []);
+  // Get active program
+  const activeProgram = programs?.find((p) => p.isActive);
+  const trainingDaysCount = activeProgram?.trainingDays?.length || 0;
 
   // Auto-hide toast after 3 seconds
   useEffect(() => {
@@ -108,24 +84,18 @@ export default function SettingsPage() {
   ) => {
     if (!settings) return;
 
-    const newSettings = { ...settings, [key]: value };
-    setSettings(newSettings);
-
     try {
-      await updateUserSettings({ [key]: value });
+      await updateSettingsMutation.mutateAsync({ [key]: value });
     } catch (error) {
       console.error("Failed to update setting:", error);
-      // Revert on error
-      setSettings(settings);
       showToast("Failed to save setting", "error");
     }
   };
 
   const handleExport = async () => {
     try {
-      const data = await exportAllData();
-      downloadExportedData(data);
-      showToast("Data exported successfully", "success");
+      // TODO: Implement server-side export
+      showToast("Export feature coming soon", "success");
     } catch (error) {
       console.error("Failed to export data:", error);
       showToast("Failed to export data", "error");
@@ -141,12 +111,8 @@ export default function SettingsPage() {
     if (!file) return;
 
     try {
-      const jsonString = await readFileAsString(file);
-      await importData(jsonString);
-      // Reload settings after import
-      const newSettings = await getUserSettings();
-      setSettings(newSettings);
-      showToast("Data imported successfully", "success");
+      // TODO: Implement server-side import
+      showToast("Import feature coming soon", "success");
     } catch (error) {
       console.error("Failed to import data:", error);
       showToast(
@@ -163,8 +129,8 @@ export default function SettingsPage() {
 
   const handleClearLogs = async () => {
     try {
-      await clearWorkoutLogs();
-      showToast("Workout logs cleared", "success");
+      // TODO: Implement via API
+      showToast("Clear logs feature coming soon", "success");
     } catch (error) {
       console.error("Failed to clear logs:", error);
       showToast("Failed to clear logs", "error");
@@ -173,18 +139,15 @@ export default function SettingsPage() {
 
   const handleReset = async () => {
     try {
-      await resetToDefault();
-      // Reload settings after reset
-      const newSettings = await getUserSettings();
-      setSettings(newSettings);
-      showToast("Reset to default program", "success");
+      // TODO: Implement via API
+      showToast("Reset feature coming soon", "success");
     } catch (error) {
       console.error("Failed to reset:", error);
       showToast("Failed to reset", "error");
     }
   };
 
-  if (isLoading || !settings) {
+  if (settingsLoading || !settings) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center space-y-4">
@@ -417,11 +380,11 @@ export default function SettingsPage() {
             <CardDescription>Your current workout program</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            {currentProgram ? (
+            {activeProgram ? (
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="font-medium text-foreground">{currentProgram.name}</p>
+                    <p className="font-medium text-foreground">{activeProgram.name}</p>
                     <p className="text-sm text-muted-foreground">
                       {trainingDaysCount} training {trainingDaysCount === 1 ? "day" : "days"} per week
                     </p>
