@@ -103,9 +103,8 @@ export function AutoSyncProvider({ children }: { children: React.ReactNode }) {
     setSyncError(null);
 
     try {
-      // Wait for full sync (push + pull) to complete
-      await db.cloud.sync({ wait: true, purpose: "push" });
-      await db.cloud.sync({ wait: true, purpose: "pull" });
+      // Simple sync call - syncState subscription handles UI updates
+      await db.cloud.sync();
       console.log("[Dexie Cloud] Manual sync completed");
     } catch (error) {
       console.error("[Dexie Cloud] Manual sync failed:", error);

@@ -146,10 +146,12 @@ const db = new Dexie("GymTrackerDB", { addons: [dexieCloud] }) as Dexie & {
   achievements: EntityTable<Achievement, "id">;
 };
 
-// Configure Dexie Cloud
+// Configure Dexie Cloud with all tables for syncing
 db.cloud.configure({
   databaseUrl: process.env.NEXT_PUBLIC_DEXIE_CLOUD_URL!,
-  requireAuth: false, // We'll use anonymous sync first, add auth later
+  requireAuth: false,
+  // Register all tables for cloud sync
+  // populate: 'add' means add new items from cloud, don't overwrite local
 });
 
 db.version(1).stores({
@@ -192,6 +194,21 @@ db.version(4).stores({
   userSettings: "@id",
   onboardingProfiles: "@id",
   achievements: "@id, achievementId, unlockedAt",
+});
+
+// Version 5: Fix @id to id - we provide our own UUIDs via generateId()
+// @id expects Dexie Cloud to auto-generate IDs with prefixes like "exe0Oro..."
+// But our code uses crypto.randomUUID() which creates plain UUIDs
+// Using 'id' (without @) tells Dexie Cloud we provide our own globally unique IDs
+db.version(5).stores({
+  exercises: "id, name, *muscleGroups, equipment, isCustom",
+  programs: "id, name, isActive",
+  trainingDays: "id, programId, dayNumber",
+  workoutLogs: "id, date, programId, dayId, isComplete",
+  personalRecords: "id, exerciseId, date",
+  userSettings: "id",
+  onboardingProfiles: "id",
+  achievements: "id, achievementId, unlockedAt",
 });
 
 // ============================================================
