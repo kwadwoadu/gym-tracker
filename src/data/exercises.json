@@ -94,7 +94,7 @@
       "muscleGroups": ["lats", "biceps", "back"],
       "equipment": "pull-up-bar",
       "isCustom": false,
-      "videoUrl": "https://www.youtube.com/results?search_query=pull+up+proper+form+tutorial"
+      "videoUrl": "https://www.youtube.com/watch?v=kS7UdiYM3eQ"
     },
     {
       "id": "ex-chinup",
@@ -102,7 +102,7 @@
       "muscleGroups": ["lats", "biceps"],
       "equipment": "pull-up-bar",
       "isCustom": false,
-      "videoUrl": "https://www.youtube.com/results?search_query=chin+up+proper+form+tutorial"
+      "videoUrl": "https://www.youtube.com/watch?v=3N6RTXnpFX4"
     },
     {
       "id": "ex-wide-lat-pulldown",
@@ -158,7 +158,7 @@
       "muscleGroups": ["back", "lats"],
       "equipment": "machine",
       "isCustom": false,
-      "videoUrl": "https://www.youtube.com/results?search_query=t+bar+row+proper+form+tutorial"
+      "videoUrl": "https://www.youtube.com/watch?v=vEMm0NbRPV8"
     },
     {
       "id": "ex-chest-supported-row",
@@ -166,7 +166,7 @@
       "muscleGroups": ["back", "lats"],
       "equipment": "dumbbells",
       "isCustom": false,
-      "videoUrl": "https://www.youtube.com/results?search_query=chest+supported+row+proper+form+tutorial"
+      "videoUrl": "https://www.youtube.com/watch?v=0UBRfiO4zDs"
     },
     {
       "id": "ex-straight-arm-pulldown",
@@ -206,7 +206,7 @@
       "muscleGroups": ["shoulders", "triceps"],
       "equipment": "dumbbells",
       "isCustom": false,
-      "videoUrl": "https://www.youtube.com/results?search_query=arnold+press+proper+form+tutorial"
+      "videoUrl": "https://www.youtube.com/watch?v=_z_k3gFiS50"
     },
     {
       "id": "ex-lateral-raises",
@@ -230,7 +230,7 @@
       "muscleGroups": ["shoulders"],
       "equipment": "dumbbells",
       "isCustom": false,
-      "videoUrl": "https://www.youtube.com/results?search_query=front+raises+proper+form+tutorial"
+      "videoUrl": "https://www.youtube.com/watch?v=RJwpdI6qWdE"
     },
     {
       "id": "ex-incline-delt-press",
@@ -246,7 +246,7 @@
       "muscleGroups": ["shoulders"],
       "equipment": "machine",
       "isCustom": false,
-      "videoUrl": "https://www.youtube.com/results?search_query=machine+shoulder+press+proper+form+tutorial"
+      "videoUrl": "https://www.youtube.com/watch?v=WvLMauqrnK8"
     },
     {
       "id": "ex-face-pulls",
@@ -262,7 +262,7 @@
       "muscleGroups": ["rear-delts", "shoulders"],
       "equipment": "cable",
       "isCustom": false,
-      "videoUrl": "https://www.youtube.com/results?search_query=y+raises+cable+proper+form+tutorial"
+      "videoUrl": "https://www.youtube.com/watch?v=7IvJppnxFLw"
     },
     {
       "id": "ex-rear-delt-fly",
@@ -294,7 +294,7 @@
       "muscleGroups": ["rear-delts"],
       "equipment": "machine",
       "isCustom": false,
-      "videoUrl": "https://www.youtube.com/results?search_query=reverse+pec+deck+proper+form+tutorial"
+      "videoUrl": "https://www.youtube.com/watch?v=cmDhUMe_Juk"
     },
     {
       "id": "ex-band-pull-aparts",
@@ -302,7 +302,7 @@
       "muscleGroups": ["rear-delts", "upper-back"],
       "equipment": "band",
       "isCustom": false,
-      "videoUrl": "https://www.youtube.com/results?search_query=band+pull+aparts+proper+form+tutorial"
+      "videoUrl": "https://www.youtube.com/watch?v=W0lIYpESFLM"
     },
     {
       "id": "ex-tricep-pushdown",
@@ -334,7 +334,7 @@
       "muscleGroups": ["triceps"],
       "equipment": "cable",
       "isCustom": false,
-      "videoUrl": "https://www.youtube.com/results?search_query=cross+cable+tricep+extension+proper+form+tutorial"
+      "videoUrl": "https://www.youtube.com/watch?v=Y79pALqCoCg"
     },
     {
       "id": "ex-skull-crushers",
@@ -342,7 +342,7 @@
       "muscleGroups": ["triceps"],
       "equipment": "barbell",
       "isCustom": false,
-      "videoUrl": "https://www.youtube.com/results?search_query=skull+crushers+proper+form+tutorial"
+      "videoUrl": "https://www.youtube.com/watch?v=zW2bxV1dreQ"
     },
     {
       "id": "ex-dumbbell-kickback",
@@ -350,7 +350,7 @@
       "muscleGroups": ["triceps"],
       "equipment": "dumbbells",
       "isCustom": false,
-      "videoUrl": "https://www.youtube.com/results?search_query=tricep+dumbbell+kickback+proper+form+tutorial"
+      "videoUrl": "https://www.youtube.com/watch?v=SvvFuZzZfLc"
     },
     {
       "id": "ex-close-grip-bench",
@@ -366,7 +366,7 @@
       "muscleGroups": ["triceps"],
       "equipment": "dip-station",
       "isCustom": false,
-      "videoUrl": "https://www.youtube.com/results?search_query=tricep+dips+proper+form+tutorial"
+      "videoUrl": "https://www.youtube.com/watch?v=iOSPYZfFboo"
     },
     {
       "id": "ex-barbell-curl",
@@ -398,7 +398,7 @@
       "muscleGroups": ["biceps", "forearms"],
       "equipment": "dumbbells",
       "isCustom": false,
-      "videoUrl": "https://www.youtube.com/results?search_query=hammer+curl+proper+form+tutorial"
+      "videoUrl": "https://www.youtube.com/watch?v=IrdNYqBLOhE"
     },
     {
       "id": "ex-incline-bicep-curls",
@@ -422,7 +422,7 @@
       "muscleGroups": ["biceps"],
       "equipment": "cable",
       "isCustom": false,
-      "videoUrl": "https://www.youtube.com/results?search_query=cable+curl+proper+form+tutorial"
+      "videoUrl": "https://www.youtube.com/watch?v=IM4ymfkoMzs"
     },
     {
       "id": "ex-concentration-curl",
@@ -430,7 +430,7 @@
       "muscleGroups": ["biceps"],
       "equipment": "dumbbells",
       "isCustom": false,
-      "videoUrl": "https://www.youtube.com/results?search_query=concentration+curl+proper+form+tutorial"
+      "videoUrl": "https://www.youtube.com/watch?v=Bk1gDAQOOYA"
     },
     {
       "id": "ex-barbell-squat",
@@ -446,7 +446,7 @@
       "muscleGroups": ["quads", "core"],
       "equipment": "barbell",
       "isCustom": false,
-      "videoUrl": "https://www.youtube.com/results?search_query=front+squat+proper+form+tutorial"
+      "videoUrl": "https://www.youtube.com/watch?v=qctTtZ6G0g4"
     },
     {
       "id": "ex-hack-squat",
@@ -470,7 +470,7 @@
       "muscleGroups": ["quads"],
       "equipment": "machine",
       "isCustom": false,
-      "videoUrl": "https://www.youtube.com/results?search_query=leg+extension+proper+form+tutorial"
+      "videoUrl": "https://www.youtube.com/watch?v=ZVMmvgNDr5Q"
     },
     {
       "id": "ex-rfess",
@@ -486,7 +486,7 @@
       "muscleGroups": ["quads", "glutes"],
       "equipment": "dumbbells",
       "isCustom": false,
-      "videoUrl": "https://www.youtube.com/results?search_query=walking+lunge+proper+form+tutorial"
+      "videoUrl": "https://www.youtube.com/watch?v=9ZGAEKtUJk4"
     },
     {
       "id": "ex-goblet-squat",
@@ -494,7 +494,7 @@
       "muscleGroups": ["quads", "glutes"],
       "equipment": "dumbbells",
       "isCustom": false,
-      "videoUrl": "https://www.youtube.com/results?search_query=goblet+squat+proper+form+tutorial"
+      "videoUrl": "https://www.youtube.com/watch?v=pX5gyyVgHEc"
     },
     {
       "id": "ex-rdl",
@@ -534,7 +534,7 @@
       "muscleGroups": ["hamstrings"],
       "equipment": "bodyweight",
       "isCustom": false,
-      "videoUrl": "https://www.youtube.com/results?search_query=nordic+hamstring+curl+proper+form+tutorial"
+      "videoUrl": "https://www.youtube.com/watch?v=n4o4jzcxufc"
     },
     {
       "id": "ex-good-morning",
@@ -542,7 +542,7 @@
       "muscleGroups": ["hamstrings", "back"],
       "equipment": "barbell",
       "isCustom": false,
-      "videoUrl": "https://www.youtube.com/results?search_query=good+morning+exercise+proper+form+tutorial"
+      "videoUrl": "https://www.youtube.com/watch?v=O3a45JOHcbA"
     },
     {
       "id": "ex-hip-thrust",
@@ -566,7 +566,7 @@
       "muscleGroups": ["glutes"],
       "equipment": "cable",
       "isCustom": false,
-      "videoUrl": "https://www.youtube.com/results?search_query=cable+glute+kickback+proper+form+tutorial"
+      "videoUrl": "https://www.youtube.com/watch?v=xT18pLHEGik"
     },
     {
       "id": "ex-sumo-deadlift",
@@ -574,7 +574,7 @@
       "muscleGroups": ["glutes", "quads", "back"],
       "equipment": "barbell",
       "isCustom": false,
-      "videoUrl": "https://www.youtube.com/results?search_query=sumo+deadlift+proper+form+tutorial"
+      "videoUrl": "https://www.youtube.com/watch?v=mDzU3F8qgi0"
     },
     {
       "id": "ex-hip-abduction",
@@ -582,7 +582,7 @@
       "muscleGroups": ["glutes"],
       "equipment": "machine",
       "isCustom": false,
-      "videoUrl": "https://www.youtube.com/results?search_query=hip+abduction+machine+proper+form+tutorial"
+      "videoUrl": "https://www.youtube.com/watch?v=h9BqUMqK-SY"
     },
     {
       "id": "ex-step-ups",
@@ -590,7 +590,7 @@
       "muscleGroups": ["glutes", "quads"],
       "equipment": "dumbbells",
       "isCustom": false,
-      "videoUrl": "https://www.youtube.com/results?search_query=step+ups+proper+form+tutorial"
+      "videoUrl": "https://www.youtube.com/watch?v=Nvqi1CsYqIM"
     },
     {
       "id": "ex-standing-calf-raise",
@@ -598,7 +598,7 @@
       "muscleGroups": ["calves"],
       "equipment": "machine",
       "isCustom": false,
-      "videoUrl": "https://www.youtube.com/results?search_query=standing+calf+raise+proper+form+tutorial"
+      "videoUrl": "https://www.youtube.com/watch?v=ncXolCGoMqg"
     },
     {
       "id": "ex-seated-calf-raise",
@@ -606,7 +606,7 @@
       "muscleGroups": ["calves"],
       "equipment": "machine",
       "isCustom": false,
-      "videoUrl": "https://www.youtube.com/results?search_query=seated+calf+raise+proper+form+tutorial"
+      "videoUrl": "https://www.youtube.com/watch?v=_8npbfYV-xY"
     },
     {
       "id": "ex-leg-press-calf",
@@ -622,7 +622,7 @@
       "muscleGroups": ["tibialis"],
       "equipment": "plate",
       "isCustom": false,
-      "videoUrl": "https://www.youtube.com/results?search_query=tibialis+anterior+raise+proper+form+tutorial"
+      "videoUrl": "https://www.youtube.com/watch?v=U2jY8l-6VOA"
     },
     {
       "id": "ex-ab-crunch",
@@ -630,7 +630,7 @@
       "muscleGroups": ["abs"],
       "equipment": "machine",
       "isCustom": false,
-      "videoUrl": "https://www.youtube.com/results?search_query=ab+crunch+machine+proper+form+tutorial"
+      "videoUrl": "https://www.youtube.com/watch?v=y2ikpV8EmZ4"
     },
     {
       "id": "ex-cable-crunch",
@@ -638,7 +638,7 @@
       "muscleGroups": ["abs"],
       "equipment": "cable",
       "isCustom": false,
-      "videoUrl": "https://www.youtube.com/results?search_query=cable+crunch+proper+form+tutorial"
+      "videoUrl": "https://www.youtube.com/watch?v=rZ84A5JqFys"
     },
     {
       "id": "ex-hanging-leg-raise",
@@ -646,7 +646,7 @@
       "muscleGroups": ["abs", "hip-flexors"],
       "equipment": "pull-up-bar",
       "isCustom": false,
-      "videoUrl": "https://www.youtube.com/results?search_query=hanging+leg+raise+proper+form+tutorial"
+      "videoUrl": "https://www.youtube.com/watch?v=Pr1ieGZ5atk"
     },
     {
       "id": "ex-leg-raise",
@@ -654,7 +654,7 @@
       "muscleGroups": ["abs"],
       "equipment": "bodyweight",
       "isCustom": false,
-      "videoUrl": "https://www.youtube.com/results?search_query=lying+leg+raise+proper+form+tutorial"
+      "videoUrl": "https://www.youtube.com/watch?v=xJJu-WiROM8"
     },
     {
       "id": "ex-plank",
@@ -662,7 +662,7 @@
       "muscleGroups": ["core"],
       "equipment": "bodyweight",
       "isCustom": false,
-      "videoUrl": "https://www.youtube.com/results?search_query=plank+proper+form+tutorial"
+      "videoUrl": "https://www.youtube.com/watch?v=6LqqeBtFn9M"
     },
     {
       "id": "ex-russian-twist",
@@ -670,7 +670,7 @@
       "muscleGroups": ["abs", "obliques"],
       "equipment": "dumbbells",
       "isCustom": false,
-      "videoUrl": "https://www.youtube.com/results?search_query=russian+twist+proper+form+tutorial"
+      "videoUrl": "https://www.youtube.com/watch?v=wkD8rjkodUI"
     },
     {
       "id": "ex-ab-wheel",
@@ -678,7 +678,7 @@
       "muscleGroups": ["abs", "core"],
       "equipment": "ab-wheel",
       "isCustom": false,
-      "videoUrl": "https://www.youtube.com/results?search_query=ab+wheel+rollout+proper+form+tutorial"
+      "videoUrl": "https://www.youtube.com/watch?v=A3uK5TPzHq8"
     },
     {
       "id": "ex-woodchop",
@@ -686,7 +686,7 @@
       "muscleGroups": ["obliques", "core"],
       "equipment": "cable",
       "isCustom": false,
-      "videoUrl": "https://www.youtube.com/results?search_query=cable+woodchop+proper+form+tutorial"
+      "videoUrl": "https://www.youtube.com/watch?v=pAplQXk3dkU"
     },
     {
       "id": "ex-band-face-pulls",
@@ -694,7 +694,7 @@
       "muscleGroups": ["rear-delts", "upper-back"],
       "equipment": "band",
       "isCustom": false,
-      "videoUrl": "https://www.youtube.com/results?search_query=band+face+pulls+proper+form+tutorial"
+      "videoUrl": "https://www.youtube.com/watch?v=W0lIYpESFLM"
     },
     {
       "id": "ex-shoulder-circles",
@@ -702,7 +702,7 @@
       "muscleGroups": ["shoulders"],
       "equipment": "bodyweight",
       "isCustom": false,
-      "videoUrl": "https://www.youtube.com/results?search_query=shoulder+circles+warmup+tutorial"
+      "videoUrl": "https://www.youtube.com/watch?v=UVMEnIaY8aU"
     },
     {
       "id": "ex-arm-circles",
@@ -710,7 +710,7 @@
       "muscleGroups": ["shoulders"],
       "equipment": "bodyweight",
       "isCustom": false,
-      "videoUrl": "https://www.youtube.com/results?search_query=arm+circles+warmup+tutorial"
+      "videoUrl": "https://www.youtube.com/watch?v=UVMEnIaY8aU"
     },
     {
       "id": "ex-hip-circles",
@@ -718,7 +718,7 @@
       "muscleGroups": ["hips"],
       "equipment": "bodyweight",
       "isCustom": false,
-      "videoUrl": "https://www.youtube.com/results?search_query=hip+circles+warmup+tutorial"
+      "videoUrl": "https://www.youtube.com/watch?v=qkrJXGVj_OQ"
     },
     {
       "id": "ex-cat-cow",
@@ -726,7 +726,7 @@
       "muscleGroups": ["spine", "core"],
       "equipment": "bodyweight",
       "isCustom": false,
-      "videoUrl": "https://www.youtube.com/results?search_query=cat+cow+stretch+proper+form+tutorial"
+      "videoUrl": "https://www.youtube.com/watch?v=vuyUwtHl694"
     },
     {
       "id": "ex-bw-squats",
@@ -734,7 +734,7 @@
       "muscleGroups": ["quads", "glutes"],
       "equipment": "bodyweight",
       "isCustom": false,
-      "videoUrl": "https://www.youtube.com/results?search_query=bodyweight+squat+proper+form+tutorial"
+      "videoUrl": "https://www.youtube.com/watch?v=P-yaD24bUE8"
     },
     {
       "id": "ex-glute-bridges-bw",
@@ -742,7 +742,7 @@
       "muscleGroups": ["glutes"],
       "equipment": "bodyweight",
       "isCustom": false,
-      "videoUrl": "https://www.youtube.com/results?search_query=glute+bridge+proper+form+tutorial"
+      "videoUrl": "https://www.youtube.com/watch?v=d5DuxKOmtHI"
     },
     {
       "id": "ex-dead-hang",
@@ -750,7 +750,7 @@
       "muscleGroups": ["grip", "shoulders", "spine"],
       "equipment": "pull-up-bar",
       "isCustom": false,
-      "videoUrl": "https://www.youtube.com/results?search_query=dead+hang+proper+form+benefits"
+      "videoUrl": "https://www.youtube.com/watch?v=ShkBXOGK7A8"
     },
     {
       "id": "ex-world-greatest-stretch",
@@ -758,7 +758,7 @@
       "muscleGroups": ["hips", "hamstrings", "thoracic"],
       "equipment": "bodyweight",
       "isCustom": false,
-      "videoUrl": "https://www.youtube.com/results?search_query=worlds+greatest+stretch+proper+form+tutorial"
+      "videoUrl": "https://www.youtube.com/watch?v=-CiWQ2IvY34"
     },
     {
       "id": "ex-leg-swings",
@@ -766,7 +766,7 @@
       "muscleGroups": ["hips", "hamstrings"],
       "equipment": "bodyweight",
       "isCustom": false,
-      "videoUrl": "https://www.youtube.com/results?search_query=leg+swings+warmup+tutorial"
+      "videoUrl": "https://www.youtube.com/watch?v=difYoBtZi2s"
     },
     {
       "id": "ex-thoracic-rotation",
@@ -774,7 +774,7 @@
       "muscleGroups": ["spine"],
       "equipment": "bodyweight",
       "isCustom": false,
-      "videoUrl": "https://www.youtube.com/results?search_query=thoracic+rotation+mobility+tutorial"
+      "videoUrl": "https://www.youtube.com/watch?v=EHZJns1bXPM"
     }
   ]
 }
