@@ -22,7 +22,8 @@ Manage static data that powers SetFlow's workout tracking. This includes exercis
 
 | File | Purpose | Format |
 |------|---------|--------|
-| `exercises.json` | Master exercise library | `ExerciseDefinition[]` |
+| `exercises.json` | Master exercise library (97 exercises) | `ExerciseDefinition[]` |
+| `exercise-videos.csv` | Video URL reference export | CSV (id, name, equipment, muscleGroups, videoUrl) |
 | `program.json` | Default training program | Full program structure |
 | `programs/*.json` | Template programs | Program templates |
 | `achievements.ts` | Achievement definitions | `AchievementDefinition[]` |
@@ -214,6 +215,7 @@ type AchievementCategory =
 | Duplicate exercise definitions | Data inconsistency | Single source of truth |
 | Inventing muscle groups | Breaks filtering | Use valid muscle groups list |
 | Removing achievements | Breaks user progress | Mark deprecated, never delete |
+| Hardcoding exercise counts in docs | Gets stale when exercises added | Use "all exercises" or verify count |
 
 ---
 
