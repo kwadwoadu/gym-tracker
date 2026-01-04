@@ -4,6 +4,38 @@ All notable changes to the SetFlow project.
 
 ---
 
+## [2026-01-04] Post-Migration Fix: builtInId for Exercise Mapping
+
+### Added
+- **builtInId field** on Exercise model for reliable preset-to-database ID mapping
+- **Stable Preset Identifiers pattern** in `/docs/patterns/stable-preset-identifiers.md`
+- **Backfill API endpoint** (`POST /api/seed` with `action: "backfill"`)
+- **Reset to Default** (`POST /api/seed` with `action: "reset"`)
+- **PRD**: `/docs/prds/post-migration-fixes.md`
+
+### Fixed
+- Exercise names displaying as IDs (e.g., "ex-barbell-bench" instead of "Barbell Bench Press")
+- PPL and Upper/Lower programs appearing empty when selected
+- Settings Reset was stubbed ("coming soon") - now functional
+
+### Technical Details
+- `builtInId` stores original preset ID (e.g., "ex-barbell-bench")
+- ID mapping uses builtInId first, falls back to name matching for legacy data
+- Backfill script updates existing exercises missing builtInId
+- Reset clears workouts/PRs and reinstalls default Full Body program
+
+### Files Changed
+- `prisma/schema.prisma` - Added builtInId field
+- `src/lib/api-client.ts` - Updated Exercise interface
+- `src/app/api/exercises/route.ts` - Handle builtInId in POST
+- `src/app/api/exercises/[id]/route.ts` - Handle builtInId in PUT
+- `src/app/api/seed/route.ts` - Added reset/backfill actions
+- `src/lib/seed.ts` - builtInId storage, backfill, reset functions
+- `src/lib/programs.ts` - Updated ID mapping logic
+- `src/app/settings/page.tsx` - Implemented reset function
+
+---
+
 ## [2026-01-03] Sync Date Serialization Fix
 
 ### Fixed

@@ -26,6 +26,7 @@ Document non-obvious implementations that should be reused. Patterns prevent rei
 | Local-First Data | `local-first-data.md` | Dexie.js schema and queries |
 | Workout Session Lifecycle | `workout-session-lifecycle.md` | Session start/save/resume |
 | Progressive Overload | `progressive-overload.md` | Weight suggestion algorithm |
+| Stable Preset Identifiers | `stable-preset-identifiers.md` | builtInId for reliable ID mapping |
 
 ---
 
