@@ -225,6 +225,8 @@ export interface SetLog {
   supersetLabel?: string;
   isComplete?: boolean;
   completedAt?: string;
+  skipped?: boolean; // True if set was skipped
+  skipReason?: string; // Optional: "equipment_taken", "time", "fatigue"
 }
 
 export interface WorkoutLog {

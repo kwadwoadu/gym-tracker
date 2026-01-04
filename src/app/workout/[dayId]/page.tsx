@@ -30,6 +30,7 @@ import {
   Target,
   RotateCcw,
   Cloud,
+  SkipForward,
 } from "lucide-react";
 import { RestTimer } from "@/components/workout/rest-timer";
 import { SetLogger } from "@/components/workout/set-logger";
@@ -593,6 +594,80 @@ export default function WorkoutSession() {
   // Check if all finisher exercises are done
   const allFinisherDone = finisherChecked.every((checked) => checked);
 
+  // Handle skipping a set
+  const handleSkipSet = () => {
+    if (!trainingDay) return;
+
+    const currentExercise = getCurrentExercise();
+    if (!currentExercise) return;
+
+    // Log the skipped set
+    const exercise = exercises.get(currentExercise.exerciseId);
+    const targetRepsStr = currentExercise.reps.split(",")[0] || "10";
+    const targetReps = parseInt(targetRepsStr.split("-")[0]) || 10;
+
+    const setLog: SetLog = {
+      id: `set-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      exerciseId: currentExercise.exerciseId,
+      exerciseName: exercise?.name || "Unknown",
+      supersetLabel: trainingDay.supersets[workoutState.supersetIndex].label,
+      setNumber: workoutState.setNumber,
+      targetReps,
+      actualReps: 0,
+      weight: 0,
+      unit: "kg",
+      isComplete: false,
+      skipped: true,
+      completedAt: new Date().toISOString(),
+    };
+    setCompletedSets((prev) => [...prev, setLog]);
+
+    // Progress to next set (same logic as complete, but no volume added)
+    const superset = trainingDay.supersets[workoutState.supersetIndex];
+    const totalSets = currentExercise.sets;
+    const exercisesInSuperset = superset.exercises.length;
+
+    let nextSupersetIndex = workoutState.supersetIndex;
+    let nextExerciseIndex = workoutState.exerciseIndex + 1;
+    let nextSetNumber = workoutState.setNumber;
+
+    if (nextExerciseIndex >= exercisesInSuperset) {
+      nextExerciseIndex = 0;
+      nextSetNumber++;
+
+      if (nextSetNumber > totalSets) {
+        nextSetNumber = 1;
+        nextSupersetIndex++;
+
+        if (nextSupersetIndex >= trainingDay.supersets.length) {
+          if (trainingDay.finisher && trainingDay.finisher.length > 0) {
+            setPhase("finisher");
+            audioManager.playSetStart();
+          } else {
+            finishWorkout();
+          }
+          return;
+        }
+      }
+    }
+
+    setWorkoutState({
+      supersetIndex: nextSupersetIndex,
+      exerciseIndex: nextExerciseIndex,
+      setNumber: nextSetNumber,
+    });
+
+    // Set preview text and go to rest (shorter rest after skip)
+    const nextSuperset = trainingDay.supersets[nextSupersetIndex];
+    const nextExerciseData = nextSuperset.exercises[nextExerciseIndex];
+    const nextExercise = exercises.get(nextExerciseData.exerciseId);
+    setNextExercisePreview(
+      `${nextSuperset.label}${nextExerciseIndex + 1} ${nextExercise?.name || "Unknown"} - Set ${nextSetNumber}`
+    );
+
+    setPhase("rest");
+  };
+
   // Handle set completion - simplified progression logic
   const handleSetComplete = (weight: number, reps: number, rpe?: number) => {
     if (!trainingDay) return;
@@ -1062,22 +1137,39 @@ export default function WorkoutSession() {
               </ul>
             </Card>
 
-            {/* Continue button */}
-            <Button
-              size="lg"
-              className="w-full h-16 text-xl font-semibold bg-primary text-primary-foreground hover:bg-primary/90"
-              onClick={startWorkout}
-              disabled={!allWarmupDone}
-            >
-              {allWarmupDone ? (
-                <>
-                  <Check className="w-6 h-6 mr-2" />
-                  Start Main Workout
-                </>
-              ) : (
-                <>Complete warmup to continue</>
+            {/* Continue buttons */}
+            <div className="flex gap-3">
+              {!allWarmupDone && (
+                <Button
+                  size="lg"
+                  variant="ghost"
+                  className="h-16 px-6 text-muted-foreground hover:text-foreground"
+                  onClick={() => {
+                    // Mark all warmup as done and skip
+                    setWarmupChecked(warmupChecked.map(() => true));
+                    startWorkout();
+                  }}
+                >
+                  <SkipForward className="w-5 h-5 mr-2" />
+                  Skip
+                </Button>
               )}
-            </Button>
+              <Button
+                size="lg"
+                className="flex-1 h-16 text-xl font-semibold bg-primary text-primary-foreground hover:bg-primary/90"
+                onClick={startWorkout}
+                disabled={!allWarmupDone}
+              >
+                {allWarmupDone ? (
+                  <>
+                    <Check className="w-6 h-6 mr-2" />
+                    Start Main Workout
+                  </>
+                ) : (
+                  <>Complete warmup to continue</>
+                )}
+              </Button>
+            </div>
           </motion.div>
         )}
 
@@ -1222,6 +1314,7 @@ export default function WorkoutSession() {
               hitTargetLastTime={globalSuggestion?.hitTargetLastTime}
               videoUrl={currentExercise.videoUrl ?? undefined}
               onComplete={handleSetComplete}
+              onSkip={handleSkipSet}
             />
 
             {/* Tempo reminder */}
@@ -1356,22 +1449,39 @@ export default function WorkoutSession() {
               </ul>
             </Card>
 
-            {/* Complete button */}
-            <Button
-              size="lg"
-              className="w-full h-16 text-xl font-semibold bg-primary text-primary-foreground hover:bg-primary/90"
-              onClick={finishWorkout}
-              disabled={!allFinisherDone}
-            >
-              {allFinisherDone ? (
-                <>
-                  <Check className="w-6 h-6 mr-2" />
-                  Complete Workout
-                </>
-              ) : (
-                <>Complete finisher to finish</>
+            {/* Complete buttons */}
+            <div className="flex gap-3">
+              {!allFinisherDone && (
+                <Button
+                  size="lg"
+                  variant="ghost"
+                  className="h-16 px-6 text-muted-foreground hover:text-foreground"
+                  onClick={() => {
+                    // Mark all finisher as done and complete workout
+                    setFinisherChecked(finisherChecked.map(() => true));
+                    finishWorkout();
+                  }}
+                >
+                  <SkipForward className="w-5 h-5 mr-2" />
+                  Skip
+                </Button>
               )}
-            </Button>
+              <Button
+                size="lg"
+                className="flex-1 h-16 text-xl font-semibold bg-primary text-primary-foreground hover:bg-primary/90"
+                onClick={finishWorkout}
+                disabled={!allFinisherDone}
+              >
+                {allFinisherDone ? (
+                  <>
+                    <Check className="w-6 h-6 mr-2" />
+                    Complete Workout
+                  </>
+                ) : (
+                  <>Complete finisher to finish</>
+                )}
+              </Button>
+            </div>
           </motion.div>
         )}
 

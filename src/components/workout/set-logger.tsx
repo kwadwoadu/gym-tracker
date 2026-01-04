@@ -12,7 +12,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Check, Minus, Plus, TrendingUp, TrendingDown, Play, ChevronDown, ChevronUp } from "lucide-react";
+import { Check, Minus, Plus, TrendingUp, TrendingDown, Play, ChevronDown, ChevronUp, SkipForward } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 // Extract YouTube video ID from URL
@@ -86,6 +86,7 @@ interface SetLoggerProps {
   hitTargetLastTime?: boolean;  // Whether target reps were hit last time
   videoUrl?: string;
   onComplete: (weight: number, reps: number, rpe?: number) => void;
+  onSkip?: () => void; // Optional callback when user skips the set
 }
 
 export function SetLogger({
@@ -102,6 +103,7 @@ export function SetLogger({
   hitTargetLastTime,
   videoUrl,
   onComplete,
+  onSkip,
 }: SetLoggerProps) {
   const [weight, setWeight] = useState(suggestedWeight || lastWeekWeight || 20);
   const [reps, setReps] = useState(targetReps);
@@ -562,18 +564,30 @@ export function SetLogger({
         </div>
       </div>
 
-        {/* Complete button */}
+        {/* Complete and Skip buttons */}
         <AnimatePresence mode="wait">
           {!isCompleted ? (
             <motion.div
-              key="button"
+              key="buttons"
               variants={buttonExitVariants}
               initial="initial"
               exit="exit"
+              className="flex gap-3"
             >
+              {onSkip && (
+                <Button
+                  size="lg"
+                  variant="ghost"
+                  className="h-14 px-6 text-muted-foreground hover:text-foreground"
+                  onClick={onSkip}
+                >
+                  <SkipForward className="w-5 h-5 mr-2" />
+                  Skip
+                </Button>
+              )}
               <Button
                 size="lg"
-                className="w-full h-14 text-lg font-semibold bg-primary text-primary-foreground hover:bg-primary/90"
+                className="flex-1 h-14 text-lg font-semibold bg-primary text-primary-foreground hover:bg-primary/90"
                 onClick={handleComplete}
               >
                 <Check className="w-5 h-5 mr-2" />
