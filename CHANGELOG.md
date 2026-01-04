@@ -4,6 +4,28 @@ All notable changes to the SetFlow project.
 
 ---
 
+## [2026-01-04] SetFlow v2.2.2 - Complete Video URL Curation
+
+### Fixed
+- **All 97 Exercises Now Have Direct Video URLs**: Replaced 15 remaining search URLs with direct YouTube video URLs for in-app embedding
+
+### Updated Exercises
+- Machine Shoulder Press, Hip Abduction Machine
+- Plank, Russian Twist, Ab Wheel Rollout, Cable Woodchop
+- Shoulder Circles, Arm Circles, Hip Circles
+- Cat-Cow, Bodyweight Squats, Dead Hang
+- World's Greatest Stretch, Leg Swings, Thoracic Rotation
+
+### Technical Details
+- Zero search URLs remain (was 15)
+- All videos now use `youtube.com/watch?v=ID` format
+- Ran backfill script to update database
+
+### Files Changed
+- `src/data/exercises.json` - Updated 15 video URLs
+
+---
+
 ## [2026-01-04] SetFlow v2.2 - Video Tutorial Embedding
 
 ### Fixed (Critical)
