@@ -137,12 +137,13 @@ export default function SettingsPage() {
     }
   };
 
+  const [isResetting, setIsResetting] = useState(false);
+
   const handleReset = async () => {
     try {
-      const response = await fetch("/api/seed", {
+      setIsResetting(true);
+      const response = await fetch("/api/reset", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "reset" }),
       });
 
       if (!response.ok) {
@@ -156,6 +157,7 @@ export default function SettingsPage() {
     } catch (error) {
       console.error("Failed to reset:", error);
       showToast(error instanceof Error ? error.message : "Failed to reset", "error");
+      setIsResetting(false);
     }
   };
 
@@ -498,9 +500,14 @@ export default function SettingsPage() {
                 <Button
                   variant="outline"
                   className="w-full justify-start h-12 text-red-500 hover:text-red-600 border-red-500/30 hover:border-red-500/50"
+                  disabled={isResetting}
                 >
-                  <RotateCcw className="w-5 h-5 mr-3" />
-                  Reset to Default Program
+                  {isResetting ? (
+                    <Loader2 className="w-5 h-5 mr-3 animate-spin" />
+                  ) : (
+                    <RotateCcw className="w-5 h-5 mr-3" />
+                  )}
+                  {isResetting ? "Resetting..." : "Reset to Default Program"}
                 </Button>
               </AlertDialogTrigger>
               <AlertDialogContent className="max-w-sm mx-4">
