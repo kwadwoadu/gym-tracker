@@ -5,679 +5,776 @@
       "name": "Barbell Bench Press",
       "muscleGroups": ["chest", "triceps", "shoulders"],
       "equipment": "barbell",
-      "isCustom": false
+      "isCustom": false,
+      "videoUrl": "https://www.youtube.com/results?search_query=barbell+bench+press+proper+form+tutorial"
     },
     {
       "id": "ex-incline-barbell-bench",
       "name": "Incline Barbell Bench Press",
       "muscleGroups": ["chest", "shoulders", "triceps"],
       "equipment": "barbell",
-      "isCustom": false
+      "isCustom": false,
+      "videoUrl": "https://www.youtube.com/results?search_query=incline+barbell+bench+press+proper+form+tutorial"
     },
     {
       "id": "ex-decline-barbell-bench",
       "name": "Decline Barbell Bench Press",
       "muscleGroups": ["chest", "triceps"],
       "equipment": "barbell",
-      "isCustom": false
+      "isCustom": false,
+      "videoUrl": "https://www.youtube.com/results?search_query=decline+barbell+bench+press+proper+form+tutorial"
     },
     {
       "id": "ex-incline-db-press",
       "name": "Incline Dumbbell Press",
       "muscleGroups": ["chest", "shoulders"],
       "equipment": "dumbbells",
-      "isCustom": false
+      "isCustom": false,
+      "videoUrl": "https://www.youtube.com/results?search_query=incline+dumbbell+press+proper+form+tutorial"
     },
     {
       "id": "ex-flat-db-press",
       "name": "Flat Dumbbell Press",
       "muscleGroups": ["chest", "triceps"],
       "equipment": "dumbbells",
-      "isCustom": false
+      "isCustom": false,
+      "videoUrl": "https://www.youtube.com/results?search_query=flat+dumbbell+press+proper+form+tutorial"
     },
     {
       "id": "ex-decline-db-press",
       "name": "Decline Dumbbell Press",
       "muscleGroups": ["chest", "triceps"],
       "equipment": "dumbbells",
-      "isCustom": false
+      "isCustom": false,
+      "videoUrl": "https://www.youtube.com/results?search_query=decline+dumbbell+press+proper+form+tutorial"
     },
     {
       "id": "ex-cable-fly",
       "name": "Cable Fly",
       "muscleGroups": ["chest"],
       "equipment": "cable",
-      "isCustom": false
+      "isCustom": false,
+      "videoUrl": "https://www.youtube.com/results?search_query=cable+fly+chest+proper+form+tutorial"
     },
     {
       "id": "ex-incline-cable-fly",
       "name": "Incline Cable Fly",
       "muscleGroups": ["chest"],
       "equipment": "cable",
-      "isCustom": false
+      "isCustom": false,
+      "videoUrl": "https://www.youtube.com/results?search_query=incline+cable+fly+proper+form+tutorial"
     },
     {
       "id": "ex-chest-dips",
       "name": "Chest Dips",
       "muscleGroups": ["chest", "triceps"],
       "equipment": "dip-station",
-      "isCustom": false
+      "isCustom": false,
+      "videoUrl": "https://www.youtube.com/results?search_query=chest+dips+proper+form+tutorial"
     },
     {
       "id": "ex-machine-chest-press",
       "name": "Machine Chest Press",
       "muscleGroups": ["chest", "triceps"],
       "equipment": "machine",
-      "isCustom": false
+      "isCustom": false,
+      "videoUrl": "https://www.youtube.com/results?search_query=machine+chest+press+proper+form+tutorial"
     },
     {
       "id": "ex-incline-chest-press",
       "name": "Incline DB Chest Press",
       "muscleGroups": ["chest", "shoulders"],
       "equipment": "dumbbells",
-      "isCustom": false
+      "isCustom": false,
+      "videoUrl": "https://www.youtube.com/results?search_query=incline+dumbbell+chest+press+proper+form+tutorial"
     },
     {
       "id": "ex-pullup",
       "name": "Pull-up",
       "muscleGroups": ["lats", "biceps", "back"],
       "equipment": "pull-up-bar",
-      "isCustom": false
+      "isCustom": false,
+      "videoUrl": "https://www.youtube.com/results?search_query=pull+up+proper+form+tutorial"
     },
     {
       "id": "ex-chinup",
       "name": "Chin-up",
       "muscleGroups": ["lats", "biceps"],
       "equipment": "pull-up-bar",
-      "isCustom": false
+      "isCustom": false,
+      "videoUrl": "https://www.youtube.com/results?search_query=chin+up+proper+form+tutorial"
     },
     {
       "id": "ex-wide-lat-pulldown",
       "name": "Wide Grip Lat Pulldown",
       "muscleGroups": ["lats", "back"],
       "equipment": "cable",
-      "isCustom": false
+      "isCustom": false,
+      "videoUrl": "https://www.youtube.com/results?search_query=wide+grip+lat+pulldown+proper+form+tutorial"
     },
     {
       "id": "ex-neutral-pulldown",
       "name": "Neutral Grip Pulldown",
       "muscleGroups": ["lats", "back"],
       "equipment": "cable",
-      "isCustom": false
+      "isCustom": false,
+      "videoUrl": "https://www.youtube.com/results?search_query=neutral+grip+lat+pulldown+proper+form+tutorial"
     },
     {
       "id": "ex-close-grip-pulldown",
       "name": "Close Grip Pulldown",
       "muscleGroups": ["lats", "back"],
       "equipment": "cable",
-      "isCustom": false
+      "isCustom": false,
+      "videoUrl": "https://www.youtube.com/results?search_query=close+grip+lat+pulldown+proper+form+tutorial"
     },
     {
       "id": "ex-barbell-row",
       "name": "Barbell Row",
       "muscleGroups": ["back", "lats", "biceps"],
       "equipment": "barbell",
-      "isCustom": false
+      "isCustom": false,
+      "videoUrl": "https://www.youtube.com/results?search_query=barbell+row+proper+form+tutorial"
     },
     {
       "id": "ex-dumbbell-row",
       "name": "Dumbbell Row",
       "muscleGroups": ["back", "lats"],
       "equipment": "dumbbells",
-      "isCustom": false
+      "isCustom": false,
+      "videoUrl": "https://www.youtube.com/results?search_query=dumbbell+row+proper+form+tutorial"
     },
     {
       "id": "ex-seated-cable-row",
       "name": "Seated Cable Row",
       "muscleGroups": ["back", "lats", "biceps"],
       "equipment": "cable",
-      "isCustom": false
+      "isCustom": false,
+      "videoUrl": "https://www.youtube.com/results?search_query=seated+cable+row+proper+form+tutorial"
     },
     {
       "id": "ex-t-bar-row",
       "name": "T-Bar Row",
       "muscleGroups": ["back", "lats"],
       "equipment": "machine",
-      "isCustom": false
+      "isCustom": false,
+      "videoUrl": "https://www.youtube.com/results?search_query=t+bar+row+proper+form+tutorial"
     },
     {
       "id": "ex-chest-supported-row",
       "name": "Chest Supported Row",
       "muscleGroups": ["back", "lats"],
       "equipment": "dumbbells",
-      "isCustom": false
+      "isCustom": false,
+      "videoUrl": "https://www.youtube.com/results?search_query=chest+supported+row+proper+form+tutorial"
     },
     {
       "id": "ex-straight-arm-pulldown",
       "name": "Straight Arm Pulldown",
       "muscleGroups": ["lats"],
       "equipment": "cable",
-      "isCustom": false
+      "isCustom": false,
+      "videoUrl": "https://www.youtube.com/results?search_query=straight+arm+pulldown+proper+form+tutorial"
     },
     {
       "id": "ex-deadlift",
       "name": "Conventional Deadlift",
       "muscleGroups": ["back", "glutes", "hamstrings"],
       "equipment": "barbell",
-      "isCustom": false
+      "isCustom": false,
+      "videoUrl": "https://www.youtube.com/results?search_query=conventional+deadlift+proper+form+tutorial"
     },
     {
       "id": "ex-ohp",
       "name": "Overhead Press",
       "muscleGroups": ["shoulders", "triceps"],
       "equipment": "barbell",
-      "isCustom": false
+      "isCustom": false,
+      "videoUrl": "https://www.youtube.com/results?search_query=overhead+press+proper+form+tutorial"
     },
     {
       "id": "ex-db-shoulder-press",
       "name": "Dumbbell Shoulder Press",
       "muscleGroups": ["shoulders", "triceps"],
       "equipment": "dumbbells",
-      "isCustom": false
+      "isCustom": false,
+      "videoUrl": "https://www.youtube.com/results?search_query=dumbbell+shoulder+press+proper+form+tutorial"
     },
     {
       "id": "ex-arnold-press",
       "name": "Arnold Press",
       "muscleGroups": ["shoulders", "triceps"],
       "equipment": "dumbbells",
-      "isCustom": false
+      "isCustom": false,
+      "videoUrl": "https://www.youtube.com/results?search_query=arnold+press+proper+form+tutorial"
     },
     {
       "id": "ex-lateral-raises",
       "name": "Lateral Raises",
       "muscleGroups": ["shoulders"],
       "equipment": "dumbbells",
-      "isCustom": false
+      "isCustom": false,
+      "videoUrl": "https://www.youtube.com/results?search_query=lateral+raises+proper+form+tutorial"
     },
     {
       "id": "ex-cable-lateral-raises",
       "name": "Cable Lateral Raises",
       "muscleGroups": ["shoulders"],
       "equipment": "cable",
-      "isCustom": false
+      "isCustom": false,
+      "videoUrl": "https://www.youtube.com/results?search_query=cable+lateral+raises+proper+form+tutorial"
     },
     {
       "id": "ex-front-raises",
       "name": "Front Raises",
       "muscleGroups": ["shoulders"],
       "equipment": "dumbbells",
-      "isCustom": false
+      "isCustom": false,
+      "videoUrl": "https://www.youtube.com/results?search_query=front+raises+proper+form+tutorial"
     },
     {
       "id": "ex-incline-delt-press",
       "name": "Incline DB Anterior Delt Press",
       "muscleGroups": ["shoulders"],
       "equipment": "dumbbells",
-      "isCustom": false
+      "isCustom": false,
+      "videoUrl": "https://www.youtube.com/results?search_query=incline+dumbbell+front+delt+press+proper+form+tutorial"
     },
     {
       "id": "ex-machine-shoulder-press",
       "name": "Machine Shoulder Press",
       "muscleGroups": ["shoulders"],
       "equipment": "machine",
-      "isCustom": false
+      "isCustom": false,
+      "videoUrl": "https://www.youtube.com/results?search_query=machine+shoulder+press+proper+form+tutorial"
     },
     {
       "id": "ex-face-pulls",
       "name": "Face Pulls",
       "muscleGroups": ["rear-delts", "upper-back"],
       "equipment": "cable",
-      "isCustom": false
+      "isCustom": false,
+      "videoUrl": "https://www.youtube.com/results?search_query=face+pulls+proper+form+tutorial"
     },
     {
       "id": "ex-y-raises",
       "name": "Y-Raises",
       "muscleGroups": ["rear-delts", "shoulders"],
       "equipment": "cable",
-      "isCustom": false
+      "isCustom": false,
+      "videoUrl": "https://www.youtube.com/results?search_query=y+raises+cable+proper+form+tutorial"
     },
     {
       "id": "ex-rear-delt-fly",
       "name": "Rear Delt Fly",
       "muscleGroups": ["rear-delts"],
       "equipment": "dumbbells",
-      "isCustom": false
+      "isCustom": false,
+      "videoUrl": "https://www.youtube.com/results?search_query=rear+delt+fly+dumbbell+proper+form+tutorial"
     },
     {
       "id": "ex-rear-delt-cable-fly",
       "name": "Rear Delt Cable Fly",
       "muscleGroups": ["rear-delts"],
       "equipment": "cable",
-      "isCustom": false
+      "isCustom": false,
+      "videoUrl": "https://www.youtube.com/results?search_query=rear+delt+cable+fly+proper+form+tutorial"
     },
     {
       "id": "ex-rear-delt-cable-row",
       "name": "Rear Delt Cable Row",
       "muscleGroups": ["rear-delts", "back"],
       "equipment": "cable",
-      "isCustom": false
+      "isCustom": false,
+      "videoUrl": "https://www.youtube.com/results?search_query=rear+delt+cable+row+proper+form+tutorial"
     },
     {
       "id": "ex-reverse-pec-deck",
       "name": "Reverse Pec Deck",
       "muscleGroups": ["rear-delts"],
       "equipment": "machine",
-      "isCustom": false
+      "isCustom": false,
+      "videoUrl": "https://www.youtube.com/results?search_query=reverse+pec+deck+proper+form+tutorial"
     },
     {
       "id": "ex-band-pull-aparts",
       "name": "Band Pull-Aparts",
       "muscleGroups": ["rear-delts", "upper-back"],
       "equipment": "band",
-      "isCustom": false
+      "isCustom": false,
+      "videoUrl": "https://www.youtube.com/results?search_query=band+pull+aparts+proper+form+tutorial"
     },
     {
       "id": "ex-tricep-pushdown",
       "name": "Tricep Pushdown",
       "muscleGroups": ["triceps"],
       "equipment": "cable",
-      "isCustom": false
+      "isCustom": false,
+      "videoUrl": "https://www.youtube.com/results?search_query=tricep+pushdown+proper+form+tutorial"
     },
     {
       "id": "ex-rope-pushdown",
       "name": "Rope Tricep Pushdown",
       "muscleGroups": ["triceps"],
       "equipment": "cable",
-      "isCustom": false
+      "isCustom": false,
+      "videoUrl": "https://www.youtube.com/results?search_query=rope+tricep+pushdown+proper+form+tutorial"
     },
     {
       "id": "ex-overhead-tricep-ext",
       "name": "Overhead Tricep Extension",
       "muscleGroups": ["triceps"],
       "equipment": "cable",
-      "isCustom": false
+      "isCustom": false,
+      "videoUrl": "https://www.youtube.com/results?search_query=overhead+tricep+extension+cable+proper+form+tutorial"
     },
     {
       "id": "ex-cross-cable-tricep",
       "name": "Cross Cable Tricep Extension",
       "muscleGroups": ["triceps"],
       "equipment": "cable",
-      "isCustom": false
+      "isCustom": false,
+      "videoUrl": "https://www.youtube.com/results?search_query=cross+cable+tricep+extension+proper+form+tutorial"
     },
     {
       "id": "ex-skull-crushers",
       "name": "Skull Crushers",
       "muscleGroups": ["triceps"],
       "equipment": "barbell",
-      "isCustom": false
+      "isCustom": false,
+      "videoUrl": "https://www.youtube.com/results?search_query=skull+crushers+proper+form+tutorial"
     },
     {
       "id": "ex-dumbbell-kickback",
       "name": "Dumbbell Kickback",
       "muscleGroups": ["triceps"],
       "equipment": "dumbbells",
-      "isCustom": false
+      "isCustom": false,
+      "videoUrl": "https://www.youtube.com/results?search_query=tricep+dumbbell+kickback+proper+form+tutorial"
     },
     {
       "id": "ex-close-grip-bench",
       "name": "Close Grip Bench Press",
       "muscleGroups": ["triceps", "chest"],
       "equipment": "barbell",
-      "isCustom": false
+      "isCustom": false,
+      "videoUrl": "https://www.youtube.com/results?search_query=close+grip+bench+press+proper+form+tutorial"
     },
     {
       "id": "ex-tricep-dips",
       "name": "Tricep Dips",
       "muscleGroups": ["triceps"],
       "equipment": "dip-station",
-      "isCustom": false
+      "isCustom": false,
+      "videoUrl": "https://www.youtube.com/results?search_query=tricep+dips+proper+form+tutorial"
     },
     {
       "id": "ex-barbell-curl",
       "name": "Barbell Curl",
       "muscleGroups": ["biceps"],
       "equipment": "barbell",
-      "isCustom": false
+      "isCustom": false,
+      "videoUrl": "https://www.youtube.com/results?search_query=barbell+curl+proper+form+tutorial"
     },
     {
       "id": "ex-ez-bar-curl",
       "name": "EZ Bar Curl",
       "muscleGroups": ["biceps"],
       "equipment": "barbell",
-      "isCustom": false
+      "isCustom": false,
+      "videoUrl": "https://www.youtube.com/results?search_query=ez+bar+curl+proper+form+tutorial"
     },
     {
       "id": "ex-dumbbell-curl",
       "name": "Dumbbell Curl",
       "muscleGroups": ["biceps"],
       "equipment": "dumbbells",
-      "isCustom": false
+      "isCustom": false,
+      "videoUrl": "https://www.youtube.com/results?search_query=dumbbell+curl+proper+form+tutorial"
     },
     {
       "id": "ex-hammer-curl",
       "name": "Hammer Curl",
       "muscleGroups": ["biceps", "forearms"],
       "equipment": "dumbbells",
-      "isCustom": false
+      "isCustom": false,
+      "videoUrl": "https://www.youtube.com/results?search_query=hammer+curl+proper+form+tutorial"
     },
     {
       "id": "ex-incline-bicep-curls",
       "name": "Incline Supinated Bicep Curls",
       "muscleGroups": ["biceps"],
       "equipment": "dumbbells",
-      "isCustom": false
+      "isCustom": false,
+      "videoUrl": "https://www.youtube.com/results?search_query=incline+dumbbell+curl+proper+form+tutorial"
     },
     {
       "id": "ex-preacher-curl",
       "name": "Preacher Curl",
       "muscleGroups": ["biceps"],
       "equipment": "machine",
-      "isCustom": false
+      "isCustom": false,
+      "videoUrl": "https://www.youtube.com/results?search_query=preacher+curl+proper+form+tutorial"
     },
     {
       "id": "ex-cable-curl",
       "name": "Cable Curl",
       "muscleGroups": ["biceps"],
       "equipment": "cable",
-      "isCustom": false
+      "isCustom": false,
+      "videoUrl": "https://www.youtube.com/results?search_query=cable+curl+proper+form+tutorial"
     },
     {
       "id": "ex-concentration-curl",
       "name": "Concentration Curl",
       "muscleGroups": ["biceps"],
       "equipment": "dumbbells",
-      "isCustom": false
+      "isCustom": false,
+      "videoUrl": "https://www.youtube.com/results?search_query=concentration+curl+proper+form+tutorial"
     },
     {
       "id": "ex-barbell-squat",
       "name": "Barbell Back Squat",
       "muscleGroups": ["quads", "glutes"],
       "equipment": "barbell",
-      "isCustom": false
+      "isCustom": false,
+      "videoUrl": "https://www.youtube.com/results?search_query=barbell+back+squat+proper+form+tutorial"
     },
     {
       "id": "ex-front-squat",
       "name": "Front Squat",
       "muscleGroups": ["quads", "core"],
       "equipment": "barbell",
-      "isCustom": false
+      "isCustom": false,
+      "videoUrl": "https://www.youtube.com/results?search_query=front+squat+proper+form+tutorial"
     },
     {
       "id": "ex-hack-squat",
       "name": "Hack Squat",
       "muscleGroups": ["quads", "glutes"],
       "equipment": "machine",
-      "isCustom": false
+      "isCustom": false,
+      "videoUrl": "https://www.youtube.com/results?search_query=hack+squat+machine+proper+form+tutorial"
     },
     {
       "id": "ex-leg-press",
       "name": "Leg Press",
       "muscleGroups": ["quads", "glutes"],
       "equipment": "machine",
-      "isCustom": false
+      "isCustom": false,
+      "videoUrl": "https://www.youtube.com/results?search_query=leg+press+proper+form+tutorial"
     },
     {
       "id": "ex-leg-extension",
       "name": "Leg Extension",
       "muscleGroups": ["quads"],
       "equipment": "machine",
-      "isCustom": false
+      "isCustom": false,
+      "videoUrl": "https://www.youtube.com/results?search_query=leg+extension+proper+form+tutorial"
     },
     {
       "id": "ex-rfess",
       "name": "Rear Foot Elevated Split Squat",
       "muscleGroups": ["quads", "glutes"],
       "equipment": "bench",
-      "isCustom": false
+      "isCustom": false,
+      "videoUrl": "https://www.youtube.com/results?search_query=bulgarian+split+squat+proper+form+tutorial"
     },
     {
       "id": "ex-walking-lunge",
       "name": "Walking Lunge",
       "muscleGroups": ["quads", "glutes"],
       "equipment": "dumbbells",
-      "isCustom": false
+      "isCustom": false,
+      "videoUrl": "https://www.youtube.com/results?search_query=walking+lunge+proper+form+tutorial"
     },
     {
       "id": "ex-goblet-squat",
       "name": "Goblet Squat",
       "muscleGroups": ["quads", "glutes"],
       "equipment": "dumbbells",
-      "isCustom": false
+      "isCustom": false,
+      "videoUrl": "https://www.youtube.com/results?search_query=goblet+squat+proper+form+tutorial"
     },
     {
       "id": "ex-rdl",
       "name": "Romanian Deadlift",
       "muscleGroups": ["hamstrings", "glutes", "back"],
       "equipment": "barbell",
-      "isCustom": false
+      "isCustom": false,
+      "videoUrl": "https://www.youtube.com/results?search_query=romanian+deadlift+proper+form+tutorial"
     },
     {
       "id": "ex-dumbbell-rdl",
       "name": "Dumbbell Romanian Deadlift",
       "muscleGroups": ["hamstrings", "glutes"],
       "equipment": "dumbbells",
-      "isCustom": false
+      "isCustom": false,
+      "videoUrl": "https://www.youtube.com/results?search_query=dumbbell+romanian+deadlift+proper+form+tutorial"
     },
     {
       "id": "ex-lying-ham-curl",
       "name": "Lying Hamstring Curl",
       "muscleGroups": ["hamstrings"],
       "equipment": "machine",
-      "isCustom": false
+      "isCustom": false,
+      "videoUrl": "https://www.youtube.com/results?search_query=lying+hamstring+curl+proper+form+tutorial"
     },
     {
       "id": "ex-seated-leg-curl",
       "name": "Seated Leg Curl",
       "muscleGroups": ["hamstrings"],
       "equipment": "machine",
-      "isCustom": false
+      "isCustom": false,
+      "videoUrl": "https://www.youtube.com/results?search_query=seated+leg+curl+proper+form+tutorial"
     },
     {
       "id": "ex-nordic-curl",
       "name": "Nordic Hamstring Curl",
       "muscleGroups": ["hamstrings"],
       "equipment": "bodyweight",
-      "isCustom": false
+      "isCustom": false,
+      "videoUrl": "https://www.youtube.com/results?search_query=nordic+hamstring+curl+proper+form+tutorial"
     },
     {
       "id": "ex-good-morning",
       "name": "Good Morning",
       "muscleGroups": ["hamstrings", "back"],
       "equipment": "barbell",
-      "isCustom": false
+      "isCustom": false,
+      "videoUrl": "https://www.youtube.com/results?search_query=good+morning+exercise+proper+form+tutorial"
     },
     {
       "id": "ex-hip-thrust",
       "name": "Barbell Hip Thrust",
       "muscleGroups": ["glutes", "hamstrings"],
       "equipment": "barbell",
-      "isCustom": false
+      "isCustom": false,
+      "videoUrl": "https://www.youtube.com/results?search_query=barbell+hip+thrust+proper+form+tutorial"
     },
     {
       "id": "ex-glute-bridge",
       "name": "Glute Bridge (Machine)",
       "muscleGroups": ["glutes", "hamstrings"],
       "equipment": "machine",
-      "isCustom": false
+      "isCustom": false,
+      "videoUrl": "https://www.youtube.com/results?search_query=machine+glute+bridge+proper+form+tutorial"
     },
     {
       "id": "ex-cable-kickback",
       "name": "Cable Glute Kickback",
       "muscleGroups": ["glutes"],
       "equipment": "cable",
-      "isCustom": false
+      "isCustom": false,
+      "videoUrl": "https://www.youtube.com/results?search_query=cable+glute+kickback+proper+form+tutorial"
     },
     {
       "id": "ex-sumo-deadlift",
       "name": "Sumo Deadlift",
       "muscleGroups": ["glutes", "quads", "back"],
       "equipment": "barbell",
-      "isCustom": false
+      "isCustom": false,
+      "videoUrl": "https://www.youtube.com/results?search_query=sumo+deadlift+proper+form+tutorial"
     },
     {
       "id": "ex-hip-abduction",
       "name": "Hip Abduction Machine",
       "muscleGroups": ["glutes"],
       "equipment": "machine",
-      "isCustom": false
+      "isCustom": false,
+      "videoUrl": "https://www.youtube.com/results?search_query=hip+abduction+machine+proper+form+tutorial"
     },
     {
       "id": "ex-step-ups",
       "name": "Step-Ups",
       "muscleGroups": ["glutes", "quads"],
       "equipment": "dumbbells",
-      "isCustom": false
+      "isCustom": false,
+      "videoUrl": "https://www.youtube.com/results?search_query=step+ups+proper+form+tutorial"
     },
     {
       "id": "ex-standing-calf-raise",
       "name": "Standing Calf Raise",
       "muscleGroups": ["calves"],
       "equipment": "machine",
-      "isCustom": false
+      "isCustom": false,
+      "videoUrl": "https://www.youtube.com/results?search_query=standing+calf+raise+proper+form+tutorial"
     },
     {
       "id": "ex-seated-calf-raise",
       "name": "Seated Calf Raise",
       "muscleGroups": ["calves"],
       "equipment": "machine",
-      "isCustom": false
+      "isCustom": false,
+      "videoUrl": "https://www.youtube.com/results?search_query=seated+calf+raise+proper+form+tutorial"
     },
     {
       "id": "ex-leg-press-calf",
       "name": "Leg Press Calf Raise",
       "muscleGroups": ["calves"],
       "equipment": "leg-press",
-      "isCustom": false
+      "isCustom": false,
+      "videoUrl": "https://www.youtube.com/results?search_query=leg+press+calf+raise+proper+form+tutorial"
     },
     {
       "id": "ex-tibialis-raise",
       "name": "Tibialis Anterior Raise",
       "muscleGroups": ["tibialis"],
       "equipment": "plate",
-      "isCustom": false
+      "isCustom": false,
+      "videoUrl": "https://www.youtube.com/results?search_query=tibialis+anterior+raise+proper+form+tutorial"
     },
     {
       "id": "ex-ab-crunch",
       "name": "Ab Crunch Machine",
       "muscleGroups": ["abs"],
       "equipment": "machine",
-      "isCustom": false
+      "isCustom": false,
+      "videoUrl": "https://www.youtube.com/results?search_query=ab+crunch+machine+proper+form+tutorial"
     },
     {
       "id": "ex-cable-crunch",
       "name": "Cable Crunch",
       "muscleGroups": ["abs"],
       "equipment": "cable",
-      "isCustom": false
+      "isCustom": false,
+      "videoUrl": "https://www.youtube.com/results?search_query=cable+crunch+proper+form+tutorial"
     },
     {
       "id": "ex-hanging-leg-raise",
       "name": "Hanging Leg Raise",
       "muscleGroups": ["abs", "hip-flexors"],
       "equipment": "pull-up-bar",
-      "isCustom": false
+      "isCustom": false,
+      "videoUrl": "https://www.youtube.com/results?search_query=hanging+leg+raise+proper+form+tutorial"
     },
     {
       "id": "ex-leg-raise",
       "name": "Lying Leg Raise",
       "muscleGroups": ["abs"],
       "equipment": "bodyweight",
-      "isCustom": false
+      "isCustom": false,
+      "videoUrl": "https://www.youtube.com/results?search_query=lying+leg+raise+proper+form+tutorial"
     },
     {
       "id": "ex-plank",
       "name": "Plank",
       "muscleGroups": ["core"],
       "equipment": "bodyweight",
-      "isCustom": false
+      "isCustom": false,
+      "videoUrl": "https://www.youtube.com/results?search_query=plank+proper+form+tutorial"
     },
     {
       "id": "ex-russian-twist",
       "name": "Russian Twist",
       "muscleGroups": ["abs", "obliques"],
       "equipment": "dumbbells",
-      "isCustom": false
+      "isCustom": false,
+      "videoUrl": "https://www.youtube.com/results?search_query=russian+twist+proper+form+tutorial"
     },
     {
       "id": "ex-ab-wheel",
       "name": "Ab Wheel Rollout",
       "muscleGroups": ["abs", "core"],
       "equipment": "ab-wheel",
-      "isCustom": false
+      "isCustom": false,
+      "videoUrl": "https://www.youtube.com/results?search_query=ab+wheel+rollout+proper+form+tutorial"
     },
     {
       "id": "ex-woodchop",
       "name": "Cable Woodchop",
       "muscleGroups": ["obliques", "core"],
       "equipment": "cable",
-      "isCustom": false
+      "isCustom": false,
+      "videoUrl": "https://www.youtube.com/results?search_query=cable+woodchop+proper+form+tutorial"
     },
     {
       "id": "ex-band-face-pulls",
       "name": "Band Face Pulls",
       "muscleGroups": ["rear-delts", "upper-back"],
       "equipment": "band",
-      "isCustom": false
+      "isCustom": false,
+      "videoUrl": "https://www.youtube.com/results?search_query=band+face+pulls+proper+form+tutorial"
     },
     {
       "id": "ex-shoulder-circles",
       "name": "Shoulder Circles",
       "muscleGroups": ["shoulders"],
       "equipment": "bodyweight",
-      "isCustom": false
+      "isCustom": false,
+      "videoUrl": "https://www.youtube.com/results?search_query=shoulder+circles+warmup+tutorial"
     },
     {
       "id": "ex-arm-circles",
       "name": "Arm Circles",
       "muscleGroups": ["shoulders"],
       "equipment": "bodyweight",
-      "isCustom": false
+      "isCustom": false,
+      "videoUrl": "https://www.youtube.com/results?search_query=arm+circles+warmup+tutorial"
     },
     {
       "id": "ex-hip-circles",
       "name": "Hip Circles",
       "muscleGroups": ["hips"],
       "equipment": "bodyweight",
-      "isCustom": false
+      "isCustom": false,
+      "videoUrl": "https://www.youtube.com/results?search_query=hip+circles+warmup+tutorial"
     },
     {
       "id": "ex-cat-cow",
       "name": "Cat-Cow",
       "muscleGroups": ["spine", "core"],
       "equipment": "bodyweight",
-      "isCustom": false
+      "isCustom": false,
+      "videoUrl": "https://www.youtube.com/results?search_query=cat+cow+stretch+proper+form+tutorial"
     },
     {
       "id": "ex-bw-squats",
       "name": "Bodyweight Squats",
       "muscleGroups": ["quads", "glutes"],
       "equipment": "bodyweight",
-      "isCustom": false
+      "isCustom": false,
+      "videoUrl": "https://www.youtube.com/results?search_query=bodyweight+squat+proper+form+tutorial"
     },
     {
       "id": "ex-glute-bridges-bw",
       "name": "Glute Bridges (Bodyweight)",
       "muscleGroups": ["glutes"],
       "equipment": "bodyweight",
-      "isCustom": false
+      "isCustom": false,
+      "videoUrl": "https://www.youtube.com/results?search_query=glute+bridge+proper+form+tutorial"
     },
     {
       "id": "ex-dead-hang",
       "name": "Dead Hang",
       "muscleGroups": ["grip", "shoulders", "spine"],
       "equipment": "pull-up-bar",
-      "isCustom": false
+      "isCustom": false,
+      "videoUrl": "https://www.youtube.com/results?search_query=dead+hang+proper+form+benefits"
     },
     {
       "id": "ex-world-greatest-stretch",
       "name": "World's Greatest Stretch",
       "muscleGroups": ["hips", "hamstrings", "thoracic"],
       "equipment": "bodyweight",
-      "isCustom": false
+      "isCustom": false,
+      "videoUrl": "https://www.youtube.com/results?search_query=worlds+greatest+stretch+proper+form+tutorial"
     },
     {
       "id": "ex-leg-swings",
       "name": "Leg Swings",
       "muscleGroups": ["hips", "hamstrings"],
       "equipment": "bodyweight",
-      "isCustom": false
+      "isCustom": false,
+      "videoUrl": "https://www.youtube.com/results?search_query=leg+swings+warmup+tutorial"
     },
     {
       "id": "ex-thoracic-rotation",
       "name": "Thoracic Rotation",
       "muscleGroups": ["spine"],
       "equipment": "bodyweight",
-      "isCustom": false
+      "isCustom": false,
+      "videoUrl": "https://www.youtube.com/results?search_query=thoracic+rotation+mobility+tutorial"
     }
   ]
 }
