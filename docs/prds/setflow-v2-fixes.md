@@ -16,7 +16,7 @@ SetFlow v2 has shipped with six issues that impact user experience and reliabili
 | # | Issue | Priority | Impact |
 |---|-------|----------|--------|
 | 1 | Reset function returns 500 | HIGH | Users cannot reset their program |
-| 2 | Exercise videos missing | MEDIUM | No tutorial videos for 92 exercises |
+| 2 | Exercise videos missing | MEDIUM | No tutorial videos for 97 exercises |
 | 3 | Cross-device workout resume | HIGH | Cannot continue workout on different device |
 | 4 | Skip button missing | MEDIUM | Forced to complete everything |
 | 5 | Weight memory not obvious | LOW | Feature exists but users don't notice |
@@ -30,7 +30,7 @@ SetFlow v2 has shipped with six issues that impact user experience and reliabili
 |--------|--------|-------------|
 | Reset success rate | 100% | No 500 errors on /api/seed reset action |
 | Cross-device resume | Works | Session persists in PostgreSQL, resumable on any device |
-| Videos populated | 92/92 | All exercises have valid YouTube videoUrl |
+| Videos populated | 97/97 | All exercises have valid YouTube videoUrl |
 | Skip tracking | Accurate | Skipped items tracked in workout logs |
 | PWA installability | 100% | manifest.json returns 200 for all users |
 
@@ -116,7 +116,7 @@ export async function POST() {
 ### Issue 2: Exercise Videos Missing (MEDIUM)
 
 #### Root Cause
-All 92 exercises in `/src/data/exercises.json` have `videoUrl: null`. The YouTube player component exists but has no data.
+All 97 exercises in `/src/data/exercises.json` have `videoUrl: null`. The YouTube player component exists but has no data.
 
 #### Current State
 ```json
@@ -164,7 +164,7 @@ All 92 exercises in `/src/data/exercises.json` have `videoUrl: null`. The YouTub
 #### Files to Modify
 | File | Change |
 |------|--------|
-| `src/data/exercises.json` | Add videoUrl to all 92 exercises |
+| `src/data/exercises.json` | Add videoUrl to all 97 exercises |
 | `src/lib/seed.ts` | Ensure videoUrl is included in seeding |
 
 ---
@@ -447,7 +447,7 @@ const isPublicRoute = createRouteMatcher([
 - [ ] Add weight memory explanation in settings
 
 ### Phase 3: Content (Issue 2)
-- [ ] Research YouTube videos for all 92 exercises
+- [ ] Research YouTube videos for all 97 exercises
 - [ ] Add videoUrl to exercises.json
 - [ ] Update seed function to include videoUrl
 - [ ] Test video player in exercise detail view
@@ -461,7 +461,7 @@ Before marking this PRD complete:
 
 - [ ] Reset function returns 200 and completes successfully
 - [ ] Cross-device resume works (test on 2 devices)
-- [ ] All 92 exercises have valid videoUrl
+- [ ] All 97 exercises have valid videoUrl
 - [ ] Skip buttons work for sets, exercises, warmup, finisher
 - [ ] Weight memory is visible and understood by new users
 - [ ] manifest.json returns 200 without auth

@@ -13,7 +13,7 @@ All notable changes to the SetFlow project.
 ### Added
 - Issue 3: Cross-device workout resume - ActiveSession Prisma model + /api/session CRUD
 - Issue 4: Skip buttons for sets, warmup, and finisher exercises
-- Issue 2: YouTube search URLs for all 92 exercises
+- Issue 2: YouTube search URLs for all 97 exercises
 
 ### Improved
 - Issue 5: Weight memory visibility - Already functional via ChallengeCard progressive overload prompts
@@ -22,7 +22,7 @@ All notable changes to the SetFlow project.
 - New Prisma model: `ActiveSession` for cloud session persistence
 - New API routes: `/api/reset` (batch reset), `/api/session` (session CRUD)
 - Middleware updated to exclude `manifest.json` from auth
-- All 92 exercises now have `videoUrl` field with YouTube search links
+- All 97 exercises now have `videoUrl` field with YouTube search links
 
 ### Files Changed
 - `prisma/schema.prisma` - Added ActiveSession model
@@ -31,7 +31,7 @@ All notable changes to the SetFlow project.
 - `src/middleware.ts` - Exclude manifest.json
 - `src/components/workout/set-logger.tsx` - Skip button
 - `src/app/workout/[dayId]/page.tsx` - Skip logic, session sync
-- `src/data/exercises.json` - Added videoUrl to all 92 exercises
+- `src/data/exercises.json` - Added videoUrl to all 97 exercises
 
 ---
 
