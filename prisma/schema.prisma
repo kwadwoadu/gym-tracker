@@ -28,6 +28,7 @@ model User {
   settings          UserSettings?
   onboardingProfile OnboardingProfile?
   achievements      Achievement[]
+  activeSession     ActiveSession?
 }
 
 model Exercise {
@@ -194,4 +195,25 @@ model Achievement {
   @@unique([userId, achievementId])
   @@index([userId])
   @@index([achievementId])
+}
+
+// Active workout session for cross-device resume
+model ActiveSession {
+  id              String   @id @default(cuid())
+  dayId           String   // TrainingDay ID
+  phase           String   // "warmup" | "exercise" | "rest" | "finisher"
+  workoutState    Json     // {supersetIndex, exerciseIndex, setNumber}
+  completedSets   Json     // SetLog[]
+  warmupChecked   Json     // boolean[]
+  finisherChecked Json     // boolean[]
+  currentVolume   Float    @default(0)
+  startTime       DateTime
+  lastUpdated     DateTime @updatedAt
+  deviceId        String?  // Optional device identifier
+
+  // One active session per user
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([dayId])
 }

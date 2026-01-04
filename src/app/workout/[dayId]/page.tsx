@@ -29,6 +29,7 @@ import {
   TrendingUp,
   Target,
   RotateCcw,
+  Cloud,
 } from "lucide-react";
 import { RestTimer } from "@/components/workout/rest-timer";
 import { SetLogger } from "@/components/workout/set-logger";
@@ -131,10 +132,23 @@ interface SavedSession {
   finisherChecked: boolean[];
   currentVolume: number;
   timestamp: number;
+  isCloudSession?: boolean; // True if loaded from cloud (different device)
+  deviceId?: string;
 }
 
 const SESSION_KEY_PREFIX = "setflow-session-";
 const SESSION_EXPIRY_HOURS = 6; // Sessions expire after 6 hours
+
+// Generate a unique device ID for this browser
+const getDeviceId = (): string => {
+  const key = "setflow-device-id";
+  let deviceId = localStorage.getItem(key);
+  if (!deviceId) {
+    deviceId = `device-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    localStorage.setItem(key, deviceId);
+  }
+  return deviceId;
+};
 
 export default function WorkoutSession() {
   const params = useParams();
@@ -170,6 +184,8 @@ export default function WorkoutSession() {
   const [savedSession, setSavedSession] = useState<SavedSession | null>(null);
   const hasCheckedSession = useRef(false);
   const isRestoringSession = useRef(false);
+  const lastSyncTime = useRef<number>(0);
+  const currentDeviceId = useRef<string>("");
 
   // Global weight memory + edit sets state
   const [globalSuggestion, setGlobalSuggestion] = useState<{
@@ -235,40 +251,94 @@ export default function WorkoutSession() {
     loadData();
   }, [dayId, router]);
 
-  // Check for saved session on mount
+  // Check for saved session on mount (local + cloud)
   useEffect(() => {
     if (hasCheckedSession.current || isLoading) return;
     hasCheckedSession.current = true;
 
-    const sessionKey = `${SESSION_KEY_PREFIX}${dayId}`;
-    const savedData = localStorage.getItem(sessionKey);
+    // Initialize device ID
+    currentDeviceId.current = getDeviceId();
 
-    if (savedData) {
-      try {
-        const session: SavedSession = JSON.parse(savedData);
-        const ageHours = (Date.now() - session.timestamp) / (1000 * 60 * 60);
+    async function checkSessions() {
+      const sessionKey = `${SESSION_KEY_PREFIX}${dayId}`;
+      const localData = localStorage.getItem(sessionKey);
+      let localSession: SavedSession | null = null;
 
-        // Check if session is not expired and not already complete
-        if (ageHours < SESSION_EXPIRY_HOURS && session.phase !== "complete" && session.phase !== "preview") {
-          setSavedSession(session);
-          setShowResumeDialog(true);
-        } else {
-          // Expired or complete session, remove it
+      // Check local session first
+      if (localData) {
+        try {
+          const session: SavedSession = JSON.parse(localData);
+          const ageHours = (Date.now() - session.timestamp) / (1000 * 60 * 60);
+
+          if (ageHours < SESSION_EXPIRY_HOURS && session.phase !== "complete" && session.phase !== "preview") {
+            localSession = session;
+          } else {
+            localStorage.removeItem(sessionKey);
+          }
+        } catch (e) {
+          console.error("Failed to parse local session:", e);
           localStorage.removeItem(sessionKey);
         }
+      }
+
+      // Check cloud session for cross-device resume
+      try {
+        const response = await fetch("/api/session", {
+          method: "GET",
+          credentials: "include",
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data.session && data.session.dayId === dayId) {
+            // Cloud session exists for this day
+            const cloudSession: SavedSession = {
+              phase: data.session.phase as WorkoutPhase,
+              workoutState: data.session.workoutState as WorkoutState,
+              completedSets: data.session.completedSets as SetLog[],
+              startTime: data.session.startTime,
+              warmupChecked: data.session.warmupChecked as boolean[],
+              finisherChecked: data.session.finisherChecked as boolean[],
+              currentVolume: data.session.currentVolume,
+              timestamp: new Date(data.session.lastUpdated).getTime(),
+              isCloudSession: data.session.deviceId !== currentDeviceId.current,
+              deviceId: data.session.deviceId,
+            };
+
+            // Use cloud session if it's from a different device, or if it's newer than local
+            if (cloudSession.isCloudSession) {
+              // Different device - show resume dialog
+              setSavedSession(cloudSession);
+              setShowResumeDialog(true);
+              return;
+            } else if (!localSession || cloudSession.timestamp > localSession.timestamp) {
+              // Same device but cloud is newer
+              localSession = cloudSession;
+            }
+          }
+        }
       } catch (e) {
-        console.error("Failed to parse saved session:", e);
-        localStorage.removeItem(sessionKey);
+        console.error("Failed to check cloud session:", e);
+        // Continue with local session if cloud check fails
+      }
+
+      // Use local session if available
+      if (localSession) {
+        setSavedSession(localSession);
+        setShowResumeDialog(true);
       }
     }
+
+    checkSessions();
   }, [dayId, isLoading]);
 
-  // Save session to localStorage on state changes
+  // Save session to localStorage and sync to cloud on state changes
   useEffect(() => {
     // Don't save during loading, preview, complete, or when restoring
     if (isLoading || phase === "preview" || phase === "complete" || isRestoringSession.current) return;
 
     const sessionKey = `${SESSION_KEY_PREFIX}${dayId}`;
+    const now = Date.now();
     const sessionData: SavedSession = {
       phase,
       workoutState,
@@ -277,10 +347,36 @@ export default function WorkoutSession() {
       warmupChecked,
       finisherChecked,
       currentVolume,
-      timestamp: Date.now(),
+      timestamp: now,
+      deviceId: currentDeviceId.current,
     };
 
+    // Always save to localStorage for offline resilience
     localStorage.setItem(sessionKey, JSON.stringify(sessionData));
+
+    // Sync to cloud every 10 seconds or on significant changes
+    const shouldSync = now - lastSyncTime.current > 10000;
+    if (shouldSync) {
+      lastSyncTime.current = now;
+
+      // Fire and forget - don't block UI
+      fetch("/api/session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          dayId,
+          phase,
+          workoutState,
+          completedSets,
+          warmupChecked,
+          finisherChecked,
+          currentVolume,
+          startTime: startTime?.toISOString() || new Date().toISOString(),
+          deviceId: currentDeviceId.current,
+        }),
+      }).catch((e) => console.error("Failed to sync session to cloud:", e));
+    }
   }, [dayId, phase, workoutState, completedSets, startTime, warmupChecked, finisherChecked, currentVolume, isLoading]);
 
   // Resume saved session
@@ -310,18 +406,30 @@ export default function WorkoutSession() {
     }, 100);
   };
 
-  // Discard saved session and start fresh
+  // Discard saved session and start fresh (clear local + cloud)
   const discardSession = () => {
     const sessionKey = `${SESSION_KEY_PREFIX}${dayId}`;
     localStorage.removeItem(sessionKey);
     setShowResumeDialog(false);
     setSavedSession(null);
+
+    // Also clear cloud session
+    fetch("/api/session", {
+      method: "DELETE",
+      credentials: "include",
+    }).catch((e) => console.error("Failed to clear cloud session:", e));
   };
 
-  // Clear session when workout is complete
+  // Clear session when workout is complete (local + cloud)
   const clearSession = () => {
     const sessionKey = `${SESSION_KEY_PREFIX}${dayId}`;
     localStorage.removeItem(sessionKey);
+
+    // Also clear cloud session
+    fetch("/api/session", {
+      method: "DELETE",
+      credentials: "include",
+    }).catch((e) => console.error("Failed to clear cloud session:", e));
   };
 
   // Fetch weight suggestion when exercise or set changes
@@ -1467,22 +1575,35 @@ export default function WorkoutSession() {
         <AlertDialogContent className="max-w-sm mx-4">
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2">
-              <RotateCcw className="w-5 h-5 text-primary" />
+              {savedSession?.isCloudSession ? (
+                <Cloud className="w-5 h-5 text-primary" />
+              ) : (
+                <RotateCcw className="w-5 h-5 text-primary" />
+              )}
               Resume Workout?
             </AlertDialogTitle>
             <AlertDialogDescription>
-              You have an unfinished workout from{" "}
-              {savedSession
-                ? new Date(savedSession.timestamp).toLocaleTimeString([], {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })
-                : "earlier"}
+              {savedSession?.isCloudSession ? (
+                <>You have an unfinished workout from <span className="text-primary font-medium">another device</span></>
+              ) : (
+                <>You have an unfinished workout from{" "}
+                {savedSession
+                  ? new Date(savedSession.timestamp).toLocaleTimeString([], {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })
+                  : "earlier"}</>
+              )}
               . Would you like to continue where you left off?
               <span className="block mt-2 text-foreground font-medium">
                 {savedSession?.completedSets.length || 0} sets completed,{" "}
                 {savedSession?.currentVolume.toLocaleString() || 0}kg volume
               </span>
+              {savedSession?.isCloudSession && (
+                <span className="block mt-1 text-xs text-muted-foreground">
+                  Your progress is synced across devices
+                </span>
+              )}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="flex-col sm:flex-row gap-2">
@@ -1496,7 +1617,11 @@ export default function WorkoutSession() {
               onClick={resumeSession}
               className="w-full sm:w-auto bg-primary text-primary-foreground"
             >
-              <RotateCcw className="w-4 h-4 mr-2" />
+              {savedSession?.isCloudSession ? (
+                <Cloud className="w-4 h-4 mr-2" />
+              ) : (
+                <RotateCcw className="w-4 h-4 mr-2" />
+              )}
               Resume Workout
             </AlertDialogAction>
           </AlertDialogFooter>
