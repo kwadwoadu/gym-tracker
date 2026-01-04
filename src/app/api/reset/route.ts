@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth-helpers";
+import { createBackup } from "@/lib/backup";
 import exercisesData from "@/data/exercises.json";
 import programData from "@/data/program.json";
 
@@ -35,8 +36,11 @@ interface FinisherExercise {
  * POST /api/reset - Reset to default program using Prisma transactions
  *
  * This is a destructive operation that:
- * 1. Deletes all workout logs, PRs, programs, achievements
- * 2. Reinstalls the default Full Body program
+ * 1. Creates a backup of all user data first
+ * 2. Deletes all workout logs, PRs, programs, achievements
+ * 3. Reinstalls the default Full Body program
+ *
+ * Returns backupId so user can restore if needed
  */
 export async function POST() {
   try {
@@ -46,6 +50,10 @@ export async function POST() {
     }
 
     console.log(`[Reset] Starting reset for user ${user.id}`);
+
+    // CRITICAL: Create backup before any destructive operations
+    const backupId = await createBackup(user.id, "pre-reset");
+    console.log(`[Reset] Created backup ${backupId} before reset`);
 
     // Use a transaction to ensure atomic deletion
     await prisma.$transaction(async (tx) => {
@@ -150,6 +158,7 @@ export async function POST() {
     return NextResponse.json({
       success: true,
       message: "Reset to default program successfully",
+      backupId, // Return backup ID so user can restore if needed
       program: {
         id: program.id,
         name: program.name,

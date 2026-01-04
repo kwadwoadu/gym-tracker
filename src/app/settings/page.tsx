@@ -36,6 +36,7 @@ import {
   usePrograms,
 } from "@/lib/queries";
 import type { UserSettings } from "@/lib/api-client";
+import { exportAllData, downloadExportedData, importData, readFileAsString } from "@/lib/export";
 
 const PROGRESSION_OPTIONS = [
   { value: 0.5, label: "0.5 kg" },
@@ -92,13 +93,19 @@ export default function SettingsPage() {
     }
   };
 
+  const [isExporting, setIsExporting] = useState(false);
+
   const handleExport = async () => {
     try {
-      // TODO: Implement server-side export
-      showToast("Export feature coming soon", "success");
+      setIsExporting(true);
+      const data = await exportAllData();
+      downloadExportedData(data);
+      showToast("Data exported successfully!", "success");
     } catch (error) {
       console.error("Failed to export data:", error);
       showToast("Failed to export data", "error");
+    } finally {
+      setIsExporting(false);
     }
   };
 
@@ -106,19 +113,26 @@ export default function SettingsPage() {
     fileInputRef.current?.click();
   };
 
+  const [isImporting, setIsImporting] = useState(false);
+
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     try {
-      // TODO: Implement server-side import
-      showToast("Import feature coming soon", "success");
+      setIsImporting(true);
+      const jsonString = await readFileAsString(file);
+      await importData(jsonString);
+      showToast("Data imported successfully! Refreshing...", "success");
+      // Refresh to show new data
+      setTimeout(() => window.location.reload(), 1500);
     } catch (error) {
       console.error("Failed to import data:", error);
       showToast(
         error instanceof Error ? error.message : "Failed to import data",
         "error"
       );
+      setIsImporting(false);
     }
 
     // Reset file input
@@ -447,9 +461,14 @@ export default function SettingsPage() {
               variant="outline"
               className="w-full justify-start h-12"
               onClick={handleExport}
+              disabled={isExporting}
             >
-              <Download className="w-5 h-5 mr-3" />
-              Export Data
+              {isExporting ? (
+                <Loader2 className="w-5 h-5 mr-3 animate-spin" />
+              ) : (
+                <Download className="w-5 h-5 mr-3" />
+              )}
+              {isExporting ? "Exporting..." : "Export Data"}
             </Button>
 
             {/* Import Button */}
@@ -457,9 +476,14 @@ export default function SettingsPage() {
               variant="outline"
               className="w-full justify-start h-12"
               onClick={handleImportClick}
+              disabled={isImporting}
             >
-              <Upload className="w-5 h-5 mr-3" />
-              Import Data
+              {isImporting ? (
+                <Loader2 className="w-5 h-5 mr-3 animate-spin" />
+              ) : (
+                <Upload className="w-5 h-5 mr-3" />
+              )}
+              {isImporting ? "Importing..." : "Import Data"}
             </Button>
 
             {/* Clear Workout Logs */}
@@ -513,17 +537,38 @@ export default function SettingsPage() {
               <AlertDialogContent className="max-w-sm mx-4">
                 <AlertDialogHeader>
                   <AlertDialogTitle>Reset Everything?</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    This will delete ALL your data including workouts, personal
-                    records, custom exercises, and settings. The app will be reset
-                    to the default program. This action cannot be undone.
+                  <AlertDialogDescription className="space-y-3">
+                    <span className="block">
+                      This will delete ALL your data including workouts, personal
+                      records, and achievements. The app will be reset to the
+                      default program.
+                    </span>
+                    <span className="block text-xs text-muted-foreground">
+                      A backup will be automatically created before reset.
+                      We recommend also exporting your data first.
+                    </span>
                   </AlertDialogDescription>
                 </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogFooter className="flex-col gap-2 sm:flex-row">
+                  <AlertDialogCancel className="w-full sm:w-auto">Cancel</AlertDialogCancel>
+                  <Button
+                    variant="outline"
+                    onClick={async () => {
+                      await handleExport();
+                    }}
+                    className="w-full sm:w-auto"
+                    disabled={isExporting}
+                  >
+                    {isExporting ? (
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    ) : (
+                      <Download className="w-4 h-4 mr-2" />
+                    )}
+                    Export First
+                  </Button>
                   <AlertDialogAction
                     onClick={handleReset}
-                    className="bg-red-500 hover:bg-red-600"
+                    className="bg-red-500 hover:bg-red-600 w-full sm:w-auto"
                   >
                     Reset Everything
                   </AlertDialogAction>

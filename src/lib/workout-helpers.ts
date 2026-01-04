@@ -149,7 +149,8 @@ export async function checkAndAddPR(
   exerciseId: string,
   exerciseName: string,
   weight: number,
-  reps: number
+  reps: number,
+  workoutLogId: string
 ): Promise<boolean> {
   // Get existing PRs for this exercise
   const existingPRs = await personalRecordsApi.list();
@@ -170,6 +171,7 @@ export async function checkAndAddPR(
       weight,
       reps,
       date: new Date().toISOString().split('T')[0],
+      workoutLogId,
     });
     return true;
   }

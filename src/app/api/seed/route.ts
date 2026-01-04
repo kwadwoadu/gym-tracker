@@ -1,8 +1,23 @@
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth-helpers";
+import { createBackup } from "@/lib/backup";
 import { fixProgramExerciseIds, seedDatabase, resetToDefault, backfillBuiltInIds, backfillVideoUrls } from "@/lib/seed";
 
-// POST /api/seed - Seed database with exercises and fix program IDs
+/**
+ * POST /api/seed - Seed database with exercises and fix program IDs
+ *
+ * SAFETY: Requires explicit action parameter to prevent accidental data loss.
+ * Actions that delete data will create a backup first.
+ *
+ * Safe actions (no data loss):
+ * - backfill: Add builtInId to existing exercises
+ * - backfill-videos: Add videoUrl to existing exercises
+ *
+ * Dangerous actions (create backup first):
+ * - fix: Fix program exercise IDs (may delete programs)
+ * - reset: Reset to default program (deletes all workout data)
+ * - seed: Full database seed (deletes and recreates all data)
+ */
 export async function POST(request: Request) {
   try {
     const user = await getCurrentUser();
@@ -11,46 +26,72 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json().catch(() => ({}));
-    const action = body.action || "seed";
+    const action = body.action;
 
-    if (action === "fix") {
-      // Fix existing program exercise IDs
-      await fixProgramExerciseIds();
+    // SAFETY: Require explicit action parameter
+    if (!action) {
       return NextResponse.json({
-        success: true,
-        message: "Program exercise IDs fixed successfully",
-      });
-    } else if (action === "reset") {
-      // Reset to default program
-      await resetToDefault();
-      return NextResponse.json({
-        success: true,
-        message: "Reset to default program successfully",
-      });
-    } else if (action === "backfill") {
-      // Backfill builtInId for existing exercises
+        error: "Missing required 'action' parameter",
+        validActions: ["backfill", "backfill-videos", "fix", "reset", "seed"],
+        safeActions: ["backfill", "backfill-videos"],
+        dangerousActions: ["fix", "reset", "seed"],
+      }, { status: 400 });
+    }
+
+    // Safe actions - no backup needed
+    if (action === "backfill") {
       const result = await backfillBuiltInIds();
       return NextResponse.json({
         success: true,
         message: `Backfill complete: ${result.updated} updated, ${result.skipped} skipped`,
         ...result,
       });
-    } else if (action === "backfill-videos") {
-      // Backfill videoUrl for existing exercises
+    }
+
+    if (action === "backfill-videos") {
       const result = await backfillVideoUrls();
       return NextResponse.json({
         success: true,
         message: `Video URL backfill complete: ${result.updated} updated, ${result.skipped} skipped`,
         ...result,
       });
-    } else {
-      // Full database seed
+    }
+
+    // Dangerous actions - create backup first
+    if (action === "fix") {
+      const backupId = await createBackup(user.id, "pre-fix");
+      await fixProgramExerciseIds();
+      return NextResponse.json({
+        success: true,
+        message: "Program exercise IDs fixed successfully",
+        backupId,
+      });
+    }
+
+    if (action === "reset") {
+      const backupId = await createBackup(user.id, "pre-seed-reset");
+      await resetToDefault();
+      return NextResponse.json({
+        success: true,
+        message: "Reset to default program successfully",
+        backupId,
+      });
+    }
+
+    if (action === "seed") {
+      const backupId = await createBackup(user.id, "pre-seed");
       await seedDatabase();
       return NextResponse.json({
         success: true,
         message: "Database seeded successfully",
+        backupId,
       });
     }
+
+    return NextResponse.json({
+      error: `Unknown action: ${action}`,
+      validActions: ["backfill", "backfill-videos", "fix", "reset", "seed"],
+    }, { status: 400 });
   } catch (error) {
     console.error("Error seeding database:", error);
     return NextResponse.json(

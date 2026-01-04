@@ -470,6 +470,7 @@ export interface Stats {
   dayFrequency: number[];
   currentStreak: number;
   thisWeekCount: number;
+  programDayCount: number;
   personalRecordsCount: number;
   recentPRs: PersonalRecord[];
 }

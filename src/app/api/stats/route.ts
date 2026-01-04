@@ -134,6 +134,20 @@ export async function GET(request: Request) {
     });
     const thisWeekCount = new Set(thisWeekLogs.map((log) => log.date)).size;
 
+    // Get active program's training day count for weekly progress display
+    const activeProgram = await prisma.program.findFirst({
+      where: {
+        userId: user.id,
+        isActive: true,
+      },
+      include: {
+        _count: {
+          select: { trainingDays: true },
+        },
+      },
+    });
+    const programDayCount = activeProgram?._count.trainingDays || 3; // Default to 3 if no program
+
     return NextResponse.json({
       period,
       totalWorkouts,
@@ -145,6 +159,7 @@ export async function GET(request: Request) {
       dayFrequency,
       currentStreak,
       thisWeekCount,
+      programDayCount,
       personalRecordsCount: personalRecords.length,
       recentPRs: personalRecords.slice(0, 5),
     });

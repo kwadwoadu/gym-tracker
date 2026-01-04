@@ -29,6 +29,7 @@ model User {
   onboardingProfile OnboardingProfile?
   achievements      Achievement[]
   activeSession     ActiveSession?
+  backups           Backup[]
 }
 
 model Exercise {
@@ -216,4 +217,20 @@ model ActiveSession {
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([dayId])
+}
+
+// Backup for data protection before destructive operations
+model Backup {
+  id         String   @id @default(cuid())
+  backupName String
+  data       String   @db.Text // JSON export of user data
+  reason     String   // "pre-reset", "pre-deploy", "user-initiated"
+  createdAt  DateTime @default(now())
+
+  // User relation
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([createdAt])
 }

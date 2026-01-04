@@ -888,7 +888,8 @@ export default function WorkoutSession() {
             exerciseId,
             bestSet.exerciseName,
             bestSet.weight,
-            bestSet.actualReps
+            bestSet.actualReps,
+            savedLog.id
           );
           if (isPR) {
             achievedPRs.push({

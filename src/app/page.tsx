@@ -155,8 +155,8 @@ export default function Home() {
                 <Calendar className="w-4 h-4 text-primary" />
               </div>
               <div>
-                <p className="text-lg font-bold text-foreground">{stats.thisWeekCount}/7</p>
-                <p className="text-xs text-muted-foreground">This Week</p>
+                <p className="text-lg font-bold text-foreground">{stats.thisWeekCount}/{stats.programDayCount || 3}</p>
+                <p className="text-xs text-muted-foreground">Week Progress</p>
               </div>
             </div>
           </div>
