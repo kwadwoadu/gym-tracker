@@ -23,6 +23,11 @@ function getYouTubeId(url: string): string | null {
   return match ? match[1] : null;
 }
 
+// Check if URL is a YouTube search query (not a direct video)
+function isYouTubeSearchUrl(url: string): boolean {
+  return url.includes('youtube.com/results?search_query=');
+}
+
 // Animation variants for set completion celebration
 const cardCompleteVariants = {
   incomplete: { scale: 1 },
@@ -82,6 +87,8 @@ interface SetLoggerProps {
   lastWeekWeight?: number;
   lastWeekReps?: number;
   suggestedWeight?: number;
+  suggestedReps?: number;  // Last workout's actual reps for smart memory
+  suggestedRpe?: number;   // Last workout's RPE for smart memory
   lastWorkoutDate?: string;  // ISO date of last time this exercise was done
   hitTargetLastTime?: boolean;  // Whether target reps were hit last time
   videoUrl?: string;
@@ -99,6 +106,8 @@ export function SetLogger({
   lastWeekWeight,
   lastWeekReps,
   suggestedWeight,
+  suggestedReps,
+  suggestedRpe,
   lastWorkoutDate,
   hitTargetLastTime,
   videoUrl,
@@ -106,8 +115,10 @@ export function SetLogger({
   onSkip,
 }: SetLoggerProps) {
   const [weight, setWeight] = useState(suggestedWeight || lastWeekWeight || 20);
-  const [reps, setReps] = useState(targetReps);
-  const [rpe, setRpe] = useState<number>(7);
+  // Use last workout's actual reps if available, otherwise target reps
+  const [reps, setReps] = useState(suggestedReps ?? targetReps);
+  // Use last workout's RPE if available, otherwise default to 7
+  const [rpe, setRpe] = useState<number>(suggestedRpe ?? 7);
   const [isCompleted, setIsCompleted] = useState(false);
   const [isEditingWeight, setIsEditingWeight] = useState(false);
   const [weightInputValue, setWeightInputValue] = useState(weight.toString());
@@ -116,6 +127,8 @@ export function SetLogger({
   const weightInputRef = useRef<HTMLInputElement>(null);
 
   const videoId = videoUrl ? getYouTubeId(videoUrl) : null;
+  const isSearchUrl = videoUrl ? isYouTubeSearchUrl(videoUrl) : false;
+  const hasVideo = videoId || isSearchUrl;
 
   // Update weight when suggestion props arrive (async fetch)
   useEffect(() => {
@@ -127,6 +140,19 @@ export function SetLogger({
       setWeightInputValue(lastWeekWeight.toString());
     }
   }, [suggestedWeight, lastWeekWeight]);
+
+  // Update reps and RPE when suggestion props arrive (smart memory)
+  useEffect(() => {
+    if (suggestedReps !== undefined) {
+      setReps(suggestedReps);
+    }
+  }, [suggestedReps]);
+
+  useEffect(() => {
+    if (suggestedRpe !== undefined) {
+      setRpe(suggestedRpe);
+    }
+  }, [suggestedRpe]);
 
   // Focus input when editing starts
   useEffect(() => {
@@ -281,50 +307,69 @@ export function SetLogger({
       )}
 
       {/* Video tutorial section */}
-      {videoId && (
+      {hasVideo && (
         <div className="mb-6">
-          <button
-            type="button"
-            onClick={() => setShowVideo(!showVideo)}
-            className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors w-full"
-          >
-            {showVideo ? (
-              <ChevronUp className="w-4 h-4" />
-            ) : (
-              <ChevronDown className="w-4 h-4" />
-            )}
-            <Play className="w-4 h-4" />
-            <span>How to do this exercise</span>
-          </button>
-
-          <AnimatePresence>
-            {showVideo && (
-              <motion.div
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: "auto", opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-                transition={{ duration: 0.2 }}
-                className="overflow-hidden"
+          {/* If we have a video ID, show expandable section with in-app player */}
+          {videoId ? (
+            <>
+              <button
+                type="button"
+                onClick={() => setShowVideo(!showVideo)}
+                className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors w-full"
               >
-                <button
-                  type="button"
-                  onClick={() => setShowVideoDialog(true)}
-                  className="relative mt-3 w-full rounded-lg overflow-hidden group"
-                >
-                  <img
-                    src={`https://img.youtube.com/vi/${videoId}/mqdefault.jpg`}
-                    alt={`${exerciseName} tutorial`}
-                    className="w-full aspect-video object-cover"
-                  />
-                  <div className="absolute inset-0 bg-black/40 flex items-center justify-center group-hover:bg-black/50 transition-colors">
-                    <div className="w-14 h-14 rounded-full bg-primary/90 flex items-center justify-center">
-                      <Play className="w-6 h-6 text-primary-foreground fill-current ml-1" />
-                    </div>
-                  </div>
-                </button>
-              </motion.div>
-            )}
-          </AnimatePresence>
+                {showVideo ? (
+                  <ChevronUp className="w-4 h-4" />
+                ) : (
+                  <ChevronDown className="w-4 h-4" />
+                )}
+                <Play className="w-4 h-4" />
+                <span>How to do this exercise</span>
+              </button>
+
+              <AnimatePresence>
+                {showVideo && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                    className="overflow-hidden"
+                  >
+                    <button
+                      type="button"
+                      onClick={() => setShowVideoDialog(true)}
+                      className="relative mt-3 w-full rounded-lg overflow-hidden group"
+                    >
+                      <img
+                        src={`https://img.youtube.com/vi/${videoId}/mqdefault.jpg`}
+                        alt={`${exerciseName} tutorial`}
+                        className="w-full aspect-video object-cover"
+                      />
+                      <div className="absolute inset-0 bg-black/40 flex items-center justify-center group-hover:bg-black/50 transition-colors">
+                        <div className="w-14 h-14 rounded-full bg-primary/90 flex items-center justify-center">
+                          <Play className="w-6 h-6 text-primary-foreground fill-current ml-1" />
+                        </div>
+                      </div>
+                    </button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </>
+          ) : (
+            /* If it's a search URL (no video ID), show button that opens in new tab */
+            <a
+              href={videoUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors w-full p-3 rounded-lg bg-muted/30 hover:bg-muted/50"
+            >
+              <Play className="w-4 h-4" />
+              <span>Watch exercise tutorial on YouTube</span>
+              <svg className="w-4 h-4 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+              </svg>
+            </a>
+          )}
         </div>
       )}
 

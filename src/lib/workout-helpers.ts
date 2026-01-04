@@ -63,6 +63,7 @@ export async function getSuggestedWeight(
 
 /**
  * Get global weight suggestion for an exercise (across all workouts)
+ * Returns weight, reps, and RPE from last workout for smart memory
  */
 export async function getGlobalWeightSuggestion(
   exerciseId: string
@@ -70,6 +71,9 @@ export async function getGlobalWeightSuggestion(
   suggestedWeight: number;
   lastWeight: number;
   lastReps: number;
+  lastRpe: number;
+  suggestedReps: number;
+  suggestedRpe: number;
   lastDate: string;
   hitTargetLastTime: boolean;
   shouldNudgeIncrease: boolean;
@@ -85,14 +89,19 @@ export async function getGlobalWeightSuggestion(
   for (const log of logs) {
     const exerciseSets = log.sets.filter((s: SetLog) => s.exerciseId === exerciseId);
     if (exerciseSets.length > 0) {
-      // Get the best set (highest weight)
+      // Get the best set (highest weight) for weight suggestion
       const bestSet = exerciseSets.reduce((best: SetLog, set: SetLog) =>
         set.weight > best.weight ? set : best
       );
 
+      // Get the most recent set (last logged) for reps/RPE memory
+      const lastSet = exerciseSets[exerciseSets.length - 1];
+      const lastRpe = lastSet.rpe ?? 7;
+
       const settings = await getUserSettings();
       const hitTarget = bestSet.actualReps >= (bestSet.targetReps || 0);
-      const shouldNudge = hitTarget && settings.autoProgressWeight;
+      // Only suggest weight increase if user has capacity (RPE < 9)
+      const shouldNudge = hitTarget && settings.autoProgressWeight && lastRpe < 9;
       const nudgeWeight = shouldNudge
         ? bestSet.weight + settings.progressionIncrement
         : null;
@@ -101,6 +110,9 @@ export async function getGlobalWeightSuggestion(
         suggestedWeight: bestSet.weight,
         lastWeight: bestSet.weight,
         lastReps: bestSet.actualReps,
+        lastRpe: lastRpe,
+        suggestedReps: lastSet.actualReps,
+        suggestedRpe: lastRpe,
         lastDate: log.date,
         hitTargetLastTime: hitTarget,
         shouldNudgeIncrease: shouldNudge,

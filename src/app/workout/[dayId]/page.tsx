@@ -193,6 +193,9 @@ export default function WorkoutSession() {
     suggestedWeight: number;
     lastWeight: number;
     lastReps: number;
+    lastRpe: number;
+    suggestedReps: number;
+    suggestedRpe: number;
     lastDate: string;
     hitTargetLastTime: boolean;
     shouldNudgeIncrease: boolean;
@@ -1310,6 +1313,8 @@ export default function WorkoutSession() {
                   ? globalSuggestion.nudgeWeight
                   : globalSuggestion?.suggestedWeight ?? weightSuggestion?.weight
               }
+              suggestedReps={globalSuggestion?.suggestedReps}
+              suggestedRpe={globalSuggestion?.suggestedRpe}
               lastWorkoutDate={globalSuggestion?.lastDate}
               hitTargetLastTime={globalSuggestion?.hitTargetLastTime}
               videoUrl={currentExercise.videoUrl ?? undefined}

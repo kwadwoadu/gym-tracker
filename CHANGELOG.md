@@ -4,6 +4,29 @@ All notable changes to the SetFlow project.
 
 ---
 
+## [2026-01-04] SetFlow v2.1 - Smart Memory + Video Player
+
+### Added
+- **Smart Memory for Reps & RPE**: Exercises now start with last workout's actual reps and RPE values instead of defaults
+- **Video Tutorial Support**: SetLogger now shows "Watch exercise tutorial" button for all 97 exercises
+
+### Improved
+- **RPE-Aware ChallengeCard**: Progressive overload suggestions only appear when last RPE < 9 (user has capacity for more weight)
+- **Video Player Fallback**: Search URLs open YouTube in new tab; direct video URLs play in-app via iframe
+
+### Technical Details
+- Extended `getGlobalWeightSuggestion()` to return `suggestedReps`, `suggestedRpe`, `lastRpe`
+- Added RPE < 9 check to `shouldNudgeIncrease` logic
+- SetLogger now accepts `suggestedReps` and `suggestedRpe` props with useEffect for async updates
+- Added `isYouTubeSearchUrl()` helper to detect search URLs vs direct video links
+
+### Files Changed
+- `src/lib/workout-helpers.ts` - Extended return type, added RPE check
+- `src/components/workout/set-logger.tsx` - New props, smart memory, video fallback
+- `src/app/workout/[dayId]/page.tsx` - Updated type definition, pass new props
+
+---
+
 ## [2026-01-04] SetFlow v2 - Critical Fixes
 
 ### Fixed
