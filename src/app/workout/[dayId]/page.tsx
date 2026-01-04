@@ -553,6 +553,28 @@ export default function WorkoutSession() {
     };
   };
 
+  // Get session memory for within-workout set-to-set memory
+  // Returns the previous set's values for the same exercise in the current session
+  const getSessionMemoryForExercise = (
+    exerciseId: string,
+    setNumber: number
+  ): { weight: number; reps: number; rpe: number } | null => {
+    // Find all sets for this exercise with setNumber less than current
+    const previousSets = completedSets
+      .filter((s) => s.exerciseId === exerciseId && s.setNumber < setNumber)
+      .sort((a, b) => b.setNumber - a.setNumber); // Most recent first
+
+    if (previousSets.length > 0) {
+      const prev = previousSets[0];
+      return {
+        weight: prev.weight,
+        reps: prev.actualReps,
+        rpe: prev.rpe ?? 7,
+      };
+    }
+    return null;
+  };
+
   // Start warmup phase
   const startWarmup = async () => {
     await initAudio();
@@ -818,72 +840,88 @@ export default function WorkoutSession() {
   const finishWorkout = async () => {
     if (!startTime || !trainingDay) return;
 
-    const endTime = new Date();
-    const duration = Math.floor(
-      (endTime.getTime() - startTime.getTime()) / 1000
-    );
-
-    // Save workout log via API
-    const workoutLogData = {
-      date: startTime.toISOString().split("T")[0],
-      dayId: trainingDay.id,
-      dayName: trainingDay.name,
-      programId: trainingDay.programId,
-      sets: completedSets,
-      startTime: startTime.toISOString(),
-      endTime: endTime.toISOString(),
-      duration: Math.floor(duration / 60), // Convert to minutes
-      isComplete: true,
-    };
-
-    const savedLog = await workoutLogsApi.create(workoutLogData);
-    setWorkoutLogId(savedLog.id);
-
-    // Check for PRs - find best set for each exercise
-    const exerciseBestSets = new Map<string, SetLog>();
-    for (const set of completedSets) {
-      const existing = exerciseBestSets.get(set.exerciseId);
-      // Compare by weight first, then by reps
-      if (!existing ||
-          set.weight > existing.weight ||
-          (set.weight === existing.weight && set.actualReps > existing.actualReps)) {
-        exerciseBestSets.set(set.exerciseId, set);
-      }
-    }
-
-    // Check each exercise's best set for PR
-    const achievedPRs: NewPR[] = [];
-    for (const [exerciseId, bestSet] of exerciseBestSets) {
-      const isPR = await checkAndAddPR(
-        exerciseId,
-        bestSet.exerciseName,
-        bestSet.weight,
-        bestSet.actualReps
+    try {
+      const endTime = new Date();
+      const duration = Math.floor(
+        (endTime.getTime() - startTime.getTime()) / 1000
       );
-      if (isPR) {
-        achievedPRs.push({
-          exerciseName: bestSet.exerciseName,
-          weight: bestSet.weight,
-          reps: bestSet.actualReps,
-        });
+
+      // Save workout log via API
+      const workoutLogData = {
+        date: startTime.toISOString().split("T")[0],
+        dayId: trainingDay.id,
+        dayName: trainingDay.name,
+        programId: trainingDay.programId,
+        sets: completedSets,
+        startTime: startTime.toISOString(),
+        endTime: endTime.toISOString(),
+        duration: Math.floor(duration / 60), // Convert to minutes
+        isComplete: true,
+      };
+
+      const savedLog = await workoutLogsApi.create(workoutLogData);
+      setWorkoutLogId(savedLog.id);
+
+      // CRITICAL: Transition to complete phase BEFORE secondary operations
+      // This ensures completion screen shows even if PR/achievement checks fail
+      setPhase("complete");
+      clearSession(); // Clear saved session on completion
+
+      // Secondary operations - wrapped in try-catch so they don't break completion
+      try {
+        // Check for PRs - find best set for each exercise
+        const exerciseBestSets = new Map<string, SetLog>();
+        for (const set of completedSets) {
+          const existing = exerciseBestSets.get(set.exerciseId);
+          // Compare by weight first, then by reps
+          if (!existing ||
+              set.weight > existing.weight ||
+              (set.weight === existing.weight && set.actualReps > existing.actualReps)) {
+            exerciseBestSets.set(set.exerciseId, set);
+          }
+        }
+
+        // Check each exercise's best set for PR
+        const achievedPRs: NewPR[] = [];
+        for (const [exerciseId, bestSet] of exerciseBestSets) {
+          const isPR = await checkAndAddPR(
+            exerciseId,
+            bestSet.exerciseName,
+            bestSet.weight,
+            bestSet.actualReps
+          );
+          if (isPR) {
+            achievedPRs.push({
+              exerciseName: bestSet.exerciseName,
+              weight: bestSet.weight,
+              reps: bestSet.actualReps,
+            });
+          }
+        }
+
+        setNewPRs(achievedPRs);
+
+        // Play celebration sound based on PRs achieved
+        if (achievedPRs.length > 0) {
+          audioManager.playPR();
+        } else {
+          audioManager.playWorkoutComplete();
+        }
+
+        // Check for new achievements after workout completion
+        const newAchievements = await checkAchievements();
+        if (newAchievements.length > 0) {
+          addAchievementToasts(newAchievements);
+        }
+      } catch (secondaryError) {
+        // Log but don't throw - workout is already saved and complete
+        console.error("Error during PR/achievement checks:", secondaryError);
+        // Still play completion sound
+        audioManager.playWorkoutComplete();
       }
-    }
-
-    setNewPRs(achievedPRs);
-    setPhase("complete");
-    clearSession(); // Clear saved session on completion
-
-    // Play celebration sound based on PRs achieved
-    if (achievedPRs.length > 0) {
-      audioManager.playPR();
-    } else {
-      audioManager.playWorkoutComplete();
-    }
-
-    // Check for new achievements after workout completion
-    const newAchievements = await checkAchievements();
-    if (newAchievements.length > 0) {
-      addAchievementToasts(newAchievements);
+    } catch (error) {
+      console.error("Error finishing workout:", error);
+      // TODO: Show error toast to user
     }
     // Note: Dexie Cloud handles sync automatically in the background
   };
@@ -1293,34 +1331,50 @@ export default function WorkoutSession() {
             })()}
 
             {/* Set logger */}
-            <SetLogger
-              key={`${workoutState.supersetIndex}-${workoutState.exerciseIndex}-${workoutState.setNumber}`}
-              exerciseName={currentExercise.name}
-              supersetLabel={currentExercise.supersetLabel}
-              exerciseLabel={String(workoutState.exerciseIndex + 1)}
-              setNumber={workoutState.setNumber}
-              totalSets={currentExercise.sets}
-              targetReps={getTargetReps(
-                currentExercise.reps,
+            {(() => {
+              // Get session memory (from current workout's previous sets)
+              const sessionMemory = getSessionMemoryForExercise(
+                currentExercise.exerciseId,
                 workoutState.setNumber
-              )}
-              lastWeekWeight={globalSuggestion?.lastWeight ?? weightSuggestion?.lastWeekWeight}
-              lastWeekReps={globalSuggestion?.lastReps ?? weightSuggestion?.lastWeekReps}
-              suggestedWeight={
-                // Use nudge weight if challenge was accepted, otherwise use global or day-specific
-                challengeDismissedExercises.has(currentExercise.exerciseId) &&
-                globalSuggestion?.nudgeWeight
-                  ? globalSuggestion.nudgeWeight
-                  : globalSuggestion?.suggestedWeight ?? weightSuggestion?.weight
-              }
-              suggestedReps={globalSuggestion?.suggestedReps}
-              suggestedRpe={globalSuggestion?.suggestedRpe}
-              lastWorkoutDate={globalSuggestion?.lastDate}
-              hitTargetLastTime={globalSuggestion?.hitTargetLastTime}
-              videoUrl={currentExercise.videoUrl ?? undefined}
-              onComplete={handleSetComplete}
-              onSkip={handleSkipSet}
-            />
+              );
+              // Determine memory source: session > historical > none
+              const hasSessionMemory = sessionMemory !== null;
+              const hasHistoricalMemory = globalSuggestion !== null;
+              const memorySource = hasSessionMemory ? "session" : hasHistoricalMemory ? "historical" : undefined;
+
+              return (
+                <SetLogger
+                  key={`${workoutState.supersetIndex}-${workoutState.exerciseIndex}-${workoutState.setNumber}`}
+                  exerciseName={currentExercise.name}
+                  supersetLabel={currentExercise.supersetLabel}
+                  exerciseLabel={String(workoutState.exerciseIndex + 1)}
+                  setNumber={workoutState.setNumber}
+                  totalSets={currentExercise.sets}
+                  targetReps={getTargetReps(
+                    currentExercise.reps,
+                    workoutState.setNumber
+                  )}
+                  lastWeekWeight={globalSuggestion?.lastWeight ?? weightSuggestion?.lastWeekWeight}
+                  lastWeekReps={globalSuggestion?.lastReps ?? weightSuggestion?.lastWeekReps}
+                  suggestedWeight={
+                    // Priority: session memory > challenge nudge > global/day-specific
+                    sessionMemory?.weight ??
+                    (challengeDismissedExercises.has(currentExercise.exerciseId) &&
+                    globalSuggestion?.nudgeWeight
+                      ? globalSuggestion.nudgeWeight
+                      : globalSuggestion?.suggestedWeight ?? weightSuggestion?.weight)
+                  }
+                  suggestedReps={sessionMemory?.reps ?? globalSuggestion?.suggestedReps}
+                  suggestedRpe={sessionMemory?.rpe ?? globalSuggestion?.suggestedRpe}
+                  lastWorkoutDate={globalSuggestion?.lastDate}
+                  hitTargetLastTime={globalSuggestion?.hitTargetLastTime}
+                  memorySource={memorySource}
+                  videoUrl={currentExercise.videoUrl ?? undefined}
+                  onComplete={handleSetComplete}
+                  onSkip={handleSkipSet}
+                />
+              );
+            })()}
 
             {/* Tempo reminder */}
             <Card className="p-4 bg-muted/30 border-border">

@@ -55,7 +55,7 @@ export async function GET(request: Request) {
   }
 }
 
-// POST /api/workout-logs - Create new workout log (start workout)
+// POST /api/workout-logs - Create new workout log (start or save completed workout)
 export async function POST(request: Request) {
   try {
     const user = await getCurrentUser();
@@ -64,7 +64,17 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { programId, dayId, dayName, date } = body;
+    const {
+      programId,
+      dayId,
+      dayName,
+      date,
+      startTime,
+      endTime,
+      duration,
+      isComplete,
+      sets,
+    } = body;
 
     if (!programId || !dayId || !dayName) {
       return NextResponse.json(
@@ -86,9 +96,11 @@ export async function POST(request: Request) {
       data: {
         date: date || new Date().toISOString().split("T")[0],
         dayName,
-        startTime: new Date(),
-        isComplete: false,
-        sets: [],
+        startTime: startTime ? new Date(startTime) : new Date(),
+        endTime: endTime ? new Date(endTime) : null,
+        duration: duration ?? null,
+        isComplete: isComplete ?? false,
+        sets: sets ?? [],
         programId,
         dayId,
         userId: user.id,

@@ -4,26 +4,62 @@ All notable changes to the SetFlow project.
 
 ---
 
-## [2026-01-04] SetFlow v2.1 - Smart Memory + Video Player
+## [2026-01-04] SetFlow v2.2 - Video Tutorial Embedding
+
+### Fixed (Critical)
+- **Videos Not Appearing**: Seeding was hardcoding `videoUrl: null` instead of using exercises.json data
+- **Workout Completion Error Handling**: Added try-catch to `finishWorkout()` - completion screen now shows even if PR/achievement checks fail
 
 ### Added
-- **Smart Memory for Reps & RPE**: Exercises now start with last workout's actual reps and RPE values instead of defaults
-- **Video Tutorial Support**: SetLogger now shows "Watch exercise tutorial" button for all 97 exercises
+- **In-App Video Embedding**: 50+ exercises now have direct YouTube video URLs (from Nordic Performance Training)
+- **Backfill API Endpoint**: `POST /api/seed { "action": "backfill-videos" }` updates existing users' exercise data
+- **Curated Video Sources**: Priority: Nordic Performance Training > TylerPath > ATHLEAN-X
 
 ### Improved
-- **RPE-Aware ChallengeCard**: Progressive overload suggestions only appear when last RPE < 9 (user has capacity for more weight)
-- **Video Player Fallback**: Search URLs open YouTube in new tab; direct video URLs play in-app via iframe
+- **Direct Video Links**: Changed from search URLs (opens new tab) to direct video URLs (embeds in-app)
+- **Error-Resilient Completion**: Workout saves are confirmed before PR/achievement checks run
 
 ### Technical Details
-- Extended `getGlobalWeightSuggestion()` to return `suggestedReps`, `suggestedRpe`, `lastRpe`
-- Added RPE < 9 check to `shouldNudgeIncrease` logic
-- SetLogger now accepts `suggestedReps` and `suggestedRpe` props with useEffect for async updates
-- Added `isYouTubeSearchUrl()` helper to detect search URLs vs direct video links
+- Fixed `seedExercisesWithMapping()` line 50: `videoUrl: null` -> `videoUrl: ex.videoUrl || null`
+- Added `backfillVideoUrls()` function to seed.ts
+- SetLogger's `getYouTubeId()` now works with direct video URLs for embedding
+- Exercises without direct links fallback to search URLs (open in new tab)
 
 ### Files Changed
-- `src/lib/workout-helpers.ts` - Extended return type, added RPE check
-- `src/components/workout/set-logger.tsx` - New props, smart memory, video fallback
-- `src/app/workout/[dayId]/page.tsx` - Updated type definition, pass new props
+- `src/lib/seed.ts` - Fixed videoUrl seeding, added backfillVideoUrls()
+- `src/app/api/seed/route.ts` - Added "backfill-videos" action
+- `src/app/workout/[dayId]/page.tsx` - Error handling in finishWorkout()
+- `src/data/exercises.json` - 50+ exercises with direct YouTube video URLs
+
+---
+
+## [2026-01-04] SetFlow v2.1 - Smart Memory + Video Player
+
+### Fixed (Critical)
+- **API Bug - Completed Workouts Not Saving**: POST endpoint now properly accepts `isComplete`, `sets`, `endTime`, and `duration` fields. Previously hardcoded to `false` and `[]`, which meant no workout history was ever saved.
+
+### Added
+- **Within-Workout Memory (Set-to-Set)**: Set 2 now pre-fills with Set 1's actual weight, reps, and RPE from the current session
+- **Cross-Workout Memory**: Exercises remember values from last completed workout when no session memory exists
+- **Memory Source Indicator**: UI shows "From previous set" (lime highlight) vs "Last: [date]" (gray) to indicate memory source
+- **Video Tutorial Support**: SetLogger shows video tutorial buttons for all 97 exercises
+
+### Improved
+- **Smart Memory Priority**: Session memory > Historical memory > Defaults
+- **RPE-Aware ChallengeCard**: Progressive overload suggestions only appear when last RPE < 9
+- **Video Player Fallback**: Search URLs open YouTube in new tab; direct video URLs play in-app
+
+### Technical Details
+- Fixed POST `/api/workout-logs/route.ts` to accept all fields from request body
+- Added `getSessionMemoryForExercise()` helper for within-workout memory
+- Added `memorySource` prop to SetLogger to show where values came from
+- Extended `getGlobalWeightSuggestion()` to return `suggestedReps`, `suggestedRpe`, `lastRpe`
+
+### Files Changed
+- `src/app/api/workout-logs/route.ts` - Fixed POST handler to accept all fields
+- `src/app/workout/[dayId]/page.tsx` - Added session memory function, updated SetLogger props
+- `src/components/workout/set-logger.tsx` - Added memorySource indicator UI
+- `src/lib/workout-helpers.ts` - Extended return type for cross-workout memory
 
 ---
 

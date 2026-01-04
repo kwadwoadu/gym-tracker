@@ -87,10 +87,11 @@ interface SetLoggerProps {
   lastWeekWeight?: number;
   lastWeekReps?: number;
   suggestedWeight?: number;
-  suggestedReps?: number;  // Last workout's actual reps for smart memory
-  suggestedRpe?: number;   // Last workout's RPE for smart memory
+  suggestedReps?: number;  // Memory reps (from session or historical)
+  suggestedRpe?: number;   // Memory RPE (from session or historical)
   lastWorkoutDate?: string;  // ISO date of last time this exercise was done
   hitTargetLastTime?: boolean;  // Whether target reps were hit last time
+  memorySource?: "session" | "historical";  // Where the suggested values come from
   videoUrl?: string;
   onComplete: (weight: number, reps: number, rpe?: number) => void;
   onSkip?: () => void; // Optional callback when user skips the set
@@ -110,6 +111,7 @@ export function SetLogger({
   suggestedRpe,
   lastWorkoutDate,
   hitTargetLastTime,
+  memorySource,
   videoUrl,
   onComplete,
   onSkip,
@@ -273,8 +275,18 @@ export function SetLogger({
           </AnimatePresence>
         </div>
 
-      {/* Last workout reference */}
-      {lastWeekWeight && lastWeekReps && (
+      {/* Memory source indicator */}
+      {memorySource === "session" && suggestedWeight && (
+        <div className="flex items-center gap-2 mb-6 p-3 rounded-lg bg-primary/10 border border-primary/20">
+          <span className="text-sm text-primary font-medium">From previous set:</span>
+          <span className="text-sm font-medium text-foreground">
+            {suggestedWeight}kg x {suggestedReps} reps @ RPE {suggestedRpe}
+          </span>
+        </div>
+      )}
+
+      {/* Last workout reference (historical) */}
+      {memorySource !== "session" && lastWeekWeight && lastWeekReps && (
         <div className="flex items-center gap-2 mb-6 p-3 rounded-lg bg-muted/50">
           <span className="text-sm text-muted-foreground">{formatLastDate(lastWorkoutDate)}:</span>
           <span className="text-sm font-medium text-foreground">

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth-helpers";
-import { fixProgramExerciseIds, seedDatabase, resetToDefault, backfillBuiltInIds } from "@/lib/seed";
+import { fixProgramExerciseIds, seedDatabase, resetToDefault, backfillBuiltInIds, backfillVideoUrls } from "@/lib/seed";
 
 // POST /api/seed - Seed database with exercises and fix program IDs
 export async function POST(request: Request) {
@@ -33,6 +33,14 @@ export async function POST(request: Request) {
       return NextResponse.json({
         success: true,
         message: `Backfill complete: ${result.updated} updated, ${result.skipped} skipped`,
+        ...result,
+      });
+    } else if (action === "backfill-videos") {
+      // Backfill videoUrl for existing exercises
+      const result = await backfillVideoUrls();
+      return NextResponse.json({
+        success: true,
+        message: `Video URL backfill complete: ${result.updated} updated, ${result.skipped} skipped`,
         ...result,
       });
     } else {

@@ -47,7 +47,7 @@ async function seedExercisesWithMapping(): Promise<Map<string, string>> {
       name: ex.name,
       muscleGroups: ex.muscleGroups,
       equipment: ex.equipment,
-      videoUrl: null,
+      videoUrl: ex.videoUrl || null,
       builtInId: ex.id, // Store the original preset ID for reliable mapping
     });
     // Map old ID (e.g., "ex-bw-squats") to new Prisma CUID
@@ -350,4 +350,46 @@ export async function resetToDefault(): Promise<void> {
     trainingDays: mappedTrainingDays,
   });
   console.log("Installed default program:", program.name);
+}
+
+/**
+ * Backfills videoUrl for existing exercises that have null/missing videoUrl.
+ * Matches by builtInId or name and sets the videoUrl from exercises.json.
+ */
+export async function backfillVideoUrls(): Promise<{ updated: number; skipped: number }> {
+  console.log("Backfilling videoUrl for existing exercises...");
+
+  const existingExercises = await exercisesApi.list();
+  let updated = 0;
+  let skipped = 0;
+
+  for (const ex of exercisesData.exercises) {
+    if (!ex.videoUrl) {
+      skipped++;
+      continue;
+    }
+
+    // Find exercise by builtInId first (reliable) or name (fallback)
+    let existing = existingExercises.find(e => e.builtInId === ex.id);
+    if (!existing) {
+      existing = existingExercises.find(e => e.name === ex.name);
+    }
+
+    // Only update if found and videoUrl is currently null/undefined
+    if (existing && !existing.videoUrl) {
+      try {
+        await exercisesApi.update(existing.id, { videoUrl: ex.videoUrl });
+        updated++;
+        console.log(`Set videoUrl for: ${ex.name}`);
+      } catch (error) {
+        console.error(`Failed to update videoUrl for ${ex.name}:`, error);
+        skipped++;
+      }
+    } else {
+      skipped++;
+    }
+  }
+
+  console.log(`Video URL backfill complete: ${updated} updated, ${skipped} skipped`);
+  return { updated, skipped };
 }
