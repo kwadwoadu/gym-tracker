@@ -40,7 +40,7 @@ export async function GET(
   }
 }
 
-// PUT /api/exercises/[id] - Update custom exercise
+// PUT /api/exercises/[id] - Update exercise
 export async function PUT(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -54,7 +54,7 @@ export async function PUT(
     const { id } = await params;
     const body = await request.json();
 
-    // Check if exercise exists and belongs to user
+    // Check if exercise exists
     const existing = await prisma.exercise.findUnique({
       where: { id },
     });
@@ -66,14 +66,32 @@ export async function PUT(
       );
     }
 
-    // Only allow updating custom exercises that belong to user
-    if (!existing.isCustom || existing.userId !== user.id) {
+    // For built-in exercises (userId = null), only allow updating builtInId (for backfill)
+    // For custom exercises, allow full updates but only by owner
+    if (existing.userId === null) {
+      // Built-in exercise - only allow updating builtInId for backfill
+      if (body.builtInId !== undefined) {
+        const exercise = await prisma.exercise.update({
+          where: { id },
+          data: {
+            builtInId: body.builtInId,
+          },
+        });
+        return NextResponse.json(exercise);
+      } else {
+        return NextResponse.json(
+          { error: "Cannot modify built-in exercise" },
+          { status: 403 }
+        );
+      }
+    } else if (existing.userId !== user.id) {
       return NextResponse.json(
         { error: "Cannot modify this exercise" },
         { status: 403 }
       );
     }
 
+    // Custom exercise owned by user - allow full updates
     const exercise = await prisma.exercise.update({
       where: { id },
       data: {
@@ -81,6 +99,7 @@ export async function PUT(
         muscleGroups: body.muscleGroups,
         equipment: body.equipment,
         videoUrl: body.videoUrl,
+        builtInId: body.builtInId,
       },
     });
 

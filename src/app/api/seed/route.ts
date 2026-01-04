@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth-helpers";
-import { fixProgramExerciseIds, seedDatabase } from "@/lib/seed";
+import { fixProgramExerciseIds, seedDatabase, resetToDefault, backfillBuiltInIds } from "@/lib/seed";
 
 // POST /api/seed - Seed database with exercises and fix program IDs
 export async function POST(request: Request) {
@@ -19,6 +19,21 @@ export async function POST(request: Request) {
       return NextResponse.json({
         success: true,
         message: "Program exercise IDs fixed successfully",
+      });
+    } else if (action === "reset") {
+      // Reset to default program
+      await resetToDefault();
+      return NextResponse.json({
+        success: true,
+        message: "Reset to default program successfully",
+      });
+    } else if (action === "backfill") {
+      // Backfill builtInId for existing exercises
+      const result = await backfillBuiltInIds();
+      return NextResponse.json({
+        success: true,
+        message: `Backfill complete: ${result.updated} updated, ${result.skipped} skipped`,
+        ...result,
       });
     } else {
       // Full database seed

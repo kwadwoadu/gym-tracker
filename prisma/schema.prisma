@@ -32,6 +32,7 @@ model User {
 
 model Exercise {
   id           String   @id @default(cuid())
+  builtInId    String?  @unique // Original preset ID (e.g., "ex-barbell-bench")
   name         String
   videoUrl     String?
   muscleGroups String[]
@@ -48,6 +49,7 @@ model Exercise {
 
   @@index([userId])
   @@index([name])
+  @@index([builtInId])
 }
 
 model Program {

@@ -19,6 +19,7 @@ async function handleResponse<T>(response: Response): Promise<T> {
 
 export interface Exercise {
   id: string;
+  builtInId: string | null; // Original preset ID (e.g., "ex-barbell-bench")
   name: string;
   videoUrl: string | null;
   muscleGroups: string[];
@@ -39,7 +40,7 @@ export const exercisesApi = {
     return handleResponse(res);
   },
 
-  create: async (data: Omit<Exercise, "id" | "isCustom" | "userId" | "createdAt">): Promise<Exercise> => {
+  create: async (data: Omit<Exercise, "id" | "builtInId" | "isCustom" | "userId" | "createdAt"> & { builtInId?: string | null }): Promise<Exercise> => {
     const res = await fetch(`${API_BASE}/exercises`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },

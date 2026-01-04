@@ -48,6 +48,7 @@ async function seedExercisesWithMapping(): Promise<Map<string, string>> {
       muscleGroups: ex.muscleGroups,
       equipment: ex.equipment,
       videoUrl: null,
+      builtInId: ex.id, // Store the original preset ID for reliable mapping
     });
     // Map old ID (e.g., "ex-bw-squats") to new Prisma CUID
     idMapping.set(ex.id, created.id);
@@ -95,10 +96,15 @@ export async function seedExercisesOnly(): Promise<Map<string, string>> {
   const existingExercises = await exercisesApi.list();
   if (existingExercises.length > 0) {
     console.log("Exercises already seeded, building mapping from existing...");
-    // Build mapping from existing exercises by matching names
+    // Build mapping from existing exercises by builtInId (reliable) or name (fallback)
     const idMapping = new Map<string, string>();
     for (const ex of exercisesData.exercises) {
-      const existing = existingExercises.find(e => e.name === ex.name);
+      // First try to match by builtInId (reliable)
+      let existing = existingExercises.find(e => e.builtInId === ex.id);
+      // Fallback to name matching for legacy data
+      if (!existing) {
+        existing = existingExercises.find(e => e.name === ex.name);
+      }
       if (existing) {
         idMapping.set(ex.id, existing.id);
       }
@@ -133,10 +139,15 @@ export async function seedDatabase(): Promise<void> {
 
   if (existingExercises.length > 0) {
     console.log("Exercises already seeded, building mapping from existing...");
-    // Build mapping from existing exercises by matching names
+    // Build mapping from existing exercises by builtInId (reliable) or name (fallback)
     idMapping = new Map<string, string>();
     for (const ex of exercisesData.exercises) {
-      const existing = existingExercises.find(e => e.name === ex.name);
+      // First try to match by builtInId (reliable)
+      let existing = existingExercises.find(e => e.builtInId === ex.id);
+      // Fallback to name matching for legacy data
+      if (!existing) {
+        existing = existingExercises.find(e => e.name === ex.name);
+      }
       if (existing) {
         idMapping.set(ex.id, existing.id);
       }
@@ -185,10 +196,15 @@ export async function fixProgramExerciseIds(): Promise<void> {
     return;
   }
 
-  // Build mapping from existing exercises by matching names
+  // Build mapping from existing exercises by builtInId (reliable) or name (fallback)
   const idMapping = new Map<string, string>();
   for (const ex of exercisesData.exercises) {
-    const existing = existingExercises.find(e => e.name === ex.name);
+    // First try to match by builtInId (reliable)
+    let existing = existingExercises.find(e => e.builtInId === ex.id);
+    // Fallback to name matching for legacy data
+    if (!existing) {
+      existing = existingExercises.find(e => e.name === ex.name);
+    }
     if (existing) {
       idMapping.set(ex.id, existing.id);
     }
@@ -241,4 +257,97 @@ export async function clearDatabase(): Promise<void> {
   }
 
   console.log("Database cleared");
+}
+
+/**
+ * Backfills builtInId for existing exercises that were created before the field was added.
+ * Matches by name and sets the builtInId from the exercise data.
+ */
+export async function backfillBuiltInIds(): Promise<{ updated: number; skipped: number }> {
+  console.log("Backfilling builtInId for existing exercises...");
+
+  const existingExercises = await exercisesApi.list();
+  let updated = 0;
+  let skipped = 0;
+
+  for (const ex of exercisesData.exercises) {
+    // Find exercise by name that doesn't already have builtInId
+    const existing = existingExercises.find(
+      e => e.name === ex.name && !e.builtInId
+    );
+
+    if (existing) {
+      try {
+        await exercisesApi.update(existing.id, { builtInId: ex.id });
+        updated++;
+        console.log(`Set builtInId for: ${ex.name} -> ${ex.id}`);
+      } catch (error) {
+        console.error(`Failed to update ${ex.name}:`, error);
+        skipped++;
+      }
+    } else {
+      skipped++;
+    }
+  }
+
+  console.log(`Backfill complete: ${updated} updated, ${skipped} skipped`);
+  return { updated, skipped };
+}
+
+/**
+ * Resets to the default program (Full Body 3-Day).
+ * Clears workout logs and personal records, then reinstalls the default program.
+ */
+export async function resetToDefault(): Promise<void> {
+  console.log("Resetting to default program...");
+
+  // Delete all workout logs
+  const workouts = await workoutLogsApi.list();
+  for (const workout of workouts) {
+    await workoutLogsApi.delete(workout.id);
+  }
+  console.log(`Deleted ${workouts.length} workout logs`);
+
+  // Delete all personal records
+  const prs = await personalRecordsApi.list();
+  for (const pr of prs) {
+    await personalRecordsApi.delete(pr.id);
+  }
+  console.log(`Deleted ${prs.length} personal records`);
+
+  // Delete all programs (cascade deletes training days)
+  const programs = await programsApi.list();
+  for (const program of programs) {
+    await programsApi.delete(program.id);
+  }
+  console.log(`Deleted ${programs.length} programs`);
+
+  // Get existing exercises and build mapping
+  const existingExercises = await exercisesApi.list();
+  const idMapping = new Map<string, string>();
+
+  for (const ex of exercisesData.exercises) {
+    // First try to match by builtInId (reliable)
+    let existing = existingExercises.find(e => e.builtInId === ex.id);
+    // Fallback to name matching for legacy data
+    if (!existing) {
+      existing = existingExercises.find(e => e.name === ex.name);
+    }
+    if (existing) {
+      idMapping.set(ex.id, existing.id);
+    }
+  }
+  console.log(`Built ID mapping for ${idMapping.size} exercises`);
+
+  // Create default program with properly mapped exercise IDs
+  const program = programData.program;
+  const mappedTrainingDays = mapProgramExerciseIds(idMapping, programData.trainingDays);
+
+  await programsApi.create({
+    name: program.name,
+    description: program.description,
+    isActive: program.isActive,
+    trainingDays: mappedTrainingDays,
+  });
+  console.log("Installed default program:", program.name);
 }

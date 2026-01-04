@@ -139,11 +139,23 @@ export default function SettingsPage() {
 
   const handleReset = async () => {
     try {
-      // TODO: Implement via API
-      showToast("Reset feature coming soon", "success");
+      const response = await fetch("/api/seed", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "reset" }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || "Failed to reset");
+      }
+
+      showToast("Reset to default program successfully!", "success");
+      // Refresh the page to show new data
+      window.location.reload();
     } catch (error) {
       console.error("Failed to reset:", error);
-      showToast("Failed to reset", "error");
+      showToast(error instanceof Error ? error.message : "Failed to reset", "error");
     }
   };
 

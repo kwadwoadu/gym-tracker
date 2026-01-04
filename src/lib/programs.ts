@@ -110,6 +110,7 @@ async function buildExerciseIdMapping(): Promise<Map<string, string>> {
         muscleGroups: ex.muscleGroups,
         equipment: ex.equipment,
         videoUrl: null,
+        builtInId: ex.id, // Store the original preset ID for reliable mapping
       });
       idMapping.set(ex.id, created.id);
     }
@@ -117,9 +118,14 @@ async function buildExerciseIdMapping(): Promise<Map<string, string>> {
     return idMapping;
   }
 
-  // Build mapping from existing exercises by matching names
+  // Build mapping from existing exercises by builtInId (reliable) or name (fallback)
   for (const ex of exercisesData.exercises) {
-    const existing = existingExercises.find(e => e.name === ex.name);
+    // First try to match by builtInId (reliable)
+    let existing = existingExercises.find(e => e.builtInId === ex.id);
+    // Fallback to name matching for legacy data
+    if (!existing) {
+      existing = existingExercises.find(e => e.name === ex.name);
+    }
     if (existing) {
       idMapping.set(ex.id, existing.id);
     }

@@ -37,7 +37,7 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { name, muscleGroups, equipment, videoUrl } = body;
+    const { name, muscleGroups, equipment, videoUrl, builtInId } = body;
 
     if (!name || !equipment) {
       return NextResponse.json(
@@ -46,14 +46,19 @@ export async function POST(request: Request) {
       );
     }
 
+    // If builtInId is provided, this is a system exercise (from seeding)
+    // Otherwise it's a user's custom exercise
+    const isSystemExercise = !!builtInId;
+
     const exercise = await prisma.exercise.create({
       data: {
         name,
         muscleGroups: muscleGroups || [],
         equipment,
         videoUrl: videoUrl || null,
-        isCustom: true,
-        userId: user.id,
+        builtInId: builtInId || null,
+        isCustom: !isSystemExercise,
+        userId: isSystemExercise ? null : user.id,
       },
     });
 
