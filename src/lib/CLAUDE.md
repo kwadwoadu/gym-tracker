@@ -11,28 +11,40 @@
 
 ---
 
-## Database (IndexedDB via Dexie)
-- All data in `/lib/db.ts` (main database module)
-- Tables: exercises, workouts, sets, programs, achievements, settings
-- NEVER modify schema without incrementing db.version()
+## Database (Hybrid: Prisma + IndexedDB)
 
-## Query Patterns
+SetFlow uses a **hybrid data architecture**:
+- **Prisma/PostgreSQL**: Server-side persistence, cloud sync
+- **IndexedDB**: Client-side caching for offline-first experience
+
+### Key Database Files
+| File | Purpose |
+|------|---------|
+| `/lib/prisma.ts` | Prisma client instance |
+| `/lib/queries.ts` | Database queries (Prisma-based) |
+| `/prisma/schema.prisma` | Database schema definition |
+
+### Query Patterns
 ```typescript
-// CORRECT: Use Dexie methods
-const workouts = await db.workouts.where('date').above(lastWeek).toArray();
-const exercise = await db.exercises.get(exerciseId);
+// CORRECT: Use Prisma via queries module
+import { getWorkouts, getExercise } from '@/lib/queries';
+const workouts = await getWorkouts(userId);
+const exercise = await getExercise(exerciseId);
 
-// WRONG: Direct IndexedDB access
-const workouts = indexedDB.transaction('workouts')...;
+// WRONG: Direct Prisma in components
+import { prisma } from '@/lib/prisma';
+const workouts = await prisma.workout.findMany(); // Server only!
 ```
 
 ## Key Files
 | File | Purpose |
 |------|---------|
-| `/lib/db.ts` | IndexedDB schema + all database operations |
+| `/lib/prisma.ts` | Prisma client singleton |
+| `/lib/queries.ts` | Server-side database queries |
 | `/lib/audio.ts` | Web Audio API sounds (iOS-compatible) |
 | `/lib/gamification.ts` | Achievement unlocking logic |
-| `/lib/sync.ts` | Cross-device sync via URL/QR |
+| `/lib/api-client.ts` | API communication for sync |
+| `/lib/programs.ts` | Program management logic |
 | `/lib/utils.ts` | Volume calculations, 1RM estimates, helpers |
 
 ## Offline Requirements
@@ -67,10 +79,10 @@ await playSound('rest-complete');
 - Unlock via `/lib/gamification.ts`
 
 ## Sync System
-- Export data to URL (compressed JSON)
-- Import via QR code scan or URL paste
-- Optional Neon database for cloud sync
-- Device ID tracking for multi-device
+- Cloud sync via `/lib/api-client.ts` and `/app/api/sync/` routes
+- Clerk authentication for user identity
+- Neon PostgreSQL for cloud persistence
+- Device ID tracking for multi-device sync
 
 ## Common Mistakes to Avoid
 - NEVER forget to await IndexedDB operations

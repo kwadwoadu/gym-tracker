@@ -80,11 +80,11 @@ Patterns in `/docs/patterns/` document proven implementations:
 
 | Pattern | Key File |
 |---------|----------|
-| PWA Offline Sync | `/lib/sync.ts` |
+| PWA Offline Sync | `/lib/api-client.ts`, `/app/api/sync/` |
 | Audio Cue System | `/lib/audio.ts` |
-| Local-First Data Model | `/lib/db.ts` |
-| Workout Session Lifecycle | `/lib/db.ts` |
-| Progressive Overload | `/lib/db.ts` |
+| Local-First Data Model | `/lib/queries.ts`, `/prisma/schema.prisma` |
+| Workout Session Lifecycle | `/lib/workout-helpers.ts` |
+| Progressive Overload | `/lib/programs.ts` |
 
 ### When to Create New Patterns
 - Implementation was non-obvious

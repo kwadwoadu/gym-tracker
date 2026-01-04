@@ -146,7 +146,7 @@ Pattern files include: when to use, implementation, gotchas, testing.
 
 ## Agent Team
 
-SetFlow has a dedicated 13-agent team organized in 4 tiers. See `/agents/CLAUDE.md` for full routing and workflows.
+SetFlow has a dedicated 14-agent team organized in 4 tiers. See `/agents/CLAUDE.md` for full routing and workflows.
 
 ### Architecture
 ```
@@ -160,7 +160,7 @@ SetFlow has a dedicated 13-agent team organized in 4 tiers. See `/agents/CLAUDE.
      ▼                       ▼                       ▼
 ┌─────────────┐      ┌─────────────┐      ┌─────────────┐
 │  TECHNICAL  │      │   FITNESS   │      │   SUPPORT   │
-│  (5 agents) │      │  (6 agents) │      │  (1 agent)  │
+│  (6 agents) │      │  (6 agents) │      │  (1 agent)  │
 └─────────────┘      └─────────────┘      └─────────────┘
 ```
 
@@ -169,13 +169,14 @@ SetFlow has a dedicated 13-agent team organized in 4 tiers. See `/agents/CLAUDE.
 |-------|---------|
 | SetFlow Lead | Coordination, routing, decisions |
 
-### Tier 1: Technical (5 agents)
+### Tier 1: Technical (6 agents)
 | Agent | Purpose |
 |-------|---------|
 | Software Engineer | Full-stack Next.js 15 implementation |
 | Frontend Specialist | React 19, shadcn/ui, dark theme |
 | PWA Specialist | Offline-first, iOS quirks, service workers |
-| Database Specialist | Dexie.js, IndexedDB, sync logic |
+| Database Specialist | Prisma, PostgreSQL, data layer |
+| Sync Specialist | Cross-device sync, Clerk auth, cloud sync |
 | Debugger | Bug investigation, root cause analysis |
 
 ### Tier 2: Fitness Domain (6 agents)
