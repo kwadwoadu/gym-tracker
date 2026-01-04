@@ -8,27 +8,105 @@ import {
 import exercisesData from "@/data/exercises.json";
 import programData from "@/data/program.json";
 
+// Type definitions for program data
+interface WarmupExercise {
+  exerciseId: string;
+  reps?: number;
+}
+
+interface SupersetExercise {
+  exerciseId: string;
+  sets: number;
+  reps: string;
+  tempo?: string;
+  restSeconds?: number;
+}
+
+interface Superset {
+  id: string;
+  label: string;
+  exercises: SupersetExercise[];
+}
+
+interface FinisherExercise {
+  exerciseId: string;
+  duration?: number;
+  reps?: number;
+  notes?: string;
+}
+
+/**
+ * Seeds exercises and returns the ID mapping from old IDs to new Prisma CUIDs.
+ */
+async function seedExercisesWithMapping(): Promise<Map<string, string>> {
+  const idMapping = new Map<string, string>();
+
+  console.log("Seeding exercises with ID mapping...");
+  for (const ex of exercisesData.exercises) {
+    const created = await exercisesApi.create({
+      name: ex.name,
+      muscleGroups: ex.muscleGroups,
+      equipment: ex.equipment,
+      videoUrl: null,
+    });
+    // Map old ID (e.g., "ex-bw-squats") to new Prisma CUID
+    idMapping.set(ex.id, created.id);
+  }
+  console.log(`Seeded ${exercisesData.exercises.length} exercises with ID mapping`);
+
+  return idMapping;
+}
+
+/**
+ * Maps exercise IDs in program data from old string IDs to new Prisma CUIDs.
+ */
+function mapProgramExerciseIds(
+  idMapping: Map<string, string>,
+  trainingDays: typeof programData.trainingDays
+) {
+  return trainingDays.map((day) => ({
+    name: day.name,
+    dayNumber: day.dayNumber,
+    warmup: (day.warmup || []).map((w: WarmupExercise) => ({
+      ...w,
+      exerciseId: idMapping.get(w.exerciseId) || w.exerciseId,
+    })),
+    supersets: (day.supersets || []).map((ss: Superset) => ({
+      ...ss,
+      exercises: ss.exercises.map((ex: SupersetExercise) => ({
+        ...ex,
+        exerciseId: idMapping.get(ex.exerciseId) || ex.exerciseId,
+      })),
+    })),
+    finisher: (day.finisher || []).map((f: FinisherExercise) => ({
+      ...f,
+      exerciseId: idMapping.get(f.exerciseId) || f.exerciseId,
+    })),
+  }));
+}
+
 /**
  * Seeds only exercises and user settings (not the program).
  * Used when user selects their own program during onboarding.
+ * Returns the ID mapping for use with program seeding.
  */
-export async function seedExercisesOnly(): Promise<void> {
+export async function seedExercisesOnly(): Promise<Map<string, string>> {
   // Check if exercises already seeded
   const existingExercises = await exercisesApi.list();
   if (existingExercises.length > 0) {
-    console.log("Exercises already seeded");
-  } else {
-    console.log("Seeding exercises...");
+    console.log("Exercises already seeded, building mapping from existing...");
+    // Build mapping from existing exercises by matching names
+    const idMapping = new Map<string, string>();
     for (const ex of exercisesData.exercises) {
-      await exercisesApi.create({
-        name: ex.name,
-        muscleGroups: ex.muscleGroups,
-        equipment: ex.equipment,
-        videoUrl: null,
-      });
+      const existing = existingExercises.find(e => e.name === ex.name);
+      if (existing) {
+        idMapping.set(ex.id, existing.id);
+      }
     }
-    console.log(`Seeded ${exercisesData.exercises.length} exercises`);
+    return idMapping;
   }
+
+  const idMapping = await seedExercisesWithMapping();
 
   // Seed default user settings if not exists
   try {
@@ -38,51 +116,103 @@ export async function seedExercisesOnly(): Promise<void> {
     // Settings don't exist, they'll be created on first access
     console.log("User settings will be created on first access");
   }
+
+  return idMapping;
 }
 
 /**
- * Seeds the full database including the default program.
+ * Seeds the full database including the default program with proper ID mapping.
  * Used for legacy compatibility - new users go through onboarding.
  */
 export async function seedDatabase(): Promise<void> {
   // Check if already seeded
   const existingExercises = await exercisesApi.list();
+  const existingPrograms = await programsApi.list();
+
+  let idMapping: Map<string, string>;
+
   if (existingExercises.length > 0) {
-    console.log("Database already seeded");
-    return;
+    console.log("Exercises already seeded, building mapping from existing...");
+    // Build mapping from existing exercises by matching names
+    idMapping = new Map<string, string>();
+    for (const ex of exercisesData.exercises) {
+      const existing = existingExercises.find(e => e.name === ex.name);
+      if (existing) {
+        idMapping.set(ex.id, existing.id);
+      }
+    }
+  } else {
+    // Seed exercises with mapping
+    idMapping = await seedExercisesWithMapping();
   }
 
-  console.log("Seeding database...");
-
-  // Seed exercises
-  for (const ex of exercisesData.exercises) {
-    await exercisesApi.create({
-      name: ex.name,
-      muscleGroups: ex.muscleGroups,
-      equipment: ex.equipment,
-      videoUrl: null,
-    });
+  // Delete existing programs and recreate with correct IDs
+  if (existingPrograms.length > 0) {
+    console.log("Deleting existing programs to recreate with correct IDs...");
+    for (const prog of existingPrograms) {
+      await programsApi.delete(prog.id);
+    }
   }
-  console.log(`Seeded ${exercisesData.exercises.length} exercises`);
 
-  // Seed program with training days
+  // Seed program with properly mapped exercise IDs
   const program = programData.program;
+  const mappedTrainingDays = mapProgramExerciseIds(idMapping, programData.trainingDays);
+
   await programsApi.create({
     name: program.name,
     description: program.description,
     isActive: program.isActive,
-    trainingDays: programData.trainingDays.map((day) => ({
-      name: day.name,
-      dayNumber: day.dayNumber,
-      warmup: day.warmup || [],
-      supersets: day.supersets || [],
-      finisher: day.finisher || [],
-    })),
+    trainingDays: mappedTrainingDays,
   });
   console.log("Seeded program:", program.name);
-  console.log(`Seeded ${programData.trainingDays.length} training days`);
+  console.log(`Seeded ${programData.trainingDays.length} training days with mapped exercise IDs`);
 
   console.log("Database seeding complete!");
+}
+
+/**
+ * Re-seeds the program with correct ID mappings.
+ * Use this to fix existing users who have the old string IDs in their program.
+ */
+export async function fixProgramExerciseIds(): Promise<void> {
+  console.log("Fixing program exercise IDs...");
+
+  // Get existing exercises and build mapping
+  const existingExercises = await exercisesApi.list();
+  if (existingExercises.length === 0) {
+    console.log("No exercises found, seeding first...");
+    await seedDatabase();
+    return;
+  }
+
+  // Build mapping from existing exercises by matching names
+  const idMapping = new Map<string, string>();
+  for (const ex of exercisesData.exercises) {
+    const existing = existingExercises.find(e => e.name === ex.name);
+    if (existing) {
+      idMapping.set(ex.id, existing.id);
+    }
+  }
+  console.log(`Built ID mapping for ${idMapping.size} exercises`);
+
+  // Delete existing programs (cascade deletes training days)
+  const existingPrograms = await programsApi.list();
+  for (const prog of existingPrograms) {
+    await programsApi.delete(prog.id);
+  }
+  console.log("Deleted existing programs");
+
+  // Create new program with properly mapped exercise IDs
+  const program = programData.program;
+  const mappedTrainingDays = mapProgramExerciseIds(idMapping, programData.trainingDays);
+
+  await programsApi.create({
+    name: program.name,
+    description: program.description,
+    isActive: program.isActive,
+    trainingDays: mappedTrainingDays,
+  });
+  console.log("Created program with correct exercise ID mappings");
 }
 
 export async function clearDatabase(): Promise<void> {
