@@ -4,6 +4,39 @@ All notable changes to the SetFlow project.
 
 ---
 
+## [2026-01-04] CLAUDE.md System Upgrade
+
+### Added
+- **5 new CLAUDE.md files** for previously undocumented folders:
+  - `/src/components/CLAUDE.md` - Component architecture, shadcn/ui rules
+  - `/src/data/CLAUDE.md` - Static data governance (exercises, programs)
+  - `/prisma/CLAUDE.md` - Schema safety, migration workflow
+  - `/public/CLAUDE.md` - PWA assets, sounds, manifest
+  - `/docs/patterns/CLAUDE.md` - Pattern catalog and creation workflow
+- **claude-md-setup skill** - Reusable workflow for setting up CLAUDE.md systems
+
+### Upgraded
+- **7 existing CLAUDE.md files** with Signkit-inspired patterns:
+  - Agent Ownership sections
+  - Cross-References tables
+  - Anti-patterns documentation
+  - Environment Safety Rules
+  - Proactive Behavior Triggers
+
+### Fixed
+- Agent count discrepancy: 13 -> 14 (added Sync Specialist)
+- Outdated file references (db.ts -> prisma.ts/queries.ts)
+- Pattern System table with actual file paths
+
+### Patterns Extracted
+- `claude-md-setup` skill for future CLAUDE.md system work
+
+### Files Changed
+- 12 CLAUDE.md files created/upgraded
+- 1 new skill: `/skills/claude-md-setup.md`
+
+---
+
 ## [2026-01-04] Post-Migration Fix: builtInId for Exercise Mapping
 
 ### Added

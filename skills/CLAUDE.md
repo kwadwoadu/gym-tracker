@@ -9,6 +9,7 @@ Reusable workflows for SetFlow - the gym workout tracking PWA. Skills standardiz
 | Skill | Purpose | Key Agents |
 |-------|---------|------------|
 | **agent-creation** | Create new agents for SetFlow | SetFlow Lead, PRD Specialist |
+| **claude-md-setup** | Set up/upgrade CLAUDE.md system | SetFlow Lead, PRD Specialist |
 | **exercise-creation** | Add new exercises to the library | Movement, Periodization, Database |
 | **program-creation** | Build training programs | Periodization, Movement, Injury |
 | **progression-logic** | Define overload rules | Periodization, Progress Analyst |
@@ -184,4 +185,4 @@ Create a new skill when:
 
 ---
 
-*SetFlow Skills | 4 Skills | Updated: January 4, 2026*
+*SetFlow Skills | 5 Skills | Updated: January 4, 2026*
