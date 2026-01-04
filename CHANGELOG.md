@@ -4,6 +4,37 @@ All notable changes to the SetFlow project.
 
 ---
 
+## [2026-01-04] SetFlow v2 - Critical Fixes
+
+### Fixed
+- Issue 1: Reset function 500 error - Replaced sequential loops with batch Prisma transactions
+- Issue 6: Manifest.json 401 error - Updated middleware matcher to exclude manifest.json
+
+### Added
+- Issue 3: Cross-device workout resume - ActiveSession Prisma model + /api/session CRUD
+- Issue 4: Skip buttons for sets, warmup, and finisher exercises
+- Issue 2: YouTube search URLs for all 92 exercises
+
+### Improved
+- Issue 5: Weight memory visibility - Already functional via ChallengeCard progressive overload prompts
+
+### Technical Details
+- New Prisma model: `ActiveSession` for cloud session persistence
+- New API routes: `/api/reset` (batch reset), `/api/session` (session CRUD)
+- Middleware updated to exclude `manifest.json` from auth
+- All 92 exercises now have `videoUrl` field with YouTube search links
+
+### Files Changed
+- `prisma/schema.prisma` - Added ActiveSession model
+- `src/app/api/reset/route.ts` (new) - Batch reset endpoint
+- `src/app/api/session/route.ts` (new) - Session CRUD
+- `src/middleware.ts` - Exclude manifest.json
+- `src/components/workout/set-logger.tsx` - Skip button
+- `src/app/workout/[dayId]/page.tsx` - Skip logic, session sync
+- `src/data/exercises.json` - Added videoUrl to all 92 exercises
+
+---
+
 ## [2026-01-04] CLAUDE.md System Upgrade
 
 ### Added
