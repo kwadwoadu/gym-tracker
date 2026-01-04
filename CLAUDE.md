@@ -139,6 +139,7 @@ Patterns live in `/docs/patterns/`. Before implementing:
 | [Local-First Data Model](/docs/patterns/local-first-data.md) | Dexie.js schema design |
 | [Workout Session Lifecycle](/docs/patterns/workout-session-lifecycle.md) | Session start/end/save |
 | [Progressive Overload](/docs/patterns/progressive-overload.md) | Weight suggestion logic |
+| [Video URL Curation](/docs/patterns/video-url-curation.md) | YouTube tutorial video sourcing |
 
 Pattern files include: when to use, implementation, gotchas, testing.
 
