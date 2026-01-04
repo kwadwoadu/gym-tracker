@@ -1,5 +1,16 @@
 # Backend Rules - SetFlow (Gym-Tracker)
 
+> IndexedDB patterns, audio system, and utility functions
+
+## Agent Ownership
+
+| Role | Agent |
+|------|-------|
+| **Primary** | Database Specialist |
+| **Collaborators** | Sync Specialist, Audio Engineer, Software Engineer |
+
+---
+
 ## Database (IndexedDB via Dexie)
 - All data in `/lib/db.ts` (main database module)
 - Tables: exercises, workouts, sets, programs, achievements, settings
@@ -67,3 +78,52 @@ await playSound('rest-complete');
 - NEVER play audio without user gesture (iOS will fail)
 - NEVER modify db schema without version bump
 - NEVER use synchronous localStorage for large data
+
+---
+
+## Data Protection Rules
+
+### Workout Data is Sacred
+- Never auto-delete workout logs
+- Never modify historical data without consent
+- Always preserve user workout history
+
+### Schema Migrations
+1. Always increment `db.version()` for changes
+2. Test migration locally first
+3. Handle missing fields gracefully
+4. Never drop tables without explicit confirmation
+
+### Backup Strategy
+- Export function in `/lib/export.ts`
+- JSON format for portability
+- User-initiated backups
+
+---
+
+## Environment Rules
+
+### Development
+- Use browser IndexedDB directly
+- Console.log for debugging
+- No network required
+
+### Production
+- Same IndexedDB behavior
+- Error logging to console
+- Optional cloud sync (Neon)
+
+---
+
+## Cross-References
+
+| Resource | Location |
+|----------|----------|
+| Static data | `/src/data/CLAUDE.md` |
+| Audio pattern | `/docs/patterns/audio-cue-system.md` |
+| Sync pattern | `/docs/patterns/pwa-offline-sync.md` |
+| Components | `/src/components/CLAUDE.md` |
+
+---
+
+*Backend Rules | Updated: January 4, 2026*

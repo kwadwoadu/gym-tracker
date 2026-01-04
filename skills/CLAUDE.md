@@ -74,4 +74,114 @@ SetFlow can leverage core AduOS skills for common operations:
 
 ---
 
-*SetFlow Skills | 4 Skills | Created: January 1, 2026*
+## Skill Invocation Examples
+
+### Exercise Creation
+
+**Trigger**: "Add Romanian Deadlift to the exercise library"
+
+**Invocation**:
+```
+Using exercise-creation skill:
+
+Input:
+- Exercise name: Romanian Deadlift
+- Equipment: barbell
+- Primary muscles: hamstrings, glutes, erector_spinae
+
+Steps:
+1. Movement Specialist validates muscle groups and defines form cues
+2. Periodization Specialist suggests default tempo (T:40A1), sets (3), reps (8-10)
+3. Injury Specialist flags contraindications (l5_s1, hamstring injury)
+4. Database Specialist adds to exercises.json
+5. Frontend Specialist verifies card renders correctly
+
+Output:
+- Exercise added to /src/data/exercises.json
+- Exercise card visible in /exercises page
+```
+
+### Program Creation
+
+**Trigger**: "Create a 4-week snowboard prep program"
+
+**Invocation**:
+```
+Using program-creation skill:
+
+Input:
+- Program name: Snowboard Prep
+- Duration: 4 weeks
+- Focus: lower body power, core stability, balance
+
+Steps:
+1. Action Sports Coach designs sport-specific requirements
+2. Periodization Specialist structures 4-week mesocycle
+3. Movement Specialist adds mobility exercises
+4. Database Specialist creates /src/data/programs/snowboard-prep.json
+5. Frontend Specialist adds to program selector
+
+Output:
+- Program file created
+- Program appears in selection UI
+```
+
+---
+
+## Creating New Skills
+
+### When to Create a Skill
+
+Create a new skill when:
+- Same workflow repeats 3+ times
+- Involves 3+ agents coordinating
+- Has clear input/output structure
+- Benefits from standardization
+
+### Skill File Template
+
+```markdown
+# [Skill Name]
+
+## Purpose
+[What this skill accomplishes]
+
+## When to Use
+- [Trigger condition 1]
+- [Trigger condition 2]
+
+## Inputs
+| Input | Required | Description |
+|-------|----------|-------------|
+| name | Yes | ... |
+| option | No | ... |
+
+## Steps
+1. **Agent 1** does X
+2. **Agent 2** does Y
+3. **Agent 3** does Z
+
+## Outputs
+- [Deliverable 1]
+- [Deliverable 2]
+
+## Success Criteria
+- [ ] Criterion 1
+- [ ] Criterion 2
+
+## Examples
+[Concrete example of skill in action]
+```
+
+---
+
+## Agent Ownership
+
+| Role | Agent |
+|------|-------|
+| **Primary** | SetFlow Lead (coordinates skill execution) |
+| **Collaborators** | All agents (participate as needed) |
+
+---
+
+*SetFlow Skills | 4 Skills | Updated: January 4, 2026*

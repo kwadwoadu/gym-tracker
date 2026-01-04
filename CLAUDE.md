@@ -231,4 +231,100 @@ Users can add/remove training days and customize the program to their needs.
 - Program data: `/src/data/program.json`
 
 ---
+
+## Environment Safety Rules
+
+### Data Protection
+- **Workout logs are sacred** - Never auto-delete workout data
+- **PRs are permanent** - Never recalculate without user consent
+- **IndexedDB versioning** - Always increment version for schema changes
+- **Confirm before destructive** - Get explicit approval for data deletion
+
+### PWA Testing Protocol
+Before any deploy, verify:
+- [ ] App works completely offline (airplane mode test)
+- [ ] Audio plays on iOS Safari (first interaction trigger)
+- [ ] Data persists after app close and reopen
+- [ ] Session survives power loss (6-hour expiry)
+- [ ] Add to home screen works on iOS and Android
+
+### Development Environment
+- **Local**: IndexedDB in browser, no network needed
+- **Production**: Vercel + optional Neon PostgreSQL for sync
+- **Never** push schema changes without local testing
+
+---
+
+## Proactive Behavior Triggers
+
+| Event | Agent(s) to Invoke | Action |
+|-------|-------------------|--------|
+| New exercise added | Movement Specialist -> Database Specialist | Validate muscle groups, add to exercises.json |
+| PWA bug reported | PWA Specialist -> Debugger | Check iOS quirks first |
+| Audio not playing | Audio Engineer -> PWA Specialist | Verify Web Audio context |
+| Sync failing | Sync Specialist -> Database Specialist | Check auth, network, data format |
+| Performance issue | Frontend Specialist -> Software Engineer | Profile animations, check 60fps |
+| New program needed | Periodization Specialist -> Action Sports Coach | Design appropriate periodization |
+| User hit plateau | Progress Analyst -> Periodization Specialist | Analyze data, recommend changes |
+| Injury reported | Injury & Rehab Specialist -> Movement Specialist | Provide modifications |
+
+---
+
+## Collaboration Contract
+
+### Before Any Task
+1. **Restate understanding** - Confirm what needs to be built
+2. **Check offline compatibility** - Will this work without network?
+3. **Verify iOS PWA compatibility** - Any iOS-specific quirks?
+4. **Check existing patterns** - Is there a pattern in `/docs/patterns/`?
+5. **Review touch targets** - Are all targets 44px+ minimum?
+
+### After Task Completion
+1. **Brief summary** - What was done
+2. **Test offline** - Verify works without network
+3. **Update CHANGELOG.md** - Document significant changes
+4. **List files modified** - For tracking
+5. **Note follow-up actions** - What else might be needed
+
+### Commit Attribution
+All commits: `Kwadwo Adu <kwadwo.adu@signkit.io>` (no Claude Code attribution)
+
+---
+
+## Documentation Map
+
+| Document | Location | Purpose |
+|----------|----------|---------|
+| **Project Brain** | `/CLAUDE.md` | This file - overview and rules |
+| **Agents** | `/agents/CLAUDE.md` | 14-agent team, routing, workflows |
+| **Components** | `/src/components/CLAUDE.md` | UI component architecture |
+| **App Routes** | `/src/app/CLAUDE.md` | Next.js routing conventions |
+| **Database** | `/src/lib/CLAUDE.md` | IndexedDB and Dexie patterns |
+| **Static Data** | `/src/data/CLAUDE.md` | Exercises, programs, achievements |
+| **Prisma** | `/prisma/CLAUDE.md` | Schema safety and migrations |
+| **Public Assets** | `/public/CLAUDE.md` | PWA icons, sounds, manifest |
+| **Patterns** | `/docs/patterns/CLAUDE.md` | Reusable implementation patterns |
+| **Docs** | `/docs/CLAUDE.md` | PRDs and documentation rules |
+| **Roadmap** | `/roadmap/CLAUDE.md` | Feature planning |
+| **Skills** | `/skills/CLAUDE.md` | Reusable workflows |
+| **Inspiration** | `/inspiration/CLAUDE.md` | Design reference |
+
+---
+
+## AduOS Integration
+
+### Health Domain Connection
+SetFlow is part of the Health domain in AduOS:
+- Training data feeds into Wellness Director planning
+- Whoop recovery data can inform workout intensity
+- Goals tracked in `/domains/health/goals.md`
+
+### Daily Rhythm
+- Morning briefing may include workout recommendation
+- Evening reflection may include workout summary
+- Weekly review includes training volume analysis
+
+---
+
 *Created: 2025-12-27*
+*Updated: 2026-01-04*

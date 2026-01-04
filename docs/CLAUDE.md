@@ -1,5 +1,16 @@
 # Documentation Rules - SetFlow (Gym-Tracker)
 
+> Governance for PRDs, patterns, and documentation standards
+
+## Agent Ownership
+
+| Role | Agent |
+|------|-------|
+| **Primary** | PRD Specialist |
+| **Collaborators** | Software Engineer (patterns), SetFlow Lead (decisions) |
+
+---
+
 ## PRD Requirements
 Every feature needs a PRD in /docs/prds/ with:
 - Problem statement
@@ -91,3 +102,71 @@ Patterns in `/docs/patterns/` document proven implementations:
 ## Gotchas
 ## Testing
 ```
+
+---
+
+## Pattern Enforcement
+
+### Before Implementation
+1. Check `/docs/patterns/CLAUDE.md` for catalog
+2. Read relevant pattern file fully
+3. Follow "Correct Approach" exactly
+4. Note any "Gotchas" that apply
+
+### During Code Review
+1. Verify patterns are followed
+2. Flag deviations for discussion
+3. Update pattern if improvement found
+
+### After Bug Fix
+1. Check if bug reveals pattern gap
+2. Update or create pattern
+3. Add rule to relevant CLAUDE.md
+
+---
+
+## Learning System
+
+### Codify Knowledge After
+- Debugging session > 30 minutes
+- iOS-specific workaround discovered
+- Third-party API integration
+- Performance optimization
+- User-reported issue resolved
+
+### Where to Document
+
+| Learning Type | Location |
+|---------------|----------|
+| Code pattern | `/docs/patterns/[name].md` |
+| Anti-pattern | Relevant CLAUDE.md "Mistakes to Avoid" |
+| Agent behavior | Agent file + `/agents/CLAUDE.md` |
+| PRD insight | Update PRD with "Lessons Learned" |
+
+---
+
+## PRD Quality Standards
+
+Every PRD must have:
+- [ ] Clear problem statement
+- [ ] Defined success metrics
+- [ ] Technical implementation approach
+- [ ] Implementation checklist with [ ] items
+- [ ] Launch criteria (what must be true)
+- [ ] Offline compatibility verified
+- [ ] iOS PWA considerations
+
+---
+
+## Cross-References
+
+| Resource | Location |
+|----------|----------|
+| Pattern catalog | `/docs/patterns/CLAUDE.md` |
+| PRD files | `/docs/prds/` |
+| Architecture | `/docs/architecture.md` |
+| Roadmap | `/roadmap/CLAUDE.md` |
+
+---
+
+*Documentation Rules | Updated: January 4, 2026*

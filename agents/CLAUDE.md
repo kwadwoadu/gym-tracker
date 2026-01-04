@@ -76,6 +76,66 @@ SetFlow leverages AduOS core agents for expertise outside project scope:
 
 ---
 
+## Manager Tier Concept
+
+SetFlow Lead acts as a **coordinator** for complex tasks, not a bottleneck. Most tasks route directly to specialists.
+
+### When to Use SetFlow Lead (Coordinator)
+- Task touches **3+ agents**
+- Requires **architectural decision**
+- Involves **cross-domain** work (technical + fitness)
+- Needs **prioritization** between competing needs
+- Has **unclear requirements** needing clarification
+
+### When to Route Directly to Specialist
+- Task is clearly **single-domain**
+- Requirements are **well-defined**
+- Work is **contained** to known files
+- Previous similar work exists as **pattern**
+
+---
+
+## Complexity Routing Decision Tree
+
+```
+Task arrives
+    │
+    ▼
+Is the task clearly defined?
+    │
+    ├── NO ──→ PRD Specialist (clarify requirements)
+    │               │
+    │               ▼
+    │          Return with clear requirements
+    │
+    ▼ YES
+How many domains does it touch?
+    │
+    ├── 1 Domain ──→ Route to specialist directly
+    │                    │
+    │                    ├── Technical? → See routing table
+    │                    └── Fitness?   → See routing table
+    │
+    ├── 2 Domains ──→ Primary specialist leads, collaborator assists
+    │
+    └── 3+ Domains ──→ SetFlow Lead coordinates
+                           │
+                           ▼
+                      Multi-agent workflow
+```
+
+### Complexity Indicators
+
+| Factor | Simple (Direct) | Complex (Coordinate) |
+|--------|-----------------|---------------------|
+| Domains touched | 1 | 2+ |
+| Files affected | <5 | 5+ |
+| Agents needed | 1-2 | 3+ |
+| Has existing pattern | Yes | No |
+| Cross-tech/fitness | No | Yes |
+
+---
+
 ## Task Routing Rules
 
 ### By Task Type
@@ -350,4 +410,38 @@ Database Specialist -> Apply filters to exercise list
 
 ---
 
-*SetFlow Agent Team | 14 Agents | Updated: January 3, 2026*
+## Claude Code Processing Expectations
+
+How Claude Code should load and process agent context:
+
+| Task Type | Agents to Load | Context Priority |
+|-----------|---------------|------------------|
+| UI component work | Frontend Specialist, Audio Engineer | Components CLAUDE.md first |
+| Database operations | Database Specialist, Sync Specialist | lib/CLAUDE.md first |
+| Bug investigation | Debugger + relevant domain agent | patterns/ first |
+| New feature | PRD Specialist -> relevant specialists | Check PRDs first |
+| PWA issues | PWA Specialist, Audio Engineer | public/CLAUDE.md first |
+| Program design | Periodization + Movement Specialists | data/CLAUDE.md first |
+| Performance issue | Frontend Specialist, Software Engineer | Profiling patterns |
+
+### Context Loading Order
+1. Read `/CLAUDE.md` (project overview)
+2. Read `/agents/CLAUDE.md` (this file - routing)
+3. Read domain-specific CLAUDE.md based on task
+4. Load relevant pattern files
+5. Check existing PRDs if feature work
+
+### Agent Invocation Format
+When invoking an agent mindset:
+
+```
+Acting as [Agent Name]:
+- Primary responsibility: [from roster]
+- Key files: [from key files reference]
+- Quality standards: [from quality standards section]
+- Collaborators: [from collaboration matrix]
+```
+
+---
+
+*SetFlow Agent Team | 14 Agents | Updated: January 4, 2026*

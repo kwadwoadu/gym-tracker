@@ -1,5 +1,16 @@
 # App Layer Rules - SetFlow (Gym-Tracker)
 
+> Next.js App Router conventions, routing, and page component patterns
+
+## Agent Ownership
+
+| Role | Agent |
+|------|-------|
+| **Primary** | Software Engineer |
+| **Collaborators** | Frontend Specialist, PWA Specialist |
+
+---
+
 ## Route Structure
 - `/` - Home (training day selector + workout start)
 - `/workout` - Active workout session
@@ -54,3 +65,61 @@
 - NEVER block UI during IndexedDB operations
 - NEVER forget to update Dexie version for schema changes
 - NEVER make touch targets smaller than 44px
+
+---
+
+## Route Group Conventions
+
+### Authentication Routes
+- Sign-in and sign-up pages
+- Clerk-managed authentication
+- Redirect to home after auth
+
+### Main App Routes
+- Protected by middleware
+- Requires authenticated user
+- All offline-first
+
+### API Routes `api/`
+- Server-side functionality
+- Sync endpoints
+- Data export/import
+
+---
+
+## API Route Standards
+
+```typescript
+// Standard API route structure
+export async function POST(request: Request) {
+  try {
+    const { userId } = auth();
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const body = await request.json();
+    // Process request
+
+    return NextResponse.json({ success: true, data });
+  } catch (error) {
+    console.error('API error:', error);
+    return NextResponse.json({ error: 'Internal error' }, { status: 500 });
+  }
+}
+```
+
+---
+
+## Cross-References
+
+| Resource | Location |
+|----------|----------|
+| Components | `/src/components/CLAUDE.md` |
+| Database | `/src/lib/CLAUDE.md` |
+| Design system | `/CLAUDE.md` |
+| PWA rules | `/public/CLAUDE.md` |
+
+---
+
+*App Layer Rules | Updated: January 4, 2026*

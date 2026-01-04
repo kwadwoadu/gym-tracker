@@ -56,4 +56,68 @@ Each major feature should have a PRD:
 
 ---
 
-*SetFlow Roadmap System*
+## Sprint Planning
+
+### Current Sprint Format
+```markdown
+## Sprint: [Name] (YYYY-MM-DD to YYYY-MM-DD)
+
+### Goals
+1. [Primary goal]
+2. [Secondary goal]
+
+### In Progress
+- [ ] [P0] Feature A - @agent - 50%
+- [ ] [P1] Feature B - @agent - blocked
+
+### Completed This Sprint
+- [x] Feature C - shipped YYYY-MM-DD
+
+### Blocked
+- Feature B: Waiting on [dependency]
+
+### Notes
+- [Observations, learnings]
+```
+
+### Sprint Length
+- Default: 2 weeks
+- Shorter sprints for urgent fixes
+- Longer sprints for major features
+
+---
+
+## Version Milestone Format
+
+```markdown
+## v1.0.0 - [Codename] (Target: YYYY-MM-DD)
+
+### Must Have (P0)
+- [ ] Core feature 1
+- [ ] Core feature 2
+
+### Should Have (P1)
+- [ ] Enhancement 1
+- [ ] Enhancement 2
+
+### Nice to Have (P2)
+- [ ] Polish item 1
+
+### Release Criteria
+- [ ] All P0 features complete
+- [ ] Offline mode tested
+- [ ] iOS PWA verified
+```
+
+---
+
+## Agent Ownership
+
+| Role | Agent |
+|------|-------|
+| **Primary** | SetFlow Lead (prioritization) |
+| **Collaborators** | PRD Specialist (requirements), Software Engineer (estimates) |
+
+---
+
+*SetFlow Roadmap System | Updated: January 4, 2026*
