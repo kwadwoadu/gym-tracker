@@ -4,6 +4,30 @@ All notable changes to the SetFlow project.
 
 ---
 
+## [2026-01-05] SetFlow v2.3 - Data Protection Verification
+
+### Verified Data Protection Features
+All data protection mechanisms confirmed working:
+
+- **Backup System**: `Backup` model in Prisma schema + `/src/lib/backup.ts` with create, list, restore, cleanup functions
+- **Reset Endpoint**: Creates automatic backup before any destructive operation, returns `backupId` for recovery
+- **Seed Endpoint**: Requires explicit `action` parameter (no accidental data loss), creates backups for dangerous actions
+- **Export/Import UI**: Fully wired in Settings page with loading states and success/error toasts
+- **Reset Confirmation**: Multi-step dialog with "Export First" option before destructive reset
+
+### Fixed
+- **TypeScript Type Mismatch**: `workoutLogId` now correctly marked as required (not optional) in `personalRecordsApi.create()`
+
+### Already Implemented (Confirmed)
+- Weekly progress shows `X/{programDayCount}` instead of hardcoded `X/7`
+- PR creation flow correctly passes `workoutLogId` through the call chain
+- Stats API returns `programDayCount` from active program
+
+### Files Changed
+- `src/lib/api-client.ts` - Fixed `workoutLogId` type from optional to required
+
+---
+
 ## [2026-01-04] SetFlow v2.2.2 - Complete Video URL Curation
 
 ### Fixed
