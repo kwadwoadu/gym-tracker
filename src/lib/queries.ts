@@ -11,12 +11,17 @@ import {
   settingsApi,
   onboardingApi,
   statsApi,
+  nutritionLogApi,
+  mealPlanApi,
+  nutritionStatsApi,
   type Exercise,
   type Program,
   type TrainingDay,
   type WorkoutLog,
   type UserSettings,
   type OnboardingProfile,
+  type NutritionLog,
+  type MealPlan,
 } from "./api-client";
 
 // ============================================================
@@ -38,6 +43,10 @@ export const queryKeys = {
   settings: ["settings"] as const,
   onboarding: ["onboarding"] as const,
   stats: (period?: string) => ["stats", period] as const,
+  // Nutrition
+  nutritionLog: (date?: string) => ["nutrition-log", date] as const,
+  mealPlan: (date?: string) => ["meal-plan", date] as const,
+  nutritionStats: (weeks?: number) => ["nutrition-stats", weeks] as const,
 };
 
 // ============================================================
@@ -388,5 +397,92 @@ export function useStats(period?: "week" | "month" | "year" | "all") {
   return useQuery({
     queryKey: queryKeys.stats(period),
     queryFn: () => statsApi.get(period),
+  });
+}
+
+// ============================================================
+// Nutrition (Feature-gated to k@adu.dk)
+// ============================================================
+
+export function useNutritionLog(date?: string) {
+  return useQuery({
+    queryKey: queryKeys.nutritionLog(date),
+    queryFn: () => nutritionLogApi.get(date),
+  });
+}
+
+export function useUpdateNutritionLog() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: nutritionLogApi.update,
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.nutritionLog(data.date) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.nutritionStats() });
+    },
+    // Optimistic update for instant feedback
+    onMutate: async (newData) => {
+      await queryClient.cancelQueries({ queryKey: queryKeys.nutritionLog(newData.date) });
+      const previous = queryClient.getQueryData<NutritionLog>(queryKeys.nutritionLog(newData.date));
+      queryClient.setQueryData(queryKeys.nutritionLog(newData.date), (old: NutritionLog | undefined) => ({
+        ...old,
+        ...newData,
+      }));
+      return { previous, date: newData.date };
+    },
+    onError: (_, __, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData(queryKeys.nutritionLog(context.date), context.previous);
+      }
+    },
+  });
+}
+
+export function useMealPlan(date?: string) {
+  return useQuery({
+    queryKey: queryKeys.mealPlan(date),
+    queryFn: () => mealPlanApi.get(date),
+  });
+}
+
+export function useUpdateMealPlan() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: mealPlanApi.update,
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.mealPlan(data.date) });
+    },
+    // Optimistic update for instant drag-drop feedback
+    onMutate: async (newData) => {
+      await queryClient.cancelQueries({ queryKey: queryKeys.mealPlan(newData.date) });
+      const previous = queryClient.getQueryData<MealPlan>(queryKeys.mealPlan(newData.date));
+      queryClient.setQueryData(queryKeys.mealPlan(newData.date), (old: MealPlan | undefined) => ({
+        ...old,
+        ...newData,
+      }));
+      return { previous, date: newData.date };
+    },
+    onError: (_, __, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData(queryKeys.mealPlan(context.date), context.previous);
+      }
+    },
+  });
+}
+
+export function useCopyMealPlan() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ sourceDate, targetDate }: { sourceDate: string; targetDate: string }) =>
+      mealPlanApi.copyFromDate(sourceDate, targetDate),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.mealPlan(data.date) });
+    },
+  });
+}
+
+export function useNutritionStats(weeks?: number) {
+  return useQuery({
+    queryKey: queryKeys.nutritionStats(weeks),
+    queryFn: () => nutritionStatsApi.get(weeks),
   });
 }

@@ -482,3 +482,114 @@ export const statsApi = {
     return handleResponse(res);
   },
 };
+
+// ============================================================
+// Nutrition (Feature-gated to k@adu.dk)
+// ============================================================
+
+export interface NutritionLog {
+  id?: string;
+  date: string;
+  hitProteinGoal: boolean;
+  caloriesOnTarget: boolean;
+  notes: string | null;
+}
+
+export interface MealSlots {
+  breakfast: string | null;
+  midMorning: string | null;
+  lunch: string | null;
+  snack: string | null;
+  dinner: string | null;
+}
+
+export interface MealPlan {
+  id?: string;
+  date: string;
+  slots: MealSlots;
+}
+
+export interface WeeklyBreakdown {
+  weekStart: string;
+  weekEnd: string;
+  proteinCompliance: number;
+  calorieCompliance: number;
+  daysLogged: number;
+}
+
+export interface NutritionStats {
+  period: {
+    startDate: string;
+    endDate: string;
+    weeks: number;
+  };
+  overall: {
+    totalDays: number;
+    proteinDays: number;
+    calorieDays: number;
+    proteinCompliance: number;
+    calorieCompliance: number;
+  };
+  streaks: {
+    proteinStreak: number;
+    calorieStreak: number;
+  };
+  weeklyBreakdown: WeeklyBreakdown[];
+  recentLogs: NutritionLog[];
+}
+
+export const nutritionLogApi = {
+  get: async (date?: string): Promise<NutritionLog> => {
+    const params = date ? `?date=${date}` : "";
+    const res = await fetch(`${API_BASE}/nutrition/log${params}`);
+    return handleResponse(res);
+  },
+
+  update: async (data: {
+    date: string;
+    hitProteinGoal?: boolean;
+    caloriesOnTarget?: boolean;
+    notes?: string | null;
+  }): Promise<NutritionLog> => {
+    const res = await fetch(`${API_BASE}/nutrition/log`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+    return handleResponse(res);
+  },
+};
+
+export const mealPlanApi = {
+  get: async (date?: string): Promise<MealPlan> => {
+    const params = date ? `?date=${date}` : "";
+    const res = await fetch(`${API_BASE}/nutrition/plan${params}`);
+    return handleResponse(res);
+  },
+
+  update: async (data: { date: string; slots: MealSlots }): Promise<MealPlan> => {
+    const res = await fetch(`${API_BASE}/nutrition/plan`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+    return handleResponse(res);
+  },
+
+  copyFromDate: async (sourceDate: string, targetDate: string): Promise<MealPlan> => {
+    const res = await fetch(`${API_BASE}/nutrition/plan`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ sourceDate, targetDate }),
+    });
+    return handleResponse(res);
+  },
+};
+
+export const nutritionStatsApi = {
+  get: async (weeks?: number): Promise<NutritionStats> => {
+    const params = weeks ? `?weeks=${weeks}` : "";
+    const res = await fetch(`${API_BASE}/nutrition/stats${params}`);
+    return handleResponse(res);
+  },
+};

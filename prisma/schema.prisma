@@ -17,6 +17,7 @@ datasource db {
 model User {
   id        String   @id @default(cuid())
   clerkId   String   @unique
+  email     String?  // For feature gating (e.g., nutrition)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -30,6 +31,8 @@ model User {
   achievements      Achievement[]
   activeSession     ActiveSession?
   backups           Backup[]
+  nutritionLogs     NutritionLog[]
+  mealPlans         MealPlan[]
 }
 
 model Exercise {
@@ -233,4 +236,44 @@ model Backup {
 
   @@index([userId])
   @@index([createdAt])
+}
+
+// ============================================================
+// Nutrition Models (Feature-gated to k@adu.dk)
+// ============================================================
+
+// Daily nutrition compliance tracking
+model NutritionLog {
+  id               String   @id @default(cuid())
+  date             String   // YYYY-MM-DD
+  hitProteinGoal   Boolean  @default(false)
+  caloriesOnTarget Boolean  @default(false)
+  notes            String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  // User relation
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date])
+  @@index([userId])
+  @@index([date])
+}
+
+// Daily meal plan with drag-drop slots
+model MealPlan {
+  id        String   @id @default(cuid())
+  date      String   // YYYY-MM-DD
+  slots     Json     // { breakfast: "B1", midMorning: "M2", lunch: "L3", snack: "S1", dinner: "D2" }
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // User relation
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date])
+  @@index([userId])
+  @@index([date])
 }
