@@ -4,6 +4,28 @@ All notable changes to the SetFlow project.
 
 ---
 
+## [2026-01-05] SetFlow v2.3.1 - TypeScript Strict Mode Fixes
+
+### Fixed
+- **Backup System Types**: Added proper typed interfaces for all backup entities, replacing `any` casts
+- **Date Serialization**: All Date objects now properly serialized to ISO strings in backup creation
+- **JSON Field Casting**: Proper type casting for Prisma JSON fields in restore operations
+- **Export/Import**: Pass `workoutLogId` through import function for PR restoration
+- **Server Component**: Removed unused `"use client"` directive from not-found.tsx
+
+### Technical Details
+- Added 8 typed interfaces: BackupExercise, BackupProgram, BackupTrainingDay, BackupWorkoutLog, BackupPersonalRecord, BackupUserSettings, BackupAchievement, BackupData
+- Export Prisma namespace from prisma.ts for InputJsonValue type
+- All changes enable clean Vercel production builds
+
+### Files Changed
+- `src/lib/backup.ts` - Added proper types, date serialization, JSON casting
+- `src/lib/prisma.ts` - Added Prisma namespace export
+- `src/lib/export.ts` - Pass workoutLogId in import
+- `src/app/not-found.tsx` - Removed use client directive
+
+---
+
 ## [2026-01-05] SetFlow v2.3 - Data Protection Verification
 
 ### Verified Data Protection Features
