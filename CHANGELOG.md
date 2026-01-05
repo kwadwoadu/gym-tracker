@@ -4,6 +4,45 @@ All notable changes to the SetFlow project.
 
 ---
 
+## [2026-01-05] SetFlow v2.4 - Nutrition Tracking Module
+
+### Added
+- **Nutrition Feature (Gated to k@adu.dk)**: Complete meal planning and compliance tracking
+- **Daily Checklist**: Toggle buttons for protein goal (180g) and calorie compliance (~2500)
+- **Meal Planner**: Drag-and-drop from 17 lactose-free meal templates to 5 daily slots
+- **Weekly Compliance Stats**: Dashboard showing protein/calorie compliance percentages
+- **17 Meal Templates**: Breakfast (B1-B4), Mid-morning (M1-M3), Lunch (L1-L5), Snack (S1-S4), Dinner (D1-D5)
+- **Feature Gating Pattern**: Email whitelist via `/src/lib/feature-flags.ts`
+- **Conditional Navigation**: Nutrition icon only visible to authorized users
+
+### Technical Details
+- **Prisma Models**: `NutritionLog` (daily compliance), `MealPlan` (slot assignments)
+- **API Routes**: `/api/nutrition/log`, `/api/nutrition/plan`, `/api/nutrition/stats`
+- **React Query Hooks**: Optimistic updates for instant UI feedback
+- **@dnd-kit**: PointerSensor + TouchSensor for desktop/mobile drag support
+
+### Patterns Extracted
+- `feature-gating.md` - Email whitelist pattern for beta features
+- `dnd-kit-mobile.md` - Touch-friendly drag and drop implementation
+- `prisma-json-fields.md` - Type-safe JSON field handling
+
+### Files Created
+- Prisma schema extended with NutritionLog, MealPlan models
+- `src/data/meal-templates.ts` - 17 lactose-free meals
+- `src/lib/feature-flags.ts` - Email whitelist check
+- `src/hooks/use-nutrition-access.ts` - Client access hook
+- `src/app/api/nutrition/` - 3 API routes (log, plan, stats)
+- `src/app/nutrition/` - 3 pages (dashboard, log, plan)
+- `src/components/nutrition/` - 8 components + CLAUDE.md
+- `skills/feature-gating.md`, `skills/dnd-kit-mobile.md`, `skills/prisma-json-fields.md`
+
+### Fixed
+- Notes state sync bug in daily-checklist (useEffect for date changes)
+- Prisma JSON null handling with `?? {}` fallback
+- TypeScript double-cast for JSON fields (`as unknown as Type`)
+
+---
+
 ## [2026-01-05] SetFlow v2.3.1 - TypeScript Strict Mode Fixes
 
 ### Fixed
