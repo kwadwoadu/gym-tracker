@@ -343,7 +343,7 @@ export const personalRecordsApi = {
     reps: number;
     unit?: string;
     date?: string;
-    workoutLogId?: string;
+    workoutLogId: string;
   }): Promise<PersonalRecord> => {
     const res = await fetch(`${API_BASE}/personal-records`, {
       method: "POST",
