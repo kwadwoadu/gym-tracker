@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Check, X, Target, Flame, Loader2 } from 'lucide-react';
 import { useNutritionLog, useUpdateNutritionLog } from '@/lib/queries';
@@ -14,6 +14,11 @@ export function DailyChecklist({ date }: DailyChecklistProps) {
   const { data: log, isLoading } = useNutritionLog(date);
   const updateLog = useUpdateNutritionLog();
   const [notes, setNotes] = useState(log?.notes || '');
+
+  // Sync notes state when log data changes (e.g., date navigation)
+  useEffect(() => {
+    setNotes(log?.notes || '');
+  }, [log?.notes]);
 
   const handleToggle = (field: 'hitProteinGoal' | 'caloriesOnTarget') => {
     const currentValue = log?.[field] ?? false;
