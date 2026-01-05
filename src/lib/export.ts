@@ -194,6 +194,7 @@ export async function importData(jsonString: string): Promise<void> {
       weight: pr.weight,
       reps: pr.reps,
       date: pr.date,
+      workoutLogId: pr.workoutLogId,
     });
   }
 

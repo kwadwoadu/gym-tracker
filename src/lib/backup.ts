@@ -3,7 +3,7 @@
  * Used before destructive operations like reset, seed, or import
  */
 
-import { prisma } from "./prisma";
+import { prisma, Prisma } from "./prisma";
 
 // ============================================================
 // Types
@@ -17,16 +17,88 @@ export interface BackupSummary {
   dataSize: number;
 }
 
+// Backup entity types (serialized versions of Prisma models)
+interface BackupExercise {
+  id: string;
+  builtInId: string | null;
+  name: string;
+  videoUrl: string | null;
+  muscleGroups: string[];
+  equipment: string;
+  isCustom: boolean;
+  createdAt: string;
+}
+
+interface BackupProgram {
+  id: string;
+  name: string;
+  description: string | null;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface BackupTrainingDay {
+  id: string;
+  name: string;
+  dayNumber: number;
+  programId: string;
+  warmup: Prisma.JsonValue;
+  supersets: Prisma.JsonValue;
+  finisher: Prisma.JsonValue;
+}
+
+interface BackupWorkoutLog {
+  id: string;
+  date: string;
+  dayName: string;
+  startTime: string;
+  endTime: string | null;
+  duration: number | null;
+  notes: string | null;
+  isComplete: boolean;
+  programId: string;
+  dayId: string;
+  sets: Prisma.JsonValue;
+}
+
+interface BackupPersonalRecord {
+  id: string;
+  exerciseName: string;
+  weight: number;
+  reps: number;
+  unit: string;
+  date: string;
+  exerciseId: string;
+  workoutLogId: string;
+}
+
+interface BackupUserSettings {
+  id: string;
+  weightUnit: string;
+  defaultRestSeconds: number;
+  soundEnabled: boolean;
+  autoProgressWeight: boolean;
+  progressionIncrement: number;
+  autoStartRestTimer: boolean;
+}
+
+interface BackupAchievement {
+  id: string;
+  achievementId: string;
+  unlockedAt: string;
+}
+
 interface BackupData {
   version: number;
   createdAt: string;
-  exercises: unknown[];
-  programs: unknown[];
-  trainingDays: unknown[];
-  workoutLogs: unknown[];
-  personalRecords: unknown[];
-  userSettings: unknown | null;
-  achievements: unknown[];
+  exercises: BackupExercise[];
+  programs: BackupProgram[];
+  trainingDays: BackupTrainingDay[];
+  workoutLogs: BackupWorkoutLog[];
+  personalRecords: BackupPersonalRecord[];
+  userSettings: BackupUserSettings | null;
+  achievements: BackupAchievement[];
 }
 
 // ============================================================
@@ -60,17 +132,68 @@ export async function createBackup(
   // Flatten training days from programs
   const trainingDays = programs.flatMap((p) => p.trainingDays);
 
-  // Create backup data object
+  // Create backup data object (serialize dates to ISO strings for JSON storage)
   const backupData: BackupData = {
     version: 1,
     createdAt: new Date().toISOString(),
-    exercises,
-    programs: programs.map((p) => ({ ...p, trainingDays: undefined })),
-    trainingDays,
-    workoutLogs,
-    personalRecords,
-    userSettings: settings,
-    achievements,
+    exercises: exercises.map((e) => ({
+      ...e,
+      createdAt: e.createdAt.toISOString(),
+    })),
+    programs: programs.map((p) => ({
+      id: p.id,
+      name: p.name,
+      description: p.description,
+      isActive: p.isActive,
+      createdAt: p.createdAt.toISOString(),
+      updatedAt: p.updatedAt.toISOString(),
+    })),
+    trainingDays: trainingDays.map((d) => ({
+      id: d.id,
+      name: d.name,
+      dayNumber: d.dayNumber,
+      programId: d.programId,
+      warmup: d.warmup,
+      supersets: d.supersets,
+      finisher: d.finisher,
+    })),
+    workoutLogs: workoutLogs.map((l) => ({
+      id: l.id,
+      date: l.date,
+      dayName: l.dayName,
+      startTime: l.startTime.toISOString(),
+      endTime: l.endTime?.toISOString() ?? null,
+      duration: l.duration,
+      notes: l.notes,
+      isComplete: l.isComplete,
+      programId: l.programId,
+      dayId: l.dayId,
+      sets: l.sets,
+    })),
+    personalRecords: personalRecords.map((pr) => ({
+      id: pr.id,
+      exerciseName: pr.exerciseName,
+      weight: pr.weight,
+      reps: pr.reps,
+      unit: pr.unit,
+      date: pr.date,
+      exerciseId: pr.exerciseId,
+      workoutLogId: pr.workoutLogId,
+    })),
+    userSettings: settings ? {
+      id: settings.id,
+      weightUnit: settings.weightUnit,
+      defaultRestSeconds: settings.defaultRestSeconds,
+      soundEnabled: settings.soundEnabled,
+      autoProgressWeight: settings.autoProgressWeight,
+      progressionIncrement: settings.progressionIncrement,
+      autoStartRestTimer: settings.autoStartRestTimer,
+    } : null,
+    achievements: achievements.map((a) => ({
+      id: a.id,
+      achievementId: a.achievementId,
+      unlockedAt: a.unlockedAt.toISOString(),
+    })),
   };
 
   const dataString = JSON.stringify(backupData);
@@ -183,7 +306,7 @@ export async function restoreFromBackup(
     await tx.userSettings.deleteMany({ where: { userId } });
 
     // Restore exercises
-    for (const exercise of backupData.exercises as any[]) {
+    for (const exercise of backupData.exercises) {
       await tx.exercise.create({
         data: {
           id: exercise.id,
@@ -200,7 +323,7 @@ export async function restoreFromBackup(
     }
 
     // Restore programs with training days
-    for (const program of backupData.programs as any[]) {
+    for (const program of backupData.programs) {
       await tx.program.create({
         data: {
           id: program.id,
@@ -215,22 +338,22 @@ export async function restoreFromBackup(
     }
 
     // Restore training days
-    for (const day of backupData.trainingDays as any[]) {
+    for (const day of backupData.trainingDays) {
       await tx.trainingDay.create({
         data: {
           id: day.id,
           name: day.name,
           dayNumber: day.dayNumber,
           programId: day.programId,
-          warmup: day.warmup,
-          supersets: day.supersets,
-          finisher: day.finisher,
+          warmup: day.warmup as Prisma.InputJsonValue,
+          supersets: day.supersets as Prisma.InputJsonValue,
+          finisher: day.finisher as Prisma.InputJsonValue,
         },
       });
     }
 
     // Restore workout logs
-    for (const log of backupData.workoutLogs as any[]) {
+    for (const log of backupData.workoutLogs) {
       await tx.workoutLog.create({
         data: {
           id: log.id,
@@ -244,13 +367,13 @@ export async function restoreFromBackup(
           programId: log.programId,
           dayId: log.dayId,
           userId,
-          sets: log.sets,
+          sets: log.sets as Prisma.InputJsonValue,
         },
       });
     }
 
     // Restore personal records
-    for (const pr of backupData.personalRecords as any[]) {
+    for (const pr of backupData.personalRecords) {
       await tx.personalRecord.create({
         data: {
           id: pr.id,
@@ -268,7 +391,7 @@ export async function restoreFromBackup(
 
     // Restore user settings
     if (backupData.userSettings) {
-      const settings = backupData.userSettings as any;
+      const settings = backupData.userSettings;
       await tx.userSettings.create({
         data: {
           id: settings.id,
@@ -284,7 +407,7 @@ export async function restoreFromBackup(
     }
 
     // Restore achievements
-    for (const achievement of backupData.achievements as any[]) {
+    for (const achievement of backupData.achievements) {
       await tx.achievement.create({
         data: {
           id: achievement.id,
