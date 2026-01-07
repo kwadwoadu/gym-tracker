@@ -93,6 +93,17 @@ export function MealPlanner({ date }: MealPlannerProps) {
     updatePlan.mutate({ date, slots: newSlots });
   };
 
+  const handleQuickAdd = (meal: MealTemplate) => {
+    // Map meal category to corresponding slot type
+    const slotType = meal.category as MealSlot;
+
+    // Only add if the slot is empty
+    if (slots[slotType] === null) {
+      const newSlots = { ...slots, [slotType]: meal.id };
+      updatePlan.mutate({ date, slots: newSlots });
+    }
+  };
+
   const handleCopyYesterday = () => {
     const yesterday = format(subDays(new Date(date), 1), 'yyyy-MM-dd');
     copyPlan.mutate({ sourceDate: yesterday, targetDate: date });
@@ -175,7 +186,11 @@ export function MealPlanner({ date }: MealPlannerProps) {
                       >
                         <div className="px-3 pb-3 space-y-2">
                           {meals.map((meal) => (
-                            <MealTemplateCard key={meal.id} meal={meal} />
+                            <MealTemplateCard
+                              key={meal.id}
+                              meal={meal}
+                              onQuickAdd={handleQuickAdd}
+                            />
                           ))}
                         </div>
                       </motion.div>

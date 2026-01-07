@@ -441,6 +441,8 @@ export function useMealPlan(date?: string) {
   return useQuery({
     queryKey: queryKeys.mealPlan(date),
     queryFn: () => mealPlanApi.get(date),
+    enabled: !!date,
+    staleTime: 0, // Always fetch fresh data for date-specific queries
   });
 }
 

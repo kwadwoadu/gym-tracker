@@ -56,7 +56,7 @@ export default function MealPlanPage() {
       </div>
 
       {/* Meal Planner */}
-      <MealPlanner date={dateStr} />
+      <MealPlanner key={dateStr} date={dateStr} />
     </div>
   );
 }
