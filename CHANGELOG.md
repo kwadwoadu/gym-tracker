@@ -4,6 +4,30 @@ All notable changes to the SetFlow project.
 
 ---
 
+## [2026-01-07] Fix Empty Program Bug for New Users
+
+### Fixed
+- **Empty Program on Onboarding**: New users selecting Upper/Lower Split or PPL programs were seeing empty day tabs with no exercises
+- **Root Cause**: `buildExerciseIdMapping()` silently failed when exercises couldn't be mapped, preserving invalid string IDs that didn't exist in the database
+
+### Improved
+- **Auto-Create Missing Exercises**: Mapping function now creates exercises that don't exist instead of just logging warnings
+- **Pre-Install Validation**: Added validation step that verifies all required exercise IDs are mapped before program creation
+- **Detailed Mapping Logs**: Clear breakdown of mapping results (by builtInId, by name, created new, failed)
+
+### Technical Details
+- Three-phase mapping: builtInId match -> name match -> auto-create
+- Validation uses `getRequiredExerciseIds()` to check all preset exercises
+- Errors are logged clearly but don't block installation (graceful degradation)
+
+### Patterns Extracted
+- `/docs/patterns/id-mapping-with-autocreate.md` - Reusable pattern for data migration flows
+
+### Files Changed
+- `src/lib/programs.ts` - Fixed `buildExerciseIdMapping()` and added validation
+
+---
+
 ## [2026-01-07] Meal Planner UX Improvements
 
 ### Added
