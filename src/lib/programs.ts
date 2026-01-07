@@ -93,7 +93,7 @@ export function getRecommendedProgram(
 
 /**
  * Build exercise ID mapping from old string IDs to Prisma CUIDs
- * Seeds exercises if not already seeded
+ * Seeds exercises if not already seeded, and creates any missing exercises
  */
 async function buildExerciseIdMapping(): Promise<Map<string, string>> {
   const idMapping = new Map<string, string>();
@@ -102,9 +102,9 @@ async function buildExerciseIdMapping(): Promise<Map<string, string>> {
   const existingExercises = await exercisesApi.list();
   console.log(`[buildExerciseIdMapping] Found ${existingExercises.length} existing exercises`);
 
-  // If no exercises, seed them first
+  // If no exercises at all, seed them all
   if (existingExercises.length === 0) {
-    console.log("[buildExerciseIdMapping] Seeding exercises...");
+    console.log("[buildExerciseIdMapping] No exercises found, seeding all...");
     let seededCount = 0;
     let failedCount = 0;
 
@@ -128,31 +128,60 @@ async function buildExerciseIdMapping(): Promise<Map<string, string>> {
     return idMapping;
   }
 
-  // Build mapping from existing exercises by builtInId (reliable) or name (fallback)
+  // Build mapping from existing exercises and create any missing ones
   let mappedByBuiltInId = 0;
   let mappedByName = 0;
-  let unmapped = 0;
+  let createdNew = 0;
+  let failedNew = 0;
 
   for (const ex of exercisesData.exercises) {
-    // First try to match by builtInId (reliable)
+    // First try to match by builtInId (most reliable)
     let existing = existingExercises.find(e => e.builtInId === ex.id);
     if (existing) {
+      idMapping.set(ex.id, existing.id);
       mappedByBuiltInId++;
-    } else {
-      // Fallback to name matching for legacy data
-      existing = existingExercises.find(e => e.name === ex.name);
-      if (existing) {
-        mappedByName++;
-      }
+      continue;
     }
+
+    // Fallback to name matching for legacy data
+    existing = existingExercises.find(e => e.name === ex.name);
     if (existing) {
       idMapping.set(ex.id, existing.id);
-    } else {
-      unmapped++;
-      console.warn(`[buildExerciseIdMapping] Could not map exercise: ${ex.id} (${ex.name})`);
+      mappedByName++;
+      continue;
+    }
+
+    // Exercise doesn't exist at all - create it
+    console.log(`[buildExerciseIdMapping] Creating missing exercise: ${ex.id} (${ex.name})`);
+    try {
+      const created = await exercisesApi.create({
+        name: ex.name,
+        muscleGroups: ex.muscleGroups,
+        equipment: ex.equipment,
+        videoUrl: null,
+        builtInId: ex.id,
+      });
+      idMapping.set(ex.id, created.id);
+      createdNew++;
+    } catch (error) {
+      console.error(`[buildExerciseIdMapping] Failed to create missing exercise "${ex.name}":`, error);
+      failedNew++;
+      // CRITICAL: This exercise will use unmapped ID which won't work!
+      // Keep the original ID as fallback (will show as missing in UI)
     }
   }
-  console.log(`[buildExerciseIdMapping] Mapped ${idMapping.size} exercises (${mappedByBuiltInId} by builtInId, ${mappedByName} by name, ${unmapped} unmapped)`);
+
+  console.log(`[buildExerciseIdMapping] Mapping complete:`);
+  console.log(`  - Mapped by builtInId: ${mappedByBuiltInId}`);
+  console.log(`  - Mapped by name: ${mappedByName}`);
+  console.log(`  - Created new: ${createdNew}`);
+  console.log(`  - Failed to create: ${failedNew}`);
+  console.log(`  - Total mapped: ${idMapping.size}/${exercisesData.exercises.length}`);
+
+  // Warn if any exercises couldn't be mapped
+  if (idMapping.size < exercisesData.exercises.length) {
+    console.error(`[buildExerciseIdMapping] WARNING: ${exercisesData.exercises.length - idMapping.size} exercises could not be mapped!`);
+  }
 
   return idMapping;
 }
@@ -216,10 +245,22 @@ export async function installPresetProgram(presetId: string): Promise<void> {
     await programsApi.delete(program.id);
   }
 
+  // Validate mapping completeness before proceeding
+  const requiredExerciseIds = getRequiredExerciseIds(preset);
+  const unmappedExercises = requiredExerciseIds.filter(id => !idMapping.has(id));
+  if (unmappedExercises.length > 0) {
+    console.error(`[installPresetProgram] CRITICAL: ${unmappedExercises.length} exercises could not be mapped:`);
+    unmappedExercises.forEach(id => {
+      const exerciseName = exercisesData.exercises.find(e => e.id === id)?.name || 'Unknown';
+      console.error(`  - ${id} (${exerciseName})`);
+    });
+    // Don't throw - continue but log the issue for debugging
+  }
+
   // Map exercise IDs in training days
   const mappedTrainingDays = mapTrainingDayExerciseIds(preset.trainingDays, idMapping);
 
-  // Verify mapped data has supersets
+  // Verify mapped data has supersets with properly mapped exercise IDs
   console.log(`[installPresetProgram] Mapped training days: ${mappedTrainingDays.length}`);
   mappedTrainingDays.forEach((day, i) => {
     const supersetCount = day.supersets?.length || 0;
