@@ -4,6 +4,38 @@ All notable changes to the SetFlow project.
 
 ---
 
+## [2026-01-07] Meal Planner UX Improvements
+
+### Added
+- **Expandable Recipes**: Click meal card to see ingredients list
+- **Quick-Add Button**: Plus button on each meal template adds to matching slot
+- **Toast Notifications**: Success/error feedback for quick-add actions
+- **Expandable Slots**: Click filled slots to see recipe ingredients
+
+### Fixed
+- **Drag Handle Isolation**: Only grip icon (6 dots) triggers drag, not entire card
+- **Date Bug**: Each day now starts fresh (staleTime: 0 + key prop remount)
+- **Touch Targets**: Drag handle increased to 32x32px for better mobile UX
+
+### Technical Details
+- Used `setActivatorNodeRef` from @dnd-kit to isolate drag to grip icon
+- Added local `isExpanded` state with Framer Motion AnimatePresence
+- React Query `staleTime: 0` for date-specific queries
+- Key prop on MealPlanner forces remount on date change
+
+### Patterns Extracted
+- `dnd-kit-drag-handle.md` - Isolate drag to specific element
+- `toast-notification.md` - Simple local toast without external library
+
+### Files Modified
+- `src/components/nutrition/meal-template-card.tsx`
+- `src/components/nutrition/meal-slot.tsx`
+- `src/components/nutrition/meal-planner.tsx`
+- `src/lib/queries.ts`
+- `src/app/nutrition/plan/page.tsx`
+
+---
+
 ## [2026-01-05] SetFlow v2.4 - Nutrition Tracking Module
 
 ### Added

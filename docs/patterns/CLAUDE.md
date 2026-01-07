@@ -27,6 +27,8 @@ Document non-obvious implementations that should be reused. Patterns prevent rei
 | Workout Session Lifecycle | `workout-session-lifecycle.md` | Session start/save/resume |
 | Progressive Overload | `progressive-overload.md` | Weight suggestion algorithm |
 | Stable Preset Identifiers | `stable-preset-identifiers.md` | builtInId for reliable ID mapping |
+| @dnd-kit Drag Handle | `dnd-kit-drag-handle.md` | Isolate drag to grip icon only |
+| Toast Notification | `toast-notification.md` | Simple local toast without library |
 
 ---
 
