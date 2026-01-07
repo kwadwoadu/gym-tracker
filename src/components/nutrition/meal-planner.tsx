@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   DndContext,
   DragOverlay,
@@ -19,14 +19,21 @@ import {
   type MealTemplate,
   type MealCategory,
   CATEGORY_LABELS,
+  SLOT_LABELS,
 } from '@/data/meal-templates';
 import { MealTemplateCard, DragOverlayCard } from './meal-template-card';
 import { MealSlotComponent } from './meal-slot';
 import { MacrosSummary } from './macros-summary';
 import { useMealPlan, useUpdateMealPlan, useCopyMealPlan } from '@/lib/queries';
-import { Loader2, ChevronDown, ChevronUp, Copy } from 'lucide-react';
+import { Loader2, ChevronDown, ChevronUp, Copy, CheckCircle, AlertCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { format, subDays } from 'date-fns';
+
+type ToastType = 'success' | 'error';
+interface Toast {
+  message: string;
+  type: ToastType;
+}
 
 interface MealPlannerProps {
   date: string;
@@ -43,6 +50,15 @@ export function MealPlanner({ date }: MealPlannerProps) {
   const [expandedCategories, setExpandedCategories] = useState<Set<MealCategory>>(
     new Set(['breakfast', 'lunch', 'dinner'])
   );
+  const [toast, setToast] = useState<Toast | null>(null);
+
+  // Auto-hide toast after 2.5 seconds
+  useEffect(() => {
+    if (toast) {
+      const timer = setTimeout(() => setToast(null), 2500);
+      return () => clearTimeout(timer);
+    }
+  }, [toast]);
 
   // Configure sensors for both mouse and touch
   const sensors = useSensors(
@@ -101,6 +117,9 @@ export function MealPlanner({ date }: MealPlannerProps) {
     if (slots[slotType] === null) {
       const newSlots = { ...slots, [slotType]: meal.id };
       updatePlan.mutate({ date, slots: newSlots });
+      setToast({ message: `Added ${meal.name} to ${SLOT_LABELS[slotType]}`, type: 'success' });
+    } else {
+      setToast({ message: `${SLOT_LABELS[slotType]} already has a meal`, type: 'error' });
     }
   };
 
@@ -136,6 +155,29 @@ export function MealPlanner({ date }: MealPlannerProps) {
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
     >
+      {/* Toast Notification */}
+      <AnimatePresence>
+        {toast && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className={`fixed top-4 left-4 right-4 z-50 p-3 rounded-lg flex items-center gap-3 shadow-lg ${
+              toast.type === 'success'
+                ? 'bg-[#22C55E] text-white'
+                : 'bg-[#EF4444] text-white'
+            }`}
+          >
+            {toast.type === 'success' ? (
+              <CheckCircle className="w-5 h-5 flex-shrink-0" />
+            ) : (
+              <AlertCircle className="w-5 h-5 flex-shrink-0" />
+            )}
+            <span className="text-sm font-medium">{toast.message}</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <div className="space-y-6">
         {/* Copy Yesterday Button */}
         <button

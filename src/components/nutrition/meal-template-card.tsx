@@ -58,9 +58,9 @@ export function MealTemplateCard({ meal, isDragOverlay, onQuickAdd }: MealTempla
           {...listeners}
           {...attributes}
           onClick={(e) => e.stopPropagation()}
-          className="touch-none cursor-grab active:cursor-grabbing p-1 -m-1 rounded hover:bg-[#2A2A2A] transition-colors"
+          className="touch-none cursor-grab active:cursor-grabbing w-8 h-8 -ml-1 flex items-center justify-center rounded hover:bg-[#2A2A2A] transition-colors"
         >
-          <GripVertical className="w-4 h-4 text-[#666666] flex-shrink-0" />
+          <GripVertical className="w-4 h-4 text-[#666666]" />
         </button>
 
         <div className="flex-1 min-w-0">
