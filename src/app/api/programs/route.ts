@@ -41,6 +41,21 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { name, description, isActive, trainingDays } = body;
 
+    // Log incoming data for debugging
+    console.log(`[POST /api/programs] Creating program "${name}" for user ${user.id}`);
+    console.log(`[POST /api/programs] Received ${trainingDays?.length || 0} training days`);
+    if (trainingDays) {
+      trainingDays.forEach((day: { name: string; supersets?: unknown[]; warmup?: unknown[]; finisher?: unknown[] }, i: number) => {
+        const supersetCount = Array.isArray(day.supersets) ? day.supersets.length : 0;
+        const warmupCount = Array.isArray(day.warmup) ? day.warmup.length : 0;
+        const finisherCount = Array.isArray(day.finisher) ? day.finisher.length : 0;
+        console.log(`[POST /api/programs] Day ${i + 1} "${day.name}": ${supersetCount} supersets, ${warmupCount} warmup, ${finisherCount} finisher`);
+        if (supersetCount === 0) {
+          console.warn(`[POST /api/programs] WARNING: Day ${i + 1} has no supersets in request!`);
+        }
+      });
+    }
+
     if (!name) {
       return NextResponse.json(
         { error: "Program name is required" },
@@ -92,9 +107,22 @@ export async function POST(request: Request) {
       },
     });
 
+    // Log created data for verification
+    console.log(`[POST /api/programs] Program created: ${program.id}`);
+    if (program.trainingDays) {
+      program.trainingDays.forEach((day, i) => {
+        const supersets = day.supersets as unknown[];
+        const supersetCount = Array.isArray(supersets) ? supersets.length : 0;
+        console.log(`[POST /api/programs] Created Day ${i + 1} "${day.name}": ${supersetCount} supersets stored`);
+        if (supersetCount === 0) {
+          console.error(`[POST /api/programs] ERROR: Day ${i + 1} has no supersets after save!`);
+        }
+      });
+    }
+
     return NextResponse.json(program, { status: 201 });
   } catch (error) {
-    console.error("Error creating program:", error);
+    console.error("[POST /api/programs] Error creating program:", error);
     return NextResponse.json(
       { error: "Failed to create program" },
       { status: 500 }

@@ -132,12 +132,26 @@ export const programsApi = {
     isActive?: boolean;
     trainingDays?: Partial<TrainingDay>[];
   }): Promise<Program> => {
+    // Debug logging for program creation
+    console.log(`[programsApi.create] Creating program "${data.name}" with ${data.trainingDays?.length || 0} training days`);
+    if (data.trainingDays) {
+      data.trainingDays.forEach((day, i) => {
+        const supersetCount = Array.isArray(day.supersets) ? day.supersets.length : 0;
+        console.log(`[programsApi.create] Day ${i + 1}: ${supersetCount} supersets`);
+      });
+    }
+
     const res = await fetch(`${API_BASE}/programs`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
     });
-    return handleResponse(res);
+    const result = await handleResponse<Program>(res);
+
+    // Log response to verify data came back correctly
+    console.log(`[programsApi.create] Response: ${result.trainingDays?.length || 0} training days returned`);
+
+    return result;
   },
 
   update: async (id: string, data: Partial<Program>): Promise<Program> => {
