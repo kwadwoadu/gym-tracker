@@ -74,13 +74,26 @@ export default function Home() {
   const currentDay = sortedDays.find((d) => d.id === selectedDay);
   const isLoading = programsLoading || onboardingLoading || daysLoading || exercisesLoading;
 
-  // Show loading while checking auth state
-  if (isLoading || !programs || programs.length === 0) {
+  // Show loading only while data is being fetched
+  // Note: Do NOT include programs.length === 0 here - that case is handled by the redirect useEffect above
+  if (programsLoading || onboardingLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center space-y-4">
           <Loader2 className="w-8 h-8 animate-spin mx-auto text-primary" />
           <p className="text-muted-foreground">Loading program...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // If no programs after loading complete, redirect logic will handle it - show brief loading state
+  if (!programs || programs.length === 0) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <Loader2 className="w-8 h-8 animate-spin mx-auto text-primary" />
+          <p className="text-muted-foreground">Redirecting...</p>
         </div>
       </div>
     );
