@@ -43,6 +43,10 @@ function MyComponent() {
 | `macros-summary.tsx` | Total macros calculation bar |
 | `compliance-card.tsx` | Weekly compliance stats display |
 | `nutrition-nav.tsx` | Tab navigation for nutrition pages |
+| `supplements-checklist.tsx` | Daily supplement tracking by time blocks |
+| `inline-meal-slot.tsx` | Compact meal selector for time-period sections |
+| `time-period-section.tsx` | Combined meal + supplements section by time of day |
+| `shake-builder-modal.tsx` | Modal for adding supplements to shake meals (M1, S4) |
 
 ---
 
@@ -106,6 +110,7 @@ Follow SetFlow design system:
 | `GET/PUT /api/nutrition/log` | Daily log CRUD |
 | `GET/PUT/POST /api/nutrition/plan` | Meal plan CRUD + copy |
 | `GET /api/nutrition/stats` | Weekly compliance stats |
+| `GET/PUT /api/nutrition/supplements` | Supplement tracking CRUD |
 
 ---
 
@@ -118,6 +123,11 @@ From `/src/lib/queries.ts`:
 - `useUpdateMealPlan()` - Update plan (optimistic)
 - `useCopyMealPlan()` - Copy from another date
 - `useNutritionStats(weeks)` - Get weekly stats
+- `useSupplementLog(date)` - Get supplement log for date
+- `useUpdateSupplementLog()` - Update supplement log (optimistic)
+
+From `/src/hooks/use-supplements.ts`:
+- `useSupplements(date)` - Full supplement state management with database sync
 
 ---
 
@@ -137,11 +147,15 @@ From `/src/lib/queries.ts`:
 | Resource | Location |
 |----------|----------|
 | Meal templates | `/src/data/meal-templates.ts` |
+| Time periods | `/src/data/time-periods.ts` |
+| Supplement protocol | `/src/data/supplement-protocol.ts` |
 | Feature flags | `/src/lib/feature-flags.ts` |
 | API routes | `/src/app/api/nutrition/` |
 | React Query hooks | `/src/lib/queries.ts` |
 | Access hook | `/src/hooks/use-nutrition-access.ts` |
+| Supplements hook | `/src/hooks/use-supplements.ts` |
 
 ---
 
 *Created: January 5, 2026*
+*Updated: January 11, 2026*
