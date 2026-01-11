@@ -29,6 +29,7 @@ Document non-obvious implementations that should be reused. Patterns prevent rei
 | Stable Preset Identifiers | `stable-preset-identifiers.md` | builtInId for reliable ID mapping |
 | @dnd-kit Drag Handle | `dnd-kit-drag-handle.md` | Isolate drag to grip icon only |
 | Toast Notification | `toast-notification.md` | Simple local toast without library |
+| Time-Period Grouping | `time-period-grouping.md` | Group activities by time, not category |
 
 ---
 

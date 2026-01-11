@@ -27,6 +27,12 @@ All notable changes to the SetFlow project.
 - `src/app/nutrition/log/page.tsx` - Complete restructure with time periods
 - `src/data/meal-templates.ts` - Added isShake flag and helper functions
 
+### Patterns Extracted
+- **Time-Period Grouping** -> `/docs/patterns/time-period-grouping.md`
+  - Group related activities by time of day rather than by category
+  - Context-aware data mapping (different time periods per day type)
+  - Cross-activity connections via flags (isShake + smoothieMix)
+
 ---
 
 ## [2026-01-11] Supplement Database Persistence

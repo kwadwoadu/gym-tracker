@@ -11,6 +11,7 @@ Reusable patterns extracted from the SetFlow (gym-tracker) codebase.
 | [Local-First Data Model](./local-first-data.md) | Dexie.js schema design | `/lib/db.ts` |
 | [Workout Session Lifecycle](./workout-session-lifecycle.md) | Session start/end/save | `/lib/db.ts` |
 | [Progressive Overload](./progressive-overload.md) | Weight suggestion logic | `/lib/db.ts` |
+| [Time-Period Grouping](./time-period-grouping.md) | Group activities by time of day | `/data/time-periods.ts` |
 
 ## Usage
 
