@@ -15,6 +15,7 @@ export interface MealTemplate {
   calories: number;
   prepTime: string; // e.g., "5 min", "Batch prep"
   ingredients?: string[];
+  isShake?: boolean; // Can have supplements mixed in (for shake builder)
 }
 
 export const MEAL_TEMPLATES: MealTemplate[] = [
@@ -79,6 +80,7 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
     calories: 300,
     prepTime: '2 min',
     ingredients: ['1 scoop whey isolate', '1 banana', '250ml lactose-free milk'],
+    isShake: true,
   },
   {
     id: 'M2',
@@ -208,6 +210,7 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
     calories: 130,
     prepTime: '2 min',
     ingredients: ['1 scoop whey isolate', 'water'],
+    isShake: true,
   },
 
   // ============================================================
@@ -333,3 +336,14 @@ export const SLOT_LABELS: Record<MealSlot, string> = {
   snack: 'Snack',
   dinner: 'Dinner',
 };
+
+// Helper to check if a meal is a shake (can have supplements mixed in)
+export function isShakeMeal(mealId: string): boolean {
+  const meal = getMealById(mealId);
+  return meal?.isShake === true;
+}
+
+// Get all shake meals
+export function getShakeMeals(): MealTemplate[] {
+  return MEAL_TEMPLATES.filter((meal) => meal.isShake === true);
+}

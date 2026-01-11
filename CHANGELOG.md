@@ -4,6 +4,53 @@ All notable changes to the SetFlow project.
 
 ---
 
+## [2026-01-11] Unified Nutrition UX - Meals + Supplements
+
+### Added
+- **Time-Period Based Log Page**: Meals and supplements now grouped together by time of day
+- **Smart Shake Builder**: Modal for adding smoothieMix supplements when selecting shake meals (M1, S4)
+- **Time Periods Data Structure**: Maps day types to time periods (Morning, Mid-Morning, Lunch, Afternoon, Evening)
+- **Inline Meal Selection**: Compact meal selector for time-period sections
+- **Combined Progress**: Single progress bar for both meals and supplements
+
+### Changed
+- **Log Page Restructured**: Replaced separate Daily Checklist and Supplements sections with unified time-period sections
+- **Meal Templates**: Added `isShake` flag to M1 and S4 meals for shake builder integration
+
+### Files Added
+- `src/data/time-periods.ts` - Time period definitions per day type
+- `src/components/nutrition/inline-meal-slot.tsx` - Compact meal selector
+- `src/components/nutrition/time-period-section.tsx` - Combined meal + supplements section
+- `src/components/nutrition/shake-builder-modal.tsx` - Shake builder modal
+
+### Files Changed
+- `src/app/nutrition/log/page.tsx` - Complete restructure with time periods
+- `src/data/meal-templates.ts` - Added isShake flag and helper functions
+
+---
+
+## [2026-01-11] Supplement Database Persistence
+
+### Added
+- **Database Persistence**: Supplement tracking now saves to PostgreSQL database
+- **Cross-Device Sync**: Supplement data syncs across devices via Clerk authentication
+- **Offline Support**: localStorage fallback ensures supplements work offline
+
+### Technical Details
+- Added `SupplementLog` model to Prisma schema with userId, date, dayType, completed fields
+- Created `/api/nutrition/supplements` API route (GET/PUT) with feature gating
+- Added `useSupplementLog` and `useUpdateSupplementLog` React Query hooks
+- Updated `use-supplements.ts` to sync with database while maintaining localStorage cache
+
+### Files Added/Changed
+- `prisma/schema.prisma` - Added SupplementLog model
+- `src/app/api/nutrition/supplements/route.ts` - New API route
+- `src/lib/api-client.ts` - Added supplementLogApi
+- `src/lib/queries.ts` - Added supplement query hooks
+- `src/hooks/use-supplements.ts` - Updated to use React Query
+
+---
+
 ## [2026-01-11] Supplement Tracking Feature
 
 ### Added
