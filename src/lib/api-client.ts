@@ -607,3 +607,32 @@ export const nutritionStatsApi = {
     return handleResponse(res);
   },
 };
+
+// Supplement Log Types
+export interface SupplementLog {
+  id?: string;
+  date: string;
+  dayType: string;
+  completed: string[];
+}
+
+export const supplementLogApi = {
+  get: async (date?: string): Promise<SupplementLog> => {
+    const params = date ? `?date=${date}` : "";
+    const res = await fetch(`${API_BASE}/nutrition/supplements${params}`);
+    return handleResponse(res);
+  },
+
+  update: async (data: {
+    date: string;
+    dayType?: string;
+    completed?: string[];
+  }): Promise<SupplementLog> => {
+    const res = await fetch(`${API_BASE}/nutrition/supplements`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+    return handleResponse(res);
+  },
+};

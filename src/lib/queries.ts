@@ -14,6 +14,7 @@ import {
   nutritionLogApi,
   mealPlanApi,
   nutritionStatsApi,
+  supplementLogApi,
   type Exercise,
   type Program,
   type TrainingDay,
@@ -22,6 +23,7 @@ import {
   type OnboardingProfile,
   type NutritionLog,
   type MealPlan,
+  type SupplementLog,
 } from "./api-client";
 
 // ============================================================
@@ -47,6 +49,7 @@ export const queryKeys = {
   nutritionLog: (date?: string) => ["nutrition-log", date] as const,
   mealPlan: (date?: string) => ["meal-plan", date] as const,
   nutritionStats: (weeks?: number) => ["nutrition-stats", weeks] as const,
+  supplementLog: (date?: string) => ["supplement-log", date] as const,
 };
 
 // ============================================================
@@ -486,5 +489,42 @@ export function useNutritionStats(weeks?: number) {
   return useQuery({
     queryKey: queryKeys.nutritionStats(weeks),
     queryFn: () => nutritionStatsApi.get(weeks),
+  });
+}
+
+// ============================================================
+// Supplements (Feature-gated to k@adu.dk)
+// ============================================================
+
+export function useSupplementLog(date?: string) {
+  return useQuery({
+    queryKey: queryKeys.supplementLog(date),
+    queryFn: () => supplementLogApi.get(date),
+    staleTime: 0, // Always fetch fresh data for date-specific queries
+  });
+}
+
+export function useUpdateSupplementLog() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: supplementLogApi.update,
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.supplementLog(data.date) });
+    },
+    // Optimistic update for instant feedback
+    onMutate: async (newData) => {
+      await queryClient.cancelQueries({ queryKey: queryKeys.supplementLog(newData.date) });
+      const previous = queryClient.getQueryData<SupplementLog>(queryKeys.supplementLog(newData.date));
+      queryClient.setQueryData(queryKeys.supplementLog(newData.date), (old: SupplementLog | undefined) => ({
+        ...old,
+        ...newData,
+      }));
+      return { previous, date: newData.date };
+    },
+    onError: (_, __, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData(queryKeys.supplementLog(context.date), context.previous);
+      }
+    },
   });
 }

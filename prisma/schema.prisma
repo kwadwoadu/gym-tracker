@@ -33,6 +33,7 @@ model User {
   backups           Backup[]
   nutritionLogs     NutritionLog[]
   mealPlans         MealPlan[]
+  supplementLogs    SupplementLog[]
 }
 
 model Exercise {
@@ -266,6 +267,24 @@ model MealPlan {
   id        String   @id @default(cuid())
   date      String   // YYYY-MM-DD
   slots     Json     // { breakfast: "B1", midMorning: "M2", lunch: "L3", snack: "S1", dinner: "D2" }
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // User relation
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date])
+  @@index([userId])
+  @@index([date])
+}
+
+// Daily supplement tracking
+model SupplementLog {
+  id        String   @id @default(cuid())
+  date      String   // YYYY-MM-DD
+  dayType   String   // 'rest' | 'am-training' | 'pm-training'
+  completed Json     // Array of completed supplement IDs
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
