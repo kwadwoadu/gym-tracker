@@ -4,6 +4,39 @@ All notable changes to the SetFlow project.
 
 ---
 
+## [2026-01-11] Supplement Tracking Feature
+
+### Added
+- **Supplements Checklist**: New component on `/nutrition/log` page for daily supplement tracking
+- **Day Type Selection**: Toggle between Rest Day, AM Training, PM Training protocols
+- **Time-Block Organization**: Supplements grouped by Morning, Deep Work, Pre-Workout, Evening
+- **Smoothie Indicators**: Visual markers for supplements that can be mixed in smoothies
+- **Progress Tracking**: Completion percentage and localStorage persistence
+- **Zinc Added**: Added Zinc (15-30mg) to evening block for immune & recovery support
+
+### Files Added
+- `src/data/supplement-protocol.ts` - Supplement data for all 3 day types
+- `src/hooks/use-supplements.ts` - State management with localStorage
+- `src/components/nutrition/supplements-checklist.tsx` - UI component
+
+---
+
+## [2026-01-11] Fix Onboarding Redirect Loop
+
+### Fixed
+- **Infinite Loading Loop**: Users with no programs were stuck on loading screen instead of being redirected to onboarding
+- **Root Cause**: Loading check included `programs.length === 0` which conflicted with redirect useEffect
+
+### Technical Details
+- Split loading check into two phases: actual API loading vs waiting for redirect
+- Show "Redirecting..." message while useEffect redirect executes
+- Prevents race condition between loading state and navigation
+
+### Files Changed
+- `src/app/page.tsx` - Separated loading states
+
+---
+
 ## [2026-01-07] Fix Empty Program Bug for New Users
 
 ### Fixed

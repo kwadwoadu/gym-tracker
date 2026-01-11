@@ -72,7 +72,6 @@ export default function Home() {
   }, [programs, onboarding, programsLoading, onboardingLoading, router]);
 
   const currentDay = sortedDays.find((d) => d.id === selectedDay);
-  const isLoading = programsLoading || onboardingLoading || daysLoading || exercisesLoading;
 
   // Show loading only while data is being fetched
   // Note: Do NOT include programs.length === 0 here - that case is handled by the redirect useEffect above
