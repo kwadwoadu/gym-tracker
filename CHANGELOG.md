@@ -4,6 +4,61 @@ All notable changes to the SetFlow project.
 
 ---
 
+## [2026-01-13] Program Management - Archiving & Library
+
+### Added
+
+**Program Archiving (PRD #1)**
+- Soft-delete via `archivedAt` timestamp instead of permanent deletion
+- Archive/restore API endpoint (`PUT /api/programs/[id]/archive`)
+- Clone program endpoint (`POST /api/programs/[id]/clone`)
+- Permanent deletion option for archived programs only (`DELETE ?permanent=true`)
+- `programName` denormalization on WorkoutLog for orphaned logs
+- Archive, Restore, and Delete Permanent confirmation modals
+
+**Program Management UI (PRD #2)**
+- New `/programs` route - Program Library page
+- `ProgramLibraryCard` component with status badges (ACTIVE, ARCHIVED)
+- `ArchivedSection` collapsible component with animation
+- `ActivateModal` for program switching confirmation
+- Navigation from Settings and Home header to Programs page
+- `lastWorkoutDate` aggregation in programs API
+- Action buttons based on program state (View, Activate, Archive, Restore, Clone, Delete)
+
+### Changed
+- `DELETE /api/programs/[id]` now archives instead of hard deleting
+- `GET /api/programs` supports `?includeArchived=true` and `?archivedOnly=true` params
+- WorkoutLog.programId is now nullable (preserves history when program deleted)
+- Settings page "Change Program" button now links to `/programs`
+- Home header program name is now tappable (links to `/programs`)
+
+### Database Changes
+- Added `archivedAt DateTime?` to Program model
+- Added `programName String?` to WorkoutLog model
+- Changed WorkoutLog.programId to nullable with `onDelete: SetNull`
+- Added index on `archivedAt` for efficient filtering
+
+### Files Added
+- `src/app/programs/page.tsx` - Program Library page
+- `src/app/api/programs/[id]/archive/route.ts` - Archive/Restore endpoint
+- `src/app/api/programs/[id]/clone/route.ts` - Clone endpoint
+- `src/components/program/program-library-card.tsx` - Library card component
+- `src/components/program/archived-section.tsx` - Collapsible archived section
+- `src/components/program/archive-modal.tsx` - Confirmation modals
+- `src/components/program/activate-modal.tsx` - Activation modal
+
+### Files Changed
+- `prisma/schema.prisma` - Schema changes for archiving
+- `src/app/api/programs/route.ts` - Filtering and aggregation
+- `src/app/api/programs/[id]/route.ts` - Soft delete logic
+- `src/lib/api-client.ts` - New API methods
+- `src/lib/queries.ts` - New React Query hooks
+- `src/lib/backup.ts` - Updated BackupWorkoutLog type
+- `src/app/settings/page.tsx` - Link to programs
+- `src/app/page.tsx` - Tappable program name
+
+---
+
 ## [2026-01-11] Unified Nutrition UX - Meals + Supplements
 
 ### Added

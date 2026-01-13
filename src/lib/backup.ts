@@ -57,7 +57,7 @@ interface BackupWorkoutLog {
   duration: number | null;
   notes: string | null;
   isComplete: boolean;
-  programId: string;
+  programId: string | null;
   dayId: string;
   sets: Prisma.JsonValue;
 }

@@ -421,9 +421,9 @@ export default function SettingsPage() {
                 <Button
                   variant="outline"
                   className="w-full h-12"
-                  onClick={() => router.push("/onboarding/plans")}
+                  onClick={() => router.push("/programs")}
                 >
-                  Change Program
+                  My Programs
                 </Button>
               </div>
             ) : (
@@ -431,9 +431,9 @@ export default function SettingsPage() {
                 <p className="text-sm text-muted-foreground">No program selected</p>
                 <Button
                   className="w-full h-12"
-                  onClick={() => router.push("/onboarding/plans")}
+                  onClick={() => router.push("/programs")}
                 >
-                  Select a Program
+                  Browse Programs
                 </Button>
               </div>
             )}

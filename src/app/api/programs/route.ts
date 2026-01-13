@@ -3,24 +3,68 @@ import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth-helpers";
 
 // GET /api/programs - List user's programs
-export async function GET() {
+// Query params:
+//   ?includeArchived=true  - Include archived programs
+//   ?archivedOnly=true     - Only return archived programs
+export async function GET(request: Request) {
   try {
     const user = await getCurrentUser();
     if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const { searchParams } = new URL(request.url);
+    const includeArchived = searchParams.get("includeArchived") === "true";
+    const archivedOnly = searchParams.get("archivedOnly") === "true";
+
+    // Build where clause based on filter params
+    type WhereClause = {
+      userId: string;
+      archivedAt?: null | { not: null };
+    };
+    const where: WhereClause = { userId: user.id };
+
+    if (archivedOnly) {
+      // Only archived programs
+      where.archivedAt = { not: null };
+    } else if (!includeArchived) {
+      // Default: exclude archived programs
+      where.archivedAt = null;
+    }
+    // If includeArchived=true, don't filter by archivedAt (show all)
+
     const programs = await prisma.program.findMany({
-      where: { userId: user.id },
+      where,
       include: {
         trainingDays: {
           orderBy: { dayNumber: "asc" },
         },
+        _count: {
+          select: { workoutLogs: true },
+        },
+        workoutLogs: {
+          orderBy: { date: "desc" },
+          take: 1,
+          select: { date: true },
+        },
       },
-      orderBy: { createdAt: "desc" },
+      orderBy: [
+        { isActive: "desc" }, // Active first
+        { archivedAt: "asc" }, // Non-archived before archived
+        { createdAt: "desc" }, // Then by creation date
+      ],
     });
 
-    return NextResponse.json(programs);
+    // Transform to include workoutCount and lastWorkoutDate at top level
+    const programsWithCount = programs.map((program) => ({
+      ...program,
+      workoutCount: program._count.workoutLogs,
+      lastWorkoutDate: program.workoutLogs[0]?.date ?? null,
+      _count: undefined, // Remove the nested _count
+      workoutLogs: undefined, // Remove the nested workoutLogs
+    }));
+
+    return NextResponse.json(programsWithCount);
   } catch (error) {
     console.error("Error fetching programs:", error);
     return NextResponse.json(

@@ -59,12 +59,13 @@ model Exercise {
 }
 
 model Program {
-  id          String   @id @default(cuid())
+  id          String    @id @default(cuid())
   name        String
   description String?
-  isActive    Boolean  @default(false)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  isActive    Boolean   @default(false)
+  archivedAt  DateTime? // Null = not archived, set = archived timestamp
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
   // User relation
   userId String
@@ -76,6 +77,7 @@ model Program {
 
   @@index([userId])
   @@index([isActive])
+  @@index([archivedAt])
 }
 
 model TrainingDay {
@@ -109,9 +111,10 @@ model WorkoutLog {
   notes     String?
   isComplete Boolean @default(false)
 
-  // Relations
-  programId String
-  program   Program @relation(fields: [programId], references: [id], onDelete: Cascade)
+  // Relations - programId nullable to preserve logs when program archived/deleted
+  programId   String?
+  program     Program?  @relation(fields: [programId], references: [id], onDelete: SetNull)
+  programName String?   // Denormalized for display when program is null
 
   dayId String
   day   TrainingDay @relation(fields: [dayId], references: [id], onDelete: Cascade)

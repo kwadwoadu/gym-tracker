@@ -107,10 +107,10 @@ export function useDeleteExercise() {
 // Programs
 // ============================================================
 
-export function usePrograms() {
+export function usePrograms(options?: { includeArchived?: boolean; archivedOnly?: boolean }) {
   return useQuery({
-    queryKey: queryKeys.programs,
-    queryFn: programsApi.list,
+    queryKey: [...queryKeys.programs, options],
+    queryFn: () => programsApi.list(options),
   });
 }
 
@@ -153,6 +153,47 @@ export function useDeleteProgram() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: programsApi.delete,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.programs });
+    },
+  });
+}
+
+export function useArchiveProgram() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: programsApi.archive,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.programs });
+    },
+  });
+}
+
+export function useRestoreProgram() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: programsApi.restore,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.programs });
+    },
+  });
+}
+
+export function useCloneProgram() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, name }: { id: string; name?: string }) =>
+      programsApi.clone(id, name),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.programs });
+    },
+  });
+}
+
+export function useDeleteProgramPermanent() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: programsApi.deletePermanent,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.programs });
     },

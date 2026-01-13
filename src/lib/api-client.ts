@@ -109,20 +109,61 @@ export interface Program {
   name: string;
   description: string | null;
   isActive: boolean;
+  archivedAt: string | null;
   userId: string;
   createdAt: string;
   updatedAt: string;
   trainingDays?: TrainingDay[];
+  workoutCount?: number;
+  lastWorkoutDate?: string | null;
 }
 
 export const programsApi = {
-  list: async (): Promise<Program[]> => {
-    const res = await fetch(`${API_BASE}/programs`);
+  list: async (options?: { includeArchived?: boolean; archivedOnly?: boolean }): Promise<Program[]> => {
+    const params = new URLSearchParams();
+    if (options?.includeArchived) params.set("includeArchived", "true");
+    if (options?.archivedOnly) params.set("archivedOnly", "true");
+    const query = params.toString();
+    const res = await fetch(`${API_BASE}/programs${query ? `?${query}` : ""}`);
     return handleResponse(res);
   },
 
   get: async (id: string): Promise<Program> => {
     const res = await fetch(`${API_BASE}/programs/${id}`);
+    return handleResponse(res);
+  },
+
+  archive: async (id: string): Promise<{ success: boolean; program: Program }> => {
+    const res = await fetch(`${API_BASE}/programs/${id}/archive`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "archive" }),
+    });
+    return handleResponse(res);
+  },
+
+  restore: async (id: string): Promise<{ success: boolean; program: Program }> => {
+    const res = await fetch(`${API_BASE}/programs/${id}/archive`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "restore" }),
+    });
+    return handleResponse(res);
+  },
+
+  clone: async (id: string, name?: string): Promise<{ success: boolean; program: Program }> => {
+    const res = await fetch(`${API_BASE}/programs/${id}/clone`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name }),
+    });
+    return handleResponse(res);
+  },
+
+  deletePermanent: async (id: string): Promise<{ success: boolean }> => {
+    const res = await fetch(`${API_BASE}/programs/${id}?permanent=true`, {
+      method: "DELETE",
+    });
     return handleResponse(res);
   },
 

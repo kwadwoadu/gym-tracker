@@ -107,10 +107,15 @@ export default function Home() {
             <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
               <Dumbbell className="w-5 h-5 text-primary-foreground" />
             </div>
-            <div>
+            <button
+              onClick={() => router.push("/programs")}
+              className="text-left hover:opacity-80 transition-opacity"
+            >
               <h1 className="text-xl font-bold text-foreground">SetFlow</h1>
-              <p className="text-sm text-muted-foreground">Your Training Program</p>
-            </div>
+              <p className="text-sm text-muted-foreground">
+                {activeProgram?.name || "Your Training Program"}
+              </p>
+            </button>
           </div>
           <div className="flex items-center gap-1">
             <Button
