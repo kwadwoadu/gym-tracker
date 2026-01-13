@@ -4,6 +4,31 @@ All notable changes to the SetFlow project.
 
 ---
 
+## [2026-01-13] ESLint Warnings Cleanup
+
+### Fixed
+- Removed 10+ unused variable/import warnings
+- Fixed React hooks exhaustive-deps warning in nutrition log page
+- Prefixed unused error parameter with underscore in global-error.tsx
+
+### Changed
+- Wrapped `slots` in useMemo in nutrition log page to fix hook dependency warning
+- Removed unused imports: Badge, ACHIEVEMENTS, cn, PersonalRecord, WorkoutLog
+- Removed unused variables: daysLoading, exercisesLoading, achievementToasts, canScrollNext, currentValue
+
+### Files Changed
+- src/app/global-error.tsx
+- src/app/page.tsx
+- src/app/workout/[dayId]/page.tsx
+- src/app/nutrition/log/page.tsx
+- src/components/gamification/achievement-gallery.tsx
+- src/components/onboarding/onboarding-carousel.tsx
+- src/components/stats/recent-workouts.tsx
+- src/lib/gamification.ts
+- src/lib/workout-helpers.ts
+
+---
+
 ## [2026-01-13] New Exercises & 4-Day Bulk Program
 
 ### Added
