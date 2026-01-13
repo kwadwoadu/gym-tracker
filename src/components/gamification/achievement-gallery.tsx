@@ -7,9 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { AchievementBadge } from "./achievement-badge";
 import { Trophy } from "lucide-react";
-import { cn } from "@/lib/utils";
 import {
-  ACHIEVEMENTS,
   CATEGORY_NAMES,
   type AchievementCategory,
 } from "@/data/achievements";

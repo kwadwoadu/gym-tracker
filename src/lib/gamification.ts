@@ -176,24 +176,19 @@ export async function checkAchievements(): Promise<AchievementUnlock[]> {
       continue;
     }
 
-    let currentValue = 0;
     let shouldUnlock = false;
 
     switch (achievement.checkType) {
       case "streak":
-        currentValue = currentStreak;
         shouldUnlock = currentStreak >= achievement.requirement;
         break;
       case "total_workouts":
-        currentValue = totalWorkouts;
         shouldUnlock = totalWorkouts >= achievement.requirement;
         break;
       case "total_volume":
-        currentValue = totalVolume;
         shouldUnlock = totalVolume >= achievement.requirement;
         break;
       case "total_prs":
-        currentValue = totalPRs;
         shouldUnlock = totalPRs >= achievement.requirement;
         break;
       // Weekly/monthly completion achievements require special handling

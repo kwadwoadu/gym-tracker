@@ -38,7 +38,7 @@ import { EditSetDrawer } from "@/components/workout/edit-set-drawer";
 import { ChallengeCard } from "@/components/workout/challenge-card";
 import { AchievementToast, useAchievementToasts } from "@/components/gamification";
 import { checkAchievements } from "@/lib/gamification";
-import { trainingDaysApi, exercisesApi, workoutLogsApi, type TrainingDay, type Exercise, type SetLog, type WorkoutLog } from "@/lib/api-client";
+import { trainingDaysApi, exercisesApi, workoutLogsApi, type TrainingDay, type Exercise, type SetLog } from "@/lib/api-client";
 import { getSuggestedWeight, getGlobalWeightSuggestion, checkAndAddPR, updateWorkoutLog, getLastWeekVolume, getUserSettings } from "@/lib/workout-helpers";
 
 // Animation variants for phase transitions
@@ -207,7 +207,7 @@ export default function WorkoutSession() {
   const [autoStartRestTimer, setAutoStartRestTimer] = useState(true);
 
   // Achievement toasts
-  const { toasts: achievementToasts, addToasts: addAchievementToasts, removeToast: removeAchievementToast, currentToast } = useAchievementToasts();
+  const { addToasts: addAchievementToasts, removeToast: removeAchievementToast, currentToast } = useAchievementToasts();
 
   // Load training day and exercises
   useEffect(() => {

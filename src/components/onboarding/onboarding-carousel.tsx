@@ -25,7 +25,6 @@ export function OnboardingCarousel({
   });
   const [currentIndex, setCurrentIndex] = useState(0);
   const [canScrollPrev, setCanScrollPrev] = useState(false);
-  const [canScrollNext, setCanScrollNext] = useState(false);
 
   const totalSteps = children.length;
   const isLastStep = currentIndex === totalSteps - 1;
@@ -49,7 +48,6 @@ export function OnboardingCarousel({
     if (!emblaApi) return;
     setCurrentIndex(emblaApi.selectedScrollSnap());
     setCanScrollPrev(emblaApi.canScrollPrev());
-    setCanScrollNext(emblaApi.canScrollNext());
   }, [emblaApi]);
 
   useEffect(() => {

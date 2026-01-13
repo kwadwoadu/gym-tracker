@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { History, ChevronDown, ChevronUp, Clock, Dumbbell, MessageSquare, Pencil } from "lucide-react";
 import { EditSetDrawer } from "@/components/workout/edit-set-drawer";
 import { workoutLogsApi, type WorkoutLog, type SetLog } from "@/lib/api-client";

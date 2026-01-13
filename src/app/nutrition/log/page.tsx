@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { format, addDays, subDays } from 'date-fns';
 import { ChevronLeft, ChevronRight, Calendar, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -37,13 +37,13 @@ export default function NutritionLogPage() {
   const { data: mealPlanData, isLoading: mealPlanLoading } = useMealPlan(dateStr);
   const updateMealPlan = useUpdateMealPlan();
 
-  const slots: MealSlots = mealPlanData?.slots ?? {
+  const slots: MealSlots = useMemo(() => mealPlanData?.slots ?? {
     breakfast: null,
     midMorning: null,
     lunch: null,
     snack: null,
     dinner: null,
-  };
+  }, [mealPlanData?.slots]);
 
   // Get time periods for current day type
   const timePeriods = getTimePeriodsForDayType(dayType);

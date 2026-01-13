@@ -32,8 +32,8 @@ export default function Home() {
   const activeProgram = programs?.find((p) => p.isActive);
 
   // Get training days for active program
-  const { data: trainingDays, isLoading: daysLoading } = useTrainingDays(activeProgram?.id);
-  const { data: exercisesList, isLoading: exercisesLoading } = useExercises();
+  const { data: trainingDays } = useTrainingDays(activeProgram?.id);
+  const { data: exercisesList } = useExercises();
 
   // Create exercise map for quick lookup
   const exercises = useMemo(() => {
