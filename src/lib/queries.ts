@@ -45,6 +45,7 @@ export const queryKeys = {
   settings: ["settings"] as const,
   onboarding: ["onboarding"] as const,
   stats: (period?: string) => ["stats", period] as const,
+  muscleVolume: ["muscle-volume"] as const,
   // Nutrition
   nutritionLog: (date?: string) => ["nutrition-log", date] as const,
   mealPlan: (date?: string) => ["meal-plan", date] as const,
@@ -441,6 +442,19 @@ export function useStats(period?: "week" | "month" | "year" | "all") {
   return useQuery({
     queryKey: queryKeys.stats(period),
     queryFn: () => statsApi.get(period),
+  });
+}
+
+// ============================================================
+// Muscle Volume
+// ============================================================
+
+import { getWeeklyMuscleVolume } from "./db";
+
+export function useMuscleVolume() {
+  return useQuery({
+    queryKey: queryKeys.muscleVolume,
+    queryFn: () => getWeeklyMuscleVolume(),
   });
 }
 

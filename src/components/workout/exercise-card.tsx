@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ChevronDown, ChevronUp, Play } from "lucide-react";
 import { cn, getYouTubeThumbnail, isYouTubeUrl } from "@/lib/utils";
+import { MuscleMap } from "@/components/shared/MuscleMap";
 
 interface ExerciseCardProps {
   name: string;
@@ -14,6 +15,10 @@ interface ExerciseCardProps {
   restSeconds?: number;
   videoUrl?: string | null;
   muscleGroups: string[];
+  muscles?: {
+    primary: string[];
+    secondary: string[];
+  };
   supersetLabel: string;
   exerciseLabel: string; // "1" or "2" for A1, A2
   lastWeekWeight?: number;
@@ -28,6 +33,7 @@ export function ExerciseCard({
   restSeconds,
   videoUrl,
   muscleGroups,
+  muscles,
   supersetLabel,
   exerciseLabel,
   lastWeekWeight,
@@ -128,18 +134,27 @@ export function ExerciseCard({
               </div>
             )}
 
-            {/* Muscle groups */}
+            {/* Muscle visualization */}
             <div>
-              <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">
-                Muscles
+              <p className="text-xs text-muted-foreground uppercase tracking-wide mb-2">
+                Muscles Targeted
               </p>
-              <div className="flex gap-1 flex-wrap">
-                {muscleGroups.map((muscle) => (
-                  <Badge key={muscle} variant="outline" className="text-xs capitalize">
-                    {muscle.replace("-", " ")}
-                  </Badge>
-                ))}
-              </div>
+              {muscles ? (
+                <MuscleMap
+                  muscles={muscles}
+                  showBothViews={true}
+                  showLegend={true}
+                  size="sm"
+                />
+              ) : (
+                <div className="flex gap-1 flex-wrap">
+                  {muscleGroups.map((muscle) => (
+                    <Badge key={muscle} variant="outline" className="text-xs capitalize">
+                      {muscle.replace("-", " ").replace("_", " ")}
+                    </Badge>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Video thumbnail or link */}

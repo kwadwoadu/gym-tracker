@@ -4,7 +4,7 @@ import { useMemo, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Loader2 } from "lucide-react";
-import { useWorkoutLogs, usePersonalRecords, useExercises, useAchievements, useStats } from "@/lib/queries";
+import { useWorkoutLogs, usePersonalRecords, useExercises, useAchievements, useStats, useMuscleVolume } from "@/lib/queries";
 import type { Exercise, WorkoutLog, PersonalRecord } from "@/lib/api-client";
 import { SummaryCards } from "@/components/stats/summary-cards";
 import { WeightChart } from "@/components/stats/weight-chart";
@@ -12,6 +12,7 @@ import { PRList } from "@/components/stats/pr-list";
 import { WorkoutCalendar } from "@/components/stats/workout-calendar";
 import { RecentWorkouts } from "@/components/stats/recent-workouts";
 import { AchievementGallery } from "@/components/gamification";
+import { WeeklyMuscleHeatmap } from "@/components/stats/WeeklyMuscleHeatmap";
 import { ACHIEVEMENTS } from "@/data/achievements";
 import type { AchievementProgress } from "@/lib/gamification";
 import { useQueryClient } from "@tanstack/react-query";
@@ -26,6 +27,7 @@ export default function StatsPage() {
   const { data: exercisesList, isLoading: exercisesLoading } = useExercises();
   const { data: unlockedAchievements, isLoading: achievementsLoading } = useAchievements();
   const { data: stats } = useStats();
+  const { data: muscleVolumes, isLoading: muscleVolumeLoading } = useMuscleVolume();
 
   // Create exercise map for quick lookup
   const exercises = useMemo(() => {
@@ -134,7 +136,7 @@ export default function StatsPage() {
     queryClient.invalidateQueries({ queryKey: ["personal-records"] });
   }, [queryClient]);
 
-  const isLoading = logsLoading || prsLoading || exercisesLoading || achievementsLoading;
+  const isLoading = logsLoading || prsLoading || exercisesLoading || achievementsLoading || muscleVolumeLoading;
 
   if (isLoading) {
     return (
@@ -175,6 +177,11 @@ export default function StatsPage() {
           workoutLogs={sortedLogs as WorkoutLog[]}
           personalRecords={sortedPRs as PersonalRecord[]}
         />
+
+        {/* Weekly Muscle Coverage Heatmap */}
+        {muscleVolumes && muscleVolumes.length > 0 && (
+          <WeeklyMuscleHeatmap muscleVolumes={muscleVolumes} />
+        )}
 
         {/* Weight Progression Chart */}
         <WeightChart workoutLogs={sortedLogs as WorkoutLog[]} exercises={exercises} />

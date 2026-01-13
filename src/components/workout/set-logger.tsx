@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dialog";
 import { Check, Minus, Plus, TrendingUp, TrendingDown, Play, ChevronDown, ChevronUp, SkipForward } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { MuscleMapMini } from "@/components/shared/MuscleMapMini";
 
 // Extract YouTube video ID from URL
 function getYouTubeId(url: string): string | null {
@@ -93,6 +94,10 @@ interface SetLoggerProps {
   hitTargetLastTime?: boolean;  // Whether target reps were hit last time
   memorySource?: "session" | "historical";  // Where the suggested values come from
   videoUrl?: string;
+  muscles?: {
+    primary: string[];
+    secondary: string[];
+  };
   onComplete: (weight: number, reps: number, rpe?: number) => void;
   onSkip?: () => void; // Optional callback when user skips the set
 }
@@ -113,6 +118,7 @@ export function SetLogger({
   hitTargetLastTime,
   memorySource,
   videoUrl,
+  muscles,
   onComplete,
   onSkip,
 }: SetLoggerProps) {
@@ -261,18 +267,25 @@ export function SetLogger({
             </div>
           </div>
 
-          <AnimatePresence>
-            {isCompleted && (
-              <motion.div
-                className="w-8 h-8 rounded-full bg-success flex items-center justify-center"
-                variants={checkmarkVariants}
-                initial="initial"
-                animate="animate"
-              >
-                <Check className="w-5 h-5 text-success-foreground" />
-              </motion.div>
+          <div className="flex items-center gap-2">
+            {/* Muscle mini map */}
+            {muscles && (
+              <MuscleMapMini muscles={muscles} />
             )}
-          </AnimatePresence>
+
+            <AnimatePresence>
+              {isCompleted && (
+                <motion.div
+                  className="w-8 h-8 rounded-full bg-success flex items-center justify-center"
+                  variants={checkmarkVariants}
+                  initial="initial"
+                  animate="animate"
+                >
+                  <Check className="w-5 h-5 text-success-foreground" />
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
         </div>
 
       {/* Memory source indicator */}

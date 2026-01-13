@@ -4,6 +4,7 @@
       "id": "ex-barbell-bench",
       "name": "Barbell Bench Press",
       "muscleGroups": ["chest", "triceps", "shoulders"],
+      "muscles": { "primary": ["chest"], "secondary": ["triceps", "front_delts"] },
       "equipment": "barbell",
       "isCustom": false,
       "videoUrl": "https://www.youtube.com/watch?v=2GBuIx8l5Ig"
@@ -12,6 +13,7 @@
       "id": "ex-incline-barbell-bench",
       "name": "Incline Barbell Bench Press",
       "muscleGroups": ["chest", "shoulders", "triceps"],
+      "muscles": { "primary": ["chest", "front_delts"], "secondary": ["triceps"] },
       "equipment": "barbell",
       "isCustom": false,
       "videoUrl": "https://www.youtube.com/watch?v=DN-OmTjIOQY"
@@ -20,6 +22,7 @@
       "id": "ex-decline-barbell-bench",
       "name": "Decline Barbell Bench Press",
       "muscleGroups": ["chest", "triceps"],
+      "muscles": { "primary": ["chest"], "secondary": ["triceps"] },
       "equipment": "barbell",
       "isCustom": false,
       "videoUrl": "https://www.youtube.com/watch?v=TcS2710y04w"
@@ -28,6 +31,7 @@
       "id": "ex-incline-db-press",
       "name": "Incline Dumbbell Press",
       "muscleGroups": ["chest", "shoulders"],
+      "muscles": { "primary": ["chest", "front_delts"], "secondary": ["triceps"] },
       "equipment": "dumbbells",
       "isCustom": false,
       "videoUrl": "https://www.youtube.com/watch?v=ig7ThJf5noI"
@@ -36,6 +40,7 @@
       "id": "ex-flat-db-press",
       "name": "Flat Dumbbell Press",
       "muscleGroups": ["chest", "triceps"],
+      "muscles": { "primary": ["chest"], "secondary": ["triceps", "front_delts"] },
       "equipment": "dumbbells",
       "isCustom": false,
       "videoUrl": "https://www.youtube.com/watch?v=GwMS-qsMNHk"
@@ -44,6 +49,7 @@
       "id": "ex-decline-db-press",
       "name": "Decline Dumbbell Press",
       "muscleGroups": ["chest", "triceps"],
+      "muscles": { "primary": ["chest"], "secondary": ["triceps"] },
       "equipment": "dumbbells",
       "isCustom": false,
       "videoUrl": "https://www.youtube.com/watch?v=TcS2710y04w"
@@ -52,6 +58,7 @@
       "id": "ex-cable-fly",
       "name": "Cable Fly",
       "muscleGroups": ["chest"],
+      "muscles": { "primary": ["chest"], "secondary": [] },
       "equipment": "cable",
       "isCustom": false,
       "videoUrl": "https://www.youtube.com/watch?v=mHjXRgK4Wks"
@@ -60,6 +67,7 @@
       "id": "ex-incline-cable-fly",
       "name": "Incline Cable Fly",
       "muscleGroups": ["chest"],
+      "muscles": { "primary": ["chest"], "secondary": ["front_delts"] },
       "equipment": "cable",
       "isCustom": false,
       "videoUrl": "https://www.youtube.com/watch?v=nT0JjFv111E"
@@ -68,6 +76,7 @@
       "id": "ex-low-high-cable-fly",
       "name": "Low-to-High Cable Fly",
       "muscleGroups": ["chest"],
+      "muscles": { "primary": ["chest"], "secondary": ["front_delts"] },
       "equipment": "cable",
       "isCustom": false,
       "videoUrl": "https://www.youtube.com/watch?v=8YjdqeIXPUQ"
@@ -76,6 +85,7 @@
       "id": "ex-chest-dips",
       "name": "Chest Dips",
       "muscleGroups": ["chest", "triceps"],
+      "muscles": { "primary": ["chest"], "secondary": ["triceps", "front_delts"] },
       "equipment": "dip-station",
       "isCustom": false,
       "videoUrl": "https://www.youtube.com/watch?v=ysA80mK_I2k"
@@ -84,6 +94,7 @@
       "id": "ex-machine-chest-press",
       "name": "Machine Chest Press",
       "muscleGroups": ["chest", "triceps"],
+      "muscles": { "primary": ["chest"], "secondary": ["triceps", "front_delts"] },
       "equipment": "machine",
       "isCustom": false,
       "videoUrl": "https://www.youtube.com/watch?v=3EoGAVgYukQ"
@@ -92,6 +103,7 @@
       "id": "ex-incline-machine-press",
       "name": "Incline Machine Press",
       "muscleGroups": ["chest", "shoulders", "triceps"],
+      "muscles": { "primary": ["chest", "front_delts"], "secondary": ["triceps"] },
       "equipment": "machine",
       "isCustom": false,
       "videoUrl": "https://www.youtube.com/watch?v=qkIaG_Zu9BY"
@@ -100,6 +112,7 @@
       "id": "ex-incline-chest-press",
       "name": "Incline DB Chest Press",
       "muscleGroups": ["chest", "shoulders"],
+      "muscles": { "primary": ["chest", "front_delts"], "secondary": ["triceps"] },
       "equipment": "dumbbells",
       "isCustom": false,
       "videoUrl": "https://www.youtube.com/watch?v=ig7ThJf5noI"
@@ -108,6 +121,7 @@
       "id": "ex-pullup",
       "name": "Pull-up",
       "muscleGroups": ["lats", "biceps", "back"],
+      "muscles": { "primary": ["lats"], "secondary": ["biceps", "rhomboids", "rear_delts"] },
       "equipment": "pull-up-bar",
       "isCustom": false,
       "videoUrl": "https://www.youtube.com/watch?v=kS7UdiYM3eQ"
@@ -116,6 +130,7 @@
       "id": "ex-chinup",
       "name": "Chin-up",
       "muscleGroups": ["lats", "biceps"],
+      "muscles": { "primary": ["lats", "biceps"], "secondary": ["rhomboids"] },
       "equipment": "pull-up-bar",
       "isCustom": false,
       "videoUrl": "https://www.youtube.com/watch?v=3N6RTXnpFX4"
@@ -124,6 +139,7 @@
       "id": "ex-wide-lat-pulldown",
       "name": "Wide Grip Lat Pulldown",
       "muscleGroups": ["lats", "back"],
+      "muscles": { "primary": ["lats"], "secondary": ["biceps", "rhomboids"] },
       "equipment": "cable",
       "isCustom": false,
       "videoUrl": "https://www.youtube.com/watch?v=V4FFkC0H8-4"
@@ -132,6 +148,7 @@
       "id": "ex-neutral-pulldown",
       "name": "Neutral Grip Pulldown",
       "muscleGroups": ["lats", "back"],
+      "muscles": { "primary": ["lats"], "secondary": ["biceps", "rhomboids"] },
       "equipment": "cable",
       "isCustom": false,
       "videoUrl": "https://www.youtube.com/watch?v=jO6E5YojTnA"
@@ -140,6 +157,7 @@
       "id": "ex-close-grip-pulldown",
       "name": "Close Grip Pulldown",
       "muscleGroups": ["lats", "back"],
+      "muscles": { "primary": ["lats"], "secondary": ["biceps", "rhomboids"] },
       "equipment": "cable",
       "isCustom": false,
       "videoUrl": "https://www.youtube.com/watch?v=r6kKmffG78c"
@@ -148,6 +166,7 @@
       "id": "ex-barbell-row",
       "name": "Barbell Row",
       "muscleGroups": ["back", "lats", "biceps"],
+      "muscles": { "primary": ["lats", "rhomboids"], "secondary": ["biceps", "rear_delts", "erector_spinae"] },
       "equipment": "barbell",
       "isCustom": false,
       "videoUrl": "https://www.youtube.com/watch?v=g1bCQ15erxI"
@@ -156,6 +175,7 @@
       "id": "ex-dumbbell-row",
       "name": "Dumbbell Row",
       "muscleGroups": ["back", "lats"],
+      "muscles": { "primary": ["lats"], "secondary": ["biceps", "rhomboids", "rear_delts"] },
       "equipment": "dumbbells",
       "isCustom": false,
       "videoUrl": "https://www.youtube.com/watch?v=r4j9wintHqo"
@@ -164,6 +184,7 @@
       "id": "ex-seated-cable-row",
       "name": "Seated Cable Row",
       "muscleGroups": ["back", "lats", "biceps"],
+      "muscles": { "primary": ["lats", "rhomboids"], "secondary": ["biceps", "rear_delts"] },
       "equipment": "cable",
       "isCustom": false,
       "videoUrl": "https://www.youtube.com/watch?v=s3QYwBbrz2M"
@@ -172,6 +193,7 @@
       "id": "ex-t-bar-row",
       "name": "T-Bar Row",
       "muscleGroups": ["back", "lats"],
+      "muscles": { "primary": ["lats", "rhomboids"], "secondary": ["biceps", "rear_delts"] },
       "equipment": "machine",
       "isCustom": false,
       "videoUrl": "https://www.youtube.com/watch?v=vEMm0NbRPV8"
@@ -180,6 +202,7 @@
       "id": "ex-chest-supported-row",
       "name": "Chest Supported Row",
       "muscleGroups": ["back", "lats"],
+      "muscles": { "primary": ["lats", "rhomboids"], "secondary": ["biceps", "rear_delts"] },
       "equipment": "dumbbells",
       "isCustom": false,
       "videoUrl": "https://www.youtube.com/watch?v=0UBRfiO4zDs"
@@ -188,6 +211,7 @@
       "id": "ex-straight-arm-pulldown",
       "name": "Straight Arm Pulldown",
       "muscleGroups": ["lats"],
+      "muscles": { "primary": ["lats"], "secondary": ["triceps"] },
       "equipment": "cable",
       "isCustom": false,
       "videoUrl": "https://www.youtube.com/watch?v=J1tiAR1pJ1E"
@@ -196,6 +220,7 @@
       "id": "ex-deadlift",
       "name": "Conventional Deadlift",
       "muscleGroups": ["back", "glutes", "hamstrings"],
+      "muscles": { "primary": ["erector_spinae", "glutes", "hamstrings"], "secondary": ["lats", "traps", "quads", "forearms"] },
       "equipment": "barbell",
       "isCustom": false,
       "videoUrl": "https://www.youtube.com/watch?v=mDzU3F8qgi0"
@@ -204,6 +229,7 @@
       "id": "ex-ohp",
       "name": "Overhead Press",
       "muscleGroups": ["shoulders", "triceps"],
+      "muscles": { "primary": ["front_delts", "lateral_delts"], "secondary": ["triceps", "traps"] },
       "equipment": "barbell",
       "isCustom": false,
       "videoUrl": "https://www.youtube.com/watch?v=nDZMV7wbMpc"
@@ -212,6 +238,7 @@
       "id": "ex-db-shoulder-press",
       "name": "Dumbbell Shoulder Press",
       "muscleGroups": ["shoulders", "triceps"],
+      "muscles": { "primary": ["front_delts", "lateral_delts"], "secondary": ["triceps"] },
       "equipment": "dumbbells",
       "isCustom": false,
       "videoUrl": "https://www.youtube.com/watch?v=Qru5apgGDdo"
@@ -220,6 +247,7 @@
       "id": "ex-arnold-press",
       "name": "Arnold Press",
       "muscleGroups": ["shoulders", "triceps"],
+      "muscles": { "primary": ["front_delts", "lateral_delts"], "secondary": ["triceps"] },
       "equipment": "dumbbells",
       "isCustom": false,
       "videoUrl": "https://www.youtube.com/watch?v=_z_k3gFiS50"
@@ -228,6 +256,7 @@
       "id": "ex-lateral-raises",
       "name": "Lateral Raises",
       "muscleGroups": ["shoulders"],
+      "muscles": { "primary": ["lateral_delts"], "secondary": ["traps"] },
       "equipment": "dumbbells",
       "isCustom": false,
       "videoUrl": "https://www.youtube.com/watch?v=ywszc898HvI"
@@ -236,6 +265,7 @@
       "id": "ex-cable-lateral-raises",
       "name": "Cable Lateral Raises",
       "muscleGroups": ["shoulders"],
+      "muscles": { "primary": ["lateral_delts"], "secondary": ["traps"] },
       "equipment": "cable",
       "isCustom": false,
       "videoUrl": "https://www.youtube.com/watch?v=Dq45UOZB_Fs"
@@ -244,6 +274,7 @@
       "id": "ex-front-raises",
       "name": "Front Raises",
       "muscleGroups": ["shoulders"],
+      "muscles": { "primary": ["front_delts"], "secondary": [] },
       "equipment": "dumbbells",
       "isCustom": false,
       "videoUrl": "https://www.youtube.com/watch?v=RJwpdI6qWdE"
@@ -252,6 +283,7 @@
       "id": "ex-incline-delt-press",
       "name": "Incline DB Anterior Delt Press",
       "muscleGroups": ["shoulders"],
+      "muscles": { "primary": ["front_delts"], "secondary": ["chest"] },
       "equipment": "dumbbells",
       "isCustom": false,
       "videoUrl": "https://www.youtube.com/watch?v=u8D31j_PXq4"
@@ -260,6 +292,7 @@
       "id": "ex-machine-shoulder-press",
       "name": "Machine Shoulder Press",
       "muscleGroups": ["shoulders"],
+      "muscles": { "primary": ["front_delts", "lateral_delts"], "secondary": ["triceps"] },
       "equipment": "machine",
       "isCustom": false,
       "videoUrl": "https://www.youtube.com/watch?v=WvLMauqrnK8"
@@ -267,7 +300,8 @@
     {
       "id": "ex-face-pulls",
       "name": "Face Pulls",
-      "muscleGroups": ["rear-delts", "upper-back"],
+      "muscleGroups": ["rear_delts", "rhomboids"],
+      "muscles": { "primary": ["rear_delts", "rhomboids"], "secondary": ["traps"] },
       "equipment": "cable",
       "isCustom": false,
       "videoUrl": "https://www.youtube.com/watch?v=W0lIYpESFLM"
@@ -275,7 +309,8 @@
     {
       "id": "ex-y-raises",
       "name": "Y-Raises",
-      "muscleGroups": ["rear-delts", "shoulders"],
+      "muscleGroups": ["rear_delts", "traps"],
+      "muscles": { "primary": ["rear_delts", "traps"], "secondary": ["rhomboids"] },
       "equipment": "cable",
       "isCustom": false,
       "videoUrl": "https://www.youtube.com/watch?v=7IvJppnxFLw"
@@ -283,7 +318,8 @@
     {
       "id": "ex-rear-delt-fly",
       "name": "Rear Delt Fly",
-      "muscleGroups": ["rear-delts"],
+      "muscleGroups": ["rear_delts"],
+      "muscles": { "primary": ["rear_delts"], "secondary": ["rhomboids"] },
       "equipment": "dumbbells",
       "isCustom": false,
       "videoUrl": "https://www.youtube.com/watch?v=P7x4BfMa1JY"
@@ -291,7 +327,8 @@
     {
       "id": "ex-rear-delt-cable-fly",
       "name": "Rear Delt Cable Fly",
-      "muscleGroups": ["rear-delts"],
+      "muscleGroups": ["rear_delts"],
+      "muscles": { "primary": ["rear_delts"], "secondary": ["rhomboids"] },
       "equipment": "cable",
       "isCustom": false,
       "videoUrl": "https://www.youtube.com/watch?v=f3XsPfF_z08"
@@ -299,7 +336,8 @@
     {
       "id": "ex-rear-delt-cable-row",
       "name": "Rear Delt Cable Row",
-      "muscleGroups": ["rear-delts", "back"],
+      "muscleGroups": ["rear_delts", "back"],
+      "muscles": { "primary": ["rear_delts"], "secondary": ["rhomboids", "lats"] },
       "equipment": "cable",
       "isCustom": false,
       "videoUrl": "https://www.youtube.com/watch?v=Y5yJcDZX1i0"
@@ -307,7 +345,8 @@
     {
       "id": "ex-reverse-pec-deck",
       "name": "Reverse Pec Deck",
-      "muscleGroups": ["rear-delts"],
+      "muscleGroups": ["rear_delts"],
+      "muscles": { "primary": ["rear_delts"], "secondary": ["rhomboids"] },
       "equipment": "machine",
       "isCustom": false,
       "videoUrl": "https://www.youtube.com/watch?v=cmDhUMe_Juk"
@@ -315,7 +354,8 @@
     {
       "id": "ex-band-pull-aparts",
       "name": "Band Pull-Aparts",
-      "muscleGroups": ["rear-delts", "upper-back"],
+      "muscleGroups": ["rear_delts", "rhomboids"],
+      "muscles": { "primary": ["rear_delts", "rhomboids"], "secondary": ["traps"] },
       "equipment": "band",
       "isCustom": false,
       "videoUrl": "https://www.youtube.com/watch?v=W0lIYpESFLM"
@@ -324,6 +364,7 @@
       "id": "ex-tricep-pushdown",
       "name": "Tricep Pushdown",
       "muscleGroups": ["triceps"],
+      "muscles": { "primary": ["triceps"], "secondary": [] },
       "equipment": "cable",
       "isCustom": false,
       "videoUrl": "https://www.youtube.com/watch?v=DNZfdXrI37M"
@@ -332,6 +373,7 @@
       "id": "ex-rope-pushdown",
       "name": "Rope Tricep Pushdown",
       "muscleGroups": ["triceps"],
+      "muscles": { "primary": ["triceps"], "secondary": [] },
       "equipment": "cable",
       "isCustom": false,
       "videoUrl": "https://www.youtube.com/watch?v=DNZfdXrI37M"
@@ -340,6 +382,7 @@
       "id": "ex-overhead-tricep-ext",
       "name": "Overhead Tricep Extension",
       "muscleGroups": ["triceps"],
+      "muscles": { "primary": ["triceps"], "secondary": [] },
       "equipment": "cable",
       "isCustom": false,
       "videoUrl": "https://www.youtube.com/watch?v=FALGFUFnP5o"
@@ -348,6 +391,7 @@
       "id": "ex-cross-cable-tricep",
       "name": "Cross Cable Tricep Extension",
       "muscleGroups": ["triceps"],
+      "muscles": { "primary": ["triceps"], "secondary": [] },
       "equipment": "cable",
       "isCustom": false,
       "videoUrl": "https://www.youtube.com/watch?v=Y79pALqCoCg"
@@ -356,6 +400,7 @@
       "id": "ex-skull-crushers",
       "name": "Skull Crushers",
       "muscleGroups": ["triceps"],
+      "muscles": { "primary": ["triceps"], "secondary": [] },
       "equipment": "barbell",
       "isCustom": false,
       "videoUrl": "https://www.youtube.com/watch?v=zW2bxV1dreQ"
@@ -364,6 +409,7 @@
       "id": "ex-dumbbell-kickback",
       "name": "Dumbbell Kickback",
       "muscleGroups": ["triceps"],
+      "muscles": { "primary": ["triceps"], "secondary": [] },
       "equipment": "dumbbells",
       "isCustom": false,
       "videoUrl": "https://www.youtube.com/watch?v=SvvFuZzZfLc"
@@ -372,6 +418,7 @@
       "id": "ex-close-grip-bench",
       "name": "Close Grip Bench Press",
       "muscleGroups": ["triceps", "chest"],
+      "muscles": { "primary": ["triceps"], "secondary": ["chest", "front_delts"] },
       "equipment": "barbell",
       "isCustom": false,
       "videoUrl": "https://www.youtube.com/watch?v=7k4_JpQ_CuA"
@@ -380,6 +427,7 @@
       "id": "ex-tricep-dips",
       "name": "Tricep Dips",
       "muscleGroups": ["triceps"],
+      "muscles": { "primary": ["triceps"], "secondary": ["chest", "front_delts"] },
       "equipment": "dip-station",
       "isCustom": false,
       "videoUrl": "https://www.youtube.com/watch?v=iOSPYZfFboo"
@@ -388,6 +436,7 @@
       "id": "ex-barbell-curl",
       "name": "Barbell Curl",
       "muscleGroups": ["biceps"],
+      "muscles": { "primary": ["biceps"], "secondary": ["forearms"] },
       "equipment": "barbell",
       "isCustom": false,
       "videoUrl": "https://www.youtube.com/watch?v=Hn3IJjY_lGE"
@@ -396,6 +445,7 @@
       "id": "ex-ez-bar-curl",
       "name": "EZ Bar Curl",
       "muscleGroups": ["biceps"],
+      "muscles": { "primary": ["biceps"], "secondary": ["forearms"] },
       "equipment": "barbell",
       "isCustom": false,
       "videoUrl": "https://www.youtube.com/watch?v=zr5xSpQgVgI"
@@ -404,6 +454,7 @@
       "id": "ex-dumbbell-curl",
       "name": "Dumbbell Curl",
       "muscleGroups": ["biceps"],
+      "muscles": { "primary": ["biceps"], "secondary": ["forearms"] },
       "equipment": "dumbbells",
       "isCustom": false,
       "videoUrl": "https://www.youtube.com/watch?v=O5bxpJdzShg"
@@ -412,6 +463,7 @@
       "id": "ex-hammer-curl",
       "name": "Hammer Curl",
       "muscleGroups": ["biceps", "forearms"],
+      "muscles": { "primary": ["biceps", "forearms"], "secondary": [] },
       "equipment": "dumbbells",
       "isCustom": false,
       "videoUrl": "https://www.youtube.com/watch?v=IrdNYqBLOhE"
@@ -420,6 +472,7 @@
       "id": "ex-incline-bicep-curls",
       "name": "Incline Supinated Bicep Curls",
       "muscleGroups": ["biceps"],
+      "muscles": { "primary": ["biceps"], "secondary": [] },
       "equipment": "dumbbells",
       "isCustom": false,
       "videoUrl": "https://www.youtube.com/watch?v=7cHYaRjRd88"
@@ -428,6 +481,7 @@
       "id": "ex-preacher-curl",
       "name": "Preacher Curl",
       "muscleGroups": ["biceps"],
+      "muscles": { "primary": ["biceps"], "secondary": [] },
       "equipment": "machine",
       "isCustom": false,
       "videoUrl": "https://www.youtube.com/watch?v=QyfqqKdhKyw"
@@ -436,6 +490,7 @@
       "id": "ex-cable-curl",
       "name": "Cable Curl",
       "muscleGroups": ["biceps"],
+      "muscles": { "primary": ["biceps"], "secondary": [] },
       "equipment": "cable",
       "isCustom": false,
       "videoUrl": "https://www.youtube.com/watch?v=IM4ymfkoMzs"
@@ -444,6 +499,7 @@
       "id": "ex-concentration-curl",
       "name": "Concentration Curl",
       "muscleGroups": ["biceps"],
+      "muscles": { "primary": ["biceps"], "secondary": [] },
       "equipment": "dumbbells",
       "isCustom": false,
       "videoUrl": "https://www.youtube.com/watch?v=Bk1gDAQOOYA"
@@ -452,6 +508,7 @@
       "id": "ex-barbell-squat",
       "name": "Barbell Back Squat",
       "muscleGroups": ["quads", "glutes"],
+      "muscles": { "primary": ["quads", "glutes"], "secondary": ["hamstrings", "core", "erector_spinae"] },
       "equipment": "barbell",
       "isCustom": false,
       "videoUrl": "https://www.youtube.com/watch?v=wzxPpuS42ww"
@@ -460,6 +517,7 @@
       "id": "ex-front-squat",
       "name": "Front Squat",
       "muscleGroups": ["quads", "core"],
+      "muscles": { "primary": ["quads"], "secondary": ["glutes", "core"] },
       "equipment": "barbell",
       "isCustom": false,
       "videoUrl": "https://www.youtube.com/watch?v=qctTtZ6G0g4"
@@ -468,6 +526,7 @@
       "id": "ex-hack-squat",
       "name": "Hack Squat",
       "muscleGroups": ["quads", "glutes"],
+      "muscles": { "primary": ["quads"], "secondary": ["glutes"] },
       "equipment": "machine",
       "isCustom": false,
       "videoUrl": "https://www.youtube.com/watch?v=y1tf6D-o-DY"
@@ -476,6 +535,7 @@
       "id": "ex-leg-press",
       "name": "Leg Press",
       "muscleGroups": ["quads", "glutes"],
+      "muscles": { "primary": ["quads", "glutes"], "secondary": ["hamstrings"] },
       "equipment": "machine",
       "isCustom": false,
       "videoUrl": "https://www.youtube.com/watch?v=sJ-O4nam1Bc"
@@ -484,6 +544,7 @@
       "id": "ex-leg-extension",
       "name": "Leg Extension",
       "muscleGroups": ["quads"],
+      "muscles": { "primary": ["quads"], "secondary": [] },
       "equipment": "machine",
       "isCustom": false,
       "videoUrl": "https://www.youtube.com/watch?v=ZVMmvgNDr5Q"
@@ -492,6 +553,7 @@
       "id": "ex-rfess",
       "name": "Rear Foot Elevated Split Squat",
       "muscleGroups": ["quads", "glutes"],
+      "muscles": { "primary": ["quads", "glutes"], "secondary": ["hamstrings", "core"] },
       "equipment": "bench",
       "isCustom": false,
       "videoUrl": "https://www.youtube.com/watch?v=I3Zl6O02bkI"
@@ -500,6 +562,7 @@
       "id": "ex-walking-lunge",
       "name": "Walking Lunge",
       "muscleGroups": ["quads", "glutes"],
+      "muscles": { "primary": ["quads", "glutes"], "secondary": ["hamstrings"] },
       "equipment": "dumbbells",
       "isCustom": false,
       "videoUrl": "https://www.youtube.com/watch?v=9ZGAEKtUJk4"
@@ -508,6 +571,7 @@
       "id": "ex-goblet-squat",
       "name": "Goblet Squat",
       "muscleGroups": ["quads", "glutes"],
+      "muscles": { "primary": ["quads", "glutes"], "secondary": ["core"] },
       "equipment": "dumbbells",
       "isCustom": false,
       "videoUrl": "https://www.youtube.com/watch?v=pX5gyyVgHEc"
@@ -516,6 +580,7 @@
       "id": "ex-rdl",
       "name": "Romanian Deadlift",
       "muscleGroups": ["hamstrings", "glutes", "back"],
+      "muscles": { "primary": ["hamstrings", "glutes"], "secondary": ["erector_spinae"] },
       "equipment": "barbell",
       "isCustom": false,
       "videoUrl": "https://www.youtube.com/watch?v=kaFat_DKqBg"
@@ -524,6 +589,7 @@
       "id": "ex-dumbbell-rdl",
       "name": "Dumbbell Romanian Deadlift",
       "muscleGroups": ["hamstrings", "glutes"],
+      "muscles": { "primary": ["hamstrings", "glutes"], "secondary": ["erector_spinae"] },
       "equipment": "dumbbells",
       "isCustom": false,
       "videoUrl": "https://www.youtube.com/watch?v=dFjDJ-k3pt8"
@@ -532,6 +598,7 @@
       "id": "ex-lying-ham-curl",
       "name": "Lying Hamstring Curl",
       "muscleGroups": ["hamstrings"],
+      "muscles": { "primary": ["hamstrings"], "secondary": [] },
       "equipment": "machine",
       "isCustom": false,
       "videoUrl": "https://www.youtube.com/watch?v=J6sSZ2iZ8YI"
@@ -540,6 +607,7 @@
       "id": "ex-seated-leg-curl",
       "name": "Seated Leg Curl",
       "muscleGroups": ["hamstrings"],
+      "muscles": { "primary": ["hamstrings"], "secondary": [] },
       "equipment": "machine",
       "isCustom": false,
       "videoUrl": "https://www.youtube.com/watch?v=jE29X8i9B5s"
@@ -548,6 +616,7 @@
       "id": "ex-nordic-curl",
       "name": "Nordic Hamstring Curl",
       "muscleGroups": ["hamstrings"],
+      "muscles": { "primary": ["hamstrings"], "secondary": [] },
       "equipment": "bodyweight",
       "isCustom": false,
       "videoUrl": "https://www.youtube.com/watch?v=n4o4jzcxufc"
@@ -556,6 +625,7 @@
       "id": "ex-good-morning",
       "name": "Good Morning",
       "muscleGroups": ["hamstrings", "back"],
+      "muscles": { "primary": ["hamstrings", "erector_spinae"], "secondary": ["glutes"] },
       "equipment": "barbell",
       "isCustom": false,
       "videoUrl": "https://www.youtube.com/watch?v=O3a45JOHcbA"
@@ -564,6 +634,7 @@
       "id": "ex-hip-thrust",
       "name": "Barbell Hip Thrust",
       "muscleGroups": ["glutes", "hamstrings"],
+      "muscles": { "primary": ["glutes"], "secondary": ["hamstrings"] },
       "equipment": "barbell",
       "isCustom": false,
       "videoUrl": "https://www.youtube.com/watch?v=lINnfh5vZ9Y"
@@ -572,6 +643,7 @@
       "id": "ex-glute-bridge",
       "name": "Glute Bridge (Machine)",
       "muscleGroups": ["glutes", "hamstrings"],
+      "muscles": { "primary": ["glutes"], "secondary": ["hamstrings"] },
       "equipment": "machine",
       "isCustom": false,
       "videoUrl": "https://www.youtube.com/watch?v=TwKJ_1J5hA8"
@@ -580,6 +652,7 @@
       "id": "ex-cable-kickback",
       "name": "Cable Glute Kickback",
       "muscleGroups": ["glutes"],
+      "muscles": { "primary": ["glutes"], "secondary": ["hamstrings"] },
       "equipment": "cable",
       "isCustom": false,
       "videoUrl": "https://www.youtube.com/watch?v=xT18pLHEGik"
@@ -588,6 +661,7 @@
       "id": "ex-sumo-deadlift",
       "name": "Sumo Deadlift",
       "muscleGroups": ["glutes", "quads", "back"],
+      "muscles": { "primary": ["glutes", "quads"], "secondary": ["hamstrings", "erector_spinae"] },
       "equipment": "barbell",
       "isCustom": false,
       "videoUrl": "https://www.youtube.com/watch?v=mDzU3F8qgi0"
@@ -596,6 +670,7 @@
       "id": "ex-hip-abduction",
       "name": "Hip Abduction Machine",
       "muscleGroups": ["glutes"],
+      "muscles": { "primary": ["glutes"], "secondary": [] },
       "equipment": "machine",
       "isCustom": false,
       "videoUrl": "https://www.youtube.com/watch?v=h9BqUMqK-SY"
@@ -604,6 +679,7 @@
       "id": "ex-step-ups",
       "name": "Step-Ups",
       "muscleGroups": ["glutes", "quads"],
+      "muscles": { "primary": ["glutes", "quads"], "secondary": [] },
       "equipment": "dumbbells",
       "isCustom": false,
       "videoUrl": "https://www.youtube.com/watch?v=Nvqi1CsYqIM"
@@ -612,6 +688,7 @@
       "id": "ex-standing-calf-raise",
       "name": "Standing Calf Raise",
       "muscleGroups": ["calves"],
+      "muscles": { "primary": ["calves"], "secondary": [] },
       "equipment": "machine",
       "isCustom": false,
       "videoUrl": "https://www.youtube.com/watch?v=ncXolCGoMqg"
@@ -620,6 +697,7 @@
       "id": "ex-seated-calf-raise",
       "name": "Seated Calf Raise",
       "muscleGroups": ["calves"],
+      "muscles": { "primary": ["calves"], "secondary": [] },
       "equipment": "machine",
       "isCustom": false,
       "videoUrl": "https://www.youtube.com/watch?v=_8npbfYV-xY"
@@ -628,6 +706,7 @@
       "id": "ex-leg-press-calf",
       "name": "Leg Press Calf Raise",
       "muscleGroups": ["calves"],
+      "muscles": { "primary": ["calves"], "secondary": [] },
       "equipment": "leg-press",
       "isCustom": false,
       "videoUrl": "https://www.youtube.com/watch?v=_8npbfYV-xY"
@@ -636,6 +715,7 @@
       "id": "ex-tibialis-raise",
       "name": "Tibialis Anterior Raise",
       "muscleGroups": ["tibialis"],
+      "muscles": { "primary": ["tibialis"], "secondary": [] },
       "equipment": "plate",
       "isCustom": false,
       "videoUrl": "https://www.youtube.com/watch?v=U2jY8l-6VOA"
@@ -643,7 +723,8 @@
     {
       "id": "ex-ab-crunch",
       "name": "Ab Crunch Machine",
-      "muscleGroups": ["abs"],
+      "muscleGroups": ["core"],
+      "muscles": { "primary": ["core"], "secondary": [] },
       "equipment": "machine",
       "isCustom": false,
       "videoUrl": "https://www.youtube.com/watch?v=y2ikpV8EmZ4"
@@ -651,7 +732,8 @@
     {
       "id": "ex-cable-crunch",
       "name": "Cable Crunch",
-      "muscleGroups": ["abs"],
+      "muscleGroups": ["core"],
+      "muscles": { "primary": ["core"], "secondary": [] },
       "equipment": "cable",
       "isCustom": false,
       "videoUrl": "https://www.youtube.com/watch?v=rZ84A5JqFys"
@@ -659,7 +741,8 @@
     {
       "id": "ex-hanging-leg-raise",
       "name": "Hanging Leg Raise",
-      "muscleGroups": ["abs", "hip-flexors"],
+      "muscleGroups": ["core", "hip_flexors"],
+      "muscles": { "primary": ["core"], "secondary": ["hip_flexors"] },
       "equipment": "pull-up-bar",
       "isCustom": false,
       "videoUrl": "https://www.youtube.com/watch?v=Pr1ieGZ5atk"
@@ -667,7 +750,8 @@
     {
       "id": "ex-leg-raise",
       "name": "Lying Leg Raise",
-      "muscleGroups": ["abs"],
+      "muscleGroups": ["core"],
+      "muscles": { "primary": ["core"], "secondary": ["hip_flexors"] },
       "equipment": "bodyweight",
       "isCustom": false,
       "videoUrl": "https://www.youtube.com/watch?v=xJJu-WiROM8"
@@ -676,6 +760,7 @@
       "id": "ex-plank",
       "name": "Plank",
       "muscleGroups": ["core"],
+      "muscles": { "primary": ["core"], "secondary": ["front_delts"] },
       "equipment": "bodyweight",
       "isCustom": false,
       "videoUrl": "https://www.youtube.com/watch?v=6LqqeBtFn9M"
@@ -683,7 +768,8 @@
     {
       "id": "ex-russian-twist",
       "name": "Russian Twist",
-      "muscleGroups": ["abs", "obliques"],
+      "muscleGroups": ["core", "obliques"],
+      "muscles": { "primary": ["obliques"], "secondary": ["core"] },
       "equipment": "dumbbells",
       "isCustom": false,
       "videoUrl": "https://www.youtube.com/watch?v=wkD8rjkodUI"
@@ -691,7 +777,8 @@
     {
       "id": "ex-ab-wheel",
       "name": "Ab Wheel Rollout",
-      "muscleGroups": ["abs", "core"],
+      "muscleGroups": ["core"],
+      "muscles": { "primary": ["core"], "secondary": ["lats", "triceps"] },
       "equipment": "ab-wheel",
       "isCustom": false,
       "videoUrl": "https://www.youtube.com/watch?v=A3uK5TPzHq8"
@@ -700,6 +787,7 @@
       "id": "ex-woodchop",
       "name": "Cable Woodchop",
       "muscleGroups": ["obliques", "core"],
+      "muscles": { "primary": ["obliques"], "secondary": ["core"] },
       "equipment": "cable",
       "isCustom": false,
       "videoUrl": "https://www.youtube.com/watch?v=pAplQXk3dkU"
@@ -707,7 +795,8 @@
     {
       "id": "ex-band-face-pulls",
       "name": "Band Face Pulls",
-      "muscleGroups": ["rear-delts", "upper-back"],
+      "muscleGroups": ["rear_delts", "rhomboids"],
+      "muscles": { "primary": ["rear_delts", "rhomboids"], "secondary": ["traps"] },
       "equipment": "band",
       "isCustom": false,
       "videoUrl": "https://www.youtube.com/watch?v=W0lIYpESFLM"
@@ -716,6 +805,7 @@
       "id": "ex-shoulder-circles",
       "name": "Shoulder Circles",
       "muscleGroups": ["shoulders"],
+      "muscles": { "primary": ["front_delts", "lateral_delts", "rear_delts"], "secondary": [] },
       "equipment": "bodyweight",
       "isCustom": false,
       "videoUrl": "https://www.youtube.com/watch?v=UVMEnIaY8aU"
@@ -724,6 +814,7 @@
       "id": "ex-arm-circles",
       "name": "Arm Circles",
       "muscleGroups": ["shoulders"],
+      "muscles": { "primary": ["front_delts", "lateral_delts", "rear_delts"], "secondary": [] },
       "equipment": "bodyweight",
       "isCustom": false,
       "videoUrl": "https://www.youtube.com/watch?v=UVMEnIaY8aU"
@@ -731,7 +822,8 @@
     {
       "id": "ex-hip-circles",
       "name": "Hip Circles",
-      "muscleGroups": ["hips"],
+      "muscleGroups": ["hip_flexors"],
+      "muscles": { "primary": ["hip_flexors"], "secondary": ["glutes"] },
       "equipment": "bodyweight",
       "isCustom": false,
       "videoUrl": "https://www.youtube.com/watch?v=qkrJXGVj_OQ"
@@ -739,7 +831,8 @@
     {
       "id": "ex-cat-cow",
       "name": "Cat-Cow",
-      "muscleGroups": ["spine", "core"],
+      "muscleGroups": ["core", "erector_spinae"],
+      "muscles": { "primary": ["core", "erector_spinae"], "secondary": [] },
       "equipment": "bodyweight",
       "isCustom": false,
       "videoUrl": "https://www.youtube.com/watch?v=vuyUwtHl694"
@@ -748,6 +841,7 @@
       "id": "ex-bw-squats",
       "name": "Bodyweight Squats",
       "muscleGroups": ["quads", "glutes"],
+      "muscles": { "primary": ["quads", "glutes"], "secondary": [] },
       "equipment": "bodyweight",
       "isCustom": false,
       "videoUrl": "https://www.youtube.com/watch?v=P-yaD24bUE8"
@@ -756,6 +850,7 @@
       "id": "ex-glute-bridges-bw",
       "name": "Glute Bridges (Bodyweight)",
       "muscleGroups": ["glutes"],
+      "muscles": { "primary": ["glutes"], "secondary": ["hamstrings"] },
       "equipment": "bodyweight",
       "isCustom": false,
       "videoUrl": "https://www.youtube.com/watch?v=d5DuxKOmtHI"
@@ -763,7 +858,8 @@
     {
       "id": "ex-dead-hang",
       "name": "Dead Hang",
-      "muscleGroups": ["grip", "shoulders", "spine"],
+      "muscleGroups": ["forearms", "lats"],
+      "muscles": { "primary": ["forearms"], "secondary": ["lats"] },
       "equipment": "pull-up-bar",
       "isCustom": false,
       "videoUrl": "https://www.youtube.com/watch?v=ShkBXOGK7A8"
@@ -771,7 +867,8 @@
     {
       "id": "ex-world-greatest-stretch",
       "name": "World's Greatest Stretch",
-      "muscleGroups": ["hips", "hamstrings", "thoracic"],
+      "muscleGroups": ["hip_flexors", "hamstrings"],
+      "muscles": { "primary": ["hip_flexors", "hamstrings"], "secondary": ["glutes", "core"] },
       "equipment": "bodyweight",
       "isCustom": false,
       "videoUrl": "https://www.youtube.com/watch?v=-CiWQ2IvY34"
@@ -779,7 +876,8 @@
     {
       "id": "ex-leg-swings",
       "name": "Leg Swings",
-      "muscleGroups": ["hips", "hamstrings"],
+      "muscleGroups": ["hip_flexors", "hamstrings"],
+      "muscles": { "primary": ["hip_flexors"], "secondary": ["hamstrings", "glutes"] },
       "equipment": "bodyweight",
       "isCustom": false,
       "videoUrl": "https://www.youtube.com/watch?v=difYoBtZi2s"
@@ -787,7 +885,8 @@
     {
       "id": "ex-thoracic-rotation",
       "name": "Thoracic Rotation",
-      "muscleGroups": ["spine"],
+      "muscleGroups": ["core", "erector_spinae"],
+      "muscles": { "primary": ["core", "erector_spinae"], "secondary": ["obliques"] },
       "equipment": "bodyweight",
       "isCustom": false,
       "videoUrl": "https://www.youtube.com/watch?v=EHZJns1bXPM"

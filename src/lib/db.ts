@@ -749,4 +749,105 @@ export async function resetOnboarding(): Promise<void> {
   await db.onboardingProfiles.put(DEFAULT_ONBOARDING_PROFILE);
 }
 
+// ============================================================
+// Muscle Volume Tracking
+// ============================================================
+
+export interface MuscleVolume {
+  muscle: string;
+  sets: number;
+  volume: number;
+}
+
+/**
+ * Calculate weekly muscle volume from workout logs
+ * Returns sets and total volume per muscle group
+ */
+export async function getWeeklyMuscleVolume(
+  weekStartDate?: Date
+): Promise<MuscleVolume[]> {
+  // Default to current week (Monday start)
+  const today = new Date();
+  const monday = weekStartDate || new Date(today);
+  if (!weekStartDate) {
+    const dayOfWeek = monday.getDay();
+    const daysToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+    monday.setDate(monday.getDate() - daysToMonday);
+    monday.setHours(0, 0, 0, 0);
+  }
+
+  // Get all completed workout logs for this week
+  const allLogs = await db.workoutLogs.toArray();
+  const weekLogs = allLogs.filter((log) => {
+    if (!log.isComplete) return false;
+    const logDate = new Date(log.date);
+    return logDate >= monday;
+  });
+
+  // Get all exercises to look up muscle groups
+  const exercises = await db.exercises.toArray();
+  const exerciseMap = new Map<string, Exercise>();
+  for (const ex of exercises) {
+    exerciseMap.set(ex.id, ex);
+  }
+
+  // Aggregate sets and volume per muscle
+  const muscleData: Record<string, { sets: number; volume: number }> = {};
+
+  for (const log of weekLogs) {
+    for (const set of log.sets) {
+      if (!set.isComplete) continue;
+
+      const exercise = exerciseMap.get(set.exerciseId);
+      if (!exercise) continue;
+
+      // Get muscles from exercise - prefer new format, fall back to muscleGroups
+      const exerciseData = exercise as Exercise & {
+        muscles?: { primary: string[]; secondary: string[] };
+      };
+      const muscles = exerciseData.muscles
+        ? [...exerciseData.muscles.primary, ...exerciseData.muscles.secondary]
+        : exercise.muscleGroups;
+
+      const setVolume = set.weight * set.actualReps;
+
+      for (const muscle of muscles) {
+        if (!muscleData[muscle]) {
+          muscleData[muscle] = { sets: 0, volume: 0 };
+        }
+        muscleData[muscle].sets += 1;
+        muscleData[muscle].volume += setVolume;
+      }
+    }
+  }
+
+  // Convert to array and sort by sets (descending)
+  return Object.entries(muscleData)
+    .map(([muscle, data]) => ({
+      muscle,
+      sets: data.sets,
+      volume: Math.round(data.volume),
+    }))
+    .sort((a, b) => b.sets - a.sets);
+}
+
+/**
+ * Get exercises that target a specific muscle
+ */
+export async function getExercisesByMuscle(muscle: string): Promise<Exercise[]> {
+  const exercises = await db.exercises.toArray();
+  return exercises.filter((ex) => {
+    const exerciseData = ex as Exercise & {
+      muscles?: { primary: string[]; secondary: string[] };
+    };
+    if (exerciseData.muscles) {
+      return (
+        exerciseData.muscles.primary.includes(muscle) ||
+        exerciseData.muscles.secondary.includes(muscle)
+      );
+    }
+    return ex.muscleGroups.includes(muscle);
+  });
+}
+
 export default db;
