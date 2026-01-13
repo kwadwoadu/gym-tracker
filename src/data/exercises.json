@@ -65,6 +65,14 @@
       "videoUrl": "https://www.youtube.com/watch?v=nT0JjFv111E"
     },
     {
+      "id": "ex-low-high-cable-fly",
+      "name": "Low-to-High Cable Fly",
+      "muscleGroups": ["chest"],
+      "equipment": "cable",
+      "isCustom": false,
+      "videoUrl": "https://www.youtube.com/watch?v=8YjdqeIXPUQ"
+    },
+    {
       "id": "ex-chest-dips",
       "name": "Chest Dips",
       "muscleGroups": ["chest", "triceps"],
@@ -79,6 +87,14 @@
       "equipment": "machine",
       "isCustom": false,
       "videoUrl": "https://www.youtube.com/watch?v=3EoGAVgYukQ"
+    },
+    {
+      "id": "ex-incline-machine-press",
+      "name": "Incline Machine Press",
+      "muscleGroups": ["chest", "shoulders", "triceps"],
+      "equipment": "machine",
+      "isCustom": false,
+      "videoUrl": "https://www.youtube.com/watch?v=qkIaG_Zu9BY"
     },
     {
       "id": "ex-incline-chest-press",

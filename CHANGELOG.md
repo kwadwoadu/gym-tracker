@@ -4,6 +4,27 @@ All notable changes to the SetFlow project.
 
 ---
 
+## [2026-01-13] New Exercises & 4-Day Bulk Program
+
+### Added
+- **Low-to-High Cable Fly** (`ex-low-high-cable-fly`): Cable exercise targeting upper (clavicular) pec fibers
+  - Video: Muscle & Strength tutorial
+- **Incline Machine Press** (`ex-incline-machine-press`): Machine compound for upper chest volume
+  - Video: Muscle & Strength Hammer Strength tutorial
+- **Upper/Lower Bulk Split Program**: New 4-day hypertrophy preset emphasizing upper chest and quad development
+  - Day 1: Upper A (Chest/Back Focus) - Low-to-High Cable Fly, Incline DB Press, Dips
+  - Day 2: Lower A (Quad Priority) - Hack Squat, Leg Extension, RFESS
+  - Day 3: Upper B (Shoulders/Arms) - Incline Machine Press, DB Press, EZ Curls
+  - Day 4: Lower B (Posterior + Quad Volume) - Leg Press, Lying Ham Curl, Walking Lunges
+
+### Files Added
+- `src/data/programs/upper-lower-4day-bulk.json` - New bulk phase program preset
+
+### Files Changed
+- `src/data/exercises.json` - Added 2 new exercises (now 100 total)
+
+---
+
 ## [2026-01-13] Program Management - Archiving & Library
 
 ### Added

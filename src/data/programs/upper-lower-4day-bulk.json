@@ -1,0 +1,356 @@
+{
+  "id": "preset-upper-lower-4day-bulk",
+  "meta": {
+    "name": "Upper/Lower Bulk Split",
+    "description": "4-day hypertrophy program emphasizing upper chest and quad development. Designed for bulk phase with increased volume on weak points.",
+    "difficulty": "intermediate",
+    "daysPerWeek": 4,
+    "targetAudience": "Bulk phase, upper chest/quad priority"
+  },
+  "program": {
+    "id": "upper-lower-4day-bulk",
+    "name": "Upper/Lower Bulk Split",
+    "description": "Hypertrophy-focused 4-day split with emphasis on upper chest and quad development",
+    "isActive": true
+  },
+  "trainingDays": [
+    {
+      "id": "bulk-upper-a",
+      "name": "Upper A (Chest/Back)",
+      "dayNumber": 1,
+      "warmup": [
+        { "exerciseId": "ex-band-pull-aparts", "reps": 15 },
+        { "exerciseId": "ex-shoulder-circles", "reps": 15 },
+        { "exerciseId": "ex-cat-cow", "reps": 10 }
+      ],
+      "supersets": [
+        {
+          "id": "bulk-upper-a-ss-a",
+          "label": "A",
+          "exercises": [
+            {
+              "exerciseId": "ex-low-high-cable-fly",
+              "sets": 3,
+              "reps": "15,12,12",
+              "tempo": "T:30A1",
+              "restSeconds": 60,
+              "notes": "Upper chest activation - targets clavicular fibers"
+            },
+            {
+              "exerciseId": "ex-face-pulls",
+              "sets": 3,
+              "reps": "15,15,15",
+              "tempo": "T:20A1",
+              "restSeconds": 60,
+              "notes": "Rear delt/posture"
+            }
+          ]
+        },
+        {
+          "id": "bulk-upper-a-ss-b",
+          "label": "B",
+          "exercises": [
+            {
+              "exerciseId": "ex-incline-db-press",
+              "sets": 4,
+              "reps": "10,10,8,8",
+              "tempo": "T:3010",
+              "restSeconds": 90,
+              "notes": "30-45 degree incline for upper chest"
+            },
+            {
+              "exerciseId": "ex-chest-supported-row",
+              "sets": 4,
+              "reps": "10,10,8,8",
+              "tempo": "T:20A1",
+              "restSeconds": 90,
+              "notes": "Back thickness"
+            }
+          ]
+        },
+        {
+          "id": "bulk-upper-a-ss-c",
+          "label": "C",
+          "exercises": [
+            {
+              "exerciseId": "ex-chest-dips",
+              "sets": 3,
+              "reps": "12,10,8",
+              "tempo": "T:2010",
+              "restSeconds": 90,
+              "notes": "Slight forward lean for chest emphasis"
+            },
+            {
+              "exerciseId": "ex-wide-lat-pulldown",
+              "sets": 3,
+              "reps": "12,10,10",
+              "tempo": "T:30A0",
+              "restSeconds": 90,
+              "notes": "Lat width"
+            }
+          ]
+        }
+      ],
+      "finisher": [
+        { "exerciseId": "ex-dead-hang", "duration": 45, "notes": "Spine decompression - mandatory" }
+      ]
+    },
+    {
+      "id": "bulk-lower-a",
+      "name": "Lower A (Quad Priority)",
+      "dayNumber": 2,
+      "warmup": [
+        { "exerciseId": "ex-bw-squats", "reps": 15 },
+        { "exerciseId": "ex-hip-circles", "reps": 10 },
+        { "exerciseId": "ex-glute-bridges-bw", "reps": 12 }
+      ],
+      "supersets": [
+        {
+          "id": "bulk-lower-a-ss-a",
+          "label": "A",
+          "exercises": [
+            {
+              "exerciseId": "ex-hack-squat",
+              "sets": 4,
+              "reps": "12,10,10,10",
+              "tempo": "T:3010",
+              "restSeconds": 90,
+              "notes": "Feet low and narrow for quad sweep"
+            },
+            {
+              "exerciseId": "ex-seated-calf-raise",
+              "sets": 4,
+              "reps": "15,15,12,12",
+              "tempo": "T:2111",
+              "restSeconds": 60,
+              "notes": "Soleus emphasis"
+            }
+          ]
+        },
+        {
+          "id": "bulk-lower-a-ss-b",
+          "label": "B",
+          "exercises": [
+            {
+              "exerciseId": "ex-leg-extension",
+              "sets": 4,
+              "reps": "15,12,12,12",
+              "tempo": "T:30A1",
+              "restSeconds": 60,
+              "notes": "Quad isolation - peak contraction squeeze"
+            },
+            {
+              "exerciseId": "ex-rdl",
+              "sets": 3,
+              "reps": "10,10,8",
+              "tempo": "T:30A0",
+              "restSeconds": 90,
+              "notes": "Hamstring/glute - spine-safe load"
+            }
+          ]
+        },
+        {
+          "id": "bulk-lower-a-ss-c",
+          "label": "C",
+          "exercises": [
+            {
+              "exerciseId": "ex-rfess",
+              "sets": 3,
+              "reps": "10,10,10",
+              "tempo": "T:2010",
+              "restSeconds": 90,
+              "notes": "Bulgarian split squat - quad stretch + glute"
+            },
+            {
+              "exerciseId": "ex-standing-calf-raise",
+              "sets": 3,
+              "reps": "15,12,12",
+              "tempo": "T:2111",
+              "restSeconds": 60,
+              "notes": "Gastrocnemius"
+            }
+          ]
+        }
+      ],
+      "finisher": [
+        { "exerciseId": "ex-dead-hang", "duration": 45, "notes": "Spine decompression - mandatory" }
+      ]
+    },
+    {
+      "id": "bulk-upper-b",
+      "name": "Upper B (Shoulders/Arms)",
+      "dayNumber": 3,
+      "warmup": [
+        { "exerciseId": "ex-band-face-pulls", "reps": 15 },
+        { "exerciseId": "ex-arm-circles", "reps": 10 },
+        { "exerciseId": "ex-cat-cow", "reps": 10 }
+      ],
+      "supersets": [
+        {
+          "id": "bulk-upper-b-ss-a",
+          "label": "A",
+          "exercises": [
+            {
+              "exerciseId": "ex-incline-machine-press",
+              "sets": 3,
+              "reps": "12,10,10",
+              "tempo": "T:3010",
+              "restSeconds": 90,
+              "notes": "Upper chest pump - machine for safety at volume"
+            },
+            {
+              "exerciseId": "ex-rear-delt-cable-row",
+              "sets": 3,
+              "reps": "15,12,12",
+              "tempo": "T:20A1",
+              "restSeconds": 60,
+              "notes": "Rear delts"
+            }
+          ]
+        },
+        {
+          "id": "bulk-upper-b-ss-b",
+          "label": "B",
+          "exercises": [
+            {
+              "exerciseId": "ex-db-shoulder-press",
+              "sets": 4,
+              "reps": "10,10,8,8",
+              "tempo": "T:2010",
+              "restSeconds": 90,
+              "notes": "Anterior delt"
+            },
+            {
+              "exerciseId": "ex-lateral-raises",
+              "sets": 4,
+              "reps": "15,12,12,12",
+              "tempo": "T:30A0",
+              "restSeconds": 60,
+              "notes": "Side delt width"
+            }
+          ]
+        },
+        {
+          "id": "bulk-upper-b-ss-c",
+          "label": "C",
+          "exercises": [
+            {
+              "exerciseId": "ex-ez-bar-curl",
+              "sets": 3,
+              "reps": "12,10,10",
+              "tempo": "T:30A1",
+              "restSeconds": 60,
+              "notes": "Bicep mass"
+            },
+            {
+              "exerciseId": "ex-overhead-tricep-ext",
+              "sets": 3,
+              "reps": "12,10,10",
+              "tempo": "T:30A1",
+              "restSeconds": 60,
+              "notes": "Long head emphasis"
+            }
+          ]
+        },
+        {
+          "id": "bulk-upper-b-ss-d",
+          "label": "D",
+          "exercises": [
+            {
+              "exerciseId": "ex-hammer-curl",
+              "sets": 2,
+              "reps": "12,12",
+              "tempo": "T:30A1",
+              "restSeconds": 45,
+              "notes": "Brachialis"
+            }
+          ]
+        }
+      ],
+      "finisher": [
+        { "exerciseId": "ex-dead-hang", "duration": 45, "notes": "Spine decompression - mandatory" }
+      ]
+    },
+    {
+      "id": "bulk-lower-b",
+      "name": "Lower B (Posterior + Quad Volume)",
+      "dayNumber": 4,
+      "warmup": [
+        { "exerciseId": "ex-bw-squats", "reps": 15 },
+        { "exerciseId": "ex-hip-circles", "reps": 10 },
+        { "exerciseId": "ex-glute-bridges-bw", "reps": 12 }
+      ],
+      "supersets": [
+        {
+          "id": "bulk-lower-b-ss-a",
+          "label": "A",
+          "exercises": [
+            {
+              "exerciseId": "ex-leg-press",
+              "sets": 4,
+              "reps": "15,12,12,12",
+              "tempo": "T:3010",
+              "restSeconds": 90,
+              "notes": "Feet high and wide for glute/ham emphasis"
+            },
+            {
+              "exerciseId": "ex-tibialis-raise",
+              "sets": 3,
+              "reps": "20,15,15",
+              "tempo": "T:2010",
+              "restSeconds": 45,
+              "notes": "Shin balance"
+            }
+          ]
+        },
+        {
+          "id": "bulk-lower-b-ss-b",
+          "label": "B",
+          "exercises": [
+            {
+              "exerciseId": "ex-lying-ham-curl",
+              "sets": 4,
+              "reps": "12,12,10,10",
+              "tempo": "T:30A1",
+              "restSeconds": 60,
+              "notes": "Hamstring peak contraction"
+            },
+            {
+              "exerciseId": "ex-leg-extension",
+              "sets": 3,
+              "reps": "20,15,15",
+              "tempo": "T:20A1",
+              "restSeconds": 60,
+              "notes": "Quad pump - higher rep"
+            }
+          ]
+        },
+        {
+          "id": "bulk-lower-b-ss-c",
+          "label": "C",
+          "exercises": [
+            {
+              "exerciseId": "ex-walking-lunge",
+              "sets": 3,
+              "reps": "12,12,12",
+              "tempo": "T:2010",
+              "restSeconds": 90,
+              "notes": "12 per leg - quad + glute"
+            },
+            {
+              "exerciseId": "ex-cable-crunch",
+              "sets": 3,
+              "reps": "20,15,15",
+              "tempo": "T:2010",
+              "restSeconds": 45,
+              "notes": "Core"
+            }
+          ]
+        }
+      ],
+      "finisher": [
+        { "exerciseId": "ex-dead-hang", "duration": 45, "notes": "Spine decompression - mandatory" }
+      ]
+    }
+  ]
+}
