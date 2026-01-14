@@ -117,14 +117,14 @@ export function hasMusclesInView(muscles: string[], view: "front" | "back"): boo
 export const MUSCLE_COLORS = {
   primary: "#CDFF00", // Accent lime
   secondary: "#CDFF00", // Same color, different opacity
-  secondaryOpacity: 0.4,
-  untrained: "#333333", // Dark gray
-  outline: "#666666", // Medium gray
+  secondaryOpacity: 0.5, // Increased from 0.4 for better visibility
+  untrained: "#1A1A1A", // Darker base for better contrast
+  outline: "#333333", // Subtler outline
   // Heatmap colors (for weekly volume)
   heatmap: {
-    none: "#333333",
-    light: "#4a6b1a",
-    moderate: "#7ba328",
+    none: "#1A1A1A",
+    light: "#3d5a16",
+    moderate: "#6b8f22",
     heavy: "#CDFF00",
   },
 };
