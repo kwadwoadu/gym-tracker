@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth-helpers";
+import { enrichExercisesWithMuscles } from "@/lib/exercise-enrichment";
 
 // GET /api/exercises - List all exercises (built-in + user custom)
 export async function GET() {
@@ -18,7 +19,10 @@ export async function GET() {
       orderBy: { name: "asc" },
     });
 
-    return NextResponse.json(exercises);
+    // Enrich with muscles data from exercises.json (source of truth)
+    const enrichedExercises = enrichExercisesWithMuscles(exercises);
+
+    return NextResponse.json(enrichedExercises);
   } catch (error) {
     console.error("Error fetching exercises:", error);
     return NextResponse.json(

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth-helpers";
+import { enrichExerciseWithMuscles } from "@/lib/exercise-enrichment";
 
 // GET /api/exercises/[id] - Get single exercise
 export async function GET(
@@ -30,7 +31,10 @@ export async function GET(
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    return NextResponse.json(exercise);
+    // Enrich with muscles data from exercises.json (source of truth)
+    const enrichedExercise = enrichExerciseWithMuscles(exercise);
+
+    return NextResponse.json(enrichedExercise);
   } catch (error) {
     console.error("Error fetching exercise:", error);
     return NextResponse.json(
