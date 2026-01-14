@@ -9,6 +9,10 @@ export interface Exercise {
   name: string;
   videoUrl?: string;
   muscleGroups: string[];
+  muscles?: {
+    primary: string[];
+    secondary: string[];
+  };
   equipment: string;
   isCustom: boolean;
   createdAt: string;

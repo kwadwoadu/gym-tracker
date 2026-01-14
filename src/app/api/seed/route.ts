@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth-helpers";
 import { createBackup } from "@/lib/backup";
-import { fixProgramExerciseIds, seedDatabase, resetToDefault, backfillBuiltInIds, backfillVideoUrls } from "@/lib/seed";
+import { fixProgramExerciseIds, seedDatabase, resetToDefault, backfillBuiltInIds, backfillVideoUrls, backfillMuscles } from "@/lib/seed";
 
 /**
  * POST /api/seed - Seed database with exercises and fix program IDs
@@ -32,8 +32,8 @@ export async function POST(request: Request) {
     if (!action) {
       return NextResponse.json({
         error: "Missing required 'action' parameter",
-        validActions: ["backfill", "backfill-videos", "fix", "reset", "seed"],
-        safeActions: ["backfill", "backfill-videos"],
+        validActions: ["backfill", "backfill-videos", "backfill-muscles", "fix", "reset", "seed"],
+        safeActions: ["backfill", "backfill-videos", "backfill-muscles"],
         dangerousActions: ["fix", "reset", "seed"],
       }, { status: 400 });
     }
@@ -53,6 +53,15 @@ export async function POST(request: Request) {
       return NextResponse.json({
         success: true,
         message: `Video URL backfill complete: ${result.updated} updated, ${result.skipped} skipped`,
+        ...result,
+      });
+    }
+
+    if (action === "backfill-muscles") {
+      const result = await backfillMuscles();
+      return NextResponse.json({
+        success: true,
+        message: `Muscles backfill complete: ${result.updated} updated, ${result.skipped} skipped`,
         ...result,
       });
     }
@@ -90,7 +99,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({
       error: `Unknown action: ${action}`,
-      validActions: ["backfill", "backfill-videos", "fix", "reset", "seed"],
+      validActions: ["backfill", "backfill-videos", "backfill-muscles", "fix", "reset", "seed"],
     }, { status: 400 });
   } catch (error) {
     console.error("Error seeding database:", error);

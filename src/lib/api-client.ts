@@ -23,6 +23,10 @@ export interface Exercise {
   name: string;
   videoUrl: string | null;
   muscleGroups: string[];
+  muscles?: {
+    primary: string[];
+    secondary: string[];
+  };
   equipment: string;
   isCustom: boolean;
   userId: string | null;
@@ -40,7 +44,7 @@ export const exercisesApi = {
     return handleResponse(res);
   },
 
-  create: async (data: Omit<Exercise, "id" | "builtInId" | "isCustom" | "userId" | "createdAt"> & { builtInId?: string | null }): Promise<Exercise> => {
+  create: async (data: Omit<Exercise, "id" | "builtInId" | "isCustom" | "userId" | "createdAt"> & { builtInId?: string | null; muscles?: { primary: string[]; secondary: string[] } }): Promise<Exercise> => {
     const res = await fetch(`${API_BASE}/exercises`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },

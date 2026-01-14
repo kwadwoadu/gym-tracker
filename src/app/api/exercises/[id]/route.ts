@@ -66,16 +66,22 @@ export async function PUT(
       );
     }
 
-    // For built-in exercises (userId = null), only allow updating builtInId (for backfill)
+    // For built-in exercises (userId = null), only allow backfill updates
     // For custom exercises, allow full updates but only by owner
     if (existing.userId === null) {
-      // Built-in exercise - only allow updating builtInId for backfill
-      if (body.builtInId !== undefined) {
+      // Built-in exercise - only allow backfill updates (builtInId, videoUrl, muscles)
+      const allowedBackfillFields = ['builtInId', 'videoUrl', 'muscles'];
+      const hasBackfillField = allowedBackfillFields.some(field => body[field] !== undefined);
+
+      if (hasBackfillField) {
+        const updateData: Record<string, unknown> = {};
+        if (body.builtInId !== undefined) updateData.builtInId = body.builtInId;
+        if (body.videoUrl !== undefined) updateData.videoUrl = body.videoUrl;
+        if (body.muscles !== undefined) updateData.muscles = body.muscles;
+
         const exercise = await prisma.exercise.update({
           where: { id },
-          data: {
-            builtInId: body.builtInId,
-          },
+          data: updateData,
         });
         return NextResponse.json(exercise);
       } else {
@@ -97,6 +103,7 @@ export async function PUT(
       data: {
         name: body.name,
         muscleGroups: body.muscleGroups,
+        muscles: body.muscles,
         equipment: body.equipment,
         videoUrl: body.videoUrl,
         builtInId: body.builtInId,

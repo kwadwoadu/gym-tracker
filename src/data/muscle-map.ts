@@ -88,7 +88,7 @@ export function getMuscleView(muscle: string): MuscleView {
  */
 export function getMusclesForView(view: "front" | "back"): string[] {
   return Object.entries(MUSCLE_CONFIG)
-    .filter(([_, config]) => config.view === view || config.view === "both")
+    .filter(([, config]) => config.view === view || config.view === "both")
     .map(([key]) => key);
 }
 
@@ -97,7 +97,7 @@ export function getMusclesForView(view: "front" | "back"): string[] {
  */
 export function getMusclesByCategory(category: "upper" | "core" | "lower"): string[] {
   return Object.entries(MUSCLE_CONFIG)
-    .filter(([_, config]) => config.category === category)
+    .filter(([, config]) => config.category === category)
     .map(([key]) => key);
 }
 

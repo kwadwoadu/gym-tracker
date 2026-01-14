@@ -57,6 +57,7 @@ export function SupersetView({
               restSeconds={ssExercise.restSeconds}
               videoUrl={exercise.videoUrl}
               muscleGroups={exercise.muscleGroups}
+              muscles={exercise.muscles}
               supersetLabel={superset.label}
               exerciseLabel={String(index + 1)}
               lastWeekWeight={lastData?.weight}

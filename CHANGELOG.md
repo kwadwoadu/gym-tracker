@@ -4,6 +4,47 @@ All notable changes to the SetFlow project.
 
 ---
 
+## [2026-01-14] Muscle Visualization Feature
+
+### Added
+- **SVG Body Diagrams**: Interactive front and back body diagrams showing muscle regions
+- **MuscleMap Component**: Full-size muscle visualization with primary/secondary highlighting
+- **MuscleMapMini Component**: Compact 60x80px variant for in-workout display
+- **WeeklyMuscleHeatmap**: Stats page section showing weekly muscle coverage by training volume
+- **Muscle Data Model**: Added primary/secondary muscle classifications to all 97 exercises
+- **getWeeklyMuscleVolume Query**: Calculate sets and volume per muscle for the current week
+- **useMuscleVolume Hook**: React Query hook for muscle volume data
+
+### Changed
+- **Exercise Card**: Replaced muscle badge list with visual MuscleMap diagram
+- **Set Logger**: Added MuscleMapMini to exercise header during workout sessions
+- **Stats Page**: Added weekly muscle coverage heatmap section after summary cards
+- **exercises.json**: Added `muscles: { primary: [], secondary: [] }` to all exercises
+
+### Technical Details
+- SVG paths for 20+ muscle regions with CSS transitions for smooth highlighting
+- Primary muscles shown in bright lime (#CDFF00), secondary at 40% opacity
+- Framer Motion animations for view transitions
+- Backward-compatible data model (falls back to muscleGroups if muscles not present)
+
+### Files Added
+- `src/components/shared/muscle-svg.tsx`
+- `src/components/shared/MuscleMap.tsx`
+- `src/components/shared/MuscleMapMini.tsx`
+- `src/components/stats/WeeklyMuscleHeatmap.tsx`
+- `src/data/muscle-map.ts`
+- `docs/prds/muscle-visualization.md`
+
+### Files Changed
+- `src/app/stats/page.tsx`
+- `src/components/workout/exercise-card.tsx`
+- `src/components/workout/set-logger.tsx`
+- `src/data/exercises.json`
+- `src/lib/db.ts`
+- `src/lib/queries.ts`
+
+---
+
 ## [2026-01-13] ESLint Warnings Cleanup
 
 ### Fixed

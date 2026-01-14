@@ -37,7 +37,7 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { name, muscleGroups, equipment, videoUrl, builtInId } = body;
+    const { name, muscleGroups, muscles, equipment, videoUrl, builtInId } = body;
 
     if (!name || !equipment) {
       return NextResponse.json(
@@ -54,6 +54,7 @@ export async function POST(request: Request) {
       data: {
         name,
         muscleGroups: muscleGroups || [],
+        muscles: muscles || null,
         equipment,
         videoUrl: videoUrl || null,
         builtInId: builtInId || null,

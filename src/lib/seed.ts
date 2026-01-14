@@ -43,9 +43,13 @@ async function seedExercisesWithMapping(): Promise<Map<string, string>> {
 
   console.log("Seeding exercises with ID mapping...");
   for (const ex of exercisesData.exercises) {
+    const exerciseWithMuscles = ex as typeof ex & {
+      muscles?: { primary: string[]; secondary: string[] };
+    };
     const created = await exercisesApi.create({
       name: ex.name,
       muscleGroups: ex.muscleGroups,
+      muscles: exerciseWithMuscles.muscles,
       equipment: ex.equipment,
       videoUrl: ex.videoUrl || null,
       builtInId: ex.id, // Store the original preset ID for reliable mapping
@@ -391,5 +395,51 @@ export async function backfillVideoUrls(): Promise<{ updated: number; skipped: n
   }
 
   console.log(`Video URL backfill complete: ${updated} updated, ${skipped} skipped`);
+  return { updated, skipped };
+}
+
+/**
+ * Backfills muscles (primary/secondary) for existing exercises.
+ * Safe operation - only adds muscles where missing.
+ */
+export async function backfillMuscles(): Promise<{ updated: number; skipped: number }> {
+  console.log("Backfilling muscles for existing exercises...");
+
+  const existingExercises = await exercisesApi.list();
+  let updated = 0;
+  let skipped = 0;
+
+  for (const ex of exercisesData.exercises) {
+    const exerciseWithMuscles = ex as typeof ex & {
+      muscles?: { primary: string[]; secondary: string[] };
+    };
+
+    if (!exerciseWithMuscles.muscles) {
+      skipped++;
+      continue;
+    }
+
+    // Find exercise by builtInId first (reliable) or name (fallback)
+    let existing = existingExercises.find(e => e.builtInId === ex.id);
+    if (!existing) {
+      existing = existingExercises.find(e => e.name === ex.name);
+    }
+
+    // Only update if found and muscles is currently null/undefined
+    if (existing && !existing.muscles) {
+      try {
+        await exercisesApi.update(existing.id, { muscles: exerciseWithMuscles.muscles });
+        updated++;
+        console.log(`Set muscles for: ${ex.name}`);
+      } catch (error) {
+        console.error(`Failed to update muscles for ${ex.name}:`, error);
+        skipped++;
+      }
+    } else {
+      skipped++;
+    }
+  }
+
+  console.log(`Muscles backfill complete: ${updated} updated, ${skipped} skipped`);
   return { updated, skipped };
 }
