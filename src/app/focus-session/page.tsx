@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
-import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -240,9 +239,24 @@ export default function FocusSessionStartPage() {
                   );
                 })}
               </div>
+            ) : exercises && exercises.length === 0 ? (
+              <div className="text-center py-6 space-y-3">
+                <p className="text-sm text-muted-foreground">
+                  Add exercises to get personalized recommendations
+                </p>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => router.push('/exercises')}
+                  className="text-[#CDFF00] border-[#CDFF00]/50"
+                >
+                  <Dumbbell className="w-4 h-4 mr-2" />
+                  Browse Exercises
+                </Button>
+              </div>
             ) : (
               <p className="text-sm text-muted-foreground text-center py-4">
-                No recommendations available. Browse exercises below.
+                No matching exercises for this focus area. Try browsing all exercises below.
               </p>
             )}
           </div>

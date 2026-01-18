@@ -88,7 +88,7 @@ export function SummaryCards({ workoutLogs, personalRecords }: SummaryCardsProps
   ];
 
   return (
-    <div className="grid grid-cols-2 gap-3">
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
       {stats.map((stat) => (
         <Card
           key={stat.label}
@@ -96,7 +96,7 @@ export function SummaryCards({ workoutLogs, personalRecords }: SummaryCardsProps
         >
           <div className="flex items-center gap-2 min-w-0">
             <stat.icon className={`w-4 h-4 flex-shrink-0 ${stat.color}`} />
-            <span className="text-xs text-muted-foreground uppercase tracking-wider truncate">
+            <span className="text-xs text-muted-foreground uppercase truncate">
               {stat.label}
             </span>
           </div>

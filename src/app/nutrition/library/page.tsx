@@ -20,24 +20,24 @@ export default function NutritionLibraryPage() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="w-full grid grid-cols-3 bg-[#1A1A1A] p-1 rounded-lg">
+        <TabsList className="w-full flex overflow-x-auto flex-nowrap bg-[#1A1A1A] p-1 rounded-lg">
           <TabsTrigger
             value="meals"
-            className="flex items-center gap-2 data-[state=active]:bg-[#CDFF00] data-[state=active]:text-[#0A0A0A]"
+            className="flex items-center gap-2 whitespace-nowrap flex-shrink-0 data-[state=active]:bg-[#CDFF00] data-[state=active]:text-[#0A0A0A]"
           >
             <UtensilsCrossed className="w-4 h-4" />
             Meals
           </TabsTrigger>
           <TabsTrigger
             value="supplements"
-            className="flex items-center gap-2 data-[state=active]:bg-[#CDFF00] data-[state=active]:text-[#0A0A0A]"
+            className="flex items-center gap-2 whitespace-nowrap flex-shrink-0 data-[state=active]:bg-[#CDFF00] data-[state=active]:text-[#0A0A0A]"
           >
             <Pill className="w-4 h-4" />
             Supps
           </TabsTrigger>
           <TabsTrigger
             value="templates"
-            className="flex items-center gap-2 data-[state=active]:bg-[#CDFF00] data-[state=active]:text-[#0A0A0A]"
+            className="flex items-center gap-2 whitespace-nowrap flex-shrink-0 data-[state=active]:bg-[#CDFF00] data-[state=active]:text-[#0A0A0A]"
           >
             <BookOpen className="w-4 h-4" />
             Templates

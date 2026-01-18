@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Slider } from "@/components/ui/slider";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -27,6 +29,8 @@ import {
   CheckCircle,
   AlertCircle,
   LogOut,
+  User,
+  Save,
 } from "lucide-react";
 import { useUser, SignOutButton } from "@clerk/nextjs";
 import Image from "next/image";
@@ -35,7 +39,9 @@ import {
   useUpdateSettings,
   usePrograms,
 } from "@/lib/queries";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import type { UserSettings } from "@/lib/api-client";
+import { userProfileApi } from "@/lib/api-client";
 import { exportAllData, downloadExportedData, importData, readFileAsString } from "@/lib/export";
 
 const PROGRESSION_OPTIONS = [
@@ -57,11 +63,57 @@ export default function SettingsPage() {
   const { user } = useUser();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [toast, setToast] = useState<Toast | null>(null);
+  const queryClient = useQueryClient();
+
+  // Profile state
+  const [displayName, setDisplayName] = useState("");
+  const [bio, setBio] = useState("");
+  const [shareStreak, setShareStreak] = useState(true);
+  const [shareVolume, setShareVolume] = useState(false);
+  const [shareWorkouts, setShareWorkouts] = useState(true);
+  const [profileInitialized, setProfileInitialized] = useState(false);
 
   // React Query hooks
   const { data: settings, isLoading: settingsLoading } = useSettings();
   const { data: programs } = usePrograms();
   const updateSettingsMutation = useUpdateSettings();
+
+  // Fetch profile
+  const { data: profile, isLoading: profileLoading } = useQuery({
+    queryKey: ["profile"],
+    queryFn: () => userProfileApi.get(),
+  });
+
+  // Update profile mutation
+  const updateProfileMutation = useMutation({
+    mutationFn: () =>
+      userProfileApi.update({
+        displayName: displayName || null,
+        bio: bio || null,
+        shareStreak,
+        shareVolume,
+        shareWorkouts,
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["profile"] });
+      showToast("Profile saved successfully!", "success");
+    },
+    onError: () => {
+      showToast("Failed to save profile", "error");
+    },
+  });
+
+  // Initialize profile form when data loads
+  useEffect(() => {
+    if (profile && !profileInitialized) {
+      setDisplayName(profile.displayName || "");
+      setBio(profile.bio || "");
+      setShareStreak(profile.shareStreak);
+      setShareVolume(profile.shareVolume);
+      setShareWorkouts(profile.shareWorkouts);
+      setProfileInitialized(true);
+    }
+  }, [profile, profileInitialized]);
 
   // Get active program
   const activeProgram = programs?.find((p) => p.isActive);
@@ -175,7 +227,7 @@ export default function SettingsPage() {
     }
   };
 
-  if (settingsLoading || !settings) {
+  if (settingsLoading || profileLoading || !settings) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center space-y-4">
@@ -254,6 +306,111 @@ export default function SettingsPage() {
               Sign Out
             </Button>
           </SignOutButton>
+        </Card>
+
+        {/* Profile Section */}
+        <Card className="bg-card border-border">
+          <CardHeader className="pb-4">
+            <CardTitle className="text-lg flex items-center gap-2">
+              <User className="w-5 h-5" />
+              Profile
+            </CardTitle>
+            <CardDescription>Your community profile information</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="displayName">Display Name</Label>
+              <Input
+                id="displayName"
+                placeholder="Enter your display name"
+                value={displayName}
+                onChange={(e) => setDisplayName(e.target.value)}
+              />
+              <p className="text-xs text-muted-foreground">
+                This is how others will see you in the community
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="bio">Bio</Label>
+              <Input
+                id="bio"
+                placeholder="Tell others about yourself"
+                value={bio}
+                onChange={(e) => setBio(e.target.value)}
+              />
+            </div>
+
+            <Button
+              onClick={() => updateProfileMutation.mutate()}
+              disabled={updateProfileMutation.isPending}
+              className="w-full"
+            >
+              {updateProfileMutation.isPending ? (
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              ) : (
+                <Save className="w-4 h-4 mr-2" />
+              )}
+              Save Profile
+            </Button>
+          </CardContent>
+        </Card>
+
+        {/* Privacy Section */}
+        <Card className="bg-card border-border">
+          <CardHeader className="pb-4">
+            <CardTitle className="text-lg">Privacy</CardTitle>
+            <CardDescription>Choose what to share with your followers</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="font-medium text-foreground">Share Streak</p>
+                <p className="text-sm text-muted-foreground">
+                  Show your workout streak to followers
+                </p>
+              </div>
+              <Switch
+                checked={shareStreak}
+                onCheckedChange={(checked) => {
+                  setShareStreak(checked);
+                  updateProfileMutation.mutate();
+                }}
+              />
+            </div>
+
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="font-medium text-foreground">Share Volume</p>
+                <p className="text-sm text-muted-foreground">
+                  Show your total workout volume
+                </p>
+              </div>
+              <Switch
+                checked={shareVolume}
+                onCheckedChange={(checked) => {
+                  setShareVolume(checked);
+                  updateProfileMutation.mutate();
+                }}
+              />
+            </div>
+
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="font-medium text-foreground">Share Workouts</p>
+                <p className="text-sm text-muted-foreground">
+                  Show workout activity to followers
+                </p>
+              </div>
+              <Switch
+                checked={shareWorkouts}
+                onCheckedChange={(checked) => {
+                  setShareWorkouts(checked);
+                  updateProfileMutation.mutate();
+                }}
+              />
+            </div>
+          </CardContent>
         </Card>
 
         {/* Preferences Section */}
@@ -580,7 +737,7 @@ export default function SettingsPage() {
 
         {/* App Info */}
         <div className="text-center text-sm text-muted-foreground pt-4">
-          <p>SetFlow v1.0.0</p>
+          <p>SetFlow v2.2.0</p>
         </div>
       </div>
     </div>

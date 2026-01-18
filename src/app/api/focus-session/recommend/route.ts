@@ -128,32 +128,51 @@ export async function GET(request: Request) {
       }
     }
 
+    // Check if user has any workout history
+    const hasWorkoutHistory = usageMap.size > 0;
+
     // Score exercises: higher score = more recommended
     // Scoring factors:
     // - Usage frequency (positive) - exercises user knows and has done
     // - Days since last used (positive if > 3 days) - avoid repeating too often
     // - Equipment variety bonus
+    // - For new users: prioritize compound movements and muscle group relevance
     const today = new Date();
     const recommendations = filteredExercises.map((ex) => {
       const usage = usageMap.get(ex.id) || { count: 0, lastUsed: null };
 
       let score = 0;
 
-      // Frequency bonus: exercises the user has used before
-      score += Math.min(usage.count * 2, 20);
+      if (hasWorkoutHistory) {
+        // Experienced user scoring
+        // Frequency bonus: exercises the user has used before
+        score += Math.min(usage.count * 2, 20);
 
-      // Recency factor: boost exercises not done recently
-      if (usage.lastUsed) {
-        const lastDate = new Date(usage.lastUsed);
-        const daysSince = Math.floor((today.getTime() - lastDate.getTime()) / (1000 * 60 * 60 * 24));
-        if (daysSince > 7) {
-          score += 10;
-        } else if (daysSince > 3) {
-          score += 5;
+        // Recency factor: boost exercises not done recently
+        if (usage.lastUsed) {
+          const lastDate = new Date(usage.lastUsed);
+          const daysSince = Math.floor((today.getTime() - lastDate.getTime()) / (1000 * 60 * 60 * 24));
+          if (daysSince > 7) {
+            score += 10;
+          } else if (daysSince > 3) {
+            score += 5;
+          }
+        } else {
+          // Never used before - small bonus to encourage variety
+          score += 3;
         }
       } else {
-        // Never used before - small bonus to encourage variety
-        score += 3;
+        // New user scoring - prioritize muscle group relevance
+        // Give higher scores to exercises that match more target muscles
+        if (targetMuscles.length > 0) {
+          const matchCount = ex.muscleGroups.filter((mg) =>
+            targetMuscles.some((tm) => mg.toLowerCase().includes(tm))
+          ).length;
+          score += matchCount * 10;
+        }
+
+        // Slight randomization for variety
+        score += Math.random() * 5;
       }
 
       // Compound movement bonus (more muscle groups = higher score)
@@ -174,7 +193,6 @@ export async function GET(request: Request) {
     recommendations.sort((a, b) => b.score - a.score);
 
     // Ensure variety in equipment
-    const seen = new Set<string>();
     const diverseRecommendations = [];
 
     for (const rec of recommendations) {
