@@ -88,7 +88,7 @@ export function AchievementGallery({ progress, stats }: AchievementGalleryProps)
       </Card>
 
       {/* Category Filter */}
-      <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+      <div className="flex gap-2 flex-wrap pb-2">
         <Button
           variant={selectedCategory === "all" ? "default" : "outline"}
           size="sm"

@@ -31,7 +31,7 @@ export async function PUT(request: Request) {
 
     const body = await request.json();
 
-    const { displayName, avatarUrl, bio, shareStreak, shareVolume, shareWorkouts } = body;
+    const { displayName, avatarUrl, bio, handle, shareStreak, shareVolume, shareWorkouts } = body;
 
     const profile = await prisma.userProfile.upsert({
       where: { userId: user.id },
@@ -39,6 +39,7 @@ export async function PUT(request: Request) {
         displayName,
         avatarUrl,
         bio,
+        handle,
         shareStreak,
         shareVolume,
         shareWorkouts,
@@ -48,6 +49,7 @@ export async function PUT(request: Request) {
         displayName,
         avatarUrl,
         bio,
+        handle,
         shareStreak: shareStreak ?? true,
         shareVolume: shareVolume ?? false,
         shareWorkouts: shareWorkouts ?? true,

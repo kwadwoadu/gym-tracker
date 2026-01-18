@@ -87,7 +87,8 @@ export default function GroupsPage() {
         {/* Discover Groups */}
         <TabsContent value="discover" className="mt-4">
           {/* Goal Filter */}
-          <div className="px-4 pb-4 flex gap-2 overflow-x-auto">
+          <div className="px-4 pb-4 overflow-hidden">
+          <div className="flex gap-2 overflow-x-auto pb-2 -mb-2">
             <Badge
               variant={filterGoal === null ? "default" : "outline"}
               className="cursor-pointer whitespace-nowrap"
@@ -105,6 +106,7 @@ export default function GroupsPage() {
                 {config.label}
               </Badge>
             ))}
+            </div>
           </div>
 
           <div className="px-4 space-y-3">

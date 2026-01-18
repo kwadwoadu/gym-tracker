@@ -62,7 +62,7 @@ export default function CommunityPage() {
   }
 
   return (
-    <div className="min-h-screen pb-24">
+    <div className="min-h-screen pb-24 overflow-x-hidden">
       {/* Header */}
       <header className="px-4 pt-safe-top pb-4 border-b border-border">
         <div className="flex items-center justify-between">

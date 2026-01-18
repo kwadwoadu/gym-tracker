@@ -172,7 +172,7 @@ export function RecentWorkouts({ workoutLogs, onSetEdited }: RecentWorkoutsProps
                             <span className="text-sm text-foreground">
                               {name}
                             </span>
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-2 flex-wrap">
                               {sets.map((set, idx) => (
                                 <button
                                   key={idx}
