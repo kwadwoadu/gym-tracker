@@ -16,6 +16,7 @@ import {
   ChevronLeft,
   ChevronRight,
   User,
+  Users,
 } from "lucide-react";
 import { useNutritionAccess } from "@/hooks/use-nutrition-access";
 
@@ -24,6 +25,7 @@ const navItems = [
   { href: "/program", icon: ClipboardList, label: "Program" },
   { href: "/stats", icon: BarChart3, label: "Stats" },
   { href: "/exercises", icon: Dumbbell, label: "Exercises" },
+  { href: "/community", icon: Users, label: "Community" },
 ];
 
 export function Sidebar() {

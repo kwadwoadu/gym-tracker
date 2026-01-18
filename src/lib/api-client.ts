@@ -833,3 +833,333 @@ export const supplementProtocolApi = {
     return handleResponse(res);
   },
 };
+
+// ============================================================
+// Community Features (SetFlow v2.0 - Phase 3)
+// ============================================================
+
+// User Profile
+export interface UserProfile {
+  id: string;
+  displayName: string | null;
+  avatarUrl: string | null;
+  bio: string | null;
+  shareStreak: boolean;
+  shareVolume: boolean;
+  shareWorkouts: boolean;
+  userId: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export const userProfileApi = {
+  get: async (): Promise<UserProfile | null> => {
+    const res = await fetch(`${API_BASE}/community/profile`);
+    return handleResponse(res);
+  },
+
+  getByUserId: async (userId: string): Promise<UserProfile | null> => {
+    const res = await fetch(`${API_BASE}/community/profile/${userId}`);
+    return handleResponse(res);
+  },
+
+  update: async (data: Partial<Omit<UserProfile, "id" | "userId" | "createdAt" | "updatedAt">>): Promise<UserProfile> => {
+    const res = await fetch(`${API_BASE}/community/profile`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+    return handleResponse(res);
+  },
+};
+
+// Follow System
+export interface Follow {
+  id: string;
+  followerId: string;
+  followingId: string;
+  createdAt: string;
+}
+
+export interface FollowUser {
+  id: string;
+  displayName: string | null;
+  avatarUrl: string | null;
+  bio: string | null;
+  userId: string;
+}
+
+export const followApi = {
+  follow: async (userId: string): Promise<Follow> => {
+    const res = await fetch(`${API_BASE}/community/follow`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId }),
+    });
+    return handleResponse(res);
+  },
+
+  unfollow: async (userId: string): Promise<{ success: boolean }> => {
+    const res = await fetch(`${API_BASE}/community/follow`, {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId }),
+    });
+    return handleResponse(res);
+  },
+
+  getFollowers: async (): Promise<FollowUser[]> => {
+    const res = await fetch(`${API_BASE}/community/follow/followers`);
+    return handleResponse(res);
+  },
+
+  getFollowing: async (): Promise<FollowUser[]> => {
+    const res = await fetch(`${API_BASE}/community/follow/following`);
+    return handleResponse(res);
+  },
+
+  isFollowing: async (userId: string): Promise<boolean> => {
+    const res = await fetch(`${API_BASE}/community/follow/check/${userId}`);
+    const data = await handleResponse<{ isFollowing: boolean }>(res);
+    return data.isFollowing;
+  },
+};
+
+// Groups
+export type GroupGoalType = "strength" | "weight_loss" | "muscle_building" | "endurance" | "general";
+
+export interface Group {
+  id: string;
+  name: string;
+  description: string | null;
+  goalType: GroupGoalType;
+  isPublic: boolean;
+  createdById: string;
+  createdAt: string;
+  updatedAt: string;
+  memberCount?: number;
+  isJoined?: boolean;
+}
+
+export interface GroupMember {
+  id: string;
+  role: "admin" | "member";
+  joinedAt: string;
+  groupId: string;
+  userId: string;
+  user?: {
+    displayName: string | null;
+    avatarUrl: string | null;
+  };
+}
+
+export const groupsApi = {
+  list: async (options?: { goalType?: GroupGoalType; joined?: boolean }): Promise<Group[]> => {
+    const params = new URLSearchParams();
+    if (options?.goalType) params.set("goalType", options.goalType);
+    if (options?.joined) params.set("joined", "true");
+    const query = params.toString();
+    const res = await fetch(`${API_BASE}/community/groups${query ? `?${query}` : ""}`);
+    return handleResponse(res);
+  },
+
+  get: async (id: string): Promise<Group & { members: GroupMember[] }> => {
+    const res = await fetch(`${API_BASE}/community/groups/${id}`);
+    return handleResponse(res);
+  },
+
+  create: async (data: {
+    name: string;
+    description?: string;
+    goalType: GroupGoalType;
+    isPublic?: boolean;
+  }): Promise<Group> => {
+    const res = await fetch(`${API_BASE}/community/groups`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+    return handleResponse(res);
+  },
+
+  update: async (id: string, data: Partial<Omit<Group, "id" | "createdById" | "createdAt" | "updatedAt">>): Promise<Group> => {
+    const res = await fetch(`${API_BASE}/community/groups/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+    return handleResponse(res);
+  },
+
+  delete: async (id: string): Promise<{ success: boolean }> => {
+    const res = await fetch(`${API_BASE}/community/groups/${id}`, {
+      method: "DELETE",
+    });
+    return handleResponse(res);
+  },
+
+  join: async (id: string): Promise<GroupMember> => {
+    const res = await fetch(`${API_BASE}/community/groups/${id}/join`, {
+      method: "POST",
+    });
+    return handleResponse(res);
+  },
+
+  leave: async (id: string): Promise<{ success: boolean }> => {
+    const res = await fetch(`${API_BASE}/community/groups/${id}/leave`, {
+      method: "POST",
+    });
+    return handleResponse(res);
+  },
+};
+
+// Challenges
+export type ChallengeType = "streak" | "volume" | "workouts" | "consistency";
+
+export interface Challenge {
+  id: string;
+  name: string;
+  description: string | null;
+  type: ChallengeType;
+  target: number;
+  startDate: string;
+  endDate: string;
+  groupId: string | null;
+  badgeId: string | null;
+  createdAt: string;
+  participantCount?: number;
+  isJoined?: boolean;
+  myProgress?: number;
+}
+
+export interface ChallengeParticipant {
+  id: string;
+  progress: number;
+  completedAt: string | null;
+  joinedAt: string;
+  challengeId: string;
+  userId: string;
+  user?: {
+    displayName: string | null;
+    avatarUrl: string | null;
+  };
+}
+
+export const challengesApi = {
+  list: async (options?: { active?: boolean; groupId?: string; joined?: boolean }): Promise<Challenge[]> => {
+    const params = new URLSearchParams();
+    if (options?.active) params.set("active", "true");
+    if (options?.groupId) params.set("groupId", options.groupId);
+    if (options?.joined) params.set("joined", "true");
+    const query = params.toString();
+    const res = await fetch(`${API_BASE}/community/challenges${query ? `?${query}` : ""}`);
+    return handleResponse(res);
+  },
+
+  get: async (id: string): Promise<Challenge & { participants: ChallengeParticipant[] }> => {
+    const res = await fetch(`${API_BASE}/community/challenges/${id}`);
+    return handleResponse(res);
+  },
+
+  create: async (data: {
+    name: string;
+    description?: string;
+    type: ChallengeType;
+    target: number;
+    startDate: string;
+    endDate: string;
+    groupId?: string;
+    badgeId?: string;
+  }): Promise<Challenge> => {
+    const res = await fetch(`${API_BASE}/community/challenges`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+    return handleResponse(res);
+  },
+
+  join: async (id: string): Promise<ChallengeParticipant> => {
+    const res = await fetch(`${API_BASE}/community/challenges/${id}/join`, {
+      method: "POST",
+    });
+    return handleResponse(res);
+  },
+
+  updateProgress: async (id: string, progress: number): Promise<ChallengeParticipant> => {
+    const res = await fetch(`${API_BASE}/community/challenges/${id}/progress`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ progress }),
+    });
+    return handleResponse(res);
+  },
+};
+
+// Badges
+export type BadgeTier = "bronze" | "silver" | "gold";
+
+export interface Badge {
+  id: string;
+  name: string;
+  description: string;
+  imageUrl: string | null;
+  tier: BadgeTier;
+}
+
+export interface UserBadge {
+  id: string;
+  earnedAt: string;
+  userId: string;
+  badgeId: string;
+  badge?: Badge;
+}
+
+export const badgesApi = {
+  list: async (): Promise<Badge[]> => {
+    const res = await fetch(`${API_BASE}/community/badges`);
+    return handleResponse(res);
+  },
+
+  getUserBadges: async (userId?: string): Promise<UserBadge[]> => {
+    const params = userId ? `?userId=${userId}` : "";
+    const res = await fetch(`${API_BASE}/community/badges/user${params}`);
+    return handleResponse(res);
+  },
+};
+
+// Leaderboard
+export interface LeaderboardEntry {
+  rank: number;
+  userId: string;
+  displayName: string | null;
+  avatarUrl: string | null;
+  value: number;
+  metric: string;
+}
+
+export const leaderboardApi = {
+  get: async (metric: "streak" | "volume" | "workouts" = "workouts"): Promise<LeaderboardEntry[]> => {
+    const res = await fetch(`${API_BASE}/community/leaderboard?metric=${metric}`);
+    return handleResponse(res);
+  },
+};
+
+// Activity Feed
+export interface ActivityItem {
+  id: string;
+  type: "workout_completed" | "pr_achieved" | "challenge_joined" | "badge_earned" | "group_joined";
+  userId: string;
+  displayName: string | null;
+  avatarUrl: string | null;
+  data: Record<string, unknown>;
+  createdAt: string;
+}
+
+export const activityApi = {
+  getFeed: async (limit?: number): Promise<ActivityItem[]> => {
+    const params = limit ? `?limit=${limit}` : "";
+    const res = await fetch(`${API_BASE}/community/activity${params}`);
+    return handleResponse(res);
+  },
+};

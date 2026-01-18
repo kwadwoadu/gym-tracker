@@ -38,6 +38,14 @@ model User {
   customMeals         CustomMeal[]
   customSupplements   CustomSupplement[]
   supplementProtocol  SupplementProtocol?
+  // Community features (SetFlow v2.0 - Phase 3)
+  userProfile             UserProfile?
+  followers               Follow[]              @relation("Following")
+  following               Follow[]              @relation("Followers")
+  createdGroups           Group[]               @relation("GroupCreator")
+  groupMemberships        GroupMember[]
+  challengeParticipations ChallengeParticipant[]
+  badges                  UserBadge[]
 }
 
 model Exercise {
@@ -359,4 +367,157 @@ model SupplementProtocol {
   // One protocol per user
   userId String @unique
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// ============================================================
+// Community Models (SetFlow v2.0 - Phase 3)
+// ============================================================
+
+// User profile with display settings and privacy controls
+model UserProfile {
+  id          String  @id @default(cuid())
+  displayName String?
+  avatarUrl   String?
+  bio         String?
+
+  // Privacy settings
+  shareStreak   Boolean @default(true)
+  shareVolume   Boolean @default(false)
+  shareWorkouts Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // One-to-one with User
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// Follow relationship (many-to-many)
+model Follow {
+  id          String   @id @default(cuid())
+  followerId  String
+  followingId String
+  createdAt   DateTime @default(now())
+
+  follower  User @relation("Followers", fields: [followerId], references: [id], onDelete: Cascade)
+  following User @relation("Following", fields: [followingId], references: [id], onDelete: Cascade)
+
+  @@unique([followerId, followingId])
+  @@index([followerId])
+  @@index([followingId])
+}
+
+// Goal-based groups (Runna-style)
+model Group {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  goalType    String   // strength | weight_loss | muscle_building | endurance | general
+  isPublic    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Creator relation
+  createdById String
+  createdBy   User   @relation("GroupCreator", fields: [createdById], references: [id])
+
+  // Relations
+  members    GroupMember[]
+  challenges Challenge[]
+
+  @@index([goalType])
+  @@index([createdById])
+}
+
+// Group membership with roles
+model GroupMember {
+  id       String   @id @default(cuid())
+  role     String   @default("member") // admin | member
+  joinedAt DateTime @default(now())
+
+  // Relations
+  groupId String
+  group   Group  @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([groupId, userId])
+  @@index([groupId])
+  @@index([userId])
+}
+
+// Challenges (streak, volume, workouts, consistency)
+model Challenge {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  type        String   // streak | volume | workouts | consistency
+  target      Int      // Target number to reach
+  startDate   String   // YYYY-MM-DD
+  endDate     String   // YYYY-MM-DD
+  createdAt   DateTime @default(now())
+
+  // Optional group association
+  groupId String?
+  group   Group?  @relation(fields: [groupId], references: [id], onDelete: SetNull)
+
+  // Optional badge reward
+  badgeId String?
+
+  // Relations
+  participants ChallengeParticipant[]
+
+  @@index([groupId])
+  @@index([startDate])
+  @@index([endDate])
+}
+
+// Challenge participation and progress tracking
+model ChallengeParticipant {
+  id          String    @id @default(cuid())
+  progress    Int       @default(0)
+  completedAt DateTime?
+  joinedAt    DateTime  @default(now())
+
+  // Relations
+  challengeId String
+  challenge   Challenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([challengeId, userId])
+  @@index([challengeId])
+  @@index([userId])
+}
+
+// Achievement badges
+model Badge {
+  id          String  @id @default(cuid())
+  name        String
+  description String
+  imageUrl    String?
+  tier        String  // bronze | silver | gold
+
+  // Relations
+  userBadges UserBadge[]
+}
+
+// User badge collection
+model UserBadge {
+  id       String   @id @default(cuid())
+  earnedAt DateTime @default(now())
+
+  // Relations
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  badgeId String
+  badge   Badge  @relation(fields: [badgeId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, badgeId])
+  @@index([userId])
+  @@index([badgeId])
 }

@@ -7,7 +7,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Dumbbell, Play, Loader2, BarChart3, ClipboardList, Settings, Flame, Calendar, UtensilsCrossed } from "lucide-react";
+import { Dumbbell, Play, Loader2, BarChart3, ClipboardList, Settings, Flame, Calendar, UtensilsCrossed, Users } from "lucide-react";
 import { useNutritionAccess } from "@/hooks/use-nutrition-access";
 import { SupersetView } from "@/components/workout/superset-view";
 import { Hero, Features, CTA, Footer } from "@/components/landing";
@@ -204,6 +204,14 @@ export default function Home() {
                 <UtensilsCrossed className="w-5 h-5 text-muted-foreground" />
               </Button>
             )}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => router.push("/community")}
+              className="h-10 w-10"
+            >
+              <Users className="w-5 h-5 text-muted-foreground" />
+            </Button>
             <Button
               variant="ghost"
               size="icon"
