@@ -187,6 +187,9 @@ model OnboardingProfile {
   skippedOnboarding      Boolean  @default(false)
   completedAt            DateTime?
 
+  // Onboarding state machine: "not_started" | "profile_complete" | "program_installing" | "complete"
+  onboardingState        String   @default("not_started")
+
   // One-to-one with User
   userId String @unique
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)

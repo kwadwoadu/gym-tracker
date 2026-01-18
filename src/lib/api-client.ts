@@ -482,6 +482,9 @@ export const settingsApi = {
 // Onboarding
 // ============================================================
 
+// Onboarding state machine type
+export type OnboardingState = "not_started" | "profile_complete" | "program_installing" | "complete";
+
 export interface OnboardingProfile {
   id: string;
   goals: string[];
@@ -495,6 +498,7 @@ export interface OnboardingProfile {
   hasCompletedOnboarding: boolean;
   skippedOnboarding: boolean;
   completedAt: string | null;
+  onboardingState: OnboardingState;
   userId: string;
 }
 

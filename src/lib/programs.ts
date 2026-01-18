@@ -1,4 +1,4 @@
-import { programsApi, exercisesApi, type Program, type TrainingDay } from "./api-client";
+import { programsApi, exercisesApi, onboardingApi, type Program, type TrainingDay } from "./api-client";
 import exercisesData from "@/data/exercises.json";
 
 // Import preset program data
@@ -218,9 +218,19 @@ function mapTrainingDayExerciseIds(
 /**
  * Install a preset program to database
  * This creates a user's copy of the program with properly mapped exercise IDs
+ * Includes onboarding state machine transitions to prevent redirect loops
  */
 export async function installPresetProgram(presetId: string): Promise<void> {
   console.log(`[installPresetProgram] Starting installation of preset: ${presetId}`);
+
+  // Set state to "program_installing" before starting
+  try {
+    await onboardingApi.update({ onboardingState: "program_installing" });
+    console.log(`[installPresetProgram] Set onboardingState to program_installing`);
+  } catch (error) {
+    console.error(`[installPresetProgram] Failed to set installing state:`, error);
+    // Continue anyway - state transition is not critical for installation
+  }
 
   const preset = getPresetProgram(presetId);
   if (!preset) {
@@ -299,14 +309,33 @@ export async function installPresetProgram(presetId: string): Promise<void> {
     console.error(`[installPresetProgram] ERROR: Created program has no trainingDays in response!`);
   }
 
+  // Set state to "complete" after successful installation
+  try {
+    await onboardingApi.update({ onboardingState: "complete" });
+    console.log(`[installPresetProgram] Set onboardingState to complete`);
+  } catch (error) {
+    console.error(`[installPresetProgram] Failed to set complete state:`, error);
+    // This is more critical - the program is installed but state isn't updated
+    // The redirect logic will handle this case by checking for program existence
+  }
+
   console.log(`[installPresetProgram] Installation complete`);
 }
 
 /**
  * Create an empty program for "Start from Scratch" option
+ * Includes onboarding state machine transitions to prevent redirect loops
  */
 export async function createEmptyProgram(): Promise<void> {
   console.log(`[createEmptyProgram] Starting creation of empty program`);
+
+  // Set state to "program_installing" before starting
+  try {
+    await onboardingApi.update({ onboardingState: "program_installing" });
+    console.log(`[createEmptyProgram] Set onboardingState to program_installing`);
+  } catch (error) {
+    console.error(`[createEmptyProgram] Failed to set installing state:`, error);
+  }
 
   // Seed exercises if not already seeded (so user has exercises to choose from)
   await buildExerciseIdMapping();
@@ -334,6 +363,14 @@ export async function createEmptyProgram(): Promise<void> {
   });
 
   console.log(`[createEmptyProgram] Empty program created: ${createdProgram.id}`);
+
+  // Set state to "complete" after successful creation
+  try {
+    await onboardingApi.update({ onboardingState: "complete" });
+    console.log(`[createEmptyProgram] Set onboardingState to complete`);
+  } catch (error) {
+    console.error(`[createEmptyProgram] Failed to set complete state:`, error);
+  }
 }
 
 /**

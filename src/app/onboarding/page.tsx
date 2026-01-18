@@ -100,6 +100,7 @@ export default function OnboardingPage() {
       hasCompletedOnboarding: true,
       skippedOnboarding: true,
       completedAt: new Date().toISOString(),
+      onboardingState: "profile_complete",
     });
     router.push("/onboarding/plans");
   };
@@ -110,6 +111,7 @@ export default function OnboardingPage() {
       hasCompletedOnboarding: true,
       skippedOnboarding: false,
       completedAt: new Date().toISOString(),
+      onboardingState: "profile_complete",
     });
     router.push("/onboarding/plans");
   };

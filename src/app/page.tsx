@@ -55,19 +55,44 @@ export default function Home() {
     }
   }, [sortedDays, selectedDay]);
 
-  // Redirect to onboarding if needed
+  // Redirect based on onboarding state machine
   useEffect(() => {
     if (programsLoading || onboardingLoading) return;
 
     const hasProgram = programs && programs.length > 0;
-    const hasCompletedOnboarding = onboarding?.hasCompletedOnboarding || onboarding?.skippedOnboarding;
+    const onboardingState = onboarding?.onboardingState || "not_started";
 
-    if (!hasProgram) {
-      if (!hasCompletedOnboarding) {
-        router.replace("/onboarding");
-      } else {
+    // State machine for navigation
+    switch (onboardingState) {
+      case "complete":
+        // User has completed onboarding and has a program - stay on home
+        // But if somehow no program exists, redirect to plans (recovery)
+        if (!hasProgram) {
+          router.replace("/onboarding/plans");
+        }
+        break;
+      case "program_installing":
+        // User is in the middle of program installation - redirect to plans
+        // This handles the case where installation was interrupted
         router.replace("/onboarding/plans");
-      }
+        break;
+      case "profile_complete":
+        // User has completed profile but hasn't picked a program - redirect to plans
+        router.replace("/onboarding/plans");
+        break;
+      case "not_started":
+      default:
+        // User hasn't started onboarding
+        // Check legacy fields for backward compatibility
+        const hasCompletedOnboarding = onboarding?.hasCompletedOnboarding || onboarding?.skippedOnboarding;
+        if (!hasProgram) {
+          if (!hasCompletedOnboarding) {
+            router.replace("/onboarding");
+          } else {
+            router.replace("/onboarding/plans");
+          }
+        }
+        break;
     }
   }, [programs, onboarding, programsLoading, onboardingLoading, router]);
 

@@ -58,6 +58,9 @@ export async function POST(request: Request) {
         ...(body.skippedOnboarding !== undefined && {
           skippedOnboarding: body.skippedOnboarding,
         }),
+        ...(body.onboardingState !== undefined && {
+          onboardingState: body.onboardingState,
+        }),
       },
       create: {
         userId: user.id,
@@ -72,6 +75,7 @@ export async function POST(request: Request) {
         hasCompletedOnboarding: body.hasCompletedOnboarding || false,
         skippedOnboarding: body.skippedOnboarding || false,
         completedAt: body.hasCompletedOnboarding ? new Date() : null,
+        onboardingState: body.onboardingState || "not_started",
       },
     });
 
