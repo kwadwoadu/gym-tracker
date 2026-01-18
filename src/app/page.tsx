@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
+import { useUser } from "@clerk/nextjs";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -9,6 +10,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Dumbbell, Play, Loader2, BarChart3, ClipboardList, Settings, Flame, Calendar, UtensilsCrossed } from "lucide-react";
 import { useNutritionAccess } from "@/hooks/use-nutrition-access";
 import { SupersetView } from "@/components/workout/superset-view";
+import { Hero, Features, CTA, Footer } from "@/components/landing";
 import {
   usePrograms,
   useTrainingDays,
@@ -19,6 +21,7 @@ import {
 import type { Exercise } from "@/lib/api-client";
 
 export default function Home() {
+  const { isSignedIn, isLoaded: authLoaded } = useUser();
   const router = useRouter();
   const [selectedDay, setSelectedDay] = useState<string | null>(null);
   const { hasAccess: hasNutritionAccess } = useNutritionAccess();
@@ -55,8 +58,9 @@ export default function Home() {
     }
   }, [sortedDays, selectedDay]);
 
-  // Redirect based on onboarding state machine
+  // Redirect based on onboarding state machine (only for authenticated users)
   useEffect(() => {
+    if (!authLoaded || !isSignedIn) return;
     if (programsLoading || onboardingLoading) return;
 
     const hasProgram = programs && programs.length > 0;
@@ -94,11 +98,34 @@ export default function Home() {
         }
         break;
     }
-  }, [programs, onboarding, programsLoading, onboardingLoading, router]);
+  }, [programs, onboarding, programsLoading, onboardingLoading, router, authLoaded, isSignedIn]);
 
   const currentDay = sortedDays.find((d) => d.id === selectedDay);
 
-  // Show loading only while data is being fetched
+  // Show loading while auth is being checked
+  if (!authLoaded) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#0A0A0A]">
+        <div className="text-center space-y-4">
+          <Loader2 className="w-8 h-8 animate-spin mx-auto text-[#CDFF00]" />
+        </div>
+      </div>
+    );
+  }
+
+  // If not signed in, show landing page
+  if (!isSignedIn) {
+    return (
+      <div className="min-h-screen bg-[#0A0A0A] text-white">
+        <Hero />
+        <Features />
+        <CTA />
+        <Footer />
+      </div>
+    );
+  }
+
+  // Show loading only while data is being fetched (for authenticated users)
   // Note: Do NOT include programs.length === 0 here - that case is handled by the redirect useEffect above
   if (programsLoading || onboardingLoading) {
     return (

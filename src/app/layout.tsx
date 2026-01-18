@@ -4,6 +4,7 @@ import { ClerkProvider } from "@clerk/nextjs";
 import { QueryProvider } from "@/components/providers/query-provider";
 import { AutoSyncProvider } from "@/components/sync/auto-sync-provider";
 import { PWAPrompt } from "@/components/shared/pwa-prompt";
+import { DesktopLayout } from "@/components/layout";
 import "./globals.css";
 
 const inter = Inter({
@@ -62,7 +63,9 @@ export default function RootLayout({
         >
           <QueryProvider>
             <AutoSyncProvider>
-              {children}
+              <DesktopLayout>
+                {children}
+              </DesktopLayout>
               <PWAPrompt />
             </AutoSyncProvider>
           </QueryProvider>

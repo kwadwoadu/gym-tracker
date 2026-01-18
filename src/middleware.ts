@@ -1,10 +1,13 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
-// Public routes - auth pages, health check, and PWA manifest
+// Public routes - auth pages, health check, landing page, and PWA manifest
+// Note: "/" is public - auth check happens client-side to show landing vs app
 const isPublicRoute = createRouteMatcher([
+  "/",
   "/sign-in(.*)",
   "/sign-up(.*)",
+  "/landing",
   "/api/health",
   "/manifest.json",
 ]);
