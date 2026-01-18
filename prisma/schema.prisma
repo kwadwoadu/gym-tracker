@@ -34,6 +34,10 @@ model User {
   nutritionLogs     NutritionLog[]
   mealPlans         MealPlan[]
   supplementLogs    SupplementLog[]
+  // Custom nutrition (SetFlow v2.0)
+  customMeals         CustomMeal[]
+  customSupplements   CustomSupplement[]
+  supplementProtocol  SupplementProtocol?
 }
 
 model Exercise {
@@ -302,4 +306,57 @@ model SupplementLog {
   @@unique([userId, date])
   @@index([userId])
   @@index([date])
+}
+
+// ============================================================
+// Custom Nutrition Models (SetFlow v2.0)
+// ============================================================
+
+// User-created custom meals
+model CustomMeal {
+  id          String   @id @default(cuid())
+  name        String
+  category    String   // breakfast | midMorning | lunch | snack | dinner
+  protein     Int
+  carbs       Int
+  fat         Int
+  calories    Int
+  prepTime    String?
+  ingredients Json?    // string[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // User relation
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+// User-created custom supplements
+model CustomSupplement {
+  id        String   @id @default(cuid())
+  name      String
+  dose      String
+  timing    String   // "morning" | "pre-workout" | "post-workout" | "evening"
+  notes     String?
+  createdAt DateTime @default(now())
+
+  // User relation
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+// User's daily supplement protocol
+model SupplementProtocol {
+  id        String   @id @default(cuid())
+  // JSON structure: { morning: [...ids], preWorkout: [...ids], postWorkout: [...ids], evening: [...ids] }
+  protocol  Json
+  updatedAt DateTime @updatedAt
+
+  // One protocol per user
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

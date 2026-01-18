@@ -1,17 +1,14 @@
 // Feature flags for gating features to specific users
-// Currently used for nutrition tracking (k@adu.dk only)
-
-// Email whitelist for nutrition feature
-const NUTRITION_ALLOWED_EMAILS = ['k@adu.dk'];
+// Note: Nutrition is now open to all users (SetFlow v2.0)
 
 /**
  * Check if a user can access the nutrition feature
  * @param email - User's email address (from Clerk)
- * @returns true if the user has access to nutrition features
+ * @returns true - Nutrition is now open to all users
  */
 export function canAccessNutrition(email: string | null | undefined): boolean {
-  if (!email) return false;
-  return NUTRITION_ALLOWED_EMAILS.includes(email.toLowerCase());
+  // SetFlow v2.0: Nutrition is now open to all users
+  return true;
 }
 
 /**
@@ -19,14 +16,14 @@ export function canAccessNutrition(email: string | null | undefined): boolean {
  * This is useful when you only have the Clerk ID
  * @param clerkId - Clerk user ID
  * @param email - User's email from Clerk user object
- * @returns true if the user has access to nutrition features
+ * @returns true - Nutrition is now open to all users
  */
 export function canAccessNutritionByClerkId(
   clerkId: string | null | undefined,
   email: string | null | undefined
 ): boolean {
-  // We check by email, not by Clerk ID
-  return canAccessNutrition(email);
+  // SetFlow v2.0: Nutrition is now open to all users
+  return true;
 }
 
 // Future feature flags can be added here

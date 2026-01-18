@@ -1,11 +1,10 @@
 'use client';
 
 import { useUser } from '@clerk/nextjs';
-import { canAccessNutrition } from '@/lib/feature-flags';
 
 /**
  * Hook to check if the current user has access to nutrition features
- * Returns loading state while Clerk is initializing
+ * SetFlow v2.0: Nutrition is now open to all users
  */
 export function useNutritionAccess() {
   const { user, isLoaded } = useUser();
@@ -31,8 +30,9 @@ export function useNutritionAccess() {
   // Get primary email
   const primaryEmail = user.primaryEmailAddress?.emailAddress ?? null;
 
+  // SetFlow v2.0: Nutrition is now open to all users
   return {
-    hasAccess: canAccessNutrition(primaryEmail),
+    hasAccess: true,
     isLoading: false,
     email: primaryEmail,
   };

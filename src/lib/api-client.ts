@@ -685,3 +685,151 @@ export const supplementLogApi = {
     return handleResponse(res);
   },
 };
+
+// ============================================================
+// Custom Meals (SetFlow v2.0)
+// ============================================================
+
+export interface CustomMeal {
+  id: string;
+  name: string;
+  category: string;
+  protein: number;
+  carbs: number;
+  fat: number;
+  calories: number;
+  prepTime: string | null;
+  ingredients: string[] | null;
+  userId: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export const customMealsApi = {
+  list: async (): Promise<CustomMeal[]> => {
+    const res = await fetch(`${API_BASE}/nutrition/meals`);
+    return handleResponse(res);
+  },
+
+  get: async (id: string): Promise<CustomMeal> => {
+    const res = await fetch(`${API_BASE}/nutrition/meals/${id}`);
+    return handleResponse(res);
+  },
+
+  create: async (data: {
+    name: string;
+    category: string;
+    protein?: number;
+    carbs?: number;
+    fat?: number;
+    calories?: number;
+    prepTime?: string;
+    ingredients?: string[];
+  }): Promise<CustomMeal> => {
+    const res = await fetch(`${API_BASE}/nutrition/meals`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+    return handleResponse(res);
+  },
+
+  update: async (id: string, data: Partial<Omit<CustomMeal, "id" | "userId" | "createdAt" | "updatedAt">>): Promise<CustomMeal> => {
+    const res = await fetch(`${API_BASE}/nutrition/meals/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+    return handleResponse(res);
+  },
+
+  delete: async (id: string): Promise<{ success: boolean }> => {
+    const res = await fetch(`${API_BASE}/nutrition/meals/${id}`, {
+      method: "DELETE",
+    });
+    return handleResponse(res);
+  },
+};
+
+// ============================================================
+// Custom Supplements (SetFlow v2.0)
+// ============================================================
+
+export interface CustomSupplement {
+  id: string;
+  name: string;
+  dose: string;
+  timing: string;
+  notes: string | null;
+  userId: string;
+  createdAt: string;
+}
+
+export const customSupplementsApi = {
+  list: async (): Promise<CustomSupplement[]> => {
+    const res = await fetch(`${API_BASE}/nutrition/custom-supplements`);
+    return handleResponse(res);
+  },
+
+  create: async (data: {
+    name: string;
+    dose: string;
+    timing: string;
+    notes?: string;
+  }): Promise<CustomSupplement> => {
+    const res = await fetch(`${API_BASE}/nutrition/custom-supplements`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+    return handleResponse(res);
+  },
+
+  update: async (id: string, data: Partial<Omit<CustomSupplement, "id" | "userId" | "createdAt">>): Promise<CustomSupplement> => {
+    const res = await fetch(`${API_BASE}/nutrition/custom-supplements/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+    return handleResponse(res);
+  },
+
+  delete: async (id: string): Promise<{ success: boolean }> => {
+    const res = await fetch(`${API_BASE}/nutrition/custom-supplements/${id}`, {
+      method: "DELETE",
+    });
+    return handleResponse(res);
+  },
+};
+
+// ============================================================
+// Supplement Protocol (SetFlow v2.0)
+// ============================================================
+
+export interface SupplementProtocol {
+  id?: string;
+  userId: string;
+  protocol: {
+    morning: string[];
+    preWorkout: string[];
+    postWorkout: string[];
+    evening: string[];
+  };
+  updatedAt?: string;
+}
+
+export const supplementProtocolApi = {
+  get: async (): Promise<SupplementProtocol> => {
+    const res = await fetch(`${API_BASE}/nutrition/protocol`);
+    return handleResponse(res);
+  },
+
+  update: async (protocol: SupplementProtocol["protocol"]): Promise<SupplementProtocol> => {
+    const res = await fetch(`${API_BASE}/nutrition/protocol`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ protocol }),
+    });
+    return handleResponse(res);
+  },
+};
