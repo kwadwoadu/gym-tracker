@@ -4,6 +4,108 @@ All notable changes to the SetFlow project.
 
 ---
 
+## [2026-01-18] SetFlow v2.0 - Complete Experience Upgrade
+
+Major release with four workstreams: onboarding fix, nutrition unlock, community features, and focus sessions.
+
+### Phase 1: Onboarding Fix
+
+**Added**
+- `onboardingState` field to OnboardingProfile with state machine: `not_started | profile_complete | program_installing | complete`
+- Error recovery: resets state to `profile_complete` if `complete` but no program exists
+- Migration script (`scripts/migrate-onboarding-state.ts`) for existing users
+
+**Changed**
+- `/src/app/page.tsx` redirect logic now uses state machine instead of boolean checks
+- `installPresetProgram()` wrapped with state transitions (sets `program_installing` before, `complete` after)
+
+**Fixed**
+- Infinite redirect loop when users completed onboarding but had no program
+
+### Phase 2: Nutrition Unlock
+
+**Added**
+- `CustomMeal` model - user-created meals with macros (protein, carbs, fat, calories)
+- `CustomSupplement` model - custom supplement definitions with timing
+- `SupplementProtocol` model - user's daily supplement protocol (JSON structure)
+- Custom meal creation form UI (`/components/nutrition/meal-creator.tsx`)
+- Custom supplement creation form UI (`/components/nutrition/supplement-creator.tsx`)
+- Meal library page (`/nutrition/library`) with custom meals and supplements
+- API routes: `/api/nutrition/meals`, `/api/nutrition/custom-supplements`, `/api/nutrition/protocol`
+
+**Changed**
+- Feature gate removed - nutrition now open to all users (was gated to k@adu.dk)
+- Nutrition navigation restructured to 3 tabs: Today, Progress, Library
+- Daily checklist dynamically built from user's protocol
+
+### Phase 3: Community Features
+
+**Added**
+- `UserProfile` model with displayName, avatarUrl, bio, privacy settings
+- `Follow` model for friend relationships (many-to-many)
+- `Group` model with goal types (strength, weight_loss, muscle_building, endurance, general)
+- `GroupMember` model with roles (admin, member)
+- `Challenge` model with types (streak, volume, workouts, consistency)
+- `ChallengeParticipant` model with progress tracking
+- `Badge` and `UserBadge` models for gamification
+- Community hub page (`/community`) with activity feed and leaderboard
+- Friends management (`/community/friends`) with follow/unfollow
+- Group discovery and detail pages (`/community/groups`)
+- Challenge listing and participation (`/community/challenges`)
+- Weekly leaderboard with configurable metrics
+- Activity feed showing friends' workouts and PRs
+- Privacy controls for sharing streak, volume, workouts
+- Badge display on profile page
+- Public user profile view (`/community/users/[userId]`)
+- Auto-update challenge progress on workout completion
+
+**API Routes**
+- `/api/community/profile` - User profile CRUD
+- `/api/community/follow` - Follow/unfollow + followers/following lists
+- `/api/community/groups` - Group CRUD + join/leave
+- `/api/community/challenges` - Challenge CRUD + join + progress
+- `/api/community/leaderboard` - Weekly leaderboard (friends)
+- `/api/community/activity` - Friends' recent activity feed
+- `/api/community/badges` - Badge list + user badges
+
+### Phase 4: Focus Session
+
+**Added**
+- `FocusSession` model for one-off workouts outside regular program
+- Focus session start page (`/focus-session`) with focus area selection
+- Exercise picker modal with search and filtering
+- Smart exercise recommendations based on focus area and user history
+- Set logging interface (reuses workout UI patterns)
+- Session completion with summary
+- "Focus Session" button on home page (distinct from program workouts)
+
+**API Routes**
+- `/api/focus-session` - Session CRUD
+- `/api/focus-session/active` - Get active session
+- `/api/focus-session/recommend` - Exercise recommendations by focus area
+
+### Technical Details
+
+**Database Changes**
+- 12 new Prisma models added to schema
+- All models include proper indexes and cascade deletes
+- JSON fields for flexible data structures (exercises, sets, protocol)
+
+**Files Added**
+- 25+ new API route files
+- 15+ new page components
+- 10+ new UI components
+- 1 migration script
+
+**Files Changed**
+- `prisma/schema.prisma` - Extended with all new models
+- `src/lib/feature-flags.ts` - Removed nutrition gate
+- `src/lib/programs.ts` - Added onboarding state transitions
+- `src/lib/api-client.ts` - Added all new API client methods
+- `src/app/page.tsx` - State machine redirect logic
+
+---
+
 ## [2026-01-14] Muscle Visualization Feature
 
 ### Added
