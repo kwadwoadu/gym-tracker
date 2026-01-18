@@ -156,7 +156,7 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen pb-24">
+    <div className="min-h-screen pb-40 lg:pb-24">
       {/* Header */}
       <header className="px-4 pt-safe-top pb-4 border-b border-border">
         <div className="flex items-center justify-between">
@@ -174,7 +174,8 @@ export default function Home() {
               </p>
             </button>
           </div>
-          <div className="flex items-center gap-1">
+          {/* Header icons - hidden on mobile (use bottom tab bar instead) */}
+          <div className="hidden lg:flex items-center gap-1">
             <Button
               variant="ghost"
               size="icon"
@@ -386,9 +387,36 @@ export default function Home() {
         </Tabs>
       )}
 
-      {/* Fixed Bottom Buttons */}
-      <div className="fixed bottom-0 left-0 right-0 p-4 pb-safe-bottom bg-background/80 backdrop-blur-lg border-t border-border">
+      {/* Fixed Bottom Buttons - positioned above tab bar on mobile, at bottom on desktop */}
+      {/* Mobile version - above tab bar */}
+      <div
+        className="fixed left-0 right-0 p-4 bg-background/80 backdrop-blur-lg border-t border-border z-30 lg:hidden"
+        style={{ bottom: "calc(49px + env(safe-area-inset-bottom, 0px))" }}
+      >
         <div className="flex gap-3">
+          <Button
+            size="lg"
+            variant="outline"
+            className="h-14 px-6 font-semibold border-primary/50 text-primary hover:bg-primary/10"
+            onClick={() => router.push("/focus-session")}
+          >
+            <Dumbbell className="w-5 h-5 mr-2" />
+            Focus
+          </Button>
+          <Button
+            size="lg"
+            className="flex-1 h-14 text-lg font-semibold bg-primary text-primary-foreground hover:bg-primary/90"
+            onClick={() => router.push(`/workout/${selectedDay}`)}
+            disabled={!selectedDay}
+          >
+            <Play className="w-5 h-5 mr-2" />
+            Start {currentDay?.name || "Workout"}
+          </Button>
+        </div>
+      </div>
+      {/* Desktop version - at bottom */}
+      <div className="hidden lg:block fixed left-0 right-0 bottom-0 p-4 pb-safe-bottom bg-background/80 backdrop-blur-lg border-t border-border z-30">
+        <div className="flex gap-3 max-w-3xl mx-auto">
           <Button
             size="lg"
             variant="outline"
