@@ -80,7 +80,7 @@ export function WeightChart({ workoutLogs, exercises }: WeightChartProps) {
             Weight Progression
           </h2>
         </div>
-        <div className="h-48 flex items-center justify-center">
+        <div className="h-56 flex items-center justify-center">
           <p className="text-muted-foreground text-sm">
             Complete workouts to see your progress
           </p>
@@ -117,22 +117,25 @@ export function WeightChart({ workoutLogs, exercises }: WeightChartProps) {
 
       {/* Chart */}
       {chartData.length > 0 ? (
-        <div className="h-48">
+        <div className="h-56">
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={chartData}>
+            <LineChart data={chartData} margin={{ left: -10, right: 10 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#333" />
               <XAxis
                 dataKey="displayDate"
                 stroke="#666"
-                fontSize={12}
+                fontSize={10}
                 tickLine={false}
+                tick={{ fontSize: 10 }}
               />
               <YAxis
                 stroke="#666"
-                fontSize={12}
+                fontSize={10}
                 tickLine={false}
                 domain={["auto", "auto"]}
                 unit="kg"
+                tick={{ fontSize: 10 }}
+                width={45}
               />
               <Tooltip
                 contentStyle={{
@@ -155,7 +158,7 @@ export function WeightChart({ workoutLogs, exercises }: WeightChartProps) {
           </ResponsiveContainer>
         </div>
       ) : (
-        <div className="h-48 flex items-center justify-center">
+        <div className="h-56 flex items-center justify-center">
           <p className="text-muted-foreground text-sm">
             No data for this exercise yet
           </p>

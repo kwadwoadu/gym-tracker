@@ -847,6 +847,7 @@ export interface UserProfile {
   displayName: string | null;
   avatarUrl: string | null;
   bio: string | null;
+  handle: string | null;
   shareStreak: boolean;
   shareVolume: boolean;
   shareWorkouts: boolean;
@@ -898,7 +899,19 @@ export interface FollowUser {
   displayName: string | null;
   avatarUrl: string | null;
   bio: string | null;
+  handle: string | null;
   userId: string;
+}
+
+// User search result
+export interface UserSearchResult {
+  id: string;
+  userId: string;
+  displayName: string | null;
+  avatarUrl: string | null;
+  bio: string | null;
+  handle: string | null;
+  isFollowing: boolean;
 }
 
 export const followApi = {
@@ -934,6 +947,17 @@ export const followApi = {
     const res = await fetch(`${API_BASE}/community/follow/check/${userId}`);
     const data = await handleResponse<{ isFollowing: boolean }>(res);
     return data.isFollowing;
+  },
+};
+
+// User Search
+export const userSearchApi = {
+  search: async (query: string, limit?: number): Promise<UserSearchResult[]> => {
+    const params = new URLSearchParams();
+    params.set("q", query);
+    if (limit) params.set("limit", String(limit));
+    const res = await fetch(`${API_BASE}/community/users/search?${params.toString()}`);
+    return handleResponse(res);
   },
 };
 

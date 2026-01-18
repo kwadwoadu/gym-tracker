@@ -150,7 +150,7 @@ export default function StatsPage() {
   }
 
   return (
-    <div className="min-h-screen pb-8">
+    <div className="min-h-screen pb-8 overflow-x-hidden">
       {/* Header */}
       <header className="px-4 pt-safe-top pb-4 border-b border-border sticky top-0 bg-background/95 backdrop-blur-sm z-10">
         <div className="flex items-center gap-3">

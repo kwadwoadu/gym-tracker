@@ -381,6 +381,7 @@ model UserProfile {
   displayName String?
   avatarUrl   String?
   bio         String?
+  handle      String? @unique // @username format for discovery
 
   // Privacy settings
   shareStreak   Boolean @default(true)
@@ -393,6 +394,8 @@ model UserProfile {
   // One-to-one with User
   userId String @unique
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([handle])
 }
 
 // Follow relationship (many-to-many)

@@ -19,18 +19,24 @@ import {
   X,
   Sparkles,
   Target,
+  HeartPulse,
+  LayoutGrid,
+  Footprints,
+  Mountain,
+  Flame,
+  type LucideIcon,
 } from "lucide-react";
 import { exercisesApi, focusSessionApi, type Exercise, type FocusSessionExercise, type ExerciseRecommendation } from "@/lib/api-client";
 import { cn } from "@/lib/utils";
 
-const FOCUS_AREAS = [
-  { id: "chest", label: "Chest", emoji: "" },
-  { id: "back", label: "Back", emoji: "" },
-  { id: "legs", label: "Legs", emoji: "" },
-  { id: "shoulders", label: "Shoulders", emoji: "" },
-  { id: "arms", label: "Arms", emoji: "" },
-  { id: "core", label: "Core", emoji: "" },
-  { id: "full_body", label: "Full Body", emoji: "" },
+const FOCUS_AREAS: { id: string; label: string; icon: LucideIcon }[] = [
+  { id: "chest", label: "Chest", icon: HeartPulse },
+  { id: "back", label: "Back", icon: LayoutGrid },
+  { id: "legs", label: "Legs", icon: Footprints },
+  { id: "shoulders", label: "Shoulders", icon: Mountain },
+  { id: "arms", label: "Arms", icon: Zap },
+  { id: "core", label: "Core", icon: Target },
+  { id: "full_body", label: "Full Body", icon: Flame },
 ];
 
 export default function FocusSessionStartPage() {
@@ -151,21 +157,25 @@ export default function FocusSessionStartPage() {
           <label className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
             What do you want to focus on?
           </label>
-          <div className="grid grid-cols-4 gap-2">
-            {FOCUS_AREAS.map((area) => (
-              <button
-                key={area.id}
-                onClick={() => setFocusArea(area.id === focusArea ? "" : area.id)}
-                className={cn(
-                  "p-3 rounded-lg border text-center transition-all",
-                  focusArea === area.id
-                    ? "border-[#CDFF00] bg-[#CDFF00]/10 text-[#CDFF00]"
-                    : "border-border bg-card hover:border-muted-foreground"
-                )}
-              >
-                <span className="text-sm font-medium">{area.label}</span>
-              </button>
-            ))}
+          <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+            {FOCUS_AREAS.map((area) => {
+              const Icon = area.icon;
+              return (
+                <button
+                  key={area.id}
+                  onClick={() => setFocusArea(area.id === focusArea ? "" : area.id)}
+                  className={cn(
+                    "p-4 rounded-lg border text-center transition-all min-h-[72px] flex flex-col items-center justify-center gap-1.5",
+                    focusArea === area.id
+                      ? "border-[#CDFF00] bg-[#CDFF00]/10 text-[#CDFF00]"
+                      : "border-border bg-card hover:border-muted-foreground"
+                  )}
+                >
+                  <Icon className="w-5 h-5" />
+                  <span className="text-sm font-medium">{area.label}</span>
+                </button>
+              );
+            })}
           </div>
         </div>
 

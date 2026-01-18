@@ -16,6 +16,7 @@ import {
   Loader2,
   Dumbbell,
   Award,
+  Home,
 } from "lucide-react";
 import { followApi, groupsApi, challengesApi, leaderboardApi, activityApi } from "@/lib/api-client";
 import type { LeaderboardEntry, ActivityItem } from "@/lib/api-client";
@@ -65,7 +66,16 @@ export default function CommunityPage() {
       {/* Header */}
       <header className="px-4 pt-safe-top pb-4 border-b border-border">
         <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold">Community</h1>
+          <div className="flex items-center gap-3">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => router.push("/")}
+            >
+              <Home className="w-5 h-5" />
+            </Button>
+            <h1 className="text-2xl font-bold">Community</h1>
+          </div>
           <Button
             variant="ghost"
             size="icon"

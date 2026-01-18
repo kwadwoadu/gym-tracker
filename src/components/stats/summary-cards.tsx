@@ -94,9 +94,9 @@ export function SummaryCards({ workoutLogs, personalRecords }: SummaryCardsProps
           key={stat.label}
           className="bg-card border-border p-4 flex flex-col gap-2"
         >
-          <div className="flex items-center gap-2">
-            <stat.icon className={`w-4 h-4 ${stat.color}`} />
-            <span className="text-xs text-muted-foreground uppercase tracking-wider">
+          <div className="flex items-center gap-2 min-w-0">
+            <stat.icon className={`w-4 h-4 flex-shrink-0 ${stat.color}`} />
+            <span className="text-xs text-muted-foreground uppercase tracking-wider truncate">
               {stat.label}
             </span>
           </div>

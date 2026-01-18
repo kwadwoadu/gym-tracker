@@ -392,10 +392,11 @@ export default function Home() {
           <Button
             size="lg"
             variant="outline"
-            className="h-14 px-4 font-semibold border-primary/50 text-primary hover:bg-primary/10"
+            className="h-14 px-6 font-semibold border-primary/50 text-primary hover:bg-primary/10"
             onClick={() => router.push("/focus-session")}
           >
-            <Dumbbell className="w-5 h-5" />
+            <Dumbbell className="w-5 h-5 mr-2" />
+            Focus
           </Button>
           <Button
             size="lg"

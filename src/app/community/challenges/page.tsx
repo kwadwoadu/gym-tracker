@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -18,9 +18,15 @@ import {
   Calendar,
   ChevronRight,
   Plus,
+  Trophy,
+  Zap,
+  Award,
+  Footprints,
+  TrendingUp,
 } from "lucide-react";
 import { challengesApi } from "@/lib/api-client";
 import type { Challenge, ChallengeType } from "@/lib/api-client";
+import { CHALLENGE_TEMPLATES, calculateEndDate, type ChallengeTemplate } from "@/data/challenge-templates";
 
 const challengeTypeConfig: Record<ChallengeType, { label: string; icon: React.ReactNode; color: string }> = {
   streak: { label: "Streak", icon: <Flame className="w-4 h-4" />, color: "text-orange-400" },
@@ -29,8 +35,22 @@ const challengeTypeConfig: Record<ChallengeType, { label: string; icon: React.Re
   consistency: { label: "Consistency", icon: <Target className="w-4 h-4" />, color: "text-purple-400" },
 };
 
+// Icon mapping for challenge templates
+const templateIconMap: Record<string, React.ReactNode> = {
+  Calendar: <Calendar className="w-5 h-5" />,
+  Flame: <Flame className="w-5 h-5" />,
+  Footprints: <Footprints className="w-5 h-5" />,
+  Dumbbell: <Dumbbell className="w-5 h-5" />,
+  Target: <Target className="w-5 h-5" />,
+  TrendingUp: <TrendingUp className="w-5 h-5" />,
+  Trophy: <Trophy className="w-5 h-5" />,
+  Zap: <Zap className="w-5 h-5" />,
+  Award: <Award className="w-5 h-5" />,
+};
+
 export default function ChallengesPage() {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const [tab, setTab] = useState("active");
 
   const { data: activeChallenges, isLoading: activeLoading } = useQuery({
@@ -41,6 +61,32 @@ export default function ChallengesPage() {
   const { data: myChallenges, isLoading: myLoading } = useQuery({
     queryKey: ["challenges", "joined"],
     queryFn: () => challengesApi.list({ joined: true }),
+  });
+
+  // Mutation to create challenge from template
+  const createFromTemplateMutation = useMutation({
+    mutationFn: async (template: ChallengeTemplate) => {
+      const today = new Date();
+      const startDate = today.toISOString().split("T")[0];
+      const endDate = calculateEndDate(today, template.durationDays);
+
+      const challenge = await challengesApi.create({
+        name: template.name,
+        description: template.description,
+        type: template.type,
+        target: template.target,
+        startDate,
+        endDate,
+      });
+
+      // Auto-join the challenge
+      await challengesApi.join(challenge.id);
+      return challenge;
+    },
+    onSuccess: (challenge) => {
+      queryClient.invalidateQueries({ queryKey: ["challenges"] });
+      router.push(`/community/challenges/${challenge.id}`);
+    },
   });
 
   const isLoading = activeLoading || myLoading;
@@ -84,23 +130,51 @@ export default function ChallengesPage() {
 
         {/* Active Challenges */}
         <TabsContent value="active" className="mt-4">
-          <div className="px-4 space-y-3">
-            {activeChallenges && activeChallenges.length > 0 ? (
-              activeChallenges.map((challenge) => (
-                <ChallengeCard key={challenge.id} challenge={challenge} />
-              ))
-            ) : (
-              <Card className="p-8 text-center">
-                <Target className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
-                <h3 className="font-semibold mb-2">No active challenges</h3>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Create a challenge to get started!
-                </p>
-                <Button onClick={() => router.push("/community/challenges/create")}>
-                  Create Challenge
-                </Button>
-              </Card>
+          <div className="px-4 space-y-6">
+            {/* Active Challenges List */}
+            {activeChallenges && activeChallenges.length > 0 && (
+              <div className="space-y-3">
+                {activeChallenges.map((challenge) => (
+                  <ChallengeCard key={challenge.id} challenge={challenge} />
+                ))}
+              </div>
             )}
+
+            {/* Quick Start Templates */}
+            <div className="space-y-3">
+              <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
+                Quick Start
+              </h3>
+              <div className="grid grid-cols-2 gap-3">
+                {CHALLENGE_TEMPLATES.slice(0, 6).map((template) => {
+                  const config = challengeTypeConfig[template.type];
+                  const isCreating = createFromTemplateMutation.isPending &&
+                    createFromTemplateMutation.variables?.id === template.id;
+
+                  return (
+                    <Card
+                      key={template.id}
+                      className="p-4 hover:bg-white/5 transition-colors cursor-pointer"
+                      onClick={() => !isCreating && createFromTemplateMutation.mutate(template)}
+                    >
+                      <div className={`w-10 h-10 rounded-full bg-white/10 flex items-center justify-center mb-3 ${config.color}`}>
+                        {isCreating ? (
+                          <Loader2 className="w-5 h-5 animate-spin" />
+                        ) : (
+                          templateIconMap[template.icon] || config.icon
+                        )}
+                      </div>
+                      <p className="font-semibold text-sm mb-1">{template.name}</p>
+                      <p className="text-xs text-muted-foreground line-clamp-2">{template.description}</p>
+                      <div className="flex items-center gap-2 mt-2">
+                        <Badge variant="outline" className="text-[10px]">{config.label}</Badge>
+                        <span className="text-[10px] text-muted-foreground">{template.durationDays}d</span>
+                      </div>
+                    </Card>
+                  );
+                })}
+              </div>
+            </div>
           </div>
         </TabsContent>
 

@@ -2,9 +2,10 @@
 
 import { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { UtensilsCrossed, Pill } from 'lucide-react';
+import { UtensilsCrossed, Pill, BookOpen } from 'lucide-react';
 import { MealLibrary } from '@/components/nutrition/meal-library';
 import { SupplementLibrary } from '@/components/nutrition/supplement-library';
+import { TemplateBrowser } from '@/components/nutrition/template-browser';
 
 export default function NutritionLibraryPage() {
   const [activeTab, setActiveTab] = useState('meals');
@@ -19,7 +20,7 @@ export default function NutritionLibraryPage() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="w-full grid grid-cols-2 bg-[#1A1A1A] p-1 rounded-lg">
+        <TabsList className="w-full grid grid-cols-3 bg-[#1A1A1A] p-1 rounded-lg">
           <TabsTrigger
             value="meals"
             className="flex items-center gap-2 data-[state=active]:bg-[#CDFF00] data-[state=active]:text-[#0A0A0A]"
@@ -32,7 +33,14 @@ export default function NutritionLibraryPage() {
             className="flex items-center gap-2 data-[state=active]:bg-[#CDFF00] data-[state=active]:text-[#0A0A0A]"
           >
             <Pill className="w-4 h-4" />
-            Supplements
+            Supps
+          </TabsTrigger>
+          <TabsTrigger
+            value="templates"
+            className="flex items-center gap-2 data-[state=active]:bg-[#CDFF00] data-[state=active]:text-[#0A0A0A]"
+          >
+            <BookOpen className="w-4 h-4" />
+            Templates
           </TabsTrigger>
         </TabsList>
 
@@ -42,6 +50,10 @@ export default function NutritionLibraryPage() {
 
         <TabsContent value="supplements" className="mt-4">
           <SupplementLibrary />
+        </TabsContent>
+
+        <TabsContent value="templates" className="mt-4">
+          <TemplateBrowser />
         </TabsContent>
       </Tabs>
     </div>
