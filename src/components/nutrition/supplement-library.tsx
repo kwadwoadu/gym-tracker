@@ -186,7 +186,7 @@ export function SupplementLibrary({ onSelectSupplement, selectable = false }: Su
           <AlertDialogHeader>
             <AlertDialogTitle className="text-white">Delete Supplement</AlertDialogTitle>
             <AlertDialogDescription className="text-[#A0A0A0]">
-              Are you sure you want to delete "{supplementToDelete?.name}"? This action cannot be undone.
+              Are you sure you want to delete &quot;{supplementToDelete?.name}&quot;? This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

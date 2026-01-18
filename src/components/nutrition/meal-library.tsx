@@ -179,7 +179,7 @@ export function MealLibrary({ onSelectMeal, selectable = false }: MealLibraryPro
           <AlertDialogHeader>
             <AlertDialogTitle className="text-white">Delete Meal</AlertDialogTitle>
             <AlertDialogDescription className="text-[#A0A0A0]">
-              Are you sure you want to delete "{mealToDelete?.name}"? This action cannot be undone.
+              Are you sure you want to delete &quot;{mealToDelete?.name}&quot;? This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
