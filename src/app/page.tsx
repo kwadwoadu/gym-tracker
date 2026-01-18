@@ -81,9 +81,18 @@ export default function Home() {
         }
         break;
       case "program_installing":
-        // User is in the middle of program installation - redirect to plans
-        // This handles the case where installation was interrupted
-        router.replace("/onboarding/plans");
+        // Check if program was actually created successfully
+        if (hasProgram) {
+          // Program exists - installation succeeded but state update failed
+          // Update state to complete and stay on home page
+          onboardingApi.update({ onboardingState: "complete" }).catch((e) => {
+            console.error("Failed to update onboarding state:", e);
+          });
+          // Don't redirect - let the page re-render with updated state
+        } else {
+          // No program exists - installation was interrupted, retry
+          router.replace("/onboarding/plans");
+        }
         break;
       case "profile_complete":
         // User has completed profile but hasn't picked a program - redirect to plans
