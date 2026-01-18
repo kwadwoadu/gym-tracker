@@ -6,9 +6,8 @@ import { cn } from '@/lib/utils';
 import { Home, CheckSquare, UtensilsCrossed, ArrowLeft } from 'lucide-react';
 
 const navItems = [
-  { href: '/nutrition', label: 'Dashboard', icon: Home },
-  { href: '/nutrition/log', label: 'Log', icon: CheckSquare },
-  { href: '/nutrition/plan', label: 'Plan', icon: UtensilsCrossed },
+  { href: '/nutrition', label: 'Today', icon: CheckSquare },
+  { href: '/nutrition/progress', label: 'Progress', icon: Home },
 ];
 
 export function NutritionNav() {

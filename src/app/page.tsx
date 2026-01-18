@@ -19,6 +19,7 @@ import {
   useOnboardingProfile,
 } from "@/lib/queries";
 import type { Exercise } from "@/lib/api-client";
+import { onboardingApi } from "@/lib/api-client";
 
 export default function Home() {
   const { isSignedIn, isLoaded: authLoaded } = useUser();
@@ -70,8 +71,12 @@ export default function Home() {
     switch (onboardingState) {
       case "complete":
         // User has completed onboarding and has a program - stay on home
-        // But if somehow no program exists, redirect to plans (recovery)
+        // But if somehow no program exists, reset state and redirect to plans (recovery)
         if (!hasProgram) {
+          // Reset state to profile_complete before redirecting
+          onboardingApi.update({ onboardingState: "profile_complete" }).catch((e) => {
+            console.error("Failed to reset onboarding state:", e);
+          });
           router.replace("/onboarding/plans");
         }
         break;
@@ -381,17 +386,27 @@ export default function Home() {
         </Tabs>
       )}
 
-      {/* Fixed Start Workout Button */}
+      {/* Fixed Bottom Buttons */}
       <div className="fixed bottom-0 left-0 right-0 p-4 pb-safe-bottom bg-background/80 backdrop-blur-lg border-t border-border">
-        <Button
-          size="lg"
-          className="w-full h-14 text-lg font-semibold bg-primary text-primary-foreground hover:bg-primary/90"
-          onClick={() => router.push(`/workout/${selectedDay}`)}
-          disabled={!selectedDay}
-        >
-          <Play className="w-5 h-5 mr-2" />
-          Start {currentDay?.name || "Workout"}
-        </Button>
+        <div className="flex gap-3">
+          <Button
+            size="lg"
+            variant="outline"
+            className="h-14 px-4 font-semibold border-primary/50 text-primary hover:bg-primary/10"
+            onClick={() => router.push("/focus-session")}
+          >
+            <Dumbbell className="w-5 h-5" />
+          </Button>
+          <Button
+            size="lg"
+            className="flex-1 h-14 text-lg font-semibold bg-primary text-primary-foreground hover:bg-primary/90"
+            onClick={() => router.push(`/workout/${selectedDay}`)}
+            disabled={!selectedDay}
+          >
+            <Play className="w-5 h-5 mr-2" />
+            Start {currentDay?.name || "Workout"}
+          </Button>
+        </div>
       </div>
     </div>
   );

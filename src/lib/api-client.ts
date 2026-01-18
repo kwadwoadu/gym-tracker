@@ -599,6 +599,9 @@ export interface NutritionStats {
   };
   weeklyBreakdown: WeeklyBreakdown[];
   recentLogs: NutritionLog[];
+  // Progress page format
+  weekly?: Array<{ proteinHits: number; calorieHits: number; days: number }>;
+  daily?: Array<{ date: string; hitProteinGoal: boolean; caloriesOnTarget: boolean }>;
 }
 
 export const nutritionLogApi = {
@@ -852,13 +855,22 @@ export interface UserProfile {
   updatedAt: string;
 }
 
+export interface PublicUserProfile extends UserProfile {
+  stats?: {
+    currentStreak?: number;
+    totalWorkouts?: number;
+    personalRecordsCount?: number;
+    recentWorkouts?: Array<{ id: string; dayName: string; duration: number | null; date: string }>;
+  };
+}
+
 export const userProfileApi = {
   get: async (): Promise<UserProfile | null> => {
     const res = await fetch(`${API_BASE}/community/profile`);
     return handleResponse(res);
   },
 
-  getByUserId: async (userId: string): Promise<UserProfile | null> => {
+  getByUserId: async (userId: string): Promise<PublicUserProfile | null> => {
     const res = await fetch(`${API_BASE}/community/profile/${userId}`);
     return handleResponse(res);
   },
@@ -1160,6 +1172,133 @@ export const activityApi = {
   getFeed: async (limit?: number): Promise<ActivityItem[]> => {
     const params = limit ? `?limit=${limit}` : "";
     const res = await fetch(`${API_BASE}/community/activity${params}`);
+    return handleResponse(res);
+  },
+};
+
+// ============================================================
+// Focus Sessions (SetFlow v2.0 - Phase 4)
+// ============================================================
+
+export interface FocusSessionExercise {
+  exerciseId: string;
+  exerciseName: string;
+}
+
+export interface FocusSessionSetLog {
+  exerciseId: string;
+  exerciseName: string;
+  setNumber: number;
+  weight: number;
+  actualReps: number;
+  rpe?: number;
+}
+
+export interface FocusSession {
+  id: string;
+  userId: string;
+  date: string;
+  focusArea: string | null;
+  exercises: FocusSessionExercise[];
+  sets: FocusSessionSetLog[];
+  duration: number | null;
+  notes: string | null;
+  isComplete: boolean;
+  startTime: string;
+  endTime: string | null;
+}
+
+export interface ExerciseRecommendation {
+  exerciseId: string;
+  exerciseName: string;
+  muscleGroups: string[];
+  equipment: string;
+  lastUsed: string | null;
+  usageCount: number;
+  score: number;
+}
+
+export const focusSessionApi = {
+  list: async (options?: {
+    limit?: number;
+    startDate?: string;
+    endDate?: string;
+    isComplete?: boolean;
+  }): Promise<FocusSession[]> => {
+    const params = new URLSearchParams();
+    if (options?.limit) params.set("limit", String(options.limit));
+    if (options?.startDate) params.set("startDate", options.startDate);
+    if (options?.endDate) params.set("endDate", options.endDate);
+    if (options?.isComplete !== undefined) params.set("isComplete", String(options.isComplete));
+
+    const res = await fetch(`${API_BASE}/focus-session?${params.toString()}`);
+    return handleResponse(res);
+  },
+
+  get: async (id: string): Promise<FocusSession> => {
+    const res = await fetch(`${API_BASE}/focus-session/${id}`);
+    return handleResponse(res);
+  },
+
+  getActive: async (): Promise<FocusSession | null> => {
+    const res = await fetch(`${API_BASE}/focus-session/active`);
+    return handleResponse(res);
+  },
+
+  create: async (data: {
+    focusArea?: string;
+    exercises: FocusSessionExercise[];
+    date?: string;
+    notes?: string;
+  }): Promise<FocusSession> => {
+    const res = await fetch(`${API_BASE}/focus-session`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+    return handleResponse(res);
+  },
+
+  update: async (id: string, data: Partial<{
+    exercises: FocusSessionExercise[];
+    sets: FocusSessionSetLog[];
+    notes: string;
+    focusArea: string;
+  }>): Promise<FocusSession> => {
+    const res = await fetch(`${API_BASE}/focus-session/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+    return handleResponse(res);
+  },
+
+  complete: async (id: string, data?: {
+    duration?: number;
+    notes?: string;
+  }): Promise<FocusSession> => {
+    const res = await fetch(`${API_BASE}/focus-session/${id}/complete`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data || {}),
+    });
+    return handleResponse(res);
+  },
+
+  delete: async (id: string): Promise<void> => {
+    const res = await fetch(`${API_BASE}/focus-session/${id}`, {
+      method: "DELETE",
+    });
+    return handleResponse(res);
+  },
+
+  // Get exercise recommendations based on focus area
+  getRecommendations: async (focusArea: string, limit?: number): Promise<ExerciseRecommendation[]> => {
+    const params = new URLSearchParams();
+    params.set("focusArea", focusArea);
+    if (limit) params.set("limit", String(limit));
+
+    const res = await fetch(`${API_BASE}/focus-session/recommend?${params.toString()}`);
     return handleResponse(res);
   },
 };

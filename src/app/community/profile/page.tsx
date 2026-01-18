@@ -8,8 +8,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { ArrowLeft, Loader2, Save, User } from "lucide-react";
-import { userProfileApi } from "@/lib/api-client";
+import { Badge } from "@/components/ui/badge";
+import { ArrowLeft, Loader2, Save, User, Flame, Dumbbell, Trophy, Award } from "lucide-react";
+import { userProfileApi, statsApi, badgesApi } from "@/lib/api-client";
+import { cn } from "@/lib/utils";
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -18,6 +20,18 @@ export default function ProfilePage() {
   const { data: profile, isLoading } = useQuery({
     queryKey: ["profile"],
     queryFn: () => userProfileApi.get(),
+  });
+
+  // Fetch stats for streak and workout count
+  const { data: stats } = useQuery({
+    queryKey: ["stats"],
+    queryFn: () => statsApi.get(),
+  });
+
+  // Fetch user badges
+  const { data: userBadges } = useQuery({
+    queryKey: ["user-badges"],
+    queryFn: () => badgesApi.getUserBadges(),
   });
 
   const [displayName, setDisplayName] = useState("");
@@ -88,12 +102,77 @@ export default function ProfilePage() {
       </header>
 
       <div className="p-4 space-y-6">
-        {/* Avatar Preview */}
-        <div className="flex justify-center">
+        {/* Avatar and Stats */}
+        <div className="flex flex-col items-center gap-4">
           <div className="w-24 h-24 rounded-full bg-white/10 flex items-center justify-center">
             <User className="w-12 h-12 text-white/60" />
           </div>
+
+          {/* Stats Cards */}
+          {stats && (
+            <div className="flex gap-4 w-full">
+              <Card className="flex-1 p-3 text-center">
+                <div className="flex items-center justify-center gap-2 mb-1">
+                  <Flame className="w-4 h-4 text-orange-500" />
+                  <span className="text-2xl font-bold">{stats.currentStreak}</span>
+                </div>
+                <p className="text-xs text-muted-foreground">Day Streak</p>
+              </Card>
+              <Card className="flex-1 p-3 text-center">
+                <div className="flex items-center justify-center gap-2 mb-1">
+                  <Dumbbell className="w-4 h-4 text-[#CDFF00]" />
+                  <span className="text-2xl font-bold">{stats.totalWorkouts}</span>
+                </div>
+                <p className="text-xs text-muted-foreground">Workouts</p>
+              </Card>
+              <Card className="flex-1 p-3 text-center">
+                <div className="flex items-center justify-center gap-2 mb-1">
+                  <Trophy className="w-4 h-4 text-yellow-500" />
+                  <span className="text-2xl font-bold">{stats.personalRecordsCount}</span>
+                </div>
+                <p className="text-xs text-muted-foreground">PRs</p>
+              </Card>
+            </div>
+          )}
         </div>
+
+        {/* Badges Section */}
+        {userBadges && userBadges.length > 0 && (
+          <Card className="p-4">
+            <div className="flex items-center gap-2 mb-3">
+              <Award className="w-5 h-5 text-[#CDFF00]" />
+              <h2 className="font-semibold">Badges</h2>
+              <Badge variant="secondary" className="ml-auto">
+                {userBadges.length}
+              </Badge>
+            </div>
+            <div className="grid grid-cols-4 gap-3">
+              {userBadges.filter((ub) => ub.badge).map((ub) => (
+                <div
+                  key={ub.id}
+                  className="flex flex-col items-center gap-1 p-2 rounded-lg bg-muted/50"
+                >
+                  <div className={cn(
+                    "w-10 h-10 rounded-full flex items-center justify-center",
+                    ub.badge!.tier === "gold" ? "bg-yellow-500/20" :
+                    ub.badge!.tier === "silver" ? "bg-gray-400/20" :
+                    "bg-orange-600/20"
+                  )}>
+                    <Award className={cn(
+                      "w-5 h-5",
+                      ub.badge!.tier === "gold" ? "text-yellow-500" :
+                      ub.badge!.tier === "silver" ? "text-gray-400" :
+                      "text-orange-600"
+                    )} />
+                  </div>
+                  <p className="text-xs font-medium text-center line-clamp-1">
+                    {ub.badge!.name}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </Card>
+        )}
 
         {/* Profile Form */}
         <Card className="p-4 space-y-4">

@@ -46,6 +46,8 @@ model User {
   groupMemberships        GroupMember[]
   challengeParticipations ChallengeParticipant[]
   badges                  UserBadge[]
+  // Focus sessions (SetFlow v2.0 - Phase 4)
+  focusSessions           FocusSession[]
 }
 
 model Exercise {
@@ -520,4 +522,29 @@ model UserBadge {
   @@unique([userId, badgeId])
   @@index([userId])
   @@index([badgeId])
+}
+
+// ============================================================
+// Focus Session Models (SetFlow v2.0 - Phase 4)
+// ============================================================
+
+// One-off workout sessions outside the regular program
+model FocusSession {
+  id         String    @id @default(cuid())
+  date       String    // YYYY-MM-DD
+  focusArea  String?   // "chest" | "back" | "legs" | "shoulders" | "arms" | "core" | "full_body"
+  exercises  Json      // Array of { exerciseId, exerciseName }
+  sets       Json      @default("[]") // Array of SetLog objects
+  duration   Int?      // minutes
+  notes      String?
+  isComplete Boolean   @default(false)
+  startTime  DateTime  @default(now())
+  endTime    DateTime?
+
+  // User relation
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([date])
 }

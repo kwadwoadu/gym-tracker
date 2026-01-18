@@ -100,6 +100,25 @@ export async function GET(request: Request) {
       }
     }
 
+    // Build weekly format for progress page
+    const weekly = weeklyBreakdown.map((wb) => {
+      const weekLogs = logs.filter(
+        (log) => log.date >= wb.weekStart && log.date <= wb.weekEnd
+      );
+      return {
+        proteinHits: weekLogs.filter((log) => log.hitProteinGoal).length,
+        calorieHits: weekLogs.filter((log) => log.caloriesOnTarget).length,
+        days: weekLogs.length,
+      };
+    });
+
+    // Build daily format for progress page
+    const daily = logs.map((log) => ({
+      date: log.date,
+      hitProteinGoal: log.hitProteinGoal,
+      caloriesOnTarget: log.caloriesOnTarget,
+    }));
+
     return NextResponse.json({
       period: {
         startDate: startDateStr,
@@ -119,6 +138,8 @@ export async function GET(request: Request) {
       },
       weeklyBreakdown,
       recentLogs: logs.slice(0, 7), // Last 7 logs
+      weekly,
+      daily,
     });
   } catch (error) {
     console.error("Error fetching nutrition stats:", error);
