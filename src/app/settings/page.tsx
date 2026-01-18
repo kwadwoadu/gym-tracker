@@ -31,6 +31,9 @@ import {
   LogOut,
   User,
   Save,
+  Flame,
+  Dumbbell,
+  Trophy,
 } from "lucide-react";
 import { useUser, SignOutButton } from "@clerk/nextjs";
 import Image from "next/image";
@@ -41,7 +44,7 @@ import {
 } from "@/lib/queries";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import type { UserSettings } from "@/lib/api-client";
-import { userProfileApi } from "@/lib/api-client";
+import { userProfileApi, statsApi } from "@/lib/api-client";
 import { exportAllData, downloadExportedData, importData, readFileAsString } from "@/lib/export";
 
 const PROGRESSION_OPTIONS = [
@@ -68,6 +71,7 @@ export default function SettingsPage() {
   // Profile state
   const [displayName, setDisplayName] = useState("");
   const [bio, setBio] = useState("");
+  const [handle, setHandle] = useState("");
   const [shareStreak, setShareStreak] = useState(true);
   const [shareVolume, setShareVolume] = useState(false);
   const [shareWorkouts, setShareWorkouts] = useState(true);
@@ -84,15 +88,29 @@ export default function SettingsPage() {
     queryFn: () => userProfileApi.get(),
   });
 
-  // Update profile mutation
+  // Fetch stats for display
+  const { data: stats } = useQuery({
+    queryKey: ["stats"],
+    queryFn: () => statsApi.get(),
+  });
+
+  // Update profile mutation - accepts data parameter to avoid stale state issues
   const updateProfileMutation = useMutation({
-    mutationFn: () =>
+    mutationFn: (data?: Partial<{
+      displayName: string | null;
+      bio: string | null;
+      handle: string | null;
+      shareStreak: boolean;
+      shareVolume: boolean;
+      shareWorkouts: boolean;
+    }>) =>
       userProfileApi.update({
-        displayName: displayName || null,
-        bio: bio || null,
-        shareStreak,
-        shareVolume,
-        shareWorkouts,
+        displayName: data?.displayName ?? (displayName || null),
+        bio: data?.bio ?? (bio || null),
+        handle: data?.handle ?? (handle || null),
+        shareStreak: data?.shareStreak ?? shareStreak,
+        shareVolume: data?.shareVolume ?? shareVolume,
+        shareWorkouts: data?.shareWorkouts ?? shareWorkouts,
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["profile"] });
@@ -108,6 +126,7 @@ export default function SettingsPage() {
     if (profile && !profileInitialized) {
       setDisplayName(profile.displayName || "");
       setBio(profile.bio || "");
+      setHandle(profile.handle || "");
       setShareStreak(profile.shareStreak);
       setShareVolume(profile.shareVolume);
       setShareWorkouts(profile.shareWorkouts);
@@ -300,6 +319,34 @@ export default function SettingsPage() {
               </p>
             </div>
           </div>
+
+          {/* Stats badges */}
+          {stats && (
+            <div className="flex justify-around mt-4 pt-4 border-t border-border">
+              <div className="flex flex-col items-center">
+                <div className="flex items-center gap-1.5 text-orange-500">
+                  <Flame className="w-4 h-4" />
+                  <span className="text-lg font-bold">{stats.currentStreak}</span>
+                </div>
+                <span className="text-xs text-muted-foreground">Day Streak</span>
+              </div>
+              <div className="flex flex-col items-center">
+                <div className="flex items-center gap-1.5 text-primary">
+                  <Dumbbell className="w-4 h-4" />
+                  <span className="text-lg font-bold">{stats.totalWorkouts}</span>
+                </div>
+                <span className="text-xs text-muted-foreground">Workouts</span>
+              </div>
+              <div className="flex flex-col items-center">
+                <div className="flex items-center gap-1.5 text-yellow-500">
+                  <Trophy className="w-4 h-4" />
+                  <span className="text-lg font-bold">{stats.personalRecordsCount}</span>
+                </div>
+                <span className="text-xs text-muted-foreground">PRs</span>
+              </div>
+            </div>
+          )}
+
           <SignOutButton>
             <Button variant="ghost" className="w-full mt-4 text-muted-foreground">
               <LogOut className="w-4 h-4 mr-2" />
@@ -332,6 +379,23 @@ export default function SettingsPage() {
             </div>
 
             <div className="space-y-2">
+              <Label htmlFor="handle">Handle</Label>
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">@</span>
+                <Input
+                  id="handle"
+                  placeholder="yourhandle"
+                  value={handle}
+                  onChange={(e) => setHandle(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ""))}
+                  className="pl-7"
+                />
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Your unique username (letters, numbers, underscores only)
+              </p>
+            </div>
+
+            <div className="space-y-2">
               <Label htmlFor="bio">Bio</Label>
               <Input
                 id="bio"
@@ -342,7 +406,7 @@ export default function SettingsPage() {
             </div>
 
             <Button
-              onClick={() => updateProfileMutation.mutate()}
+              onClick={() => updateProfileMutation.mutate({})}
               disabled={updateProfileMutation.isPending}
               className="w-full"
             >
@@ -374,7 +438,7 @@ export default function SettingsPage() {
                 checked={shareStreak}
                 onCheckedChange={(checked) => {
                   setShareStreak(checked);
-                  updateProfileMutation.mutate();
+                  updateProfileMutation.mutate({ shareStreak: checked });
                 }}
               />
             </div>
@@ -390,7 +454,7 @@ export default function SettingsPage() {
                 checked={shareVolume}
                 onCheckedChange={(checked) => {
                   setShareVolume(checked);
-                  updateProfileMutation.mutate();
+                  updateProfileMutation.mutate({ shareVolume: checked });
                 }}
               />
             </div>
@@ -406,7 +470,7 @@ export default function SettingsPage() {
                 checked={shareWorkouts}
                 onCheckedChange={(checked) => {
                   setShareWorkouts(checked);
-                  updateProfileMutation.mutate();
+                  updateProfileMutation.mutate({ shareWorkouts: checked });
                 }}
               />
             </div>

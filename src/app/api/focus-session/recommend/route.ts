@@ -58,6 +58,11 @@ export async function GET(request: Request) {
       );
     }
 
+    // Fallback: if no exercises match the focus area, use all exercises
+    if (filteredExercises.length === 0 && exercises.length > 0) {
+      filteredExercises = exercises;
+    }
+
     // Get user's workout history for the last 30 days
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
