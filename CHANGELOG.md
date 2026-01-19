@@ -4,6 +4,30 @@ All notable changes to the SetFlow project.
 
 ---
 
+## [2026-01-19] Community User Search Fix
+
+### Fixed
+- **Search Relevance**: Users searching for exact handles now see them first (was alphabetical)
+- **Array Mutation**: Sort now uses spread operator to avoid mutating original array
+
+### Technical Details
+- Fetch 3x results from database to allow for proper relevance sorting
+- Client-side scoring: exact match (0) > prefix match (1) > contains match (2)
+- Prefer handle matches over displayName matches
+- Alphabetical as final tiebreaker
+
+### Database Changes
+- Added `handle` column to `UserProfile` table via `prisma db push`
+- Created UserProfile records for 7 existing users
+
+### Patterns Extracted
+- `/docs/patterns/relevance-search.md` - Client-side relevance scoring for Prisma searches
+
+### Files Changed
+- `src/app/api/community/users/search/route.ts` - Relevance-based sorting
+
+---
+
 ## [2026-01-18] SetFlow v2.0 - Complete Experience Upgrade
 
 Major release with four workstreams: onboarding fix, nutrition unlock, community features, and focus sessions.
