@@ -49,7 +49,7 @@ export async function GET(request: Request) {
       return 2; // Contains match
     };
 
-    const sortedProfiles = profiles.sort((a, b) => {
+    const sortedProfiles = [...profiles].sort((a, b) => {
       const aHandle = a.handle?.toLowerCase() || "";
       const aName = a.displayName?.toLowerCase() || "";
       const bHandle = b.handle?.toLowerCase() || "";
