@@ -40,7 +40,7 @@ grep -c "youtube.com/results" src/data/exercises.json
 ```
 
 ### Step 2: Search YouTube
-Use Playwright to navigate to YouTube search:
+Use agent-browser to navigate to YouTube search:
 ```
 https://www.youtube.com/results?search_query=[exercise]+proper+form+tutorial
 ```
