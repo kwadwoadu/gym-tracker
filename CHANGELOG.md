@@ -4,6 +4,51 @@ All notable changes to the SetFlow project.
 
 ---
 
+## [2026-02-06] Gamification System - XP, Levels, and Challenges
+
+Complete XP/Gamification system matching SetFlow Native feature parity.
+
+### Added
+- **XP System**: Awards for workout (100), PR (50), all sets complete (25)
+- **Level Tiers**: 6 tiers - Novice, Regular, Dedicated, Committed, Elite, Legend
+- **Daily Challenges**: 3 per day from 16-challenge pool, seeded by date
+- **Weekly Challenges**: 3 per week from 16-challenge pool, seeded by Monday
+- **Streak Multipliers**: 7d=1.2x, 14d=1.5x, 30d=2.0x, 60d=2.5x
+
+### Components
+- `XPBar` - Level progress bar with glow effect and streak indicator
+- `LevelBadge` / `LevelBadgeCompact` - Tier icon with level number
+- `DailyChallengeCard` / `DailyChallengeCardCompact` - Challenge progress display
+- `WeeklyChallengeCard` / `WeeklyChallengeCardCompact` - Weekly challenge with days remaining
+- `MilestoneModal` - Confetti celebration for level ups
+
+### API Routes
+- `GET /api/gamification` - User XP, level, tier info
+- `POST /api/gamification/xp` - Award XP with streak multiplier
+- `GET /api/gamification/challenges` - Daily and weekly challenges with progress
+- `POST /api/gamification/challenges/complete` - Mark challenge complete
+- `POST /api/gamification/challenges/bulk-update` - Update progress by type
+
+### Database Schema
+- `UserGamification` - User XP and level tracking
+- `XPHistoryEntry` - XP award history with source and multiplier
+- `DailyChallengeProgress` - Daily challenge progress per date
+- `WeeklyChallengeProgress` - Weekly challenge progress per week
+
+### Files Created
+- `src/data/daily-challenges.ts` - 16 daily challenge definitions
+- `src/data/weekly-challenges.ts` - 16 weekly challenge definitions
+- `src/lib/gamification.ts` - XP/level calculation logic (extended)
+- `src/components/gamification/*.tsx` - 5 new components
+- `src/app/api/gamification/**/*.ts` - 7 API routes
+
+### Integration
+- Home page: XPBar below streak tracker, challenges section after day tabs
+- Workout completion: Awards XP and updates challenge progress automatically
+- Level up: MilestoneModal celebration with confetti
+
+---
+
 ## [2026-01-19] Community User Search Fix
 
 ### Fixed
