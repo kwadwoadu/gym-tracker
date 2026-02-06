@@ -1326,3 +1326,184 @@ export const focusSessionApi = {
     return handleResponse(res);
   },
 };
+
+// ============================================================
+// Gamification (SetFlow v2.0 - XP System)
+// ============================================================
+
+export interface XPHistoryEntry {
+  id: string;
+  amount: number;
+  source: string;
+  multiplier: number;
+  timestamp: string;
+}
+
+export interface DailyChallengeProgress {
+  id: string;
+  challengeId: string;
+  date: string;
+  progress: number;
+  isComplete: boolean;
+}
+
+export interface WeeklyChallengeProgress {
+  id: string;
+  challengeId: string;
+  weekId: string;
+  progress: number;
+  isComplete: boolean;
+}
+
+export interface UserGamification {
+  id: string;
+  totalXP: number;
+  lastLevelUp: number;
+  userId: string;
+  // Computed fields from API
+  level?: number;
+  title?: string;
+  color?: string;
+  xpInLevel?: number;
+  xpToNext?: number;
+  progress?: number;
+  streakMultiplier?: number;
+  streakDays?: number;
+}
+
+export interface GamificationResponse {
+  gamification: UserGamification;
+  dailyChallenges: Array<DailyChallengeProgress & {
+    challenge: {
+      id: string;
+      title: string;
+      description: string;
+      icon: string;
+      xpReward: number;
+      requirement: { type: string; value: number };
+    };
+  }>;
+  weeklyChallenges: Array<WeeklyChallengeProgress & {
+    challenge: {
+      id: string;
+      title: string;
+      description: string;
+      icon: string;
+      xpReward: number;
+      requirement: { type: string; value: number };
+    };
+    daysRemaining: number;
+  }>;
+}
+
+export interface AwardXPResponse {
+  success: boolean;
+  xpAwarded: number;
+  newTotal: number;
+  levelUp: {
+    didLevelUp: boolean;
+    newLevel: number;
+    title: string;
+    color: string;
+  } | null;
+}
+
+export interface CompleteChallengeResponse {
+  success: boolean;
+  xpAwarded: number;
+  newTotal: number;
+  levelUp: {
+    didLevelUp: boolean;
+    newLevel: number;
+    title: string;
+    color: string;
+  } | null;
+}
+
+export const gamificationApi = {
+  // Get user's gamification data (XP, level, challenges)
+  get: async (): Promise<GamificationResponse> => {
+    const res = await fetch(`${API_BASE}/gamification`);
+    return handleResponse(res);
+  },
+
+  // Award XP to user
+  awardXP: async (amount: number, source: string): Promise<AwardXPResponse> => {
+    const res = await fetch(`${API_BASE}/gamification/xp`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ amount, source }),
+    });
+    return handleResponse(res);
+  },
+
+  // Get daily challenges for today
+  getDailyChallenges: async (date?: string): Promise<GamificationResponse["dailyChallenges"]> => {
+    const params = date ? `?date=${date}` : "";
+    const res = await fetch(`${API_BASE}/gamification/challenges/daily${params}`);
+    return handleResponse(res);
+  },
+
+  // Get weekly challenges for current week
+  getWeeklyChallenges: async (weekId?: string): Promise<GamificationResponse["weeklyChallenges"]> => {
+    const params = weekId ? `?weekId=${weekId}` : "";
+    const res = await fetch(`${API_BASE}/gamification/challenges/weekly${params}`);
+    return handleResponse(res);
+  },
+
+  // Update challenge progress
+  updateChallengeProgress: async (
+    challengeId: string,
+    type: "daily" | "weekly",
+    progress: number
+  ): Promise<DailyChallengeProgress | WeeklyChallengeProgress> => {
+    const res = await fetch(`${API_BASE}/gamification/challenges/progress`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ challengeId, type, progress }),
+    });
+    return handleResponse(res);
+  },
+
+  // Complete a challenge and award XP
+  completeChallenge: async (
+    challengeId: string,
+    type: "daily" | "weekly"
+  ): Promise<CompleteChallengeResponse> => {
+    const res = await fetch(`${API_BASE}/gamification/challenges/complete`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ challengeId, type }),
+    });
+    return handleResponse(res);
+  },
+
+  // Get XP history (last N entries)
+  getXPHistory: async (limit?: number): Promise<XPHistoryEntry[]> => {
+    const params = limit ? `?limit=${limit}` : "";
+    const res = await fetch(`${API_BASE}/gamification/history${params}`);
+    return handleResponse(res);
+  },
+
+  // Bulk update challenges by requirement type
+  bulkUpdateChallengeProgress: async (
+    requirementType: string,
+    value: number,
+    mode: "increment" | "set" = "increment"
+  ): Promise<{
+    success: boolean;
+    updatedChallenges: Array<{
+      challengeId: string;
+      type: "daily" | "weekly";
+      progress: number;
+      isComplete: boolean;
+    }>;
+  }> => {
+    const res = await fetch(`${API_BASE}/gamification/challenges/bulk-update`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ requirementType, value, mode }),
+    });
+    return handleResponse(res);
+  },
+};

@@ -583,3 +583,114 @@ export function useUpdateSupplementLog() {
     },
   });
 }
+
+// ============================================================
+// Gamification (XP System)
+// ============================================================
+
+import { gamificationApi, type GamificationResponse, type AwardXPResponse, type CompleteChallengeResponse } from "./api-client";
+import { getTodayDate } from "@/data/daily-challenges";
+import { getWeekId } from "@/data/weekly-challenges";
+
+// Add gamification query keys
+export const gamificationKeys = {
+  all: ["gamification"] as const,
+  data: () => [...gamificationKeys.all, "data"] as const,
+  dailyChallenges: (date?: string) => [...gamificationKeys.all, "challenges", "daily", date || getTodayDate()] as const,
+  weeklyChallenges: (weekId?: string) => [...gamificationKeys.all, "challenges", "weekly", weekId || getWeekId()] as const,
+  history: (limit?: number) => [...gamificationKeys.all, "history", limit] as const,
+};
+
+export function useGamification() {
+  return useQuery({
+    queryKey: gamificationKeys.data(),
+    queryFn: gamificationApi.get,
+    staleTime: 30000, // Cache for 30 seconds
+  });
+}
+
+export function useDailyChallenges(date?: string) {
+  return useQuery({
+    queryKey: gamificationKeys.dailyChallenges(date),
+    queryFn: () => gamificationApi.getDailyChallenges(date),
+    staleTime: 60000, // Cache for 1 minute
+  });
+}
+
+export function useWeeklyChallenges(weekId?: string) {
+  return useQuery({
+    queryKey: gamificationKeys.weeklyChallenges(weekId),
+    queryFn: () => gamificationApi.getWeeklyChallenges(weekId),
+    staleTime: 60000, // Cache for 1 minute
+  });
+}
+
+export function useXPHistory(limit?: number) {
+  return useQuery({
+    queryKey: gamificationKeys.history(limit),
+    queryFn: () => gamificationApi.getXPHistory(limit),
+  });
+}
+
+export function useAwardXP() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ amount, source }: { amount: number; source: string }) =>
+      gamificationApi.awardXP(amount, source),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: gamificationKeys.all });
+    },
+  });
+}
+
+export function useUpdateChallengeProgress() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      challengeId,
+      type,
+      progress,
+    }: {
+      challengeId: string;
+      type: "daily" | "weekly";
+      progress: number;
+    }) => gamificationApi.updateChallengeProgress(challengeId, type, progress),
+    onSuccess: (_, { type }) => {
+      if (type === "daily") {
+        queryClient.invalidateQueries({ queryKey: gamificationKeys.dailyChallenges() });
+      } else {
+        queryClient.invalidateQueries({ queryKey: gamificationKeys.weeklyChallenges() });
+      }
+      queryClient.invalidateQueries({ queryKey: gamificationKeys.data() });
+    },
+  });
+}
+
+export function useCompleteChallenge() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ challengeId, type }: { challengeId: string; type: "daily" | "weekly" }) =>
+      gamificationApi.completeChallenge(challengeId, type),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: gamificationKeys.all });
+    },
+  });
+}
+
+export function useBulkUpdateChallengeProgress() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      requirementType,
+      value,
+      mode = "increment",
+    }: {
+      requirementType: string;
+      value: number;
+      mode?: "increment" | "set";
+    }) => gamificationApi.bulkUpdateChallengeProgress(requirementType, value, mode),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: gamificationKeys.all });
+    },
+  });
+}

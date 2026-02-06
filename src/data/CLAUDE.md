@@ -27,6 +27,8 @@ Manage static data that powers SetFlow's workout tracking. This includes exercis
 | `program.json` | Default training program | Full program structure |
 | `programs/*.json` | Template programs | Program templates |
 | `achievements.ts` | Achievement definitions | `AchievementDefinition[]` |
+| `daily-challenges.ts` | Daily challenge pool (16 challenges) | `DailyChallenge[]` |
+| `weekly-challenges.ts` | Weekly challenge pool (16 challenges) | `WeeklyChallenge[]` |
 
 ---
 
@@ -159,6 +161,87 @@ type AchievementCategory =
 { id: 'year-streak', tier: 'gold', title: 'Yearly Legend', requirement: 365 consecutive days }
 { id: 'thousand-sets', tier: 'gold', title: '1000 Sets', requirement: 1000 total sets }
 ```
+
+---
+
+## Gamification Challenges
+
+### Challenge Pool Design
+- 3 daily challenges selected each day (seeded by date for consistency)
+- 3 weekly challenges selected each week (seeded by Monday's date)
+- Hash-based shuffling ensures same challenges appear on same days across devices
+- Challenges reset at midnight (daily) or Monday (weekly)
+
+### Daily Challenge Schema
+```typescript
+interface DailyChallenge {
+  id: string;              // "daily-workout"
+  title: string;           // "Complete a Workout"
+  description: string;     // "Finish any workout today"
+  icon: string;            // Lucide icon name: "Dumbbell"
+  xpReward: number;        // 15-150 XP
+  requirement: {
+    type: string;          // "workout" | "reps" | "volume" | "sets" | "prs"
+    value: number;         // Target to complete
+  };
+}
+```
+
+### Weekly Challenge Schema
+```typescript
+interface WeeklyChallenge {
+  id: string;              // "weekly-workouts-3"
+  title: string;           // "Triple Threat"
+  description: string;     // "Complete 3 workouts this week"
+  icon: string;            // Lucide icon name
+  xpReward: number;        // 100-750 XP
+  requirement: {
+    type: string;          // "workouts" | "volume" | "streak" | "prs" | "sets" | "reps"
+    value: number;         // Target to complete
+  };
+}
+```
+
+### Challenge Requirement Types
+| Type | Daily Range | Weekly Range | Description |
+|------|-------------|--------------|-------------|
+| `workout` / `workouts` | 1-2 | 3-7 | Complete workouts |
+| `reps` | 50-200 | 500-1000 | Total reps logged |
+| `volume` | 1000-5000 kg | 10000-50000 kg | Total weight x reps |
+| `sets` | 10-30 | 50-100 | Completed sets |
+| `prs` | 1-2 | 3-5 | Personal records set |
+| `meals` | 3-5 | - | Meals logged (daily only) |
+| `supplements` | 1 | - | Supplement check (daily only) |
+| `streak` | - | 7 | Maintain streak (weekly only) |
+| `protein_days` | - | 3-7 | Hit protein goal (weekly only) |
+
+### XP Reward Tiers
+| Difficulty | Daily XP | Weekly XP |
+|------------|----------|-----------|
+| Easy | 15-25 | 100-150 |
+| Medium | 30-50 | 200-300 |
+| Hard | 75-100 | 400-500 |
+| Epic | 125-150 | 600-750 |
+
+### Helper Functions
+```typescript
+// daily-challenges.ts
+getDailyChallenges(date?: Date): DailyChallenge[]  // Returns 3 challenges for date
+getTodayDate(): string                              // "YYYY-MM-DD" format
+getDailyChallengeById(id: string): DailyChallenge | undefined
+
+// weekly-challenges.ts
+getWeeklyChallenges(date?: Date): WeeklyChallenge[] // Returns 3 challenges for week
+getWeekId(date?: Date): string                      // Monday's date "YYYY-MM-DD"
+getDaysRemainingInWeek(date?: Date): number         // 0-6 days left
+getWeeklyChallengeById(id: string): WeeklyChallenge | undefined
+```
+
+### Deterministic Seeding
+Challenges use a hash-based seed to ensure consistency:
+- Same date = same 3 daily challenges
+- Same week = same 3 weekly challenges
+- Works across devices and sessions
 
 ---
 

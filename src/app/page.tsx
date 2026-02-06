@@ -17,9 +17,14 @@ import {
   useExercises,
   useStats,
   useOnboardingProfile,
+  useGamification,
+  useDailyChallenges,
+  useWeeklyChallenges,
 } from "@/lib/queries";
 import type { Exercise } from "@/lib/api-client";
 import { onboardingApi } from "@/lib/api-client";
+import { XPBar, DailyChallengeCardCompact, WeeklyChallengeCardCompact } from "@/components/gamification";
+import { getTierFromLevel, getStreakMultiplier } from "@/lib/gamification";
 
 export default function Home() {
   const { isSignedIn, isLoaded: authLoaded } = useUser();
@@ -31,6 +36,9 @@ export default function Home() {
   const { data: programs, isLoading: programsLoading } = usePrograms();
   const { data: onboarding, isLoading: onboardingLoading } = useOnboardingProfile();
   const { data: stats } = useStats();
+  const { data: gamification } = useGamification();
+  const { data: dailyChallenges } = useDailyChallenges();
+  const { data: weeklyChallenges } = useWeeklyChallenges();
 
   // Get active program
   const activeProgram = programs?.find((p) => p.isActive);
@@ -264,6 +272,88 @@ export default function Home() {
               </div>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* XP Progress Bar */}
+      {gamification?.gamification && (() => {
+        const g = gamification.gamification;
+        const level = g.level ?? 1;
+        const tierInfo = getTierFromLevel(level);
+        const streakInfo = getStreakMultiplier(stats?.currentStreak || 0);
+        return (
+          <XPBar
+            level={level}
+            title={tierInfo.title}
+            color={tierInfo.color}
+            totalXP={g.totalXP}
+            xpInLevel={g.xpInLevel ?? 0}
+            xpToNext={g.xpToNext ?? 100}
+            progress={g.progress ?? 0}
+            streakDays={stats?.currentStreak || 0}
+            streakMultiplier={streakInfo.multiplier}
+            className="border-b border-border"
+          />
+        );
+      })()}
+
+      {/* Daily & Weekly Challenges */}
+      {((dailyChallenges && dailyChallenges.length > 0) || (weeklyChallenges && weeklyChallenges.length > 0)) && (
+        <div className="px-4 py-4 border-b border-border space-y-4">
+          {/* Daily Challenges */}
+          {dailyChallenges && dailyChallenges.length > 0 && (
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
+                  Daily Challenges
+                </h3>
+                <span className="text-xs text-muted-foreground">
+                  {dailyChallenges.filter(c => c.isComplete).length}/{dailyChallenges.length} complete
+                </span>
+              </div>
+              <div className="space-y-2">
+                {dailyChallenges.map((challenge) => (
+                  <DailyChallengeCardCompact
+                    key={challenge.challengeId}
+                    title={challenge.challenge.title}
+                    icon={challenge.challenge.icon}
+                    xpReward={challenge.challenge.xpReward}
+                    requirement={challenge.challenge.requirement}
+                    progress={challenge.progress}
+                    isComplete={challenge.isComplete}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Weekly Challenges */}
+          {weeklyChallenges && weeklyChallenges.length > 0 && (
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
+                  Weekly Challenges
+                </h3>
+                <span className="text-xs text-muted-foreground">
+                  {weeklyChallenges.filter(c => c.isComplete).length}/{weeklyChallenges.length} complete
+                </span>
+              </div>
+              <div className="space-y-2">
+                {weeklyChallenges.map((challenge) => (
+                  <WeeklyChallengeCardCompact
+                    key={challenge.challengeId}
+                    title={challenge.challenge.title}
+                    icon={challenge.challenge.icon}
+                    xpReward={challenge.challenge.xpReward}
+                    requirement={challenge.challenge.requirement}
+                    progress={challenge.progress}
+                    isComplete={challenge.isComplete}
+                    daysRemaining={challenge.daysRemaining}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
 

@@ -2,6 +2,7 @@
  * SetFlow Gamification System
  *
  * Handles achievement checking, unlocking, and progress tracking
+ * Extended with XP, levels, challenges, and streak multipliers
  */
 
 import {
@@ -12,6 +13,135 @@ import {
   type Achievement,
 } from "./api-client";
 import { ACHIEVEMENTS, getAchievementById, type AchievementDefinition } from "@/data/achievements";
+
+// ============================================================
+// XP System Constants
+// ============================================================
+
+export const XP_REWARDS = {
+  WORKOUT_COMPLETE: 100,
+  PR_SET: 50,
+  ALL_SETS_COMPLETE: 25,
+  PROTEIN_GOAL: 20,
+  SUPPLEMENTS: 15,
+} as const;
+
+export const LEVEL_TIERS = [
+  { minLevel: 1, maxLevel: 5, title: "Novice", color: "#A0A0A0" },
+  { minLevel: 6, maxLevel: 10, title: "Regular", color: "#22C55E" },
+  { minLevel: 11, maxLevel: 20, title: "Dedicated", color: "#3B82F6" },
+  { minLevel: 21, maxLevel: 35, title: "Committed", color: "#8B5CF6" },
+  { minLevel: 36, maxLevel: 50, title: "Elite", color: "#F59E0B" },
+  { minLevel: 51, maxLevel: Infinity, title: "Legend", color: "#CDFF00" },
+] as const;
+
+export const STREAK_MULTIPLIERS = [
+  { minDays: 60, multiplier: 2.5 },
+  { minDays: 30, multiplier: 2.0 },
+  { minDays: 14, multiplier: 1.5 },
+  { minDays: 7, multiplier: 1.2 },
+  { minDays: 0, multiplier: 1.0 },
+] as const;
+
+export type LevelTier = typeof LEVEL_TIERS[number];
+
+// ============================================================
+// XP Calculation Functions
+// ============================================================
+
+/**
+ * XP required to complete a specific level (exponential growth)
+ * Level 1 = 100 XP, with 15% increase per level
+ */
+export function getXPForLevel(level: number): number {
+  return Math.floor(100 * Math.pow(1.15, level - 1));
+}
+
+/**
+ * Total XP needed to reach a level (sum of all previous levels)
+ */
+export function getTotalXPForLevel(level: number): number {
+  let total = 0;
+  for (let i = 1; i < level; i++) {
+    total += getXPForLevel(i);
+  }
+  return total;
+}
+
+/**
+ * Get level from total XP
+ */
+export function getLevelFromXP(totalXP: number): number {
+  let level = 1;
+  let xpNeeded = 0;
+  while (xpNeeded + getXPForLevel(level) <= totalXP) {
+    xpNeeded += getXPForLevel(level);
+    level++;
+  }
+  return level;
+}
+
+/**
+ * Get detailed level info from total XP
+ */
+export function getLevelInfo(totalXP: number): {
+  level: number;
+  title: string;
+  color: string;
+  xpInLevel: number;
+  xpToNext: number;
+  progress: number;
+} {
+  const level = getLevelFromXP(totalXP);
+  const xpForCurrentLevel = getTotalXPForLevel(level);
+  const xpForNextLevel = getTotalXPForLevel(level + 1);
+  const xpInLevel = totalXP - xpForCurrentLevel;
+  const xpToNext = xpForNextLevel - totalXP;
+  const progress = xpInLevel / (xpForNextLevel - xpForCurrentLevel);
+
+  // Find tier
+  const tier = LEVEL_TIERS.find(
+    (t) => level >= t.minLevel && level <= t.maxLevel
+  ) || LEVEL_TIERS[LEVEL_TIERS.length - 1];
+
+  return {
+    level,
+    title: tier.title,
+    color: tier.color,
+    xpInLevel,
+    xpToNext,
+    progress,
+  };
+}
+
+/**
+ * Get tier info for a level
+ */
+export function getTierFromLevel(level: number): LevelTier {
+  return (
+    LEVEL_TIERS.find((t) => level >= t.minLevel && level <= t.maxLevel) ||
+    LEVEL_TIERS[LEVEL_TIERS.length - 1]
+  );
+}
+
+/**
+ * Get streak multiplier based on streak days
+ */
+export function getStreakMultiplier(streakDays: number): {
+  multiplier: number;
+  minDays: number;
+} {
+  const match = STREAK_MULTIPLIERS.find((m) => streakDays >= m.minDays);
+  return match || STREAK_MULTIPLIERS[STREAK_MULTIPLIERS.length - 1];
+}
+
+/**
+ * Calculate XP with streak multiplier applied
+ */
+export function calculateXPWithMultiplier(baseXP: number, streakDays: number): number {
+  const { multiplier } = getStreakMultiplier(streakDays);
+  return Math.floor(baseXP * multiplier);
+}
 
 // ============================================================
 // Achievement Progress Types

@@ -48,6 +48,8 @@ model User {
   badges                  UserBadge[]
   // Focus sessions (SetFlow v2.0 - Phase 4)
   focusSessions           FocusSession[]
+  // Gamification (SetFlow v2.0 - XP System)
+  gamification            UserGamification?
 }
 
 model Exercise {
@@ -550,4 +552,71 @@ model FocusSession {
 
   @@index([userId])
   @@index([date])
+}
+
+// ============================================================
+// Gamification Models (SetFlow v2.0 - XP System)
+// ============================================================
+
+// User's XP and level tracking
+model UserGamification {
+  id              String   @id @default(cuid())
+  totalXP         Int      @default(0)
+  lastLevelUp     Int      @default(1)
+
+  // One-to-one with User
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Relations
+  xpHistory       XPHistoryEntry[]
+  dailyProgress   DailyChallengeProgress[]
+  weeklyProgress  WeeklyChallengeProgress[]
+}
+
+// XP history entry for tracking rewards
+model XPHistoryEntry {
+  id              String   @id @default(cuid())
+  amount          Int
+  source          String   // "workout", "pr", "challenge:daily-workout", etc.
+  multiplier      Float    @default(1.0)
+  timestamp       DateTime @default(now())
+
+  gamificationId  String
+  gamification    UserGamification @relation(fields: [gamificationId], references: [id], onDelete: Cascade)
+
+  @@index([gamificationId])
+  @@index([timestamp])
+}
+
+// Daily challenge progress tracking
+model DailyChallengeProgress {
+  id              String   @id @default(cuid())
+  challengeId     String   // "daily-workout", "daily-100-reps", etc.
+  date            String   // YYYY-MM-DD
+  progress        Int      @default(0)
+  isComplete      Boolean  @default(false)
+
+  gamificationId  String
+  gamification    UserGamification @relation(fields: [gamificationId], references: [id], onDelete: Cascade)
+
+  @@unique([gamificationId, challengeId, date])
+  @@index([gamificationId])
+  @@index([date])
+}
+
+// Weekly challenge progress tracking
+model WeeklyChallengeProgress {
+  id              String   @id @default(cuid())
+  challengeId     String
+  weekId          String   // YYYY-MM-DD of Monday
+  progress        Int      @default(0)
+  isComplete      Boolean  @default(false)
+
+  gamificationId  String
+  gamification    UserGamification @relation(fields: [gamificationId], references: [id], onDelete: Cascade)
+
+  @@unique([gamificationId, challengeId, weekId])
+  @@index([gamificationId])
+  @@index([weekId])
 }

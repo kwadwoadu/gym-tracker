@@ -36,8 +36,9 @@ import { RestTimer } from "@/components/workout/rest-timer";
 import { SetLogger } from "@/components/workout/set-logger";
 import { EditSetDrawer } from "@/components/workout/edit-set-drawer";
 import { ChallengeCard } from "@/components/workout/challenge-card";
-import { AchievementToast, useAchievementToasts } from "@/components/gamification";
-import { checkAchievements } from "@/lib/gamification";
+import { AchievementToast, useAchievementToasts, useMilestoneModal } from "@/components/gamification";
+import { checkAchievements, XP_REWARDS } from "@/lib/gamification";
+import { useAwardXP, useBulkUpdateChallengeProgress } from "@/lib/queries";
 import { trainingDaysApi, exercisesApi, workoutLogsApi, type TrainingDay, type Exercise, type SetLog } from "@/lib/api-client";
 import { getSuggestedWeight, getGlobalWeightSuggestion, checkAndAddPR, updateWorkoutLog, getLastWeekVolume, getUserSettings } from "@/lib/workout-helpers";
 
@@ -208,6 +209,13 @@ export default function WorkoutSession() {
 
   // Achievement toasts
   const { addToasts: addAchievementToasts, removeToast: removeAchievementToast, currentToast } = useAchievementToasts();
+
+  // Milestone modal for level ups
+  const { showLevelUp, MilestoneModalComponent } = useMilestoneModal();
+
+  // XP mutations
+  const awardXPMutation = useAwardXP();
+  const bulkUpdateChallengeMutation = useBulkUpdateChallengeProgress();
 
   // Load training day and exercises
   useEffect(() => {
@@ -909,6 +917,80 @@ export default function WorkoutSession() {
           audioManager.playWorkoutComplete();
         }
 
+        // Award XP for workout completion
+        try {
+          // Base workout XP
+          const workoutXPResult = await awardXPMutation.mutateAsync({
+            amount: XP_REWARDS.WORKOUT_COMPLETE,
+            source: "workout",
+          });
+
+          // Check for level up from workout XP
+          if (workoutXPResult.levelUp?.didLevelUp) {
+            showLevelUp(workoutXPResult.levelUp.newLevel, workoutXPResult.levelUp.title || "");
+          }
+
+          // Award XP for PRs achieved
+          for (const pr of achievedPRs) {
+            await awardXPMutation.mutateAsync({
+              amount: XP_REWARDS.PR_SET,
+              source: `pr:${pr.exerciseName}`,
+            });
+          }
+
+          // Check if all sets were completed (no skipped sets)
+          const allSetsComplete = completedSets.every((set) => !set.skipped);
+          if (allSetsComplete && completedSets.length > 0) {
+            await awardXPMutation.mutateAsync({
+              amount: XP_REWARDS.ALL_SETS_COMPLETE,
+              source: "all_sets_complete",
+            });
+          }
+
+          // Update challenge progress for workout-related challenges
+          await bulkUpdateChallengeMutation.mutateAsync({
+            requirementType: "workout",
+            value: 1, // Increment by 1 workout
+          });
+
+          // Update volume challenge if applicable
+          if (currentVolume > 0) {
+            await bulkUpdateChallengeMutation.mutateAsync({
+              requirementType: "volume",
+              value: currentVolume,
+            });
+          }
+
+          // Update reps challenge
+          const totalReps = completedSets.reduce((sum, set) => sum + set.actualReps, 0);
+          if (totalReps > 0) {
+            await bulkUpdateChallengeMutation.mutateAsync({
+              requirementType: "reps",
+              value: totalReps,
+            });
+          }
+
+          // Update sets challenge
+          const completedSetCount = completedSets.filter((s) => !s.skipped).length;
+          if (completedSetCount > 0) {
+            await bulkUpdateChallengeMutation.mutateAsync({
+              requirementType: "sets",
+              value: completedSetCount,
+            });
+          }
+
+          // Update PR challenges (called "prs" in challenge requirements)
+          if (achievedPRs.length > 0) {
+            await bulkUpdateChallengeMutation.mutateAsync({
+              requirementType: "prs",
+              value: achievedPRs.length,
+            });
+          }
+        } catch (xpError) {
+          // Log but don't throw - XP is secondary to workout completion
+          console.error("Error awarding XP:", xpError);
+        }
+
         // Check for new achievements after workout completion
         const newAchievements = await checkAchievements();
         if (newAchievements.length > 0) {
@@ -983,6 +1065,9 @@ export default function WorkoutSession() {
           onClose={() => removeAchievementToast(currentToast.achievement.id)}
         />
       )}
+
+      {/* Milestone Modal for Level Ups */}
+      <MilestoneModalComponent />
 
       {/* Header */}
       <header className="px-4 pt-safe-top pb-4 border-b border-border bg-background/80 backdrop-blur-lg sticky top-0 z-50">
