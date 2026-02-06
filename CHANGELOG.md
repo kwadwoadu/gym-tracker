@@ -49,6 +49,23 @@ Complete XP/Gamification system matching SetFlow Native feature parity.
 
 ---
 
+## [2026-02-06] Build Fix - Global Error Component
+
+### Fixed
+- **Next.js Build Error**: Removed `<html>` and `<body>` tags from `global-error.tsx` which caused prerendering failures
+- Build was failing with: `<Html> should not be imported outside of pages/_document`
+- Error occurred during static generation of `/404` page
+
+### Technical Details
+- In Next.js 15 App Router, only the root layout should render document structure
+- `global-error.tsx` is a client component and must return a `<div>` wrapper, not document tags
+- Build now succeeds with `NODE_ENV=production`
+
+### Files Changed
+- `src/app/global-error.tsx` - Removed html/body wrappers, moved styling to outer div
+
+---
+
 ## [2026-01-19] Community User Search Fix
 
 ### Fixed
