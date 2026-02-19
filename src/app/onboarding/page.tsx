@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   OnboardingCarousel,
   WelcomeStep,
@@ -14,6 +15,7 @@ import {
   CompletionStep,
 } from "@/components/onboarding";
 import { onboardingApi, type OnboardingProfile } from "@/lib/api-client";
+import { queryKeys, usePrograms, useOnboardingProfile as useOnboardingQuery } from "@/lib/queries";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -30,7 +32,24 @@ type EquipmentType = "full_gym" | "home_gym" | "bodyweight";
 
 export default function OnboardingPage() {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const [showSkipDialog, setShowSkipDialog] = useState(false);
+
+  // Route guards: redirect users who don't belong on this page
+  const { data: userPrograms } = usePrograms();
+  const { data: onboardingData } = useOnboardingQuery();
+
+  useEffect(() => {
+    if (!onboardingData) return;
+    const state = onboardingData.onboardingState;
+    const hasProgram = userPrograms && userPrograms.length > 0;
+
+    if (state === "complete" && hasProgram) {
+      router.replace("/");
+    } else if (state === "profile_complete") {
+      router.replace("/onboarding/plans");
+    }
+  }, [onboardingData, userPrograms, router]);
 
   // Onboarding state
   const [goals, setGoals] = useState<string[]>([]);
@@ -102,7 +121,8 @@ export default function OnboardingPage() {
       completedAt: new Date().toISOString(),
       onboardingState: "profile_complete",
     });
-    router.push("/onboarding/plans");
+    await queryClient.invalidateQueries({ queryKey: queryKeys.onboarding });
+    router.replace("/onboarding/plans");
   };
 
   const handleComplete = async () => {
@@ -113,7 +133,8 @@ export default function OnboardingPage() {
       completedAt: new Date().toISOString(),
       onboardingState: "profile_complete",
     });
-    router.push("/onboarding/plans");
+    await queryClient.invalidateQueries({ queryKey: queryKeys.onboarding });
+    router.replace("/onboarding/plans");
   };
 
   // Profile for completion step

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronRight, Loader2 } from "lucide-react";
 import { PlanCard, StartScratchCard } from "@/components/plan-selection";
@@ -14,15 +15,27 @@ import {
   type PresetProgram,
 } from "@/lib/programs";
 import { onboardingApi } from "@/lib/api-client";
+import { queryKeys, usePrograms, useOnboardingProfile } from "@/lib/queries";
 
 type Selection = { type: "preset"; id: string } | { type: "scratch" };
 
 export default function PlansPage() {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const [selection, setSelection] = useState<Selection | null>(null);
   const [recommendedId, setRecommendedId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [programs] = useState<PresetProgram[]>(getPresetPrograms());
+
+  // Route guard: if user already has programs and is "complete", redirect home
+  const { data: userPrograms } = usePrograms();
+  const { data: onboarding } = useOnboardingProfile();
+
+  useEffect(() => {
+    if (onboarding?.onboardingState === "complete" && userPrograms && userPrograms.length > 0) {
+      router.replace("/");
+    }
+  }, [onboarding, userPrograms, router]);
 
   // Load onboarding profile to determine recommendation
   useEffect(() => {
@@ -63,8 +76,13 @@ export default function PlansPage() {
       } else {
         await createEmptyProgram();
       }
-      // Navigate to main app
-      router.push("/");
+      // Invalidate caches so home page gets fresh data (prevents stale cache redirect loop)
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: queryKeys.programs }),
+        queryClient.invalidateQueries({ queryKey: queryKeys.onboarding }),
+      ]);
+      // Use replace to prevent back-button re-entry into plans page
+      router.replace("/");
     } catch (error) {
       console.error("Failed to install program:", error);
       setIsLoading(false);

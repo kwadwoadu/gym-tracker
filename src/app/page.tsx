@@ -32,9 +32,9 @@ export default function Home() {
   const [selectedDay, setSelectedDay] = useState<string | null>(null);
   const { hasAccess: hasNutritionAccess } = useNutritionAccess();
 
-  // React Query hooks
-  const { data: programs, isLoading: programsLoading } = usePrograms();
-  const { data: onboarding, isLoading: onboardingLoading } = useOnboardingProfile();
+  // React Query hooks - isFetching guards against stale cache decisions
+  const { data: programs, isLoading: programsLoading, isFetching: programsFetching } = usePrograms();
+  const { data: onboarding, isLoading: onboardingLoading, isFetching: onboardingFetching } = useOnboardingProfile();
   const { data: stats } = useStats();
   const { data: gamification } = useGamification();
   const { data: dailyChallenges } = useDailyChallenges();
@@ -71,6 +71,8 @@ export default function Home() {
   useEffect(() => {
     if (!authLoaded || !isSignedIn) return;
     if (programsLoading || onboardingLoading) return;
+    // Guard against stale React Query cache - wait for fresh data after navigation
+    if (programsFetching || onboardingFetching) return;
 
     const hasProgram = programs && programs.length > 0;
     const onboardingState = onboarding?.onboardingState || "not_started";
@@ -78,13 +80,11 @@ export default function Home() {
     // State machine for navigation
     switch (onboardingState) {
       case "complete":
-        // User has completed onboarding and has a program - stay on home
-        // But if somehow no program exists, reset state and redirect to plans (recovery)
         if (!hasProgram) {
-          // Reset state to profile_complete before redirecting
-          onboardingApi.update({ onboardingState: "profile_complete" }).catch((e) => {
-            console.error("Failed to reset onboarding state:", e);
-          });
+          // Non-destructive: redirect to plans without resetting state.
+          // The stale cache race condition can cause programs=[] briefly after install.
+          // Never downgrade "complete" state - just let the user pick a program again.
+          console.warn("[onboarding] State is complete but no program found - redirecting to plans without state reset");
           router.replace("/onboarding/plans");
         }
         break;
@@ -120,7 +120,7 @@ export default function Home() {
         }
         break;
     }
-  }, [programs, onboarding, programsLoading, onboardingLoading, router, authLoaded, isSignedIn]);
+  }, [programs, onboarding, programsLoading, onboardingLoading, programsFetching, onboardingFetching, router, authLoaded, isSignedIn]);
 
   const currentDay = sortedDays.find((d) => d.id === selectedDay);
 
@@ -147,9 +147,8 @@ export default function Home() {
     );
   }
 
-  // Show loading only while data is being fetched (for authenticated users)
-  // Note: Do NOT include programs.length === 0 here - that case is handled by the redirect useEffect above
-  if (programsLoading || onboardingLoading) {
+  // Show loading while data is being fetched or refetched (prevents stale cache decisions)
+  if (programsLoading || onboardingLoading || programsFetching || onboardingFetching) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center space-y-4">
