@@ -649,8 +649,15 @@ export function useGenerateMealPlan() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: mealPlanGenerateApi.generate,
-    onSuccess: () => {
-      // Invalidate all meal plan queries since new plans were saved
+    onSuccess: (data) => {
+      // Populate each day's cache with the generated plan
+      data.plans.forEach((plan) => {
+        queryClient.setQueryData(
+          queryKeys.mealPlan(plan.date),
+          { date: plan.date, slots: plan.slots } satisfies MealPlan
+        );
+      });
+      // Also invalidate to trigger background refetch from DB
       queryClient.invalidateQueries({ queryKey: ["meal-plan"] });
     },
   });

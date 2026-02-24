@@ -1,20 +1,28 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { format, addDays, subDays } from 'date-fns';
 import { startOfWeek } from 'date-fns';
-import { ChevronLeft, ChevronRight, Calendar, Loader2, Sparkles, RefreshCw } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Calendar, Loader2, Sparkles, RefreshCw, Check, X } from 'lucide-react';
 import { MealPlanner } from '@/components/nutrition/meal-planner';
 import { useGenerateMealPlan, useNutritionProfile } from '@/lib/queries';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function MealPlanPage() {
   const [selectedDate, setSelectedDate] = useState(new Date());
+  const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
   const dateStr = format(selectedDate, 'yyyy-MM-dd');
   const isToday = dateStr === format(new Date(), 'yyyy-MM-dd');
 
   const { data: profile } = useNutritionProfile();
   const generatePlan = useGenerateMealPlan();
+
+  // Auto-dismiss feedback after 3 seconds
+  useEffect(() => {
+    if (!feedback) return;
+    const timer = setTimeout(() => setFeedback(null), 3000);
+    return () => clearTimeout(timer);
+  }, [feedback]);
 
   const handleGenerateWeek = () => {
     const monday = startOfWeek(selectedDate, { weekStartsOn: 1 });
@@ -23,6 +31,14 @@ export default function MealPlanPage() {
       trainingDays: [1, 2, 4, 5], // Mon, Tue, Thu, Fri
       hiitDays: [3], // Wednesday
       save: true,
+    }, {
+      onSuccess: (data) => {
+        const days = data.plans.length;
+        setFeedback({ type: 'success', message: `Meal plans generated for ${days} days!` });
+      },
+      onError: () => {
+        setFeedback({ type: 'error', message: 'Failed to generate meal plans' });
+      },
     });
   };
 
@@ -34,6 +50,13 @@ export default function MealPlanPage() {
       hiitDays: [3],
       save: true,
       regenerateDate: dateStr,
+    }, {
+      onSuccess: () => {
+        setFeedback({ type: 'success', message: `${format(selectedDate, 'EEEE')} meal plan updated!` });
+      },
+      onError: () => {
+        setFeedback({ type: 'error', message: 'Failed to regenerate day' });
+      },
     });
   };
 
@@ -80,6 +103,29 @@ export default function MealPlanPage() {
           <ChevronRight className="w-5 h-5" />
         </motion.button>
       </div>
+
+      {/* Feedback Banner */}
+      <AnimatePresence>
+        {feedback && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className={`flex items-center gap-2 px-4 py-3 rounded-xl mb-4 text-sm font-medium ${
+              feedback.type === 'success'
+                ? 'bg-[#22C55E]/15 text-[#22C55E] border border-[#22C55E]/20'
+                : 'bg-[#EF4444]/15 text-[#EF4444] border border-[#EF4444]/20'
+            }`}
+          >
+            {feedback.type === 'success' ? (
+              <Check className="w-4 h-4 shrink-0" />
+            ) : (
+              <X className="w-4 h-4 shrink-0" />
+            )}
+            {feedback.message}
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Generate Controls */}
       <div className="flex gap-2 mb-4">
