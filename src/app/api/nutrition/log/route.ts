@@ -62,7 +62,7 @@ export async function PUT(request: Request) {
     }
 
     const body = await request.json();
-    const { date, hitProteinGoal, caloriesOnTarget, notes } = body;
+    const { date, hitProteinGoal, caloriesOnTarget, notes, actualProtein, actualCarbs, actualFat, actualCalories, slotTracking, dayType } = body;
 
     if (!date) {
       return NextResponse.json(
@@ -82,6 +82,12 @@ export async function PUT(request: Request) {
         ...(hitProteinGoal !== undefined && { hitProteinGoal }),
         ...(caloriesOnTarget !== undefined && { caloriesOnTarget }),
         ...(notes !== undefined && { notes }),
+        ...(actualProtein !== undefined && { actualProtein }),
+        ...(actualCarbs !== undefined && { actualCarbs }),
+        ...(actualFat !== undefined && { actualFat }),
+        ...(actualCalories !== undefined && { actualCalories }),
+        ...(slotTracking !== undefined && { slotTracking }),
+        ...(dayType !== undefined && { dayType }),
       },
       create: {
         userId: user.id,
@@ -89,6 +95,12 @@ export async function PUT(request: Request) {
         hitProteinGoal: hitProteinGoal ?? false,
         caloriesOnTarget: caloriesOnTarget ?? false,
         notes: notes ?? null,
+        actualProtein: actualProtein ?? null,
+        actualCarbs: actualCarbs ?? null,
+        actualFat: actualFat ?? null,
+        actualCalories: actualCalories ?? null,
+        slotTracking: slotTracking ?? null,
+        dayType: dayType ?? null,
       },
     });
 

@@ -2,14 +2,40 @@
 
 import { useState } from 'react';
 import { format, addDays, subDays } from 'date-fns';
-import { ChevronLeft, ChevronRight, Calendar } from 'lucide-react';
+import { startOfWeek } from 'date-fns';
+import { ChevronLeft, ChevronRight, Calendar, Loader2, Sparkles, RefreshCw } from 'lucide-react';
 import { MealPlanner } from '@/components/nutrition/meal-planner';
+import { useGenerateMealPlan, useNutritionProfile } from '@/lib/queries';
 import { motion } from 'framer-motion';
 
 export default function MealPlanPage() {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const dateStr = format(selectedDate, 'yyyy-MM-dd');
   const isToday = dateStr === format(new Date(), 'yyyy-MM-dd');
+
+  const { data: profile } = useNutritionProfile();
+  const generatePlan = useGenerateMealPlan();
+
+  const handleGenerateWeek = () => {
+    const monday = startOfWeek(selectedDate, { weekStartsOn: 1 });
+    generatePlan.mutate({
+      startDate: format(monday, 'yyyy-MM-dd'),
+      trainingDays: [1, 2, 4, 5], // Mon, Tue, Thu, Fri
+      hiitDays: [3], // Wednesday
+      save: true,
+    });
+  };
+
+  const handleRegenerateDay = () => {
+    const monday = startOfWeek(selectedDate, { weekStartsOn: 1 });
+    generatePlan.mutate({
+      startDate: format(monday, 'yyyy-MM-dd'),
+      trainingDays: [1, 2, 4, 5],
+      hiitDays: [3],
+      save: true,
+      regenerateDate: dateStr,
+    });
+  };
 
   const navigateDate = (direction: 'prev' | 'next') => {
     setSelectedDate((current) =>
@@ -52,6 +78,32 @@ export default function MealPlanPage() {
           className="w-10 h-10 rounded-full bg-[#1A1A1A] flex items-center justify-center text-[#A0A0A0] hover:text-white hover:bg-[#2A2A2A] transition-colors"
         >
           <ChevronRight className="w-5 h-5" />
+        </motion.button>
+      </div>
+
+      {/* Generate Controls */}
+      <div className="flex gap-2 mb-4">
+        <motion.button
+          whileTap={{ scale: 0.95 }}
+          onClick={handleGenerateWeek}
+          disabled={generatePlan.isPending}
+          className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-[#CDFF00] text-[#0A0A0A] font-semibold text-sm disabled:opacity-50 transition-colors"
+        >
+          {generatePlan.isPending ? (
+            <Loader2 className="w-4 h-4 animate-spin" />
+          ) : (
+            <Sparkles className="w-4 h-4" />
+          )}
+          Generate Week
+        </motion.button>
+        <motion.button
+          whileTap={{ scale: 0.95 }}
+          onClick={handleRegenerateDay}
+          disabled={generatePlan.isPending}
+          className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-[#1A1A1A] border border-[#2A2A2A] text-[#A0A0A0] hover:text-white font-medium text-sm disabled:opacity-50 transition-colors"
+        >
+          <RefreshCw className="w-4 h-4" />
+          Re-roll Day
         </motion.button>
       </div>
 

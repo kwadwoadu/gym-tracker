@@ -3,11 +3,12 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { Home, CheckSquare, UtensilsCrossed, ArrowLeft, Library } from 'lucide-react';
+import { Home, CheckSquare, ArrowLeft, Library, Scale } from 'lucide-react';
 
 const navItems = [
   { href: '/nutrition', label: 'Today', icon: CheckSquare },
   { href: '/nutrition/progress', label: 'Progress', icon: Home },
+  { href: '/nutrition/weight', label: 'Weight', icon: Scale },
   { href: '/nutrition/library', label: 'Library', icon: Library },
 ];
 

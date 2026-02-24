@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Check, X, Target, Flame, Loader2 } from 'lucide-react';
-import { useNutritionLog, useUpdateNutritionLog } from '@/lib/queries';
+import { useNutritionLog, useUpdateNutritionLog, useNutritionProfile } from '@/lib/queries';
 import { cn } from '@/lib/utils';
 
 interface DailyChecklistProps {
@@ -13,7 +13,11 @@ interface DailyChecklistProps {
 export function DailyChecklist({ date }: DailyChecklistProps) {
   const { data: log, isLoading } = useNutritionLog(date);
   const updateLog = useUpdateNutritionLog();
+  const { data: profile } = useNutritionProfile();
   const [notes, setNotes] = useState(log?.notes || '');
+
+  const proteinTarget = profile?.proteinTrainingDay ?? 200;
+  const calorieTarget = profile?.caloriesTrainingDay ?? 2800;
 
   // Sync notes state when log data changes (e.g., date navigation)
   useEffect(() => {
@@ -79,7 +83,7 @@ export function DailyChecklist({ date }: DailyChecklistProps) {
             </div>
             <div className="text-left">
               <p className="text-lg font-semibold text-white">Protein Goal</p>
-              <p className="text-sm text-[#A0A0A0]">Hit 180g+ protein today?</p>
+              <p className="text-sm text-[#A0A0A0]">Hit {proteinTarget}g+ protein today?</p>
             </div>
           </div>
           <div
@@ -126,7 +130,7 @@ export function DailyChecklist({ date }: DailyChecklistProps) {
             </div>
             <div className="text-left">
               <p className="text-lg font-semibold text-white">Calories On Target</p>
-              <p className="text-sm text-[#A0A0A0]">Maintenance ~2500 cal?</p>
+              <p className="text-sm text-[#A0A0A0]">Target ~{calorieTarget} cal?</p>
             </div>
           </div>
           <div

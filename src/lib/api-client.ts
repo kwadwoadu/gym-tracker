@@ -556,6 +556,69 @@ export interface NutritionLog {
   hitProteinGoal: boolean;
   caloriesOnTarget: boolean;
   notes: string | null;
+  actualProtein?: number | null;
+  actualCarbs?: number | null;
+  actualFat?: number | null;
+  actualCalories?: number | null;
+  slotTracking?: Record<string, { planned: string | null; eaten: string | null }> | null;
+  dayType?: string | null;
+}
+
+export interface NutritionProfile {
+  id: string;
+  caloriesTrainingDay: number;
+  caloriesRestDay: number;
+  proteinTrainingDay: number;
+  carbsTrainingDay: number;
+  fatTrainingDay: number;
+  proteinRestDay: number;
+  carbsRestDay: number;
+  fatRestDay: number;
+  dietaryRestrictions: string[];
+  mealTimingPreferences: Record<string, string>;
+  weightGainTarget: number;
+  weightCheckIntervalDays: number;
+  calorieStepUp: number;
+  calorieStepDown: number;
+  gainRateMinPerWeek: number;
+  gainRateMaxPerWeek: number;
+  currentPhase: string;
+  userId: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface WeightLogEntry {
+  id: string;
+  date: string;
+  weightKg: number;
+  source: string;
+  notes: string | null;
+  createdAt: string;
+}
+
+export interface WeightTrend {
+  current: number | null;
+  sevenDayAvg: number | null;
+  fourteenDayAvg: number | null;
+  thirtyDayAvg: number | null;
+  weeklyChange: number | null;
+}
+
+export interface WeightLogsResponse {
+  logs: WeightLogEntry[];
+  trend: WeightTrend;
+}
+
+export interface DayPlan {
+  date: string;
+  dayType: "training" | "rest" | "hiit";
+  slots: MealSlots;
+  totals: { protein: number; carbs: number; fat: number; calories: number };
+}
+
+export interface GeneratePlanResponse {
+  plans: DayPlan[];
 }
 
 export interface MealSlots {
@@ -616,6 +679,12 @@ export const nutritionLogApi = {
     hitProteinGoal?: boolean;
     caloriesOnTarget?: boolean;
     notes?: string | null;
+    actualProtein?: number | null;
+    actualCarbs?: number | null;
+    actualFat?: number | null;
+    actualCalories?: number | null;
+    slotTracking?: Record<string, { planned: string | null; eaten: string | null }> | null;
+    dayType?: string | null;
   }): Promise<NutritionLog> => {
     const res = await fetch(`${API_BASE}/nutrition/log`, {
       method: "PUT",
@@ -656,6 +725,66 @@ export const nutritionStatsApi = {
   get: async (weeks?: number): Promise<NutritionStats> => {
     const params = weeks ? `?weeks=${weeks}` : "";
     const res = await fetch(`${API_BASE}/nutrition/stats${params}`);
+    return handleResponse(res);
+  },
+};
+
+// Nutrition Profile API
+export const nutritionProfileApi = {
+  get: async (): Promise<NutritionProfile> => {
+    const res = await fetch(`${API_BASE}/nutrition/profile`);
+    return handleResponse(res);
+  },
+
+  update: async (data: Partial<Omit<NutritionProfile, "id" | "userId" | "createdAt" | "updatedAt">>): Promise<NutritionProfile> => {
+    const res = await fetch(`${API_BASE}/nutrition/profile`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+    return handleResponse(res);
+  },
+};
+
+// Weight Log API
+export const weightLogApi = {
+  list: async (days?: number): Promise<WeightLogsResponse> => {
+    const params = days ? `?days=${days}` : "";
+    const res = await fetch(`${API_BASE}/nutrition/weight${params}`);
+    return handleResponse(res);
+  },
+
+  create: async (data: { date: string; weightKg: number; source?: string; notes?: string }): Promise<WeightLogEntry> => {
+    const res = await fetch(`${API_BASE}/nutrition/weight`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+    return handleResponse(res);
+  },
+
+  delete: async (id: string): Promise<{ success: boolean }> => {
+    const res = await fetch(`${API_BASE}/nutrition/weight?id=${id}`, {
+      method: "DELETE",
+    });
+    return handleResponse(res);
+  },
+};
+
+// Meal Plan Generation API
+export const mealPlanGenerateApi = {
+  generate: async (data: {
+    startDate: string;
+    trainingDays: number[];
+    hiitDays?: number[];
+    save?: boolean;
+    regenerateDate?: string;
+  }): Promise<GeneratePlanResponse> => {
+    const res = await fetch(`${API_BASE}/nutrition/plan/generate`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
     return handleResponse(res);
   },
 };

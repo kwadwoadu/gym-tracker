@@ -38,6 +38,9 @@ model User {
   customMeals         CustomMeal[]
   customSupplements   CustomSupplement[]
   supplementProtocol  SupplementProtocol?
+  // Nutrition upgrade (SetFlow v2.3)
+  nutritionProfile    NutritionProfile?
+  weightLogs          WeightLog[]
   // Community features (SetFlow v2.0 - Phase 3)
   userProfile             UserProfile?
   followers               Follow[]              @relation("Following")
@@ -273,8 +276,61 @@ model NutritionLog {
   hitProteinGoal   Boolean  @default(false)
   caloriesOnTarget Boolean  @default(false)
   notes            String?
+  // Actual macro tracking (nullable for backward compat)
+  actualProtein    Int?
+  actualCarbs      Int?
+  actualFat        Int?
+  actualCalories   Int?
+  slotTracking     Json?    // { breakfast: { planned: "B1", eaten: "B1" }, ... }
+  dayType          String?  // "training" | "rest" | "hiit"
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
+
+  // User relation
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date])
+  @@index([userId])
+  @@index([date])
+}
+
+// User-configurable nutrition targets and adjustment rules
+model NutritionProfile {
+  id                      String   @id @default(cuid())
+  caloriesTrainingDay     Int      @default(2800)
+  caloriesRestDay         Int      @default(2600)
+  proteinTrainingDay      Int      @default(200)
+  carbsTrainingDay        Int      @default(300)
+  fatTrainingDay          Int      @default(89)
+  proteinRestDay          Int      @default(200)
+  carbsRestDay            Int      @default(250)
+  fatRestDay              Int      @default(89)
+  dietaryRestrictions     Json     @default("[]")
+  mealTimingPreferences   Json     @default("{\"breakfast\":\"05:00\",\"midMorning\":\"10:00\",\"lunch\":\"13:00\",\"snack\":\"16:00\",\"dinner\":\"20:00\"}")
+  weightGainTarget        Float    @default(0.5)
+  weightCheckIntervalDays Int      @default(14)
+  calorieStepUp           Int      @default(200)
+  calorieStepDown         Int      @default(150)
+  gainRateMinPerWeek      Float    @default(0.25)
+  gainRateMaxPerWeek      Float    @default(0.75)
+  currentPhase            String   @default("bulk")
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
+
+  // One profile per user
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// Body weight tracking for trend analysis
+model WeightLog {
+  id        String   @id @default(cuid())
+  date      String   // YYYY-MM-DD
+  weightKg  Float
+  source    String   @default("manual")
+  notes     String?
+  createdAt DateTime @default(now())
 
   // User relation
   userId String

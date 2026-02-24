@@ -15,6 +15,9 @@ import {
   mealPlanApi,
   nutritionStatsApi,
   supplementLogApi,
+  nutritionProfileApi,
+  weightLogApi,
+  mealPlanGenerateApi,
   type Exercise,
   type Program,
   type TrainingDay,
@@ -51,6 +54,8 @@ export const queryKeys = {
   mealPlan: (date?: string) => ["meal-plan", date] as const,
   nutritionStats: (weeks?: number) => ["nutrition-stats", weeks] as const,
   supplementLog: (date?: string) => ["supplement-log", date] as const,
+  nutritionProfile: ["nutrition-profile"] as const,
+  weightLogs: (days?: number) => ["weight-logs", days] as const,
 };
 
 // ============================================================
@@ -580,6 +585,73 @@ export function useUpdateSupplementLog() {
       if (context?.previous) {
         queryClient.setQueryData(queryKeys.supplementLog(context.date), context.previous);
       }
+    },
+  });
+}
+
+// ============================================================
+// Nutrition Profile
+// ============================================================
+
+export function useNutritionProfile() {
+  return useQuery({
+    queryKey: queryKeys.nutritionProfile,
+    queryFn: nutritionProfileApi.get,
+  });
+}
+
+export function useUpdateNutritionProfile() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: nutritionProfileApi.update,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.nutritionProfile });
+    },
+  });
+}
+
+// ============================================================
+// Weight Logs
+// ============================================================
+
+export function useWeightLogs(days?: number) {
+  return useQuery({
+    queryKey: queryKeys.weightLogs(days),
+    queryFn: () => weightLogApi.list(days),
+  });
+}
+
+export function useCreateWeightLog() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: weightLogApi.create,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["weight-logs"] });
+    },
+  });
+}
+
+export function useDeleteWeightLog() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: weightLogApi.delete,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["weight-logs"] });
+    },
+  });
+}
+
+// ============================================================
+// Meal Plan Generation
+// ============================================================
+
+export function useGenerateMealPlan() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: mealPlanGenerateApi.generate,
+    onSuccess: () => {
+      // Invalidate all meal plan queries since new plans were saved
+      queryClient.invalidateQueries({ queryKey: ["meal-plan"] });
     },
   });
 }

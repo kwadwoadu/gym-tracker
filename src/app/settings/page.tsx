@@ -34,6 +34,7 @@ import {
   Flame,
   Dumbbell,
   Trophy,
+  UtensilsCrossed,
 } from "lucide-react";
 import { useUser, SignOutButton } from "@clerk/nextjs";
 import Image from "next/image";
@@ -41,9 +42,11 @@ import {
   useSettings,
   useUpdateSettings,
   usePrograms,
+  useNutritionProfile,
+  useUpdateNutritionProfile,
 } from "@/lib/queries";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import type { UserSettings } from "@/lib/api-client";
+import type { UserSettings, NutritionProfile } from "@/lib/api-client";
 import { userProfileApi, statsApi } from "@/lib/api-client";
 import { exportAllData, downloadExportedData, importData, readFileAsString } from "@/lib/export";
 
@@ -81,6 +84,50 @@ export default function SettingsPage() {
   const { data: settings, isLoading: settingsLoading } = useSettings();
   const { data: programs } = usePrograms();
   const updateSettingsMutation = useUpdateSettings();
+  const { data: nutritionProfile, isLoading: nutritionProfileLoading } = useNutritionProfile();
+  const updateNutritionProfileMutation = useUpdateNutritionProfile();
+
+  // Nutrition fields local state
+  const [nutritionFields, setNutritionFields] = useState<Partial<NutritionProfile>>({});
+
+  // Initialize nutrition fields when profile loads
+  useEffect(() => {
+    if (nutritionProfile) {
+      setNutritionFields({
+        caloriesTrainingDay: nutritionProfile.caloriesTrainingDay,
+        proteinTrainingDay: nutritionProfile.proteinTrainingDay,
+        carbsTrainingDay: nutritionProfile.carbsTrainingDay,
+        fatTrainingDay: nutritionProfile.fatTrainingDay,
+        caloriesRestDay: nutritionProfile.caloriesRestDay,
+        proteinRestDay: nutritionProfile.proteinRestDay,
+        carbsRestDay: nutritionProfile.carbsRestDay,
+        fatRestDay: nutritionProfile.fatRestDay,
+        currentPhase: nutritionProfile.currentPhase,
+        weightGainTarget: nutritionProfile.weightGainTarget,
+        weightCheckIntervalDays: nutritionProfile.weightCheckIntervalDays,
+        calorieStepUp: nutritionProfile.calorieStepUp,
+        calorieStepDown: nutritionProfile.calorieStepDown,
+        gainRateMinPerWeek: nutritionProfile.gainRateMinPerWeek,
+        gainRateMaxPerWeek: nutritionProfile.gainRateMaxPerWeek,
+      });
+    }
+  }, [nutritionProfile]);
+
+  const handleNutritionFieldChange = (field: keyof NutritionProfile, value: number | string) => {
+    setNutritionFields((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleNutritionFieldBlur = (field: keyof NutritionProfile) => {
+    const value = nutritionFields[field];
+    if (value !== undefined && value !== nutritionProfile?.[field]) {
+      updateNutritionProfileMutation.mutate({ [field]: value });
+    }
+  };
+
+  const handlePhaseChange = (phase: string) => {
+    setNutritionFields((prev) => ({ ...prev, currentPhase: phase }));
+    updateNutritionProfileMutation.mutate({ currentPhase: phase });
+  };
 
   // Fetch profile
   const { data: profile, isLoading: profileLoading } = useQuery({
@@ -657,6 +704,211 @@ export default function SettingsPage() {
                   Browse Programs
                 </Button>
               </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Nutrition Targets Section */}
+        <Card className="bg-card border-border">
+          <CardHeader className="pb-4">
+            <CardTitle className="text-lg flex items-center gap-2">
+              <UtensilsCrossed className="w-5 h-5" />
+              Nutrition Targets
+            </CardTitle>
+            <CardDescription>Configure your macro targets and adjustment rules</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {nutritionProfileLoading ? (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+              </div>
+            ) : (
+              <>
+                {/* Training Day Targets */}
+                <div className="space-y-3">
+                  <p className="font-medium text-foreground">Training Day Targets</p>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-1.5">
+                      <Label htmlFor="nt-cal-training">Calories</Label>
+                      <Input
+                        id="nt-cal-training"
+                        type="number"
+                        value={nutritionFields.caloriesTrainingDay ?? ''}
+                        onChange={(e) => handleNutritionFieldChange('caloriesTrainingDay', Number(e.target.value))}
+                        onBlur={() => handleNutritionFieldBlur('caloriesTrainingDay')}
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label htmlFor="nt-protein-training">Protein (g)</Label>
+                      <Input
+                        id="nt-protein-training"
+                        type="number"
+                        value={nutritionFields.proteinTrainingDay ?? ''}
+                        onChange={(e) => handleNutritionFieldChange('proteinTrainingDay', Number(e.target.value))}
+                        onBlur={() => handleNutritionFieldBlur('proteinTrainingDay')}
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label htmlFor="nt-carbs-training">Carbs (g)</Label>
+                      <Input
+                        id="nt-carbs-training"
+                        type="number"
+                        value={nutritionFields.carbsTrainingDay ?? ''}
+                        onChange={(e) => handleNutritionFieldChange('carbsTrainingDay', Number(e.target.value))}
+                        onBlur={() => handleNutritionFieldBlur('carbsTrainingDay')}
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label htmlFor="nt-fat-training">Fat (g)</Label>
+                      <Input
+                        id="nt-fat-training"
+                        type="number"
+                        value={nutritionFields.fatTrainingDay ?? ''}
+                        onChange={(e) => handleNutritionFieldChange('fatTrainingDay', Number(e.target.value))}
+                        onBlur={() => handleNutritionFieldBlur('fatTrainingDay')}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Rest Day Targets */}
+                <div className="space-y-3">
+                  <p className="font-medium text-foreground">Rest Day Targets</p>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-1.5">
+                      <Label htmlFor="nt-cal-rest">Calories</Label>
+                      <Input
+                        id="nt-cal-rest"
+                        type="number"
+                        value={nutritionFields.caloriesRestDay ?? ''}
+                        onChange={(e) => handleNutritionFieldChange('caloriesRestDay', Number(e.target.value))}
+                        onBlur={() => handleNutritionFieldBlur('caloriesRestDay')}
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label htmlFor="nt-protein-rest">Protein (g)</Label>
+                      <Input
+                        id="nt-protein-rest"
+                        type="number"
+                        value={nutritionFields.proteinRestDay ?? ''}
+                        onChange={(e) => handleNutritionFieldChange('proteinRestDay', Number(e.target.value))}
+                        onBlur={() => handleNutritionFieldBlur('proteinRestDay')}
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label htmlFor="nt-carbs-rest">Carbs (g)</Label>
+                      <Input
+                        id="nt-carbs-rest"
+                        type="number"
+                        value={nutritionFields.carbsRestDay ?? ''}
+                        onChange={(e) => handleNutritionFieldChange('carbsRestDay', Number(e.target.value))}
+                        onBlur={() => handleNutritionFieldBlur('carbsRestDay')}
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label htmlFor="nt-fat-rest">Fat (g)</Label>
+                      <Input
+                        id="nt-fat-rest"
+                        type="number"
+                        value={nutritionFields.fatRestDay ?? ''}
+                        onChange={(e) => handleNutritionFieldChange('fatRestDay', Number(e.target.value))}
+                        onBlur={() => handleNutritionFieldBlur('fatRestDay')}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Weight Management */}
+                <div className="space-y-3">
+                  <p className="font-medium text-foreground">Weight Management</p>
+
+                  {/* Current Phase */}
+                  <div className="space-y-1.5">
+                    <Label>Current Phase</Label>
+                    <div className="flex items-center gap-2 bg-muted/50 rounded-lg p-1">
+                      {(["bulk", "cut", "maintain"] as const).map((phase) => (
+                        <button
+                          key={phase}
+                          className={`flex-1 px-3 py-1.5 rounded-md text-sm font-medium transition-colors capitalize ${
+                            nutritionFields.currentPhase === phase
+                              ? "bg-primary text-primary-foreground"
+                              : "text-muted-foreground hover:text-foreground"
+                          }`}
+                          onClick={() => handlePhaseChange(phase)}
+                        >
+                          {phase}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-1.5">
+                      <Label htmlFor="nt-weight-gain">Weight Gain Target (kg/week)</Label>
+                      <Input
+                        id="nt-weight-gain"
+                        type="number"
+                        step={0.1}
+                        value={nutritionFields.weightGainTarget ?? ''}
+                        onChange={(e) => handleNutritionFieldChange('weightGainTarget', Number(e.target.value))}
+                        onBlur={() => handleNutritionFieldBlur('weightGainTarget')}
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label htmlFor="nt-check-interval">Check Interval (days)</Label>
+                      <Input
+                        id="nt-check-interval"
+                        type="number"
+                        value={nutritionFields.weightCheckIntervalDays ?? ''}
+                        onChange={(e) => handleNutritionFieldChange('weightCheckIntervalDays', Number(e.target.value))}
+                        onBlur={() => handleNutritionFieldBlur('weightCheckIntervalDays')}
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label htmlFor="nt-step-up">Calorie Step Up (kcal)</Label>
+                      <Input
+                        id="nt-step-up"
+                        type="number"
+                        value={nutritionFields.calorieStepUp ?? ''}
+                        onChange={(e) => handleNutritionFieldChange('calorieStepUp', Number(e.target.value))}
+                        onBlur={() => handleNutritionFieldBlur('calorieStepUp')}
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label htmlFor="nt-step-down">Calorie Step Down (kcal)</Label>
+                      <Input
+                        id="nt-step-down"
+                        type="number"
+                        value={nutritionFields.calorieStepDown ?? ''}
+                        onChange={(e) => handleNutritionFieldChange('calorieStepDown', Number(e.target.value))}
+                        onBlur={() => handleNutritionFieldBlur('calorieStepDown')}
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label htmlFor="nt-min-gain">Min Gain Rate (kg/week)</Label>
+                      <Input
+                        id="nt-min-gain"
+                        type="number"
+                        step={0.05}
+                        value={nutritionFields.gainRateMinPerWeek ?? ''}
+                        onChange={(e) => handleNutritionFieldChange('gainRateMinPerWeek', Number(e.target.value))}
+                        onBlur={() => handleNutritionFieldBlur('gainRateMinPerWeek')}
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label htmlFor="nt-max-gain">Max Gain Rate (kg/week)</Label>
+                      <Input
+                        id="nt-max-gain"
+                        type="number"
+                        step={0.05}
+                        value={nutritionFields.gainRateMaxPerWeek ?? ''}
+                        onChange={(e) => handleNutritionFieldChange('gainRateMaxPerWeek', Number(e.target.value))}
+                        onBlur={() => handleNutritionFieldBlur('gainRateMaxPerWeek')}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </>
             )}
           </CardContent>
         </Card>

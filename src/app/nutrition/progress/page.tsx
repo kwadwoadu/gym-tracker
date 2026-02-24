@@ -1,15 +1,16 @@
 'use client';
 
-import { format, subDays, startOfWeek, eachDayOfInterval } from 'date-fns';
-import { Loader2, CheckCircle2, XCircle, TrendingUp } from 'lucide-react';
-import { useNutritionStats } from '@/lib/queries';
+import { format, startOfWeek, eachDayOfInterval } from 'date-fns';
+import { Loader2, TrendingUp } from 'lucide-react';
+import { useNutritionStats, useNutritionProfile } from '@/lib/queries';
 import { ComplianceCard } from '@/components/nutrition/compliance-card';
 import { cn } from '@/lib/utils';
 
-const PROTEIN_TARGET = 180;
-
 export default function NutritionProgressPage() {
   const { data: stats, isLoading } = useNutritionStats(4); // Last 4 weeks
+  const { data: profile } = useNutritionProfile();
+  const PROTEIN_TARGET = profile?.proteinTrainingDay ?? 200;
+  const CALORIE_TARGET = profile?.caloriesTrainingDay ?? 2800;
 
   // Calculate this week's days
   const today = new Date();
@@ -155,15 +156,24 @@ export default function NutritionProgressPage() {
         <ComplianceCard />
       </section>
 
-      {/* Protein Target Info */}
-      <section className="bg-[#1A1A1A] rounded-xl p-4 border border-[#2A2A2A]">
+      {/* Target Info */}
+      <section className="bg-[#1A1A1A] rounded-xl p-4 border border-[#2A2A2A] space-y-3">
         <div className="flex items-center justify-between">
           <div>
             <p className="text-sm font-medium text-white">Daily Protein Target</p>
-            <p className="text-xs text-[#666666]">Based on your training goals</p>
+            <p className="text-xs text-[#666666]">Training day target</p>
           </div>
           <div className="text-right">
             <p className="text-2xl font-bold text-[#CDFF00]">{PROTEIN_TARGET}g</p>
+          </div>
+        </div>
+        <div className="flex items-center justify-between pt-2 border-t border-[#2A2A2A]">
+          <div>
+            <p className="text-sm font-medium text-white">Daily Calorie Target</p>
+            <p className="text-xs text-[#666666]">Training day target</p>
+          </div>
+          <div className="text-right">
+            <p className="text-2xl font-bold text-[#CDFF00]">{CALORIE_TARGET}</p>
           </div>
         </div>
       </section>

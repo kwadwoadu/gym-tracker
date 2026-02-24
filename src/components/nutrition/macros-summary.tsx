@@ -3,21 +3,34 @@
 import { type MealSlots, calculateTotalMacros } from '@/data/meal-templates';
 import { cn } from '@/lib/utils';
 import { Target, Flame, Dumbbell, Droplets } from 'lucide-react';
+import { useNutritionProfile } from '@/lib/queries';
 
 interface MacrosSummaryProps {
   slots: MealSlots;
+  dayType?: 'training' | 'rest' | 'hiit';
 }
 
-// Targets from the recomp protocol
-const TARGETS = {
-  protein: 180,
-  carbs: 200, // training day average
-  fat: 75,
-  calories: 2500,
+// Fallback targets (used while profile loads)
+const DEFAULT_TARGETS = {
+  protein: 200,
+  carbs: 300,
+  fat: 89,
+  calories: 2800,
 };
 
-export function MacrosSummary({ slots }: MacrosSummaryProps) {
+export function MacrosSummary({ slots, dayType = 'training' }: MacrosSummaryProps) {
+  const { data: profile } = useNutritionProfile();
   const totals = calculateTotalMacros(slots);
+
+  const isTraining = dayType === 'training' || dayType === 'hiit';
+  const TARGETS = profile
+    ? {
+        protein: isTraining ? profile.proteinTrainingDay : profile.proteinRestDay,
+        carbs: isTraining ? profile.carbsTrainingDay : profile.carbsRestDay,
+        fat: isTraining ? profile.fatTrainingDay : profile.fatRestDay,
+        calories: isTraining ? profile.caloriesTrainingDay : profile.caloriesRestDay,
+      }
+    : DEFAULT_TARGETS;
 
   const getProgressColor = (current: number, target: number) => {
     const ratio = current / target;
