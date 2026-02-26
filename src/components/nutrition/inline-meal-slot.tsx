@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, X, ChevronDown, ChevronUp, Utensils, Search, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
@@ -174,8 +174,14 @@ function EmptySlotSelector({
 }: EmptySlotSelectorProps) {
   const [searchQuery, setSearchQuery] = useState('');
 
-  const filteredMeals = MEAL_TEMPLATES.filter((m) =>
-    m.name.toLowerCase().includes(searchQuery.toLowerCase())
+  useEffect(() => {
+    if (!isExpanded) setSearchQuery('');
+  }, [isExpanded]);
+
+  const filteredMeals = useMemo(() =>
+    MEAL_TEMPLATES.filter((m) =>
+      m.name.toLowerCase().includes(searchQuery.toLowerCase())
+    ), [searchQuery]
   );
 
   const handleToggle = () => {
