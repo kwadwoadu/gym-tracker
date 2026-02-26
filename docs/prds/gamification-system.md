@@ -88,15 +88,15 @@ Port the complete XP/Gamification system from SetFlow Native to the SetFlow Weba
 
 ## 6. Design
 
-### UI Components (Port from Native)
+### UI Components
 
-| Component | Description | Native Source |
-|-----------|-------------|---------------|
-| XPBar | Horizontal progress bar with level, XP count, glow effect | `setflow-native/src/components/gamification/XPBar.tsx` |
-| LevelBadge | Tier icon with color, level number | `setflow-native/src/components/gamification/LevelBadge.tsx` |
-| DailyChallengeCard | Challenge icon, title, progress bar, XP reward | `setflow-native/src/components/gamification/DailyChallengeCard.tsx` |
-| WeeklyChallengeCard | Same as daily + days remaining counter | Native pattern |
-| MilestoneModal | Confetti animation, level up message | `setflow-native/src/components/gamification/MilestoneModal.tsx` |
+| Component | Description |
+|-----------|-------------|
+| XPBar | Horizontal progress bar with level, XP count, glow effect |
+| LevelBadge | Tier icon with color, level number |
+| DailyChallengeCard | Challenge icon, title, progress bar, XP reward |
+| WeeklyChallengeCard | Same as daily + days remaining counter |
+| MilestoneModal | Confetti animation, level up message |
 
 ### Design Tokens (Match Native)
 - Primary: `#CDFF00` (lime accent for XP bar fill)
@@ -242,15 +242,6 @@ export function useWeeklyChallenges() {
 | `src/app/page.tsx` | Add XPBar and challenges section |
 | `src/app/workout/[dayId]/page.tsx` | Award XP on workout complete |
 | `src/lib/queries.ts` | Add gamification hooks |
-
-### Reference Files (Native Source)
-
-| Native File | Web Destination |
-|-------------|-----------------|
-| `setflow-native/src/stores/gamification.ts` | Logic to `src/lib/gamification.ts` |
-| `setflow-native/src/data/daily-challenges.ts` | Copy to `src/data/daily-challenges.ts` |
-| `setflow-native/src/data/weekly-challenges.ts` | Copy to `src/data/weekly-challenges.ts` |
-| `setflow-native/src/components/gamification/*` | Adapt to web components |
 
 ---
 
