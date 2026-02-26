@@ -2,15 +2,17 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, X, ChevronDown, ChevronUp, Utensils } from 'lucide-react';
+import { Plus, X, ChevronDown, ChevronUp, Utensils, Search, ArrowRight } from 'lucide-react';
+import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import {
   type MealSlot,
   type MealTemplate,
   getMealById,
-  getMealsByCategory,
   isShakeMeal,
+  MEAL_TEMPLATES,
   SLOT_LABELS,
+  CATEGORY_LABELS,
 } from '@/data/meal-templates';
 
 interface InlineMealSlotProps {
@@ -32,7 +34,6 @@ export function InlineMealSlot({
 }: InlineMealSlotProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const meal = mealId ? getMealById(mealId) : null;
-  const categoryMeals = getMealsByCategory(slotType);
 
   const handleSelectMeal = (selectedMealId: string) => {
     onSelectMeal(selectedMealId);
@@ -55,7 +56,6 @@ export function InlineMealSlot({
       ) : (
         <EmptySlotSelector
           slotType={slotType}
-          categoryMeals={categoryMeals}
           isExpanded={isExpanded}
           onToggle={() => setIsExpanded(!isExpanded)}
           onSelectMeal={handleSelectMeal}
@@ -159,7 +159,6 @@ function SelectedMealDisplay({ meal, onRemove, compact }: SelectedMealDisplayPro
 
 interface EmptySlotSelectorProps {
   slotType: MealSlot;
-  categoryMeals: MealTemplate[];
   isExpanded: boolean;
   onToggle: () => void;
   onSelectMeal: (mealId: string) => void;
@@ -168,17 +167,29 @@ interface EmptySlotSelectorProps {
 
 function EmptySlotSelector({
   slotType,
-  categoryMeals,
   isExpanded,
   onToggle,
   onSelectMeal,
   compact,
 }: EmptySlotSelectorProps) {
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const filteredMeals = MEAL_TEMPLATES.filter((m) =>
+    m.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const handleToggle = () => {
+    if (isExpanded) {
+      setSearchQuery('');
+    }
+    onToggle();
+  };
+
   return (
     <div className={cn('border border-dashed rounded-lg', isExpanded ? 'border-[#CDFF00]/50' : 'border-[#3A3A3A]')}>
       <motion.button
         whileTap={{ scale: 0.98 }}
-        onClick={onToggle}
+        onClick={handleToggle}
         className={cn(
           'w-full flex items-center justify-between transition-colors hover:bg-[#1A1A1A]',
           compact ? 'px-2 py-1.5' : 'px-3 py-2'
@@ -208,15 +219,45 @@ function EmptySlotSelector({
             transition={{ duration: 0.2 }}
             className="overflow-hidden"
           >
-            <div className={cn('border-t border-[#2A2A2A]', compact ? 'p-1.5 space-y-1' : 'p-2 space-y-1.5')}>
-              {categoryMeals.map((meal) => (
-                <MealOption
-                  key={meal.id}
-                  meal={meal}
-                  onSelect={() => onSelectMeal(meal.id)}
-                  compact={compact}
+            {/* Search input */}
+            <div className={cn('border-t border-[#2A2A2A]', compact ? 'px-1.5 pt-1.5' : 'px-2 pt-2')}>
+              <div className="relative">
+                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#666666]" />
+                <input
+                  type="text"
+                  placeholder="Search meals..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full bg-[#0A0A0A] border border-[#2A2A2A] rounded-lg pl-8 pr-3 py-2 text-sm text-white placeholder-[#666666] outline-none focus:border-[#CDFF00]/50 transition-colors"
                 />
-              ))}
+              </div>
+            </div>
+
+            {/* Meal list */}
+            <div className={cn('max-h-[280px] overflow-y-auto', compact ? 'p-1.5 space-y-1' : 'p-2 space-y-1.5')}>
+              {filteredMeals.length > 0 ? (
+                filteredMeals.map((meal) => (
+                  <MealOption
+                    key={meal.id}
+                    meal={meal}
+                    onSelect={() => onSelectMeal(meal.id)}
+                    compact={compact}
+                  />
+                ))
+              ) : (
+                <p className="text-[#666666] text-sm text-center py-4">No meals found</p>
+              )}
+            </div>
+
+            {/* View Full Library link */}
+            <div className={cn('border-t border-[#2A2A2A]', compact ? 'px-1.5 py-1.5' : 'px-2 py-2')}>
+              <Link
+                href="/nutrition/library"
+                className="flex items-center justify-center gap-1.5 text-[#CDFF00] text-xs font-medium hover:opacity-80 transition-opacity"
+              >
+                View Full Library
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
             </div>
           </motion.div>
         )}
@@ -252,6 +293,9 @@ function MealOption({ meal, onSelect, compact }: MealOptionProps) {
           {meal.name}
         </span>
         {isShake && <span className="text-xs" title="Shake - can add supplements">🥤</span>}
+        <span className="bg-[#2A2A2A] text-[#A0A0A0] text-[9px] px-1.5 py-0.5 rounded shrink-0">
+          {CATEGORY_LABELS[meal.category]}
+        </span>
       </div>
       <div className={cn('flex items-center gap-2', compact ? 'text-[9px]' : 'text-[10px]')}>
         <span className="text-[#CDFF00] font-medium">{meal.protein}g P</span>
