@@ -119,6 +119,11 @@ interface NewPR {
 }
 import { audioManager } from "@/lib/audio";
 import { cn } from "@/lib/utils";
+import { PRCelebration } from "@/components/shared/PRCelebration";
+import { HEADING, DATA } from "@/lib/typography";
+import { NotificationPrompt } from "@/components/notifications/NotificationPrompt";
+import { ShareCardButton } from "@/components/workout/share-card-button";
+import { subscribeToPush, isPushSupported, getNotificationPermission } from "@/lib/notifications/push-subscription";
 
 type WorkoutPhase = "preview" | "warmup" | "exercise" | "rest" | "finisher" | "complete";
 
@@ -215,6 +220,9 @@ export default function WorkoutSession() {
   const [showEditDrawer, setShowEditDrawer] = useState(false);
   const [challengeDismissedExercises, setChallengeDismissedExercises] = useState<Set<string>>(new Set());
   const [autoStartRestTimer, setAutoStartRestTimer] = useState(true);
+  const [showPRCelebration, setShowPRCelebration] = useState(false);
+  const [celebrationPR, setCelebrationPR] = useState<NewPR | null>(null);
+  const [showNotificationPrompt, setShowNotificationPrompt] = useState(false);
 
   // Achievement toasts
   const { addToasts: addAchievementToasts, removeToast: removeAchievementToast, currentToast } = useAchievementToasts();
@@ -919,9 +927,11 @@ export default function WorkoutSession() {
 
         setNewPRs(achievedPRs);
 
-        // Play celebration sound based on PRs achieved
+        // Play celebration sound and show overlay based on PRs achieved
         if (achievedPRs.length > 0) {
           audioManager.playPR();
+          setCelebrationPR(achievedPRs[0]);
+          setShowPRCelebration(true);
         } else {
           audioManager.playWorkoutComplete();
         }
@@ -1004,6 +1014,21 @@ export default function WorkoutSession() {
         const newAchievements = await checkAchievements();
         if (newAchievements.length > 0) {
           addAchievementToasts(newAchievements);
+        }
+        // Check if we should show the notification prompt (after 3rd workout)
+        try {
+          const allLogs = await workoutLogsApi.list({ limit: 10 });
+          const completedCount = allLogs.filter((l: { isComplete: boolean }) => l.isComplete).length;
+          if (
+            completedCount >= 3 &&
+            isPushSupported() &&
+            getNotificationPermission() === "default"
+          ) {
+            // Delay slightly so completion screen renders first
+            setTimeout(() => setShowNotificationPrompt(true), 2000);
+          }
+        } catch {
+          // Non-critical - skip notification prompt
         }
       } catch (secondaryError) {
         // Log but don't throw - workout is already saved and complete
@@ -1611,7 +1636,7 @@ export default function WorkoutSession() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
             >
-              <h2 className="text-3xl font-bold text-foreground mb-2">
+              <h2 className={`${HEADING.h1} text-foreground mb-2`}>
                 Workout Complete!
               </h2>
               <p className="text-muted-foreground">
@@ -1680,7 +1705,7 @@ export default function WorkoutSession() {
             >
               <Card className="p-4 bg-card border-border text-center">
                 <Clock className="w-6 h-6 text-primary mx-auto mb-2" />
-                <p className="text-2xl font-bold text-foreground">
+                <p className={`${DATA.medium} text-foreground`}>
                   {formatDuration(
                     Math.floor(
                       (new Date().getTime() - startTime.getTime()) / 1000
@@ -1692,7 +1717,7 @@ export default function WorkoutSession() {
 
               <Card className="p-4 bg-card border-border text-center">
                 <Dumbbell className="w-6 h-6 text-primary mx-auto mb-2" />
-                <p className="text-2xl font-bold text-foreground">
+                <p className={`${DATA.medium} text-foreground`}>
                   {completedSets.length}
                 </p>
                 <p className="text-xs text-muted-foreground">Sets Completed</p>
@@ -1715,7 +1740,7 @@ export default function WorkoutSession() {
                     ? "text-success"
                     : "text-primary"
                 }`} />
-                <p className="text-2xl font-bold text-foreground">
+                <p className={`${DATA.medium} text-foreground`}>
                   {currentVolume.toLocaleString()}kg
                 </p>
                 <p className="text-xs text-muted-foreground">Total Volume</p>
@@ -1755,6 +1780,47 @@ export default function WorkoutSession() {
                   rows={3}
                 />
               </Card>
+            </motion.div>
+
+            {/* Share Card */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.65 }}
+            >
+              <ShareCardButton
+                workoutName={trainingDay?.name || "Workout"}
+                date={new Date().toLocaleDateString("en-US", {
+                  weekday: "short",
+                  month: "short",
+                  day: "numeric",
+                })}
+                totalVolume={currentVolume}
+                duration={
+                  startTime
+                    ? Math.floor(
+                        (new Date().getTime() - startTime.getTime()) / 60000
+                      )
+                    : 0
+                }
+                topSets={completedSets
+                  .filter((s) => s.weight > 0)
+                  .sort((a, b) => b.weight * b.reps - a.weight * a.reps)
+                  .slice(0, 3)
+                  .map((s) => {
+                    const ex = exercises.get(s.exerciseId);
+                    return {
+                      exercise: ex?.name || "Exercise",
+                      weight: s.weight,
+                      reps: s.reps,
+                    };
+                  })}
+                prs={newPRs.map((pr) => ({
+                  exercise: pr.exerciseName,
+                  weight: pr.weight,
+                }))}
+                streakDays={0}
+              />
             </motion.div>
 
             <motion.div
@@ -1832,6 +1898,15 @@ export default function WorkoutSession() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* PR Celebration Overlay */}
+      <PRCelebration
+        show={showPRCelebration}
+        exerciseName={celebrationPR?.exerciseName}
+        weight={celebrationPR?.weight}
+        reps={celebrationPR?.reps}
+        onComplete={() => setShowPRCelebration(false)}
+      />
 
       {/* Edit Set Drawer */}
       <EditSetDrawer
