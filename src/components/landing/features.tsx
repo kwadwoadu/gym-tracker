@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { TrendingUp, Timer, Trophy, WifiOff, Dumbbell, BarChart3 } from "lucide-react";
+import { HEADING } from "@/lib/typography";
 
 const features = [
   {
@@ -54,7 +55,7 @@ export function Features() {
           transition={{ duration: 0.5 }}
           className="text-center mb-16"
         >
-          <h2 className="text-3xl sm:text-4xl font-bold mb-4">
+          <h2 className={`${HEADING.h2} mb-4`}>
             Everything You Need to
             <span className="text-[#CDFF00]"> Get Stronger</span>
           </h2>
@@ -77,7 +78,7 @@ export function Features() {
               <div className="w-12 h-12 rounded-xl bg-[#CDFF00]/10 flex items-center justify-center mb-4 group-hover:bg-[#CDFF00]/20 transition-colors">
                 <feature.icon className="w-6 h-6 text-[#CDFF00]" />
               </div>
-              <h3 className="text-lg font-semibold mb-2">{feature.title}</h3>
+              <h3 className={`${HEADING.h3} mb-2`}>{feature.title}</h3>
               <p className="text-white/60 text-sm leading-relaxed">
                 {feature.description}
               </p>

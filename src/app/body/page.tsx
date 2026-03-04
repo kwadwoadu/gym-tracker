@@ -12,6 +12,7 @@ import {
   Ruler,
   Percent,
 } from "lucide-react";
+import { DATA, LABEL } from "@/lib/typography";
 import db, { generateId, getToday } from "@/lib/db";
 import type {
   WeightEntry,
@@ -231,7 +232,7 @@ export default function BodyPage() {
                 </div>
               )}
             </div>
-            <p className="text-3xl font-bold text-white">
+            <p className={`${DATA.large} text-white`}>
               {latestWeight
                 ? `${displayWeight(latestWeight.weight)} ${unit}`
                 : "--"}
@@ -271,7 +272,7 @@ export default function BodyPage() {
           {/* Recent Entries */}
           {weightEntries && weightEntries.length > 0 && (
             <div>
-              <h3 className="text-xs font-semibold text-white/40 uppercase tracking-[0.08em] mb-2">
+              <h3 className={`${LABEL.caption} text-white/40 mb-2`}>
                 Recent Entries
               </h3>
               <div className="space-y-1">
@@ -375,7 +376,7 @@ export default function BodyPage() {
                   if (!hasSiteData) return null;
                   return (
                     <div key={group}>
-                      <h3 className="text-xs font-semibold text-white/40 uppercase tracking-[0.08em] mb-2">
+                      <h3 className={`${LABEL.caption} text-white/40 mb-2`}>
                         {group}
                       </h3>
                       <div className="grid grid-cols-3 gap-2">
@@ -402,7 +403,7 @@ export default function BodyPage() {
                               <p className="text-[11px] text-white/40 mb-1">
                                 {site.label}
                               </p>
-                              <p className="text-lg font-bold text-white">
+                              <p className={`${DATA.small} text-white`}>
                                 {val}
                               </p>
                               <div className="flex items-center gap-1 mt-0.5">
@@ -444,7 +445,7 @@ export default function BodyPage() {
             <>
               <div className="bg-[#1A1A1A] rounded-xl p-5 text-center">
                 <p className="text-xs text-white/40 mb-1">Latest Estimate</p>
-                <p className="text-4xl font-bold text-white">
+                <p className={`${DATA.large} text-white`}>
                   {bodyFatEntries[0].percentage}%
                 </p>
                 <p className="text-xs text-white/30 mt-1">
@@ -460,7 +461,7 @@ export default function BodyPage() {
               {/* Body Fat Trend Chart */}
               {bodyFatEntries.length >= 2 && (
                 <div className="bg-[#1A1A1A] rounded-xl p-3">
-                  <h3 className="text-xs font-semibold text-white/40 uppercase tracking-[0.08em] mb-2">
+                  <h3 className={`${LABEL.caption} text-white/40 mb-2`}>
                     Trend
                   </h3>
                   <div className="h-[160px]">
@@ -508,7 +509,7 @@ export default function BodyPage() {
 
               {bodyFatEntries.length > 1 && (
                 <div>
-                  <h3 className="text-xs font-semibold text-white/40 uppercase tracking-[0.08em] mb-2">
+                  <h3 className={`${LABEL.caption} text-white/40 mb-2`}>
                     History
                   </h3>
                   <div className="space-y-1">

@@ -5,6 +5,7 @@ import { useRouter, usePathname } from "next/navigation";
 import { ArrowLeft, User, Dumbbell, UtensilsCrossed, Database, Search, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { HEADING } from "@/lib/typography";
 
 const SETTINGS_TABS = [
   { href: "/settings", label: "Profile", icon: User },
@@ -59,7 +60,7 @@ export default function SettingsLayout({ children }: { children: React.ReactNode
           >
             <ArrowLeft className="w-5 h-5" />
           </Button>
-          <h1 className="text-xl font-bold text-foreground flex-1">Settings</h1>
+          <h1 className={cn(HEADING.h3, "text-foreground flex-1")}>Settings</h1>
           <Button
             variant="ghost"
             size="icon"

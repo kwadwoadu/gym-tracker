@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Dumbbell, ChevronRight, Play } from "lucide-react";
 import Link from "next/link";
+import { HEADING } from "@/lib/typography";
 
 export function Hero() {
   return (
@@ -31,7 +32,7 @@ export function Hero() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.1 }}
-          className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight mb-6"
+          className={`${HEADING.h1} mb-6`}
         >
           Track Your Lifts.
           <br />

@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { WifiOff, Shield, Sparkles } from "lucide-react";
+import { HEADING } from "@/lib/typography";
 
 const TRUST_SIGNALS = [
   {
@@ -33,7 +34,7 @@ export function Credibility() {
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
         >
-          <h2 className="text-3xl sm:text-4xl font-bold mb-4">
+          <h2 className={`${HEADING.h2} mb-4`}>
             Built by <span className="text-[#CDFF00]">Lifters</span>, for
             Lifters
           </h2>

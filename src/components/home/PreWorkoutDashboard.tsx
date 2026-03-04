@@ -7,6 +7,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { estimateWorkoutDuration, countExercises } from "@/lib/workout-duration";
 import type { TrainingDay, Exercise } from "@/lib/api-client";
+import { LABEL } from "@/lib/typography";
 
 interface PreWorkoutDashboardProps {
   todayWorkout: TrainingDay;
@@ -114,7 +115,7 @@ export function PreWorkoutDashboard({
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
         >
-          <h4 className="text-xs font-semibold text-white/40 uppercase tracking-wider mb-2">
+          <h4 className={`${LABEL.caption} text-white/40 mb-2`}>
             Warmup Checklist
           </h4>
           <Card className="bg-[#1A1A1A] border-[#2A2A2A] divide-y divide-[#2A2A2A]">

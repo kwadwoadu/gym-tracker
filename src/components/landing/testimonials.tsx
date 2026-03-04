@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { Star } from "lucide-react";
+import { HEADING } from "@/lib/typography";
 
 interface Testimonial {
   name: string;
@@ -49,7 +50,7 @@ export function Testimonials() {
           transition={{ duration: 0.5 }}
           className="text-center mb-12"
         >
-          <h2 className="text-3xl sm:text-4xl font-bold mb-4">
+          <h2 className={`${HEADING.h2} mb-4`}>
             Trusted by <span className="text-[#CDFF00]">Real Lifters</span>
           </h2>
           <p className="text-lg text-white/60">

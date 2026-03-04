@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { Users, Dumbbell, Trophy, Target } from "lucide-react";
+import { DATA, LABEL } from "@/lib/typography";
 
 const STATS = [
   { icon: Users, label: "Active Lifters", value: 2847 },
@@ -54,10 +55,10 @@ function CounterCard({
   return (
     <div className="text-center">
       <Icon className="w-5 h-5 text-[#CDFF00]/60 mx-auto mb-2" />
-      <div className="text-3xl sm:text-4xl font-bold text-[#CDFF00] tabular-nums">
+      <div className={`${DATA.large} text-[#CDFF00]`}>
         {formatNumber(count)}
       </div>
-      <div className="text-xs sm:text-sm text-white/50 uppercase tracking-wider mt-1">
+      <div className={`${LABEL.caption} text-white/50 mt-1`}>
         {label}
       </div>
     </div>

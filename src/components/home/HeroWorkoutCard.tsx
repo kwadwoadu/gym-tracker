@@ -8,6 +8,7 @@ import type { TrainingDay, WorkoutLog } from "@/lib/api-client";
 import { estimateWorkoutDuration, countExercises, countSupersets } from "@/lib/workout-duration";
 import { getNextTrainingDay } from "@/lib/next-day";
 import { vibrateShort } from "@/lib/haptics";
+import { HEADING } from "@/lib/typography";
 
 interface HeroWorkoutCardProps {
   currentDay: TrainingDay | null;
@@ -55,7 +56,7 @@ export function HeroWorkoutCard({
         {/* Day name + stats */}
         <div className="flex items-start justify-between">
           <div>
-            <h2 className="text-lg font-bold text-white">{currentDay.name}</h2>
+            <h2 className={`${HEADING.h3} text-white`}>{currentDay.name}</h2>
             <div className="flex items-center gap-3 mt-1 text-sm text-[#A0A0A0]">
               <span className="flex items-center gap-1">
                 <Dumbbell className="w-3.5 h-3.5" />

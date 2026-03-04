@@ -4,6 +4,7 @@ import { useState, useMemo, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Loader2 } from "lucide-react";
+import { HEADING } from "@/lib/typography";
 import { useWorkoutLogs, usePersonalRecords, useExercises, useAchievements, useStats, useMuscleVolume } from "@/lib/queries";
 import type { Exercise, WorkoutLog, PersonalRecord } from "@/lib/api-client";
 import { SummaryCards } from "@/components/stats/summary-cards";
@@ -245,7 +246,7 @@ export default function StatsPage() {
 
         {/* Achievements */}
         <section>
-          <h2 className="text-lg font-semibold text-foreground mb-4">Achievements</h2>
+          <h2 className={`${HEADING.h3} text-foreground mb-4`}>Achievements</h2>
           <AchievementGallery progress={achievementProgress} stats={achievementStats} />
         </section>
 

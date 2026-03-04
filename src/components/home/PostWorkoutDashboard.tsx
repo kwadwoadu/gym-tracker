@@ -7,6 +7,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { getRecoveryTips } from "@/lib/recovery-tips";
 import type { WorkoutLog, Exercise, TrainingDay } from "@/lib/api-client";
+import { DATA, LABEL } from "@/lib/typography";
 
 interface PostWorkoutDashboardProps {
   workout: WorkoutLog;
@@ -63,14 +64,14 @@ export function PostWorkoutDashboard({
               <div className="flex items-center justify-center gap-1 mb-1">
                 <Clock className="w-4 h-4 text-white/40" />
               </div>
-              <p className="text-xl font-bold text-white">{duration}m</p>
+              <p className={`${DATA.medium} text-white`}>{duration}m</p>
               <p className="text-xs text-white/40">Duration</p>
             </div>
             <div className="text-center">
               <div className="flex items-center justify-center gap-1 mb-1">
                 <Dumbbell className="w-4 h-4 text-white/40" />
               </div>
-              <p className="text-xl font-bold text-white">
+              <p className={`${DATA.medium} text-white`}>
                 {totalVolume > 1000
                   ? `${(totalVolume / 1000).toFixed(1)}k`
                   : totalVolume}
@@ -81,7 +82,7 @@ export function PostWorkoutDashboard({
               <div className="flex items-center justify-center gap-1 mb-1">
                 <TrendingUp className="w-4 h-4 text-white/40" />
               </div>
-              <p className="text-xl font-bold text-white">{totalSets}</p>
+              <p className={`${DATA.medium} text-white`}>{totalSets}</p>
               <p className="text-xs text-white/40">Sets</p>
             </div>
           </div>
@@ -107,7 +108,7 @@ export function PostWorkoutDashboard({
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
         >
-          <h4 className="text-xs font-semibold text-white/40 uppercase tracking-wider mb-2">
+          <h4 className={`${LABEL.caption} text-white/40 mb-2`}>
             Recovery
           </h4>
           <Card className="bg-[#1A1A1A] border-[#2A2A2A] divide-y divide-[#2A2A2A]">
@@ -135,7 +136,7 @@ export function PostWorkoutDashboard({
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
         >
-          <h4 className="text-xs font-semibold text-white/40 uppercase tracking-wider mb-2">
+          <h4 className={`${LABEL.caption} text-white/40 mb-2`}>
             Next Workout
           </h4>
           <Card className="bg-[#1A1A1A] border-[#2A2A2A] p-4">

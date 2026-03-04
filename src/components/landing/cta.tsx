@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ChevronRight, Zap } from "lucide-react";
 import Link from "next/link";
+import { HEADING } from "@/lib/typography";
 
 export function CTA() {
   return (
@@ -25,7 +26,7 @@ export function CTA() {
             </span>
           </div>
 
-          <h2 className="text-3xl sm:text-4xl font-bold mb-4">
+          <h2 className={`${HEADING.h2} mb-4`}>
             Your Next PR is
             <span className="text-[#CDFF00]"> Waiting</span>
           </h2>
