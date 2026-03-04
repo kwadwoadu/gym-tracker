@@ -9,6 +9,12 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Dumbbell, Loader2, BarChart3, ClipboardList, Settings, UtensilsCrossed, Users } from "lucide-react";
 import { useNutritionAccess } from "@/hooks/use-nutrition-access";
+import { determineDashboardState } from "@/lib/dashboard-state";
+import { MorningDashboard } from "@/components/home/MorningDashboard";
+import { PreWorkoutDashboard } from "@/components/home/PreWorkoutDashboard";
+import { PostWorkoutDashboard } from "@/components/home/PostWorkoutDashboard";
+import { RestDayDashboard } from "@/components/home/RestDayDashboard";
+import { getNextTrainingDay } from "@/lib/next-day";
 import { SupersetView } from "@/components/workout/superset-view";
 import { Hero, Features, CTA, Footer } from "@/components/landing";
 import {
@@ -117,6 +123,46 @@ export default function Home() {
   }, [programs, onboarding, programsLoading, onboardingLoading, programsFetching, onboardingFetching, router, authLoaded, isSignedIn]);
 
   const currentDay = sortedDays.find((d) => d.id === selectedDay);
+
+  // Dashboard state machine
+  const dashboardCtx = useMemo(() => {
+    const hour = new Date().getHours();
+    const todayWorkout = currentDay || null;
+    return determineDashboardState(
+      hour,
+      todayWorkout,
+      workoutLogs || [],
+      stats?.currentStreak || 0
+    );
+  }, [currentDay, workoutLogs, stats?.currentStreak]);
+
+  // Next training day for rest/post-workout dashboards
+  const nextDay = useMemo(() => {
+    return getNextTrainingDay(sortedDays, workoutLogs || []);
+  }, [sortedDays, workoutLogs]);
+
+  // Weekly workout count
+  const weeklyWorkouts = useMemo(() => {
+    if (!workoutLogs) return 0;
+    const now = new Date();
+    const startOfWeek = new Date(now);
+    startOfWeek.setDate(now.getDate() - now.getDay());
+    startOfWeek.setHours(0, 0, 0, 0);
+    return workoutLogs.filter((l) => {
+      if (!l.isComplete) return false;
+      return new Date(l.date) >= startOfWeek;
+    }).length;
+  }, [workoutLogs]);
+
+  const weeklyTarget = sortedDays.length;
+
+  // Last workout for the same day (for morning dashboard comparison)
+  const lastSameDayWorkout = useMemo(() => {
+    if (!currentDay || !workoutLogs) return null;
+    return workoutLogs
+      .filter((l) => l.isComplete && l.dayId === currentDay.id)
+      .sort((a, b) => b.date.localeCompare(a.date))[0] || null;
+  }, [currentDay, workoutLogs]);
 
   // Show loading while auth is being checked
   if (!authLoaded) {
@@ -236,6 +282,45 @@ export default function Home() {
           weeklyChallenges={weeklyChallenges || []}
         />
       )}
+
+      {/* Context-Aware Dashboard */}
+      <div className="py-4">
+        {dashboardCtx.state === "morning" && currentDay && (
+          <MorningDashboard
+            todayWorkout={currentDay}
+            lastWorkout={lastSameDayWorkout}
+            exercises={exercises}
+            currentStreak={stats?.currentStreak || 0}
+            weeklyWorkouts={weeklyWorkouts}
+            weeklyTarget={weeklyTarget}
+            streakAtRisk={dashboardCtx.streakAtRisk}
+          />
+        )}
+        {dashboardCtx.state === "pre-workout" && currentDay && (
+          <PreWorkoutDashboard
+            todayWorkout={currentDay}
+            exercises={exercises}
+          />
+        )}
+        {dashboardCtx.state === "post-workout" && dashboardCtx.lastCompletedWorkout && (
+          <PostWorkoutDashboard
+            workout={dashboardCtx.lastCompletedWorkout}
+            exercises={exercises}
+            nextDay={nextDay}
+          />
+        )}
+        {dashboardCtx.state === "rest-day" && (
+          <RestDayDashboard
+            nextDay={nextDay}
+            lastWorkout={workoutLogs?.filter((l) => l.isComplete).sort((a, b) => b.date.localeCompare(a.date))[0] || null}
+            exercises={exercises}
+            currentStreak={stats?.currentStreak || 0}
+            weeklyWorkouts={weeklyWorkouts}
+            weeklyTarget={weeklyTarget}
+            streakAtRisk={dashboardCtx.streakAtRisk}
+          />
+        )}
+      </div>
 
       {/* Day Tabs + Workout Content */}
       {sortedDays.length > 0 && selectedDay && (
