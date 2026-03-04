@@ -2,7 +2,7 @@
 id: REV-003
 severity: P2
 agent: pattern-recognition-specialist
-status: pending
+status: done
 file: src/components/workout/exercise-card.tsx, src/components/workout/set-logger.tsx
 line: 242, 451
 created: 2026-03-04

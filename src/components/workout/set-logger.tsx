@@ -15,7 +15,7 @@ import {
 import { Check, Minus, Plus, TrendingUp, TrendingDown, Play, ChevronDown, ChevronUp, SkipForward, Camera } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { MuscleMapMini } from "@/components/shared/MuscleMapMini";
-import { isFormAnalysisSupported, getFormRuleByExerciseId } from "@/data/form-rules";
+import { getFormRuleByExerciseId } from "@/data/form-rules";
 import { FormCamera } from "./form-camera";
 
 // Extract YouTube video ID from URL
@@ -145,7 +145,6 @@ export function SetLogger({
   const hasVideo = videoId || isSearchUrl;
 
   const formRule = exerciseId ? getFormRuleByExerciseId(exerciseId) : null;
-  const hasFormAnalysis = exerciseId ? isFormAnalysisSupported(exerciseId) : false;
 
   // Update weight when suggestion props arrive (async fetch)
   useEffect(() => {
@@ -428,31 +427,31 @@ export function SetLogger({
       </Dialog>
 
       {/* Form Analysis */}
-      {hasFormAnalysis && formRule && !isCompleted && (
-        <>
-          {!showFormAnalysis ? (
-            <div className="mb-6">
-              <Button
-                variant="outline"
-                className="w-full h-12 border-[#CDFF00]/30 text-[#CDFF00] hover:bg-[#CDFF00]/10"
-                onClick={() => setShowFormAnalysis(true)}
-              >
-                <Camera className="w-4 h-4 mr-2" />
-                Analyze Form
-              </Button>
-            </div>
-          ) : (
-            <div className="mb-6">
+      {formRule && exerciseId && !isCompleted && (
+        <div className="mb-6">
+          <Button
+            variant="outline"
+            className="w-full h-12 border-[#CDFF00]/30 text-[#CDFF00] hover:bg-[#CDFF00]/10"
+            onClick={() => setShowFormAnalysis(true)}
+          >
+            <Camera className="w-4 h-4 mr-2" />
+            Analyze Form
+          </Button>
+          <Dialog open={showFormAnalysis} onOpenChange={setShowFormAnalysis}>
+            <DialogContent className="max-w-lg p-0 bg-[#0A0A0A] border-[#2A2A2A]">
               <FormCamera
-                exerciseId={exerciseId!}
+                exerciseId={exerciseId}
                 exerciseName={exerciseName}
                 formRule={formRule}
                 onClose={() => setShowFormAnalysis(false)}
-                onSaveReport={() => setShowFormAnalysis(false)}
+                onSaveReport={(_report) => {
+                  // TODO: persist report to workout log
+                  setShowFormAnalysis(false);
+                }}
               />
-            </div>
-          )}
-        </>
+            </DialogContent>
+          </Dialog>
+        </div>
       )}
 
       {/* Weight input */}

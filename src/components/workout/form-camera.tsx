@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Camera, X, Square, AlertCircle } from "lucide-react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -37,11 +37,14 @@ export function FormCamera({
     // 2. Initialize MediaPipe BlazePose
     // 3. Start processing frames
     // For now, simulate the analysis flow
-    setViewState("analyzing");
     setRepCount(0);
     setCurrentScore(0);
+    setViewState("analyzing");
+  };
 
-    // Simulate rep detection over time
+  // Simulate rep detection while analyzing - cleans up on state change or unmount
+  useEffect(() => {
+    if (viewState !== "analyzing") return;
     let reps = 0;
     const interval = setInterval(() => {
       reps++;
@@ -51,7 +54,8 @@ export function FormCamera({
         clearInterval(interval);
       }
     }, 2000);
-  };
+    return () => clearInterval(interval);
+  }, [viewState]);
 
   const handleStopAnalysis = () => {
     // Generate a simulated report

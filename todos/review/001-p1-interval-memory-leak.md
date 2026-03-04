@@ -2,7 +2,7 @@
 id: REV-001
 severity: P1
 agent: performance-oracle
-status: pending
+status: done
 file: src/components/workout/form-camera.tsx
 line: 46-53
 created: 2026-03-04

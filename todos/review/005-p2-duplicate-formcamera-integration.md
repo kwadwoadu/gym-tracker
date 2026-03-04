@@ -2,7 +2,7 @@
 id: REV-005
 severity: P2
 agent: architecture-strategist
-status: pending
+status: done
 file: src/components/workout/exercise-card.tsx, src/components/workout/set-logger.tsx
 line: 52-55, 141-148
 created: 2026-03-04

@@ -2,7 +2,7 @@
 id: REV-002
 severity: P2
 agent: typescript-reviewer
-status: pending
+status: done
 file: src/components/workout/exercise-card.tsx, src/components/workout/set-logger.tsx
 line: 238, 447
 created: 2026-03-04

@@ -11,7 +11,7 @@ import {
 import { ChevronDown, ChevronUp, Play, Camera } from "lucide-react";
 import { cn, getYouTubeThumbnail, isYouTubeUrl } from "@/lib/utils";
 import { MuscleMap } from "@/components/shared/MuscleMap";
-import { isFormAnalysisSupported, getFormRuleByExerciseId } from "@/data/form-rules";
+import { getFormRuleByExerciseId } from "@/data/form-rules";
 import { FormCamera } from "./form-camera";
 
 interface ExerciseCardProps {
@@ -52,7 +52,6 @@ export function ExerciseCard({
   const [showFormAnalysis, setShowFormAnalysis] = useState(false);
 
   const formRule = exerciseId ? getFormRuleByExerciseId(exerciseId) : null;
-  const hasFormAnalysis = exerciseId ? isFormAnalysisSupported(exerciseId) : false;
 
   const formatTempo = (tempo: string) => {
     // T:30A1 -> "3s down, controlled up, 1s hold"
@@ -213,7 +212,7 @@ export function ExerciseCard({
             )}
 
             {/* Form Analysis button */}
-            {hasFormAnalysis && formRule && (
+            {formRule && exerciseId && (
               <Button
                 variant="outline"
                 className="w-full h-12 border-[#CDFF00]/30 text-[#CDFF00] hover:bg-[#CDFF00]/10"
@@ -231,15 +230,18 @@ export function ExerciseCard({
       )}
 
       {/* Form Analysis Dialog */}
-      {hasFormAnalysis && formRule && (
+      {formRule && exerciseId && (
         <Dialog open={showFormAnalysis} onOpenChange={setShowFormAnalysis}>
           <DialogContent className="max-w-lg p-0 bg-[#0A0A0A] border-[#2A2A2A]">
             <FormCamera
-              exerciseId={exerciseId!}
+              exerciseId={exerciseId}
               exerciseName={name}
               formRule={formRule}
               onClose={() => setShowFormAnalysis(false)}
-              onSaveReport={() => setShowFormAnalysis(false)}
+              onSaveReport={(_report) => {
+                // TODO: persist report to workout log
+                setShowFormAnalysis(false);
+              }}
             />
           </DialogContent>
         </Dialog>

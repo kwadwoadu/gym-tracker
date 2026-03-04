@@ -2,7 +2,7 @@
 id: REV-004
 severity: P2
 agent: code-simplicity-reviewer
-status: pending
+status: done
 file: src/components/workout/exercise-card.tsx, src/components/workout/set-logger.tsx
 line: 55, 148
 created: 2026-03-04
