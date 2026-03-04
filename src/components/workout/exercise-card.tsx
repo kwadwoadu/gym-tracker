@@ -66,7 +66,7 @@ export function ExerciseCard({
   return (
     <Card
       className={cn(
-        "bg-card border-border p-4 cursor-pointer transition-all",
+        "bg-card border-border p-5 cursor-pointer transition-all shadow-[var(--shadow-standard)]",
         "active:scale-[0.98] touch-target"
       )}
       onClick={() => setIsExpanded(!isExpanded)}
@@ -85,13 +85,13 @@ export function ExerciseCard({
 
         {/* Main content */}
         <div className="flex-1 min-w-0">
-          <h3 className="font-semibold text-lg text-foreground truncate">
+          <h3 className="font-semibold text-xl leading-tight text-foreground truncate">
             {name}
           </h3>
           <p className="text-muted-foreground text-sm mt-1">
             {sets} sets x {reps} reps
           </p>
-          <div className="flex items-center gap-2 mt-2 flex-wrap">
+          <div className="flex items-center gap-2.5 mt-2 flex-wrap">
             {tempo && (
               <Badge variant="secondary" className="text-xs">
                 {tempo}
@@ -127,7 +127,7 @@ export function ExerciseCard({
             {/* Tempo explanation */}
             {tempo && (
               <div>
-                <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">
+                <p className="text-xs text-muted-foreground uppercase tracking-[0.08em] mb-1">
                   Tempo
                 </p>
                 <p className="text-sm text-foreground">{formatTempo(tempo)}</p>
@@ -136,7 +136,7 @@ export function ExerciseCard({
 
             {/* Muscle visualization */}
             <div>
-              <p className="text-xs text-muted-foreground uppercase tracking-wide mb-2">
+              <p className="text-xs text-muted-foreground uppercase tracking-[0.08em] mb-2">
                 Muscles Targeted
               </p>
               {muscles ? (

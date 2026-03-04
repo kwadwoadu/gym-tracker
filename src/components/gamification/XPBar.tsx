@@ -32,7 +32,7 @@ export function XPBar({
   const hasStreakBonus = streakMultiplier > 1;
 
   return (
-    <div className={cn("px-4 py-3 bg-muted/30", className)}>
+    <div className={cn("px-4 py-5 bg-muted/30", className)}>
       {/* Level and XP info row */}
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">

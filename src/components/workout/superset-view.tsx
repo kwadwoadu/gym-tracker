@@ -31,7 +31,7 @@ export function SupersetView({
       {/* Superset header */}
       <div className="flex items-center gap-2 mb-3">
         <div className="h-px flex-1 bg-border" />
-        <span className="text-xs text-muted-foreground uppercase tracking-wider px-2">
+        <span className="text-xs text-muted-foreground uppercase tracking-[0.08em] px-2">
           Superset {superset.label}
         </span>
         <div className="h-px flex-1 bg-border" />

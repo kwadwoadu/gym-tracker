@@ -216,7 +216,7 @@ export default function Home() {
   const level = g?.level ?? 1;
 
   return (
-    <div className="min-h-screen pb-20 lg:pb-8">
+    <div className="min-h-screen pb-44 lg:pb-8">
       {/* Header */}
       <header className="px-4 pt-safe-top pb-4 gradient-divider">
         <div className="flex items-center justify-between">
@@ -363,11 +363,11 @@ export default function Home() {
 
             return (
               <TabsContent key={day.id} value={day.id} className="mt-0">
-                <div className="p-4 space-y-6">
+                <div className="p-4 space-y-8">
                   {/* Day Title */}
                   <div>
-                    <h2 className="text-2xl font-bold text-foreground">{day.name}</h2>
-                    <p className="text-sm text-muted-foreground mt-1">
+                    <h2 className="text-[28px] lg:text-[32px] font-bold tracking-tight leading-tight text-foreground">{day.name}</h2>
+                    <p className="text-sm text-muted-foreground mt-1.5">
                       {supersets.length} supersets - {supersets.reduce((acc, ss) => acc + ss.exercises.length, 0)} exercises
                     </p>
                   </div>

@@ -80,7 +80,7 @@ export function BottomTabBar() {
                   className="w-6 h-6"
                   strokeWidth={isActive ? 2.5 : 2}
                 />
-                <span className="text-[10px] font-medium">{tab.label}</span>
+                <span className="text-[11px] font-medium">{tab.label}</span>
               </button>
             );
           })}
@@ -97,7 +97,7 @@ export function BottomTabBar() {
               className="w-6 h-6"
               strokeWidth={isMoreActive || moreOpen ? 2.5 : 2}
             />
-            <span className="text-[10px] font-medium">More</span>
+            <span className="text-[11px] font-medium">More</span>
           </button>
         </div>
       </nav>

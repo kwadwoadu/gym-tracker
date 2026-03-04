@@ -122,7 +122,7 @@ export function GamificationStrip({
                 {dailyChallenges.length > 0 && (
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                      <h3 className="text-xs font-semibold text-[#666666] uppercase tracking-wider">
+                      <h3 className="text-xs font-semibold text-[#666666] uppercase tracking-[0.08em]">
                         Daily Challenges
                       </h3>
                       <span className="text-xs text-[#666666]">
@@ -146,7 +146,7 @@ export function GamificationStrip({
                 {weeklyChallenges.length > 0 && (
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                      <h3 className="text-xs font-semibold text-[#666666] uppercase tracking-wider">
+                      <h3 className="text-xs font-semibold text-[#666666] uppercase tracking-[0.08em]">
                         Weekly Challenges
                       </h3>
                       <span className="text-xs text-[#666666]">
