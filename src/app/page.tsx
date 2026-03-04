@@ -7,7 +7,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Dumbbell, Play, Loader2, BarChart3, ClipboardList, Settings, Flame, Calendar, UtensilsCrossed, Users } from "lucide-react";
+import { Dumbbell, Loader2, BarChart3, ClipboardList, Settings, UtensilsCrossed, Users } from "lucide-react";
 import { useNutritionAccess } from "@/hooks/use-nutrition-access";
 import { SupersetView } from "@/components/workout/superset-view";
 import { Hero, Features, CTA, Footer } from "@/components/landing";
@@ -20,11 +20,13 @@ import {
   useGamification,
   useDailyChallenges,
   useWeeklyChallenges,
+  useWorkoutLogs,
+  useActiveWorkout,
 } from "@/lib/queries";
 import type { Exercise } from "@/lib/api-client";
 import { onboardingApi } from "@/lib/api-client";
-import { XPBar, DailyChallengeCardCompact, WeeklyChallengeCardCompact } from "@/components/gamification";
-import { getTierFromLevel, getStreakMultiplier } from "@/lib/gamification";
+import { HeroWorkoutCard } from "@/components/home/HeroWorkoutCard";
+import { GamificationStrip } from "@/components/home/GamificationStrip";
 
 export default function Home() {
   const { isSignedIn, isLoaded: authLoaded } = useUser();
@@ -39,6 +41,8 @@ export default function Home() {
   const { data: gamification } = useGamification();
   const { data: dailyChallenges } = useDailyChallenges();
   const { data: weeklyChallenges } = useWeeklyChallenges();
+  const { data: workoutLogs } = useWorkoutLogs({ isComplete: true });
+  const { data: activeWorkout } = useActiveWorkout();
 
   // Get active program
   const activeProgram = programs?.find((p) => p.isActive);
@@ -81,35 +85,24 @@ export default function Home() {
     switch (onboardingState) {
       case "complete":
         if (!hasProgram) {
-          // Non-destructive: redirect to plans without resetting state.
-          // The stale cache race condition can cause programs=[] briefly after install.
-          // Never downgrade "complete" state - just let the user pick a program again.
           console.warn("[onboarding] State is complete but no program found - redirecting to plans without state reset");
           router.replace("/onboarding/plans");
         }
         break;
       case "program_installing":
-        // Check if program was actually created successfully
         if (hasProgram) {
-          // Program exists - installation succeeded but state update failed
-          // Update state to complete and stay on home page
           onboardingApi.update({ onboardingState: "complete" }).catch((e) => {
             console.error("Failed to update onboarding state:", e);
           });
-          // Don't redirect - let the page re-render with updated state
         } else {
-          // No program exists - installation was interrupted, retry
           router.replace("/onboarding/plans");
         }
         break;
       case "profile_complete":
-        // User has completed profile but hasn't picked a program - redirect to plans
         router.replace("/onboarding/plans");
         break;
       case "not_started":
-      default:
-        // User hasn't started onboarding
-        // Check legacy fields for backward compatibility
+      default: {
         const hasCompletedOnboarding = onboarding?.hasCompletedOnboarding || onboarding?.skippedOnboarding;
         if (!hasProgram) {
           if (!hasCompletedOnboarding) {
@@ -119,6 +112,7 @@ export default function Home() {
           }
         }
         break;
+      }
     }
   }, [programs, onboarding, programsLoading, onboardingLoading, programsFetching, onboardingFetching, router, authLoaded, isSignedIn]);
 
@@ -159,7 +153,7 @@ export default function Home() {
     );
   }
 
-  // If no programs after loading complete, redirect logic will handle it - show brief loading state
+  // If no programs after loading complete, redirect logic will handle it
   if (!programs || programs.length === 0) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -171,8 +165,12 @@ export default function Home() {
     );
   }
 
+  // Gamification data
+  const g = gamification?.gamification;
+  const level = g?.level ?? 1;
+
   return (
-    <div className="min-h-screen pb-40 lg:pb-24">
+    <div className="min-h-screen pb-20 lg:pb-8">
       {/* Header */}
       <header className="px-4 pt-safe-top pb-4 border-b border-border">
         <div className="flex items-center justify-between">
@@ -192,171 +190,54 @@ export default function Home() {
           </div>
           {/* Header icons - hidden on mobile (use bottom tab bar instead) */}
           <div className="hidden lg:flex items-center gap-1">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => router.push("/exercises")}
-              className="h-10 w-10"
-            >
+            <Button variant="ghost" size="icon" onClick={() => router.push("/exercises")} className="h-10 w-10">
               <Dumbbell className="w-5 h-5 text-muted-foreground" />
             </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => router.push("/program")}
-              className="h-10 w-10"
-            >
+            <Button variant="ghost" size="icon" onClick={() => router.push("/program")} className="h-10 w-10">
               <ClipboardList className="w-5 h-5 text-muted-foreground" />
             </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => router.push("/stats")}
-              className="h-10 w-10"
-            >
+            <Button variant="ghost" size="icon" onClick={() => router.push("/stats")} className="h-10 w-10">
               <BarChart3 className="w-5 h-5 text-muted-foreground" />
             </Button>
             {hasNutritionAccess && (
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => router.push("/nutrition")}
-                className="h-10 w-10"
-              >
+              <Button variant="ghost" size="icon" onClick={() => router.push("/nutrition")} className="h-10 w-10">
                 <UtensilsCrossed className="w-5 h-5 text-muted-foreground" />
               </Button>
             )}
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => router.push("/community")}
-              className="h-10 w-10"
-            >
+            <Button variant="ghost" size="icon" onClick={() => router.push("/community")} className="h-10 w-10">
               <Users className="w-5 h-5 text-muted-foreground" />
             </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => router.push("/settings")}
-              className="h-10 w-10"
-            >
+            <Button variant="ghost" size="icon" onClick={() => router.push("/settings")} className="h-10 w-10">
               <Settings className="w-5 h-5 text-muted-foreground" />
             </Button>
           </div>
         </div>
       </header>
 
-      {/* Streak Tracker */}
-      {stats && (stats.currentStreak > 0 || stats.thisWeekCount > 0) && (
-        <div className="px-4 py-3 border-b border-border bg-muted/30">
-          <div className="flex items-center justify-center gap-6">
-            {stats.currentStreak > 0 && (
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-full bg-orange-500/20 flex items-center justify-center">
-                  <Flame className="w-4 h-4 text-orange-500" />
-                </div>
-                <div>
-                  <p className="text-lg font-bold text-foreground">{stats.currentStreak}</p>
-                  <p className="text-xs text-muted-foreground">Day Streak</p>
-                </div>
-              </div>
-            )}
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
-                <Calendar className="w-4 h-4 text-primary" />
-              </div>
-              <div>
-                <p className="text-lg font-bold text-foreground">{stats.thisWeekCount}/{stats.programDayCount || 3}</p>
-                <p className="text-xs text-muted-foreground">Week Progress</p>
-              </div>
-            </div>
-          </div>
-        </div>
+      {/* Hero Workout Card */}
+      <HeroWorkoutCard
+        currentDay={currentDay || null}
+        sortedDays={sortedDays}
+        workoutLogs={workoutLogs || []}
+        activeWorkout={activeWorkout}
+        onSelectDay={setSelectedDay}
+      />
+
+      {/* Compact Gamification Strip */}
+      {g && (
+        <GamificationStrip
+          streakDays={stats?.currentStreak || 0}
+          level={level}
+          totalXP={g.totalXP}
+          xpInLevel={g.xpInLevel ?? 0}
+          xpToNext={g.xpToNext ?? 100}
+          progress={g.progress ?? 0}
+          dailyChallenges={dailyChallenges || []}
+          weeklyChallenges={weeklyChallenges || []}
+        />
       )}
 
-      {/* XP Progress Bar */}
-      {gamification?.gamification && (() => {
-        const g = gamification.gamification;
-        const level = g.level ?? 1;
-        const tierInfo = getTierFromLevel(level);
-        const streakInfo = getStreakMultiplier(stats?.currentStreak || 0);
-        return (
-          <XPBar
-            level={level}
-            title={tierInfo.title}
-            color={tierInfo.color}
-            totalXP={g.totalXP}
-            xpInLevel={g.xpInLevel ?? 0}
-            xpToNext={g.xpToNext ?? 100}
-            progress={g.progress ?? 0}
-            streakDays={stats?.currentStreak || 0}
-            streakMultiplier={streakInfo.multiplier}
-            className="border-b border-border"
-          />
-        );
-      })()}
-
-      {/* Daily & Weekly Challenges */}
-      {((dailyChallenges && dailyChallenges.length > 0) || (weeklyChallenges && weeklyChallenges.length > 0)) && (
-        <div className="px-4 py-4 border-b border-border space-y-4">
-          {/* Daily Challenges */}
-          {dailyChallenges && dailyChallenges.length > 0 && (
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
-                  Daily Challenges
-                </h3>
-                <span className="text-xs text-muted-foreground">
-                  {dailyChallenges.filter(c => c.isComplete).length}/{dailyChallenges.length} complete
-                </span>
-              </div>
-              <div className="space-y-2">
-                {dailyChallenges.map((challenge) => (
-                  <DailyChallengeCardCompact
-                    key={challenge.challengeId}
-                    title={challenge.challenge.title}
-                    icon={challenge.challenge.icon}
-                    xpReward={challenge.challenge.xpReward}
-                    requirement={challenge.challenge.requirement}
-                    progress={challenge.progress}
-                    isComplete={challenge.isComplete}
-                  />
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Weekly Challenges */}
-          {weeklyChallenges && weeklyChallenges.length > 0 && (
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
-                  Weekly Challenges
-                </h3>
-                <span className="text-xs text-muted-foreground">
-                  {weeklyChallenges.filter(c => c.isComplete).length}/{weeklyChallenges.length} complete
-                </span>
-              </div>
-              <div className="space-y-2">
-                {weeklyChallenges.map((challenge) => (
-                  <WeeklyChallengeCardCompact
-                    key={challenge.challengeId}
-                    title={challenge.challenge.title}
-                    icon={challenge.challenge.icon}
-                    xpReward={challenge.challenge.xpReward}
-                    requirement={challenge.challenge.requirement}
-                    progress={challenge.progress}
-                    isComplete={challenge.isComplete}
-                    daysRemaining={challenge.daysRemaining}
-                  />
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Day Tabs */}
+      {/* Day Tabs + Workout Content */}
       {sortedDays.length > 0 && selectedDay && (
         <Tabs value={selectedDay} onValueChange={setSelectedDay} className="w-full">
           <div className="px-4 py-3 border-b border-border">
@@ -484,57 +365,6 @@ export default function Home() {
           })}
         </Tabs>
       )}
-
-      {/* Fixed Bottom Buttons - positioned above tab bar on mobile, at bottom on desktop */}
-      {/* Mobile version - above tab bar */}
-      <div
-        className="fixed left-0 right-0 p-4 bg-background/80 backdrop-blur-lg border-t border-border z-30 lg:hidden"
-        style={{ bottom: "calc(49px + env(safe-area-inset-bottom, 0px))" }}
-      >
-        <div className="flex gap-3">
-          <Button
-            size="lg"
-            variant="outline"
-            className="h-14 px-6 font-semibold border-primary/50 text-primary hover:bg-primary/10"
-            onClick={() => router.push("/focus-session")}
-          >
-            <Dumbbell className="w-5 h-5 mr-2" />
-            Focus
-          </Button>
-          <Button
-            size="lg"
-            className="flex-1 h-14 text-lg font-semibold bg-primary text-primary-foreground hover:bg-primary/90"
-            onClick={() => router.push(`/workout/${selectedDay}`)}
-            disabled={!selectedDay}
-          >
-            <Play className="w-5 h-5 mr-2" />
-            Start {currentDay?.name || "Workout"}
-          </Button>
-        </div>
-      </div>
-      {/* Desktop version - at bottom */}
-      <div className="hidden lg:block fixed left-0 right-0 bottom-0 p-4 pb-safe-bottom bg-background/80 backdrop-blur-lg border-t border-border z-30">
-        <div className="flex gap-3 max-w-3xl mx-auto">
-          <Button
-            size="lg"
-            variant="outline"
-            className="h-14 px-6 font-semibold border-primary/50 text-primary hover:bg-primary/10"
-            onClick={() => router.push("/focus-session")}
-          >
-            <Dumbbell className="w-5 h-5 mr-2" />
-            Focus
-          </Button>
-          <Button
-            size="lg"
-            className="flex-1 h-14 text-lg font-semibold bg-primary text-primary-foreground hover:bg-primary/90"
-            onClick={() => router.push(`/workout/${selectedDay}`)}
-            disabled={!selectedDay}
-          >
-            <Play className="w-5 h-5 mr-2" />
-            Start {currentDay?.name || "Workout"}
-          </Button>
-        </div>
-      </div>
     </div>
   );
 }
