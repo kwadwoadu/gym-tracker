@@ -65,3 +65,11 @@ export function canAccessAINutritionCoach(): boolean {
 export function canAccessAIFormAnalysis(): boolean {
   return true;
 }
+
+/**
+ * Check if AI personal trainer is enabled
+ * Conversational trainer chat, adaptive periodization, predictive analytics
+ */
+export function canAccessAIPersonalTrainer(): boolean {
+  return true;
+}

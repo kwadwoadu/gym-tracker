@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, usePathname } from "next/navigation";
-import { Dumbbell, UtensilsCrossed, Settings, Timer, BookOpen, Scale } from "lucide-react";
+import { Dumbbell, UtensilsCrossed, Settings, Timer, BookOpen, Scale, Bot } from "lucide-react";
 import {
   Drawer,
   DrawerContent,
@@ -47,6 +47,12 @@ const menuItems: MenuItem[] = [
     icon: Scale,
     label: "Body",
     description: "Weight, measurements, body fat",
+  },
+  {
+    href: "/trainer",
+    icon: Bot,
+    label: "AI Coach",
+    description: "Personal trainer chat",
   },
   {
     href: "/settings",

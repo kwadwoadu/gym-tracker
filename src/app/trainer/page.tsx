@@ -1,0 +1,246 @@
+"use client";
+
+import { useState, useRef, useEffect, useCallback } from "react";
+import { ArrowLeft, Send, Loader2, Bot } from "lucide-react";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { TrainerMessage } from "@/components/trainer/trainer-message";
+import { QuickActions } from "@/components/trainer/quick-actions";
+import { PredictionCard } from "@/components/trainer/prediction-card";
+import {
+  usePrograms,
+  useTrainingDays,
+  useStats,
+} from "@/lib/queries";
+import { buildMinimalContext, buildContextPrompt } from "@/lib/ai/context-engine";
+
+interface ChatMessage {
+  id: string;
+  role: "user" | "assistant";
+  content: string;
+  timestamp: Date;
+}
+
+export default function TrainerPage() {
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [inputValue, setInputValue] = useState("");
+  const [sending, setSending] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  // Load user context
+  const { data: programs } = usePrograms();
+  const activeProgram = programs?.find((p) => p.isActive);
+  const { data: trainingDays } = useTrainingDays(activeProgram?.id);
+  const { data: stats } = useStats();
+
+  const scrollToBottom = useCallback(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, []);
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages, scrollToBottom]);
+
+  // Welcome message on first load
+  useEffect(() => {
+    if (messages.length === 0) {
+      setMessages([
+        {
+          id: "welcome",
+          role: "assistant",
+          content: `Hey! I'm Coach, your AI personal trainer. I can see your training data and help with:\n\n- Program adjustments based on your performance\n- Training decisions (should you train today?)\n- Plateau analysis and solutions\n- Recovery and deload timing\n\nAsk me anything about your training, or tap a quick action below to get started.`,
+          timestamp: new Date(),
+        },
+      ]);
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const sendMessage = useCallback(
+    async (text: string) => {
+      if (!text.trim() || sending) return;
+
+      const userMessage: ChatMessage = {
+        id: `user-${Date.now()}`,
+        role: "user",
+        content: text.trim(),
+        timestamp: new Date(),
+      };
+
+      setMessages((prev) => [...prev, userMessage]);
+      setInputValue("");
+      setSending(true);
+
+      try {
+        // Build context from available data
+        const context = buildMinimalContext(
+          activeProgram?.name || null,
+          (trainingDays || []).map((d) => ({
+            name: d.name,
+            supersets: d.supersets as Array<{ exercises: unknown[] }>,
+          })),
+          stats ? { currentStreak: stats.currentStreak, totalWorkouts: stats.totalWorkouts } : null,
+          [] // PRs would come from a separate query
+        );
+
+        const contextPrompt = buildContextPrompt(context);
+
+        const res = await fetch("/api/ai/trainer", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            message: text.trim(),
+            context: contextPrompt,
+            history: messages
+              .filter((m) => m.id !== "welcome")
+              .map((m) => ({
+                role: m.role,
+                content: m.content,
+              })),
+          }),
+        });
+
+        if (!res.ok) throw new Error("Failed");
+
+        const { data } = await res.json();
+
+        const aiMessage: ChatMessage = {
+          id: `ai-${Date.now()}`,
+          role: "assistant",
+          content: data.message,
+          timestamp: new Date(),
+        };
+
+        setMessages((prev) => [...prev, aiMessage]);
+      } catch {
+        const errorMessage: ChatMessage = {
+          id: `error-${Date.now()}`,
+          role: "assistant",
+          content:
+            "Sorry, I had trouble processing that. Make sure you have an internet connection and try again.",
+          timestamp: new Date(),
+        };
+        setMessages((prev) => [...prev, errorMessage]);
+      } finally {
+        setSending(false);
+      }
+    },
+    [sending, messages, activeProgram, trainingDays, stats]
+  );
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    sendMessage(inputValue);
+  };
+
+  return (
+    <div className="min-h-screen bg-[#0A0A0A] flex flex-col">
+      {/* Header */}
+      <header className="sticky top-0 z-50 bg-[#0A0A0A]/95 backdrop-blur-sm border-b border-[#2A2A2A]">
+        <div className="flex items-center gap-3 px-4 h-14">
+          <Link
+            href="/"
+            className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-[#1A1A1A] transition-colors"
+          >
+            <ArrowLeft className="w-5 h-5 text-[#A0A0A0]" />
+          </Link>
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-full bg-[#CDFF00]/20 flex items-center justify-center">
+              <Bot className="w-4 h-4 text-[#CDFF00]" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-white">AI Coach</p>
+              <p className="text-[10px] text-green-400">Online</p>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* Messages */}
+      <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4 pb-32">
+        {/* Quick actions at top when few messages */}
+        {messages.length <= 1 && (
+          <div className="space-y-3">
+            <QuickActions onSelect={sendMessage} disabled={sending} />
+
+            {/* Sample prediction card */}
+            {stats && stats.currentStreak > 0 && (
+              <PredictionCard
+                exerciseName="Next Milestone"
+                targetWeight={100}
+                currentWeight={stats.totalWorkouts || 0}
+                currentReps={0}
+                currentRPE={0}
+                estimatedWeeks={4}
+                progressRate={`${stats.currentStreak} day streak`}
+              />
+            )}
+          </div>
+        )}
+
+        {messages.map((msg) => (
+          <TrainerMessage
+            key={msg.id}
+            role={msg.role}
+            content={msg.content}
+            timestamp={msg.timestamp}
+          />
+        ))}
+
+        {sending && (
+          <div className="flex gap-3">
+            <div className="w-8 h-8 rounded-full bg-[#CDFF00]/20 flex items-center justify-center flex-shrink-0">
+              <Bot className="w-4 h-4 text-[#CDFF00]" />
+            </div>
+            <div className="bg-[#1A1A1A] rounded-2xl px-4 py-3 border-l-2 border-[#CDFF00]/30">
+              <div className="flex gap-1">
+                <span className="w-2 h-2 bg-[#CDFF00] rounded-full animate-bounce" />
+                <span
+                  className="w-2 h-2 bg-[#CDFF00] rounded-full animate-bounce"
+                  style={{ animationDelay: "0.15s" }}
+                />
+                <span
+                  className="w-2 h-2 bg-[#CDFF00] rounded-full animate-bounce"
+                  style={{ animationDelay: "0.3s" }}
+                />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Quick actions inline after a few messages */}
+        {messages.length > 2 && !sending && (
+          <QuickActions onSelect={sendMessage} disabled={sending} />
+        )}
+
+        <div ref={messagesEndRef} />
+      </div>
+
+      {/* Input bar */}
+      <div className="fixed bottom-0 left-0 right-0 bg-[#0A0A0A]/95 backdrop-blur-sm border-t border-[#2A2A2A] p-3 pb-safe-bottom">
+        <form onSubmit={handleSubmit} className="flex items-center gap-2 max-w-lg mx-auto">
+          <input
+            ref={inputRef}
+            type="text"
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            placeholder="Ask your AI coach..."
+            disabled={sending}
+            className="flex-1 h-11 bg-[#1A1A1A] border border-[#2A2A2A] rounded-full px-4 text-sm text-white placeholder-[#666666] focus:outline-none focus:border-[#CDFF00]/50 disabled:opacity-50"
+          />
+          <Button
+            type="submit"
+            disabled={!inputValue.trim() || sending}
+            className="w-11 h-11 rounded-full bg-[#CDFF00] text-black hover:bg-[#b8e600] disabled:opacity-50 p-0"
+          >
+            {sending ? (
+              <Loader2 className="w-5 h-5 animate-spin" />
+            ) : (
+              <Send className="w-5 h-5" />
+            )}
+          </Button>
+        </form>
+      </div>
+    </div>
+  );
+}

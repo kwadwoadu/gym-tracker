@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Camera, X, Play, Square, AlertCircle } from "lucide-react";
+import { Camera, X, Square, AlertCircle } from "lucide-react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import type { FormRule } from "@/data/form-rules";

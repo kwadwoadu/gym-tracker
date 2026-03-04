@@ -1,0 +1,35 @@
+"use client";
+
+import { motion } from "framer-motion";
+
+const QUICK_ACTIONS = [
+  "Should I train today?",
+  "Analyze my week",
+  "Why am I stalling?",
+  "What should I change?",
+  "When will I hit my next PR?",
+  "Suggest a deload",
+];
+
+interface QuickActionsProps {
+  onSelect: (action: string) => void;
+  disabled?: boolean;
+}
+
+export function QuickActions({ onSelect, disabled }: QuickActionsProps) {
+  return (
+    <div className="flex flex-wrap gap-2">
+      {QUICK_ACTIONS.map((action) => (
+        <motion.button
+          key={action}
+          whileTap={{ scale: 0.95 }}
+          onClick={() => onSelect(action)}
+          disabled={disabled}
+          className="px-3 py-1.5 rounded-full border border-[#CDFF00]/30 text-xs text-[#CDFF00] hover:bg-[#CDFF00]/10 transition-colors disabled:opacity-50"
+        >
+          {action}
+        </motion.button>
+      ))}
+    </div>
+  );
+}
