@@ -2,21 +2,16 @@ import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/prisma";
 import webpush from "web-push";
+import { ensureVapidConfigured } from "@/lib/web-push-config";
 
-// Configure VAPID keys
-const VAPID_PUBLIC_KEY = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
-const VAPID_PRIVATE_KEY = process.env.VAPID_PRIVATE_KEY;
-const VAPID_CONTACT = "mailto:k@adu.dk";
-
-if (VAPID_PUBLIC_KEY && VAPID_PRIVATE_KEY) {
-  webpush.setVapidDetails(VAPID_CONTACT, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY);
-}
+const VALID_TYPES = ["training_reminder", "streak_protection", "weekly_digest"] as const;
+type NotificationType = (typeof VALID_TYPES)[number];
 
 interface ScheduleRequest {
-  type: "training_reminder" | "streak_protection" | "weekly_digest";
+  type: NotificationType;
   title: string;
   body: string;
-  scheduledFor?: string; // ISO timestamp
+  scheduledFor?: string;
 }
 
 export async function POST(req: Request) {
@@ -27,7 +22,20 @@ export async function POST(req: Request) {
 
   const { type, title, body } = (await req.json()) as ScheduleRequest;
 
-  // Get user's push subscriptions
+  if (!type || !VALID_TYPES.includes(type)) {
+    return NextResponse.json(
+      { error: `Invalid type. Must be one of: ${VALID_TYPES.join(", ")}` },
+      { status: 400 }
+    );
+  }
+
+  if (!title || !body) {
+    return NextResponse.json(
+      { error: "Missing required fields: title, body" },
+      { status: 400 }
+    );
+  }
+
   const subscriptions = await prisma.pushSubscription.findMany({
     where: { userId },
   });
@@ -39,7 +47,8 @@ export async function POST(req: Request) {
     );
   }
 
-  // Send push notification to each subscription
+  const vapidReady = ensureVapidConfigured();
+
   const results = await Promise.allSettled(
     subscriptions.map(async (sub) => {
       const pushPayload = JSON.stringify({
@@ -51,7 +60,7 @@ export async function POST(req: Request) {
         data: { url: "/" },
       });
 
-      if (VAPID_PUBLIC_KEY && VAPID_PRIVATE_KEY) {
+      if (vapidReady) {
         try {
           await webpush.sendNotification(
             {
@@ -65,11 +74,8 @@ export async function POST(req: Request) {
           );
           return { endpoint: sub.endpoint, sent: true };
         } catch (error) {
-          // Remove expired subscriptions
           const webPushErr = error as { statusCode?: number };
-          if (
-            webPushErr.statusCode === 410
-          ) {
+          if (webPushErr.statusCode === 410) {
             await prisma.pushSubscription.delete({ where: { id: sub.id } });
             return { endpoint: sub.endpoint, sent: false, expired: true };
           }
@@ -77,7 +83,6 @@ export async function POST(req: Request) {
         }
       }
 
-      // Fallback: return payload for client-side scheduling
       return { endpoint: sub.endpoint, payload: pushPayload };
     })
   );
@@ -93,13 +98,12 @@ export async function POST(req: Request) {
   });
 }
 
-export async function GET(req: Request) {
+export async function GET() {
   const { userId } = await auth();
   if (!userId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  // Return user's notification subscription status
   const count = await prisma.pushSubscription.count({
     where: { userId },
   });

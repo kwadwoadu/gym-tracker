@@ -1,14 +1,7 @@
 import { NextResponse } from "next/server";
+import { auth } from "@clerk/nextjs/server";
 import webpush from "web-push";
-
-// Configure VAPID keys
-const VAPID_PUBLIC_KEY = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
-const VAPID_PRIVATE_KEY = process.env.VAPID_PRIVATE_KEY;
-const VAPID_CONTACT = "mailto:k@adu.dk";
-
-if (VAPID_PUBLIC_KEY && VAPID_PRIVATE_KEY) {
-  webpush.setVapidDetails(VAPID_CONTACT, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY);
-}
+import { ensureVapidConfigured } from "@/lib/web-push-config";
 
 interface SendRequest {
   subscription: {
@@ -24,7 +17,12 @@ interface SendRequest {
 }
 
 export async function POST(req: Request) {
-  if (!VAPID_PUBLIC_KEY || !VAPID_PRIVATE_KEY) {
+  const { userId } = await auth();
+  if (!userId) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  if (!ensureVapidConfigured()) {
     return NextResponse.json(
       { error: "VAPID keys not configured" },
       { status: 500 }
@@ -38,6 +36,19 @@ export async function POST(req: Request) {
     if (!subscription || !title || !body) {
       return NextResponse.json(
         { error: "Missing required fields: subscription, title, body" },
+        { status: 400 }
+      );
+    }
+
+    // Validate subscription structure
+    if (
+      !subscription.endpoint ||
+      typeof subscription.endpoint !== "string" ||
+      !subscription.keys?.p256dh ||
+      !subscription.keys?.auth
+    ) {
+      return NextResponse.json(
+        { error: "Invalid subscription: endpoint and keys (p256dh, auth) required" },
         { status: 400 }
       );
     }
@@ -56,7 +67,6 @@ export async function POST(req: Request) {
   } catch (error) {
     console.error("Push notification send error:", error);
 
-    // Handle expired/invalid subscriptions
     const webPushErr = error as { statusCode?: number };
     if (webPushErr.statusCode === 410) {
       return NextResponse.json(

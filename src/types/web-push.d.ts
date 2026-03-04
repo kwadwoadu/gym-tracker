@@ -30,10 +30,11 @@ declare module "web-push" {
     options?: Record<string, unknown>
   ): Promise<SendResult>;
 
-  export default {
-    setVapidDetails,
-    sendNotification,
+  const webpush: {
+    setVapidDetails: typeof setVapidDetails;
+    sendNotification: typeof sendNotification;
   };
 
+  export default webpush;
   export { setVapidDetails, sendNotification, PushSubscription, SendResult, WebPushError };
 }

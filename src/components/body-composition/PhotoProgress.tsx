@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef, useMemo } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Camera, ChevronLeft, ChevronRight, Trash2, ImageIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { HEADING, LABEL } from "@/lib/typography";
@@ -38,8 +38,7 @@ export function PhotoProgress() {
     loadPhotos();
   }, [loadPhotos]);
 
-  // Filter photos for selected pose
-  const posePhotos = useMemo(() => photos, [photos]);
+  const posePhotos = photos;
 
   const handleCapture = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
