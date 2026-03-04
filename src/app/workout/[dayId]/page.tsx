@@ -159,7 +159,7 @@ const getDeviceId = (): string => {
 export default function WorkoutSession() {
   const params = useParams();
   const router = useRouter();
-  const dayId = params.dayId as string;
+  const dayId = params?.dayId as string;
 
   const [isLoading, setIsLoading] = useState(true);
   const [trainingDay, setTrainingDay] = useState<TrainingDay | null>(null);

@@ -25,7 +25,7 @@ export default function PublicProfilePage() {
   const params = useParams();
   const router = useRouter();
   const queryClient = useQueryClient();
-  const userId = params.userId as string;
+  const userId = params?.userId as string;
 
   // Fetch public profile
   const { data: profile, isLoading: profileLoading } = useQuery({

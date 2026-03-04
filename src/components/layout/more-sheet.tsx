@@ -97,7 +97,7 @@ export function MoreSheet({ open, onOpenChange }: MoreSheetProps) {
           <div className="space-y-1">
             {allItems.map((item) => {
               const isActive = pathname === item.href ||
-                pathname.startsWith(item.href + "/");
+                pathname?.startsWith(item.href + "/");
 
               return (
                 <button

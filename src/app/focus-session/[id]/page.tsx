@@ -50,7 +50,7 @@ export default function ActiveFocusSessionPage() {
   const params = useParams();
   const router = useRouter();
   const queryClient = useQueryClient();
-  const sessionId = params.id as string;
+  const sessionId = params?.id as string;
 
   const [currentExerciseIndex, setCurrentExerciseIndex] = useState(0);
   const [sets, setSets] = useState<SetEntry[]>([]);

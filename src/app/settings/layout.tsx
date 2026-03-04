@@ -38,7 +38,7 @@ export default function SettingsLayout({ children }: { children: React.ReactNode
         <div className="flex items-center gap-1 bg-[#111111] rounded-lg p-1">
           {SETTINGS_TABS.map((tab) => {
             const isActive = pathname === tab.href ||
-              (tab.href !== "/settings" && pathname.startsWith(tab.href));
+              (tab.href !== "/settings" && pathname?.startsWith(tab.href));
             const Icon = tab.icon;
             return (
               <button

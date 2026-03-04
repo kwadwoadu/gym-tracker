@@ -59,7 +59,7 @@ export default function ExerciseEditorPage() {
   const router = useRouter();
   const params = useParams();
   const queryClient = useQueryClient();
-  const id = params.id as string;
+  const id = params?.id as string;
   const isNew = id === "new";
 
   // Fetch exercise data (only if editing existing)

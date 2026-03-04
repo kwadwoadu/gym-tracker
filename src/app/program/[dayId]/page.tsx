@@ -186,7 +186,7 @@ function ExerciseSelector({
 export default function DayEditorPage() {
   const router = useRouter();
   const params = useParams();
-  const dayId = params.dayId as string;
+  const dayId = params?.dayId as string;
 
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);

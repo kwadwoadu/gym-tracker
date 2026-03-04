@@ -27,7 +27,7 @@ export function BottomTabBar() {
 
   // Check if current route is in "More" menu items
   const isMoreActive = ["/exercises", "/nutrition", "/settings", "/timer", "/form-library", "/body", "/trainer"].some(
-    (route) => pathname === route || pathname.startsWith(route + "/")
+    (route) => pathname === route || pathname?.startsWith(route + "/")
   );
 
   // Calculate active tab index for sliding indicator
@@ -35,7 +35,7 @@ export function BottomTabBar() {
     const idx = tabs.findIndex(
       (tab) =>
         pathname === tab.href ||
-        (tab.href !== "/" && pathname.startsWith(tab.href + "/"))
+        (tab.href !== "/" && pathname?.startsWith(tab.href + "/"))
     );
     if (idx >= 0) return idx;
     if (isMoreActive) return tabs.length; // "More" tab
@@ -65,7 +65,7 @@ export function BottomTabBar() {
           />
           {tabs.map((tab) => {
             const isActive = pathname === tab.href ||
-              (tab.href !== "/" && pathname.startsWith(tab.href + "/"));
+              (tab.href !== "/" && pathname?.startsWith(tab.href + "/"));
 
             return (
               <button

@@ -27,10 +27,10 @@ export function DesktopLayout({ children }: DesktopLayoutProps) {
   const { isSignedIn, isLoaded } = useUser();
 
   // Don't show navigation on excluded routes
-  const isExcludedRoute = excludedRoutes.some((route) => pathname.startsWith(route));
+  const isExcludedRoute = excludedRoutes.some((route) => pathname?.startsWith(route));
 
   // Check if on landing page (for non-signed in users)
-  const isLandingPage = landingRoutes.includes(pathname) && !isSignedIn;
+  const isLandingPage = landingRoutes.includes(pathname ?? "") && !isSignedIn;
 
   // Don't show navigation if not signed in or on excluded routes
   if (!isLoaded || isExcludedRoute || isLandingPage) {
