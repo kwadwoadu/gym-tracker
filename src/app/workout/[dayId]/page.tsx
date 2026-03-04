@@ -1918,6 +1918,16 @@ export default function WorkoutSession() {
         set={editingSet}
         onSave={handleSaveEditedSet}
       />
+
+      {/* Notification Prompt - shown after 3rd completed workout */}
+      <NotificationPrompt
+        open={showNotificationPrompt}
+        onClose={() => setShowNotificationPrompt(false)}
+        onEnable={async () => {
+          await subscribeToPush();
+          setShowNotificationPrompt(false);
+        }}
+      />
     </div>
   );
 }

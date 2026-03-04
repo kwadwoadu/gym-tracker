@@ -1,6 +1,16 @@
 import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/prisma";
+import webpush from "web-push";
+
+// Configure VAPID keys
+const VAPID_PUBLIC_KEY = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
+const VAPID_PRIVATE_KEY = process.env.VAPID_PRIVATE_KEY;
+const VAPID_CONTACT = "mailto:k@adu.dk";
+
+if (VAPID_PUBLIC_KEY && VAPID_PRIVATE_KEY) {
+  webpush.setVapidDetails(VAPID_CONTACT, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY);
+}
 
 interface ScheduleRequest {
   type: "training_reminder" | "streak_protection" | "weekly_digest";
@@ -29,8 +39,7 @@ export async function POST(req: Request) {
     );
   }
 
-  // For now, send immediately via web-push (VAPID keys required)
-  // In production, this would integrate with a job queue for scheduled sends
+  // Send push notification to each subscription
   const results = await Promise.allSettled(
     subscriptions.map(async (sub) => {
       const pushPayload = JSON.stringify({
@@ -42,15 +51,45 @@ export async function POST(req: Request) {
         data: { url: "/" },
       });
 
-      // Use web-push library if available, otherwise store for polling
-      // For MVP, we return the payload for client-side scheduling
+      if (VAPID_PUBLIC_KEY && VAPID_PRIVATE_KEY) {
+        try {
+          await webpush.sendNotification(
+            {
+              endpoint: sub.endpoint,
+              keys: {
+                p256dh: sub.p256dh,
+                auth: sub.auth,
+              },
+            },
+            pushPayload
+          );
+          return { endpoint: sub.endpoint, sent: true };
+        } catch (error) {
+          // Remove expired subscriptions
+          if (
+            error instanceof webpush.WebPushError &&
+            error.statusCode === 410
+          ) {
+            await prisma.pushSubscription.delete({ where: { id: sub.id } });
+            return { endpoint: sub.endpoint, sent: false, expired: true };
+          }
+          throw error;
+        }
+      }
+
+      // Fallback: return payload for client-side scheduling
       return { endpoint: sub.endpoint, payload: pushPayload };
     })
   );
 
+  const sent = results.filter(
+    (r) => r.status === "fulfilled" && (r.value as { sent?: boolean }).sent
+  ).length;
+
   return NextResponse.json({
     success: true,
-    sent: results.filter((r) => r.status === "fulfilled").length,
+    sent,
+    total: subscriptions.length,
   });
 }
 
