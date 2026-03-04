@@ -1,31 +1,13 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
-import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
-import { Slider } from "@/components/ui/slider";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import {
-  ArrowLeft,
   Loader2,
-  Download,
-  Upload,
-  Trash2,
-  RotateCcw,
   CheckCircle,
   AlertCircle,
   LogOut,
@@ -34,28 +16,11 @@ import {
   Flame,
   Dumbbell,
   Trophy,
-  UtensilsCrossed,
 } from "lucide-react";
 import { useUser, SignOutButton } from "@clerk/nextjs";
 import Image from "next/image";
-import {
-  useSettings,
-  useUpdateSettings,
-  usePrograms,
-  useNutritionProfile,
-  useUpdateNutritionProfile,
-} from "@/lib/queries";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import type { UserSettings, NutritionProfile } from "@/lib/api-client";
 import { userProfileApi, statsApi } from "@/lib/api-client";
-import { exportAllData, downloadExportedData, importData, readFileAsString } from "@/lib/export";
-
-const PROGRESSION_OPTIONS = [
-  { value: 0.5, label: "0.5 kg" },
-  { value: 1.0, label: "1.0 kg" },
-  { value: 1.25, label: "1.25 kg" },
-  { value: 2.5, label: "2.5 kg" },
-];
 
 type ToastType = "success" | "error";
 
@@ -64,12 +29,10 @@ interface Toast {
   type: ToastType;
 }
 
-export default function SettingsPage() {
-  const router = useRouter();
+export default function ProfileSettingsPage() {
   const { user } = useUser();
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const [toast, setToast] = useState<Toast | null>(null);
   const queryClient = useQueryClient();
+  const [toast, setToast] = useState<Toast | null>(null);
 
   // Profile state
   const [displayName, setDisplayName] = useState("");
@@ -79,55 +42,6 @@ export default function SettingsPage() {
   const [shareVolume, setShareVolume] = useState(false);
   const [shareWorkouts, setShareWorkouts] = useState(true);
   const [profileInitialized, setProfileInitialized] = useState(false);
-
-  // React Query hooks
-  const { data: settings, isLoading: settingsLoading } = useSettings();
-  const { data: programs } = usePrograms();
-  const updateSettingsMutation = useUpdateSettings();
-  const { data: nutritionProfile, isLoading: nutritionProfileLoading } = useNutritionProfile();
-  const updateNutritionProfileMutation = useUpdateNutritionProfile();
-
-  // Nutrition fields local state
-  const [nutritionFields, setNutritionFields] = useState<Partial<NutritionProfile>>({});
-
-  // Initialize nutrition fields when profile loads
-  useEffect(() => {
-    if (nutritionProfile) {
-      setNutritionFields({
-        caloriesTrainingDay: nutritionProfile.caloriesTrainingDay,
-        proteinTrainingDay: nutritionProfile.proteinTrainingDay,
-        carbsTrainingDay: nutritionProfile.carbsTrainingDay,
-        fatTrainingDay: nutritionProfile.fatTrainingDay,
-        caloriesRestDay: nutritionProfile.caloriesRestDay,
-        proteinRestDay: nutritionProfile.proteinRestDay,
-        carbsRestDay: nutritionProfile.carbsRestDay,
-        fatRestDay: nutritionProfile.fatRestDay,
-        currentPhase: nutritionProfile.currentPhase,
-        weightGainTarget: nutritionProfile.weightGainTarget,
-        weightCheckIntervalDays: nutritionProfile.weightCheckIntervalDays,
-        calorieStepUp: nutritionProfile.calorieStepUp,
-        calorieStepDown: nutritionProfile.calorieStepDown,
-        gainRateMinPerWeek: nutritionProfile.gainRateMinPerWeek,
-        gainRateMaxPerWeek: nutritionProfile.gainRateMaxPerWeek,
-      });
-    }
-  }, [nutritionProfile]);
-
-  const handleNutritionFieldChange = (field: keyof NutritionProfile, value: number | string) => {
-    setNutritionFields((prev) => ({ ...prev, [field]: value }));
-  };
-
-  const handleNutritionFieldBlur = (field: keyof NutritionProfile) => {
-    const value = nutritionFields[field];
-    if (value !== undefined && value !== nutritionProfile?.[field]) {
-      updateNutritionProfileMutation.mutate({ [field]: value });
-    }
-  };
-
-  const handlePhaseChange = (phase: string) => {
-    setNutritionFields((prev) => ({ ...prev, currentPhase: phase }));
-    updateNutritionProfileMutation.mutate({ currentPhase: phase });
-  };
 
   // Fetch profile
   const { data: profile, isLoading: profileLoading } = useQuery({
@@ -141,7 +55,7 @@ export default function SettingsPage() {
     queryFn: () => statsApi.get(),
   });
 
-  // Update profile mutation - accepts data parameter to avoid stale state issues
+  // Update profile mutation
   const updateProfileMutation = useMutation({
     mutationFn: (data?: Partial<{
       displayName: string | null;
@@ -161,7 +75,7 @@ export default function SettingsPage() {
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["profile"] });
-      showToast("Profile saved successfully!", "success");
+      showToast("Profile saved!", "success");
     },
     onError: () => {
       showToast("Failed to save profile", "error");
@@ -181,11 +95,7 @@ export default function SettingsPage() {
     }
   }, [profile, profileInitialized]);
 
-  // Get active program
-  const activeProgram = programs?.find((p) => p.isActive);
-  const trainingDaysCount = activeProgram?.trainingDays?.length || 0;
-
-  // Auto-hide toast after 3 seconds
+  // Auto-hide toast
   useEffect(() => {
     if (toast) {
       const timer = setTimeout(() => setToast(null), 3000);
@@ -197,122 +107,21 @@ export default function SettingsPage() {
     setToast({ message, type });
   };
 
-  const handleSettingChange = async <K extends keyof UserSettings>(
-    key: K,
-    value: UserSettings[K]
-  ) => {
-    if (!settings) return;
-
-    try {
-      await updateSettingsMutation.mutateAsync({ [key]: value });
-    } catch (error) {
-      console.error("Failed to update setting:", error);
-      showToast("Failed to save setting", "error");
-    }
-  };
-
-  const [isExporting, setIsExporting] = useState(false);
-
-  const handleExport = async () => {
-    try {
-      setIsExporting(true);
-      const data = await exportAllData();
-      downloadExportedData(data);
-      showToast("Data exported successfully!", "success");
-    } catch (error) {
-      console.error("Failed to export data:", error);
-      showToast("Failed to export data", "error");
-    } finally {
-      setIsExporting(false);
-    }
-  };
-
-  const handleImportClick = () => {
-    fileInputRef.current?.click();
-  };
-
-  const [isImporting, setIsImporting] = useState(false);
-
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    try {
-      setIsImporting(true);
-      const jsonString = await readFileAsString(file);
-      await importData(jsonString);
-      showToast("Data imported successfully! Refreshing...", "success");
-      // Refresh to show new data
-      setTimeout(() => window.location.reload(), 1500);
-    } catch (error) {
-      console.error("Failed to import data:", error);
-      showToast(
-        error instanceof Error ? error.message : "Failed to import data",
-        "error"
-      );
-      setIsImporting(false);
-    }
-
-    // Reset file input
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
-  };
-
-  const handleClearLogs = async () => {
-    try {
-      // TODO: Implement via API
-      showToast("Clear logs feature coming soon", "success");
-    } catch (error) {
-      console.error("Failed to clear logs:", error);
-      showToast("Failed to clear logs", "error");
-    }
-  };
-
-  const [isResetting, setIsResetting] = useState(false);
-
-  const handleReset = async () => {
-    try {
-      setIsResetting(true);
-      const response = await fetch("/api/reset", {
-        method: "POST",
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || "Failed to reset");
-      }
-
-      showToast("Reset to default program successfully!", "success");
-      // Refresh the page to show new data
-      window.location.reload();
-    } catch (error) {
-      console.error("Failed to reset:", error);
-      showToast(error instanceof Error ? error.message : "Failed to reset", "error");
-      setIsResetting(false);
-    }
-  };
-
-  if (settingsLoading || profileLoading || !settings) {
+  if (profileLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center space-y-4">
-          <Loader2 className="w-8 h-8 animate-spin mx-auto text-primary" />
-          <p className="text-muted-foreground">Loading settings...</p>
-        </div>
+      <div className="flex items-center justify-center py-16">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen pb-8">
-      {/* Toast Notification */}
+    <div className="p-4 space-y-6">
+      {/* Toast */}
       {toast && (
         <div
           className={`fixed top-4 left-4 right-4 z-50 p-4 rounded-lg flex items-center gap-3 shadow-lg ${
-            toast.type === "success"
-              ? "bg-green-600 text-white"
-              : "bg-red-600 text-white"
+            toast.type === "success" ? "bg-green-600 text-white" : "bg-red-600 text-white"
           }`}
         >
           {toast.type === "success" ? (
@@ -324,738 +133,171 @@ export default function SettingsPage() {
         </div>
       )}
 
-      {/* Header */}
-      <header className="px-4 pt-safe-top pb-4 border-b border-border sticky top-0 bg-background/95 backdrop-blur-sm z-10">
+      <h2 className="text-[28px] font-bold tracking-tight text-white">Profile</h2>
+
+      {/* Account Card */}
+      <Card className="bg-[#1A1A1A] border-[#2A2A2A] p-4">
         <div className="flex items-center gap-3">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => router.push("/")}
-            className="shrink-0"
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </Button>
-          <div>
-            <h1 className="text-xl font-bold text-foreground">Settings</h1>
-            <p className="text-sm text-muted-foreground">
-              Preferences & data management
+          {user?.imageUrl && (
+            <Image
+              src={user.imageUrl}
+              alt={user.fullName || "User"}
+              width={48}
+              height={48}
+              className="w-12 h-12 rounded-full"
+            />
+          )}
+          <div className="flex-1 min-w-0">
+            <p className="font-medium text-foreground truncate">
+              {user?.fullName || "User"}
+            </p>
+            <p className="text-sm text-muted-foreground truncate">
+              {user?.primaryEmailAddress?.emailAddress}
             </p>
           </div>
         </div>
-      </header>
 
-      <div className="p-4 space-y-6">
-        {/* Account Section */}
-        <Card className="bg-card border-border p-4">
-          <div className="flex items-center gap-3">
-            {user?.imageUrl && (
-              <Image
-                src={user.imageUrl}
-                alt={user.fullName || "User"}
-                width={48}
-                height={48}
-                className="w-12 h-12 rounded-full"
+        {stats && (
+          <div className="flex justify-around mt-4 pt-4 border-t border-[#2A2A2A]">
+            <div className="flex flex-col items-center">
+              <div className="flex items-center gap-1.5 text-orange-500">
+                <Flame className="w-4 h-4" />
+                <span className="text-lg font-bold">{stats.currentStreak}</span>
+              </div>
+              <span className="text-xs text-muted-foreground">Streak</span>
+            </div>
+            <div className="flex flex-col items-center">
+              <div className="flex items-center gap-1.5 text-primary">
+                <Dumbbell className="w-4 h-4" />
+                <span className="text-lg font-bold">{stats.totalWorkouts}</span>
+              </div>
+              <span className="text-xs text-muted-foreground">Workouts</span>
+            </div>
+            <div className="flex flex-col items-center">
+              <div className="flex items-center gap-1.5 text-yellow-500">
+                <Trophy className="w-4 h-4" />
+                <span className="text-lg font-bold">{stats.personalRecordsCount}</span>
+              </div>
+              <span className="text-xs text-muted-foreground">PRs</span>
+            </div>
+          </div>
+        )}
+
+        <SignOutButton>
+          <Button variant="ghost" className="w-full mt-4 text-muted-foreground">
+            <LogOut className="w-4 h-4 mr-2" />
+            Sign Out
+          </Button>
+        </SignOutButton>
+      </Card>
+
+      {/* Profile Info */}
+      <Card className="bg-[#1A1A1A] border-[#2A2A2A]">
+        <CardHeader className="pb-4">
+          <CardTitle className="text-lg flex items-center gap-2">
+            <User className="w-5 h-5" />
+            Profile
+          </CardTitle>
+          <CardDescription>Your community profile information</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="displayName">Display Name</Label>
+            <Input
+              id="displayName"
+              placeholder="Enter your display name"
+              value={displayName}
+              onChange={(e) => setDisplayName(e.target.value)}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="handle">Handle</Label>
+            <div className="relative">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">@</span>
+              <Input
+                id="handle"
+                placeholder="yourhandle"
+                value={handle}
+                onChange={(e) => setHandle(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ""))}
+                className="pl-7"
               />
-            )}
-            <div className="flex-1 min-w-0">
-              <p className="font-medium text-foreground truncate">
-                {user?.fullName || "User"}
-              </p>
-              <p className="text-sm text-muted-foreground truncate">
-                {user?.primaryEmailAddress?.emailAddress}
-              </p>
             </div>
           </div>
 
-          {/* Stats badges */}
-          {stats && (
-            <div className="flex justify-around mt-4 pt-4 border-t border-border">
-              <div className="flex flex-col items-center">
-                <div className="flex items-center gap-1.5 text-orange-500">
-                  <Flame className="w-4 h-4" />
-                  <span className="text-lg font-bold">{stats.currentStreak}</span>
-                </div>
-                <span className="text-xs text-muted-foreground">Day Streak</span>
-              </div>
-              <div className="flex flex-col items-center">
-                <div className="flex items-center gap-1.5 text-primary">
-                  <Dumbbell className="w-4 h-4" />
-                  <span className="text-lg font-bold">{stats.totalWorkouts}</span>
-                </div>
-                <span className="text-xs text-muted-foreground">Workouts</span>
-              </div>
-              <div className="flex flex-col items-center">
-                <div className="flex items-center gap-1.5 text-yellow-500">
-                  <Trophy className="w-4 h-4" />
-                  <span className="text-lg font-bold">{stats.personalRecordsCount}</span>
-                </div>
-                <span className="text-xs text-muted-foreground">PRs</span>
-              </div>
-            </div>
-          )}
-
-          <SignOutButton>
-            <Button variant="ghost" className="w-full mt-4 text-muted-foreground">
-              <LogOut className="w-4 h-4 mr-2" />
-              Sign Out
-            </Button>
-          </SignOutButton>
-        </Card>
-
-        {/* Profile Section */}
-        <Card className="bg-card border-border">
-          <CardHeader className="pb-4">
-            <CardTitle className="text-lg flex items-center gap-2">
-              <User className="w-5 h-5" />
-              Profile
-            </CardTitle>
-            <CardDescription>Your community profile information</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="displayName">Display Name</Label>
-              <Input
-                id="displayName"
-                placeholder="Enter your display name"
-                value={displayName}
-                onChange={(e) => setDisplayName(e.target.value)}
-              />
-              <p className="text-xs text-muted-foreground">
-                This is how others will see you in the community
-              </p>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="handle">Handle</Label>
-              <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">@</span>
-                <Input
-                  id="handle"
-                  placeholder="yourhandle"
-                  value={handle}
-                  onChange={(e) => setHandle(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ""))}
-                  className="pl-7"
-                />
-              </div>
-              <p className="text-xs text-muted-foreground">
-                Your unique username (letters, numbers, underscores only)
-              </p>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="bio">Bio</Label>
-              <Input
-                id="bio"
-                placeholder="Tell others about yourself"
-                value={bio}
-                onChange={(e) => setBio(e.target.value)}
-              />
-            </div>
-
-            <Button
-              onClick={() => updateProfileMutation.mutate({})}
-              disabled={updateProfileMutation.isPending}
-              className="w-full"
-            >
-              {updateProfileMutation.isPending ? (
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-              ) : (
-                <Save className="w-4 h-4 mr-2" />
-              )}
-              Save Profile
-            </Button>
-          </CardContent>
-        </Card>
-
-        {/* Privacy Section */}
-        <Card className="bg-card border-border">
-          <CardHeader className="pb-4">
-            <CardTitle className="text-lg">Privacy</CardTitle>
-            <CardDescription>Choose what to share with your followers</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="font-medium text-foreground">Share Streak</p>
-                <p className="text-sm text-muted-foreground">
-                  Show your workout streak to followers
-                </p>
-              </div>
-              <Switch
-                checked={shareStreak}
-                onCheckedChange={(checked) => {
-                  setShareStreak(checked);
-                  updateProfileMutation.mutate({ shareStreak: checked });
-                }}
-              />
-            </div>
-
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="font-medium text-foreground">Share Volume</p>
-                <p className="text-sm text-muted-foreground">
-                  Show your total workout volume
-                </p>
-              </div>
-              <Switch
-                checked={shareVolume}
-                onCheckedChange={(checked) => {
-                  setShareVolume(checked);
-                  updateProfileMutation.mutate({ shareVolume: checked });
-                }}
-              />
-            </div>
-
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="font-medium text-foreground">Share Workouts</p>
-                <p className="text-sm text-muted-foreground">
-                  Show workout activity to followers
-                </p>
-              </div>
-              <Switch
-                checked={shareWorkouts}
-                onCheckedChange={(checked) => {
-                  setShareWorkouts(checked);
-                  updateProfileMutation.mutate({ shareWorkouts: checked });
-                }}
-              />
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Preferences Section */}
-        <Card className="bg-card border-border">
-          <CardHeader className="pb-4">
-            <CardTitle className="text-lg">Preferences</CardTitle>
-            <CardDescription>Customize your workout experience</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            {/* Weight Unit */}
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="font-medium text-foreground">Weight Unit</p>
-                <p className="text-sm text-muted-foreground">
-                  {settings.weightUnit === "kg" ? "Kilograms" : "Pounds"}
-                </p>
-              </div>
-              <div className="flex items-center gap-2 bg-muted/50 rounded-lg p-1">
-                <button
-                  className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
-                    settings.weightUnit === "kg"
-                      ? "bg-primary text-primary-foreground"
-                      : "text-muted-foreground hover:text-foreground"
-                  }`}
-                  onClick={() => handleSettingChange("weightUnit", "kg")}
-                >
-                  kg
-                </button>
-                <button
-                  className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
-                    settings.weightUnit === "lbs"
-                      ? "bg-primary text-primary-foreground"
-                      : "text-muted-foreground hover:text-foreground"
-                  }`}
-                  onClick={() => handleSettingChange("weightUnit", "lbs")}
-                >
-                  lbs
-                </button>
-              </div>
-            </div>
-
-            {/* Default Rest Timer */}
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium text-foreground">Default Rest Timer</p>
-                  <p className="text-sm text-muted-foreground">
-                    Rest between sets
-                  </p>
-                </div>
-                <span className="text-lg font-semibold text-primary">
-                  {settings.defaultRestSeconds}s
-                </span>
-              </div>
-              <Slider
-                value={[settings.defaultRestSeconds]}
-                onValueChange={([value]) =>
-                  handleSettingChange("defaultRestSeconds", value)
-                }
-                min={30}
-                max={180}
-                step={15}
-                className="w-full"
-              />
-              <div className="flex justify-between text-xs text-muted-foreground">
-                <span>30s</span>
-                <span>180s</span>
-              </div>
-            </div>
-
-            {/* Progression Increment */}
-            <div className="space-y-3">
-              <div>
-                <p className="font-medium text-foreground">Progression Increment</p>
-                <p className="text-sm text-muted-foreground">
-                  Weight increase suggestion
-                </p>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {PROGRESSION_OPTIONS.map((option) => (
-                  <button
-                    key={option.value}
-                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                      settings.progressionIncrement === option.value
-                        ? "bg-primary text-primary-foreground"
-                        : "bg-muted/50 text-muted-foreground hover:text-foreground hover:bg-muted"
-                    }`}
-                    onClick={() =>
-                      handleSettingChange("progressionIncrement", option.value)
-                    }
-                  >
-                    {option.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Auto Progress */}
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="font-medium text-foreground">Auto-Progress Weight</p>
-                <p className="text-sm text-muted-foreground">
-                  Suggest higher weight when targets are hit
-                </p>
-              </div>
-              <Switch
-                checked={settings.autoProgressWeight}
-                onCheckedChange={(checked) =>
-                  handleSettingChange("autoProgressWeight", checked)
-                }
-              />
-            </div>
-
-            {/* Sound Enabled */}
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="font-medium text-foreground">Sound Effects</p>
-                <p className="text-sm text-muted-foreground">
-                  Timer and completion sounds
-                </p>
-              </div>
-              <Switch
-                checked={settings.soundEnabled}
-                onCheckedChange={(checked) =>
-                  handleSettingChange("soundEnabled", checked)
-                }
-              />
-            </div>
-
-            {/* Auto-Start Rest Timer */}
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="font-medium text-foreground">Auto-Start Rest Timer</p>
-                <p className="text-sm text-muted-foreground">
-                  Start timer automatically after logging a set
-                </p>
-              </div>
-              <Switch
-                checked={settings.autoStartRestTimer ?? true}
-                onCheckedChange={(checked) =>
-                  handleSettingChange("autoStartRestTimer", checked)
-                }
-              />
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Training Program Section */}
-        <Card className="bg-card border-border">
-          <CardHeader className="pb-4">
-            <CardTitle className="text-lg">Training Program</CardTitle>
-            <CardDescription>Your current workout program</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {activeProgram ? (
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-medium text-foreground">{activeProgram.name}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {trainingDaysCount} training {trainingDaysCount === 1 ? "day" : "days"} per week
-                    </p>
-                  </div>
-                </div>
-                <Button
-                  variant="outline"
-                  className="w-full h-12"
-                  onClick={() => router.push("/programs")}
-                >
-                  My Programs
-                </Button>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                <p className="text-sm text-muted-foreground">No program selected</p>
-                <Button
-                  className="w-full h-12"
-                  onClick={() => router.push("/programs")}
-                >
-                  Browse Programs
-                </Button>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Nutrition Targets Section */}
-        <Card className="bg-card border-border">
-          <CardHeader className="pb-4">
-            <CardTitle className="text-lg flex items-center gap-2">
-              <UtensilsCrossed className="w-5 h-5" />
-              Nutrition Targets
-            </CardTitle>
-            <CardDescription>Configure your macro targets and adjustment rules</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            {nutritionProfileLoading ? (
-              <div className="flex items-center justify-center py-8">
-                <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
-              </div>
-            ) : (
-              <>
-                {/* Training Day Targets */}
-                <div className="space-y-3">
-                  <p className="font-medium text-foreground">Training Day Targets</p>
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="space-y-1.5">
-                      <Label htmlFor="nt-cal-training">Calories</Label>
-                      <Input
-                        id="nt-cal-training"
-                        type="number"
-                        value={nutritionFields.caloriesTrainingDay ?? ''}
-                        onChange={(e) => handleNutritionFieldChange('caloriesTrainingDay', Number(e.target.value))}
-                        onBlur={() => handleNutritionFieldBlur('caloriesTrainingDay')}
-                      />
-                    </div>
-                    <div className="space-y-1.5">
-                      <Label htmlFor="nt-protein-training">Protein (g)</Label>
-                      <Input
-                        id="nt-protein-training"
-                        type="number"
-                        value={nutritionFields.proteinTrainingDay ?? ''}
-                        onChange={(e) => handleNutritionFieldChange('proteinTrainingDay', Number(e.target.value))}
-                        onBlur={() => handleNutritionFieldBlur('proteinTrainingDay')}
-                      />
-                    </div>
-                    <div className="space-y-1.5">
-                      <Label htmlFor="nt-carbs-training">Carbs (g)</Label>
-                      <Input
-                        id="nt-carbs-training"
-                        type="number"
-                        value={nutritionFields.carbsTrainingDay ?? ''}
-                        onChange={(e) => handleNutritionFieldChange('carbsTrainingDay', Number(e.target.value))}
-                        onBlur={() => handleNutritionFieldBlur('carbsTrainingDay')}
-                      />
-                    </div>
-                    <div className="space-y-1.5">
-                      <Label htmlFor="nt-fat-training">Fat (g)</Label>
-                      <Input
-                        id="nt-fat-training"
-                        type="number"
-                        value={nutritionFields.fatTrainingDay ?? ''}
-                        onChange={(e) => handleNutritionFieldChange('fatTrainingDay', Number(e.target.value))}
-                        onBlur={() => handleNutritionFieldBlur('fatTrainingDay')}
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Rest Day Targets */}
-                <div className="space-y-3">
-                  <p className="font-medium text-foreground">Rest Day Targets</p>
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="space-y-1.5">
-                      <Label htmlFor="nt-cal-rest">Calories</Label>
-                      <Input
-                        id="nt-cal-rest"
-                        type="number"
-                        value={nutritionFields.caloriesRestDay ?? ''}
-                        onChange={(e) => handleNutritionFieldChange('caloriesRestDay', Number(e.target.value))}
-                        onBlur={() => handleNutritionFieldBlur('caloriesRestDay')}
-                      />
-                    </div>
-                    <div className="space-y-1.5">
-                      <Label htmlFor="nt-protein-rest">Protein (g)</Label>
-                      <Input
-                        id="nt-protein-rest"
-                        type="number"
-                        value={nutritionFields.proteinRestDay ?? ''}
-                        onChange={(e) => handleNutritionFieldChange('proteinRestDay', Number(e.target.value))}
-                        onBlur={() => handleNutritionFieldBlur('proteinRestDay')}
-                      />
-                    </div>
-                    <div className="space-y-1.5">
-                      <Label htmlFor="nt-carbs-rest">Carbs (g)</Label>
-                      <Input
-                        id="nt-carbs-rest"
-                        type="number"
-                        value={nutritionFields.carbsRestDay ?? ''}
-                        onChange={(e) => handleNutritionFieldChange('carbsRestDay', Number(e.target.value))}
-                        onBlur={() => handleNutritionFieldBlur('carbsRestDay')}
-                      />
-                    </div>
-                    <div className="space-y-1.5">
-                      <Label htmlFor="nt-fat-rest">Fat (g)</Label>
-                      <Input
-                        id="nt-fat-rest"
-                        type="number"
-                        value={nutritionFields.fatRestDay ?? ''}
-                        onChange={(e) => handleNutritionFieldChange('fatRestDay', Number(e.target.value))}
-                        onBlur={() => handleNutritionFieldBlur('fatRestDay')}
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Weight Management */}
-                <div className="space-y-3">
-                  <p className="font-medium text-foreground">Weight Management</p>
-
-                  {/* Current Phase */}
-                  <div className="space-y-1.5">
-                    <Label>Current Phase</Label>
-                    <div className="flex items-center gap-2 bg-muted/50 rounded-lg p-1">
-                      {(["bulk", "cut", "maintain"] as const).map((phase) => (
-                        <button
-                          key={phase}
-                          className={`flex-1 px-3 py-1.5 rounded-md text-sm font-medium transition-colors capitalize ${
-                            nutritionFields.currentPhase === phase
-                              ? "bg-primary text-primary-foreground"
-                              : "text-muted-foreground hover:text-foreground"
-                          }`}
-                          onClick={() => handlePhaseChange(phase)}
-                        >
-                          {phase}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="space-y-1.5">
-                      <Label htmlFor="nt-weight-gain">Weight Gain Target (kg/week)</Label>
-                      <Input
-                        id="nt-weight-gain"
-                        type="number"
-                        step={0.1}
-                        value={nutritionFields.weightGainTarget ?? ''}
-                        onChange={(e) => handleNutritionFieldChange('weightGainTarget', Number(e.target.value))}
-                        onBlur={() => handleNutritionFieldBlur('weightGainTarget')}
-                      />
-                    </div>
-                    <div className="space-y-1.5">
-                      <Label htmlFor="nt-check-interval">Check Interval (days)</Label>
-                      <Input
-                        id="nt-check-interval"
-                        type="number"
-                        value={nutritionFields.weightCheckIntervalDays ?? ''}
-                        onChange={(e) => handleNutritionFieldChange('weightCheckIntervalDays', Number(e.target.value))}
-                        onBlur={() => handleNutritionFieldBlur('weightCheckIntervalDays')}
-                      />
-                    </div>
-                    <div className="space-y-1.5">
-                      <Label htmlFor="nt-step-up">Calorie Step Up (kcal)</Label>
-                      <Input
-                        id="nt-step-up"
-                        type="number"
-                        value={nutritionFields.calorieStepUp ?? ''}
-                        onChange={(e) => handleNutritionFieldChange('calorieStepUp', Number(e.target.value))}
-                        onBlur={() => handleNutritionFieldBlur('calorieStepUp')}
-                      />
-                    </div>
-                    <div className="space-y-1.5">
-                      <Label htmlFor="nt-step-down">Calorie Step Down (kcal)</Label>
-                      <Input
-                        id="nt-step-down"
-                        type="number"
-                        value={nutritionFields.calorieStepDown ?? ''}
-                        onChange={(e) => handleNutritionFieldChange('calorieStepDown', Number(e.target.value))}
-                        onBlur={() => handleNutritionFieldBlur('calorieStepDown')}
-                      />
-                    </div>
-                    <div className="space-y-1.5">
-                      <Label htmlFor="nt-min-gain">Min Gain Rate (kg/week)</Label>
-                      <Input
-                        id="nt-min-gain"
-                        type="number"
-                        step={0.05}
-                        value={nutritionFields.gainRateMinPerWeek ?? ''}
-                        onChange={(e) => handleNutritionFieldChange('gainRateMinPerWeek', Number(e.target.value))}
-                        onBlur={() => handleNutritionFieldBlur('gainRateMinPerWeek')}
-                      />
-                    </div>
-                    <div className="space-y-1.5">
-                      <Label htmlFor="nt-max-gain">Max Gain Rate (kg/week)</Label>
-                      <Input
-                        id="nt-max-gain"
-                        type="number"
-                        step={0.05}
-                        value={nutritionFields.gainRateMaxPerWeek ?? ''}
-                        onChange={(e) => handleNutritionFieldChange('gainRateMaxPerWeek', Number(e.target.value))}
-                        onBlur={() => handleNutritionFieldBlur('gainRateMaxPerWeek')}
-                      />
-                    </div>
-                  </div>
-                </div>
-              </>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Data Management Section */}
-        <Card className="bg-card border-border">
-          <CardHeader className="pb-4">
-            <CardTitle className="text-lg">Data Management</CardTitle>
-            <CardDescription>Export, import, or reset your data</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {/* Hidden file input */}
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept=".json"
-              onChange={handleFileChange}
-              className="hidden"
+          <div className="space-y-2">
+            <Label htmlFor="bio">Bio</Label>
+            <Input
+              id="bio"
+              placeholder="Tell others about yourself"
+              value={bio}
+              onChange={(e) => setBio(e.target.value)}
             />
+          </div>
 
-            {/* Export Button */}
-            <Button
-              variant="outline"
-              className="w-full justify-start h-12"
-              onClick={handleExport}
-              disabled={isExporting}
-            >
-              {isExporting ? (
-                <Loader2 className="w-5 h-5 mr-3 animate-spin" />
-              ) : (
-                <Download className="w-5 h-5 mr-3" />
-              )}
-              {isExporting ? "Exporting..." : "Export Data"}
-            </Button>
+          <Button
+            onClick={() => updateProfileMutation.mutate({})}
+            disabled={updateProfileMutation.isPending}
+            className="w-full"
+          >
+            {updateProfileMutation.isPending ? (
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+            ) : (
+              <Save className="w-4 h-4 mr-2" />
+            )}
+            Save Profile
+          </Button>
+        </CardContent>
+      </Card>
 
-            {/* Import Button */}
-            <Button
-              variant="outline"
-              className="w-full justify-start h-12"
-              onClick={handleImportClick}
-              disabled={isImporting}
-            >
-              {isImporting ? (
-                <Loader2 className="w-5 h-5 mr-3 animate-spin" />
-              ) : (
-                <Upload className="w-5 h-5 mr-3" />
-              )}
-              {isImporting ? "Importing..." : "Import Data"}
-            </Button>
-
-            {/* Clear Workout Logs */}
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button
-                  variant="outline"
-                  className="w-full justify-start h-12 text-orange-500 hover:text-orange-600 border-orange-500/30 hover:border-orange-500/50"
-                >
-                  <Trash2 className="w-5 h-5 mr-3" />
-                  Clear Workout Logs
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent className="max-w-sm mx-4">
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Clear Workout Logs?</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    This will delete all your workout history and personal records.
-                    Your program and exercises will be kept. This action cannot be
-                    undone.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction
-                    onClick={handleClearLogs}
-                    className="bg-orange-500 hover:bg-orange-600"
-                  >
-                    Clear Logs
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-
-            {/* Reset to Default */}
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button
-                  variant="outline"
-                  className="w-full justify-start h-12 text-red-500 hover:text-red-600 border-red-500/30 hover:border-red-500/50"
-                  disabled={isResetting}
-                >
-                  {isResetting ? (
-                    <Loader2 className="w-5 h-5 mr-3 animate-spin" />
-                  ) : (
-                    <RotateCcw className="w-5 h-5 mr-3" />
-                  )}
-                  {isResetting ? "Resetting..." : "Reset to Default Program"}
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent className="max-w-sm mx-4">
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Reset Everything?</AlertDialogTitle>
-                  <AlertDialogDescription className="space-y-3">
-                    <span className="block">
-                      This will delete ALL your data including workouts, personal
-                      records, and achievements. The app will be reset to the
-                      default program.
-                    </span>
-                    <span className="block text-xs text-muted-foreground">
-                      A backup will be automatically created before reset.
-                      We recommend also exporting your data first.
-                    </span>
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter className="flex-col gap-2 sm:flex-row">
-                  <AlertDialogCancel className="w-full sm:w-auto">Cancel</AlertDialogCancel>
-                  <Button
-                    variant="outline"
-                    onClick={async () => {
-                      await handleExport();
-                    }}
-                    className="w-full sm:w-auto"
-                    disabled={isExporting}
-                  >
-                    {isExporting ? (
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    ) : (
-                      <Download className="w-4 h-4 mr-2" />
-                    )}
-                    Export First
-                  </Button>
-                  <AlertDialogAction
-                    onClick={handleReset}
-                    className="bg-red-500 hover:bg-red-600 w-full sm:w-auto"
-                  >
-                    Reset Everything
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-          </CardContent>
-        </Card>
-
-        {/* App Info */}
-        <div className="text-center text-sm text-muted-foreground pt-4">
-          <p>SetFlow v2.2.0</p>
-        </div>
-      </div>
+      {/* Privacy */}
+      <Card className="bg-[#1A1A1A] border-[#2A2A2A]">
+        <CardHeader className="pb-4">
+          <CardTitle className="text-lg">Privacy</CardTitle>
+          <CardDescription>Choose what to share with followers</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="font-medium text-foreground">Share Streak</p>
+              <p className="text-sm text-muted-foreground">Show your workout streak</p>
+            </div>
+            <Switch
+              checked={shareStreak}
+              onCheckedChange={(checked) => {
+                setShareStreak(checked);
+                updateProfileMutation.mutate({ shareStreak: checked });
+              }}
+            />
+          </div>
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="font-medium text-foreground">Share Volume</p>
+              <p className="text-sm text-muted-foreground">Show total volume</p>
+            </div>
+            <Switch
+              checked={shareVolume}
+              onCheckedChange={(checked) => {
+                setShareVolume(checked);
+                updateProfileMutation.mutate({ shareVolume: checked });
+              }}
+            />
+          </div>
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="font-medium text-foreground">Share Workouts</p>
+              <p className="text-sm text-muted-foreground">Show workout activity</p>
+            </div>
+            <Switch
+              checked={shareWorkouts}
+              onCheckedChange={(checked) => {
+                setShareWorkouts(checked);
+                updateProfileMutation.mutate({ shareWorkouts: checked });
+              }}
+            />
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

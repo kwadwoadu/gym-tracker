@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Loader2 } from "lucide-react";
@@ -13,13 +13,24 @@ import { WorkoutCalendar } from "@/components/stats/workout-calendar";
 import { RecentWorkouts } from "@/components/stats/recent-workouts";
 import { AchievementGallery } from "@/components/gamification";
 import { WeeklyMuscleHeatmap } from "@/components/stats/WeeklyMuscleHeatmap";
+import { PeriodSelector, type TimePeriod, getPeriodStart, filterByPeriod } from "@/components/stats/period-selector";
+import { WinsBanner } from "@/components/stats/wins-banner";
 import { ACHIEVEMENTS } from "@/data/achievements";
 import type { AchievementProgress } from "@/lib/gamification";
 import { useQueryClient } from "@tanstack/react-query";
 
+const PERIOD_LABELS: Record<TimePeriod, string> = {
+  week: "Week",
+  month: "Month",
+  "3month": "3 Months",
+  year: "Year",
+  all: "All Time",
+};
+
 export default function StatsPage() {
   const router = useRouter();
   const queryClient = useQueryClient();
+  const [period, setPeriod] = useState<TimePeriod>("month");
 
   // React Query hooks
   const { data: workoutLogs, isLoading: logsLoading } = useWorkoutLogs({ isComplete: true });
@@ -47,6 +58,42 @@ export default function StatsPage() {
     if (!personalRecords) return [];
     return [...personalRecords].sort((a, b) => b.date.localeCompare(a.date));
   }, [personalRecords]);
+
+  // Period-filtered data
+  const filteredLogs = useMemo(() => {
+    if (period === "all") return sortedLogs;
+    return filterByPeriod(sortedLogs, period);
+  }, [sortedLogs, period]);
+
+  const filteredPRs = useMemo(() => {
+    if (period === "all") return sortedPRs;
+    return filterByPeriod(sortedPRs, period);
+  }, [sortedPRs, period]);
+
+  // Previous period data (for trend arrows)
+  const previousPeriodLogs = useMemo(() => {
+    if (period === "all") return [];
+    const currentStart = getPeriodStart(period);
+    const now = new Date();
+    const periodMs = now.getTime() - currentStart.getTime();
+    const prevStart = new Date(currentStart.getTime() - periodMs);
+    return sortedLogs.filter((log) => {
+      const d = new Date(log.date);
+      return d >= prevStart && d < currentStart;
+    });
+  }, [sortedLogs, period]);
+
+  const previousPeriodPRs = useMemo(() => {
+    if (period === "all") return [];
+    const currentStart = getPeriodStart(period);
+    const now = new Date();
+    const periodMs = now.getTime() - currentStart.getTime();
+    const prevStart = new Date(currentStart.getTime() - periodMs);
+    return sortedPRs.filter((pr) => {
+      const d = new Date(pr.date);
+      return d >= prevStart && d < currentStart;
+    });
+  }, [sortedPRs, period]);
 
   // Calculate achievement progress client-side
   const achievementProgress = useMemo((): AchievementProgress[] => {
@@ -165,17 +212,27 @@ export default function StatsPage() {
           <div>
             <h1 className="text-xl font-bold text-foreground">Stats & Progress</h1>
             <p className="text-sm text-muted-foreground">
-              {sortedLogs.length} workouts completed
+              {filteredLogs.length} workouts in {PERIOD_LABELS[period].toLowerCase()}
             </p>
           </div>
         </div>
       </header>
 
+      {/* Period Selector */}
+      <div className="px-4 py-3 sticky top-[72px] bg-background/95 backdrop-blur-sm z-10">
+        <PeriodSelector value={period} onChange={setPeriod} />
+      </div>
+
       <div className="p-4 space-y-6">
+        {/* Wins Banner */}
+        <WinsBanner personalRecords={filteredPRs as PersonalRecord[]} periodLabel={PERIOD_LABELS[period].toLowerCase()} />
+
         {/* Summary Cards */}
         <SummaryCards
-          workoutLogs={sortedLogs as WorkoutLog[]}
-          personalRecords={sortedPRs as PersonalRecord[]}
+          workoutLogs={filteredLogs as WorkoutLog[]}
+          personalRecords={filteredPRs as PersonalRecord[]}
+          previousWorkoutLogs={previousPeriodLogs as WorkoutLog[]}
+          previousPersonalRecords={previousPeriodPRs as PersonalRecord[]}
         />
 
         {/* Weekly Muscle Coverage Heatmap */}
@@ -184,7 +241,7 @@ export default function StatsPage() {
         )}
 
         {/* Weight Progression Chart */}
-        <WeightChart workoutLogs={sortedLogs as WorkoutLog[]} exercises={exercises} />
+        <WeightChart workoutLogs={filteredLogs as WorkoutLog[]} exercises={exercises} />
 
         {/* Achievements */}
         <section>
@@ -193,13 +250,13 @@ export default function StatsPage() {
         </section>
 
         {/* Personal Records */}
-        <PRList personalRecords={sortedPRs as PersonalRecord[]} />
+        <PRList personalRecords={filteredPRs as PersonalRecord[]} />
 
         {/* Workout Calendar */}
         <WorkoutCalendar workoutLogs={sortedLogs as WorkoutLog[]} />
 
         {/* Recent Workouts */}
-        <RecentWorkouts workoutLogs={sortedLogs as WorkoutLog[]} onSetEdited={handleSetEdited} />
+        <RecentWorkouts workoutLogs={filteredLogs as WorkoutLog[]} onSetEdited={handleSetEdited} />
       </div>
     </div>
   );

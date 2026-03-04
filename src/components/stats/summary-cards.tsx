@@ -2,17 +2,27 @@
 
 import { Card } from "@/components/ui/card";
 import { Dumbbell, Flame, Clock, Trophy } from "lucide-react";
+import { TrendArrow } from "@/components/stats/trend-arrow";
 import type { WorkoutLog, PersonalRecord } from "@/lib/api-client";
 
 interface SummaryCardsProps {
   workoutLogs: WorkoutLog[];
   personalRecords: PersonalRecord[];
+  previousWorkoutLogs?: WorkoutLog[];
+  previousPersonalRecords?: PersonalRecord[];
 }
 
-export function SummaryCards({ workoutLogs, personalRecords }: SummaryCardsProps) {
+export function SummaryCards({
+  workoutLogs,
+  personalRecords,
+  previousWorkoutLogs,
+  previousPersonalRecords,
+}: SummaryCardsProps) {
   // Calculate stats
   const totalWorkouts = workoutLogs.length;
   const totalPRs = personalRecords.length;
+  const prevWorkouts = previousWorkoutLogs?.length ?? 0;
+  const prevPRs = previousPersonalRecords?.length ?? 0;
 
   // Average duration
   const avgDuration =
@@ -20,6 +30,14 @@ export function SummaryCards({ workoutLogs, personalRecords }: SummaryCardsProps
       ? Math.round(
           workoutLogs.reduce((sum, log) => sum + (log.duration || 0), 0) /
             workoutLogs.length
+        )
+      : 0;
+
+  const prevAvgDuration =
+    previousWorkoutLogs && previousWorkoutLogs.length > 0
+      ? Math.round(
+          previousWorkoutLogs.reduce((sum, log) => sum + (log.duration || 0), 0) /
+            previousWorkoutLogs.length
         )
       : 0;
 
@@ -62,33 +80,39 @@ export function SummaryCards({ workoutLogs, personalRecords }: SummaryCardsProps
 
   const stats = [
     {
-      label: "Total Workouts",
+      label: "Workouts",
       value: totalWorkouts,
       icon: Dumbbell,
       color: "text-primary",
+      prev: prevWorkouts,
     },
     {
-      label: "Current Streak",
-      value: `${currentStreak} day${currentStreak !== 1 ? "s" : ""}`,
+      label: "Streak",
+      value: currentStreak,
+      valueSuffix: ` day${currentStreak !== 1 ? "s" : ""}`,
       icon: Flame,
       color: "text-orange-500",
+      prev: 0,
     },
     {
       label: "Avg Duration",
-      value: `${avgDuration} min`,
+      value: avgDuration,
+      valueSuffix: " min",
       icon: Clock,
       color: "text-blue-500",
+      prev: prevAvgDuration,
     },
     {
-      label: "Personal Records",
+      label: "PRs",
       value: totalPRs,
       icon: Trophy,
       color: "text-yellow-500",
+      prev: prevPRs,
     },
   ];
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
+    <div className="grid grid-cols-2 gap-2 sm:gap-3">
       {stats.map((stat) => (
         <Card
           key={stat.label}
@@ -100,7 +124,14 @@ export function SummaryCards({ workoutLogs, personalRecords }: SummaryCardsProps
               {stat.label}
             </span>
           </div>
-          <span className="text-2xl font-bold text-foreground">{stat.value}</span>
+          <div className="flex items-baseline gap-2">
+            <span className="text-2xl font-bold text-foreground">
+              {stat.value}{stat.valueSuffix || ""}
+            </span>
+            {stat.prev > 0 && (
+              <TrendArrow current={stat.value} previous={stat.prev} />
+            )}
+          </div>
         </Card>
       ))}
     </div>
