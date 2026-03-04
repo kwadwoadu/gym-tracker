@@ -1,0 +1,1797 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SetFlow 10x - Experience Vision</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg-page: #050505;
+  --bg-screen: #0A0A0A;
+  --bg-card: #1A1A1A;
+  --bg-card-alt: #111111;
+  --accent: #CDFF00;
+  --text-primary: #FFFFFF;
+  --text-secondary: #A0A0A0;
+  --text-muted: #666666;
+  --success: #22C55E;
+  --warning: #F59E0B;
+  --error: #EF4444;
+  --blue: #60A5FA;
+  --glass-bg: rgba(26,26,26,0.8);
+  --glass-border: rgba(255,255,255,0.1);
+  --radius-card: 12px;
+  --radius-btn: 8px;
+  --radius-phone: 24px;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg-page);
+  color: var(--text-primary);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+.page-header {
+  text-align: center;
+  padding: 48px 24px 32px;
+}
+.page-header h1 {
+  font-size: 36px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  margin-bottom: 8px;
+}
+.page-header h1 span { color: var(--accent); }
+.page-header p {
+  font-size: 16px;
+  color: var(--text-secondary);
+  font-weight: 400;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 32px;
+  max-width: 1680px;
+  margin: 0 auto;
+  padding: 0 32px 64px;
+}
+
+.phone-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.phone-label {
+  margin-top: 16px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-align: center;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.phone-frame {
+  width: 375px;
+  height: 812px;
+  background: var(--bg-screen);
+  border-radius: var(--radius-phone);
+  border: 2px solid rgba(255,255,255,0.12);
+  overflow: hidden;
+  position: relative;
+  box-shadow: 0 25px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.05);
+}
+
+.phone-frame .screen {
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 0;
+}
+.phone-frame .screen::-webkit-scrollbar { display: none; }
+
+/* Status bar */
+.status-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 24px 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+.status-bar .right {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  font-size: 11px;
+}
+
+/* App header */
+.app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 20px 12px;
+}
+.app-header .logo {
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+.app-header .logo span { color: var(--accent); }
+.app-header .icon-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--bg-card);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+}
+
+/* Screen content padding */
+.screen-content { padding: 0 20px 24px; }
+
+/* Common card */
+.card {
+  background: var(--bg-card);
+  border-radius: var(--radius-card);
+  padding: 16px;
+  margin-bottom: 12px;
+}
+.card-alt {
+  background: var(--bg-card-alt);
+}
+.glass-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-card);
+  padding: 16px;
+  margin-bottom: 12px;
+}
+
+/* Buttons */
+.btn-accent {
+  background: var(--accent);
+  color: #000;
+  border: none;
+  border-radius: var(--radius-btn);
+  padding: 14px 24px;
+  font-size: 15px;
+  font-weight: 700;
+  width: 100%;
+  text-align: center;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+}
+.btn-outline {
+  background: transparent;
+  color: var(--text-primary);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: var(--radius-btn);
+  padding: 12px 24px;
+  font-size: 14px;
+  font-weight: 600;
+  width: 100%;
+  text-align: center;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+}
+
+/* ===== SCREEN 1: Home Dashboard ===== */
+.program-label {
+  font-size: 13px;
+  color: var(--text-muted);
+  font-weight: 500;
+  padding: 0 20px 8px;
+}
+.hero-workout {
+  border-left: 4px solid var(--accent);
+  padding-left: 16px;
+  margin-left: -4px;
+}
+.hero-workout h3 {
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.hero-workout .sub {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: 16px;
+}
+.quick-start {
+  font-size: 12px;
+  color: var(--text-muted);
+  text-align: center;
+  margin-top: 10px;
+}
+.gamification-strip {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 16px;
+  background: var(--bg-card);
+  border-radius: var(--radius-card);
+  margin-bottom: 12px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.gamification-strip .item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.gamification-strip .badge {
+  background: rgba(205,255,0,0.15);
+  color: var(--accent);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 700;
+}
+.progress-dots {
+  display: flex;
+  gap: 4px;
+}
+.progress-dots .dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+.progress-dots .dot.empty {
+  background: var(--text-muted);
+  opacity: 0.4;
+}
+.day-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.day-tab {
+  flex: 1;
+  text-align: center;
+  padding: 10px 0;
+  border-radius: var(--radius-btn);
+  font-size: 13px;
+  font-weight: 600;
+  background: var(--bg-card);
+  color: var(--text-secondary);
+}
+.day-tab.active {
+  background: var(--accent);
+  color: #000;
+}
+.exercise-preview {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: var(--bg-card-alt);
+  border-radius: var(--radius-btn);
+}
+.exercise-preview .name {
+  font-size: 14px;
+  font-weight: 600;
+}
+.exercise-preview .detail {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+/* ===== SCREEN 2: Active Workout ===== */
+.workout-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 20px 12px;
+}
+.workout-header .back { font-size: 18px; cursor: pointer; }
+.workout-header .title { font-size: 16px; font-weight: 700; }
+.workout-header .counter { font-size: 14px; color: var(--text-secondary); font-weight: 600; }
+
+.progress-bar-dots {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  padding: 4px 20px 16px;
+}
+.progress-bar-dots .pdot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.15);
+  animation: fadeInDot 0.5s ease forwards;
+}
+.progress-bar-dots .pdot.filled { background: var(--accent); }
+@keyframes fadeInDot {
+  from { opacity: 0; transform: scale(0.5); }
+  to { opacity: 1; transform: scale(1); }
+}
+.progress-bar-dots .pdot:nth-child(1) { animation-delay: 0s; }
+.progress-bar-dots .pdot:nth-child(2) { animation-delay: 0.05s; }
+.progress-bar-dots .pdot:nth-child(3) { animation-delay: 0.1s; }
+.progress-bar-dots .pdot:nth-child(4) { animation-delay: 0.15s; }
+.progress-bar-dots .pdot:nth-child(5) { animation-delay: 0.2s; }
+.progress-bar-dots .pdot:nth-child(6) { animation-delay: 0.25s; }
+
+.exercise-main {
+  text-align: center;
+  padding: 8px 20px;
+}
+.exercise-main h2 {
+  font-size: 28px;
+  font-weight: 800;
+  margin-bottom: 4px;
+}
+.exercise-main .sets-reps {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+.tempo-badge {
+  display: inline-block;
+  background: rgba(205,255,0,0.12);
+  color: var(--accent);
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  margin-bottom: 20px;
+}
+.weight-display {
+  font-size: 56px;
+  font-weight: 900;
+  letter-spacing: -2px;
+  margin-bottom: 4px;
+}
+.weight-unit {
+  font-size: 20px;
+  font-weight: 400;
+  color: var(--text-secondary);
+}
+.set-indicators {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin: 20px 0;
+}
+.set-ind {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+}
+.set-ind.done {
+  background: var(--accent);
+  color: #000;
+}
+.set-ind.active {
+  border: 2px solid var(--accent);
+  color: var(--accent);
+}
+.set-ind.empty {
+  border: 2px solid rgba(255,255,255,0.15);
+  color: var(--text-muted);
+}
+
+.bottom-sheet {
+  background: var(--bg-card);
+  border-radius: 20px 20px 0 0;
+  padding: 12px 20px 24px;
+  margin-top: auto;
+  border-top: 1px solid var(--glass-border);
+}
+.drag-handle {
+  width: 36px;
+  height: 4px;
+  background: rgba(255,255,255,0.2);
+  border-radius: 2px;
+  margin: 0 auto 16px;
+}
+.sheet-label {
+  font-size: 13px;
+  color: var(--text-secondary);
+  font-weight: 600;
+  margin-bottom: 16px;
+  text-align: center;
+}
+.input-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.input-row .label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+.input-row .controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.input-row .ctrl-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.1);
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 700;
+  border: none;
+}
+.input-row .value {
+  font-size: 20px;
+  font-weight: 800;
+  min-width: 36px;
+  text-align: center;
+}
+.rpe-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.rpe-row .label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-right: 8px;
+}
+.rpe-pill {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  background: rgba(255,255,255,0.08);
+  color: var(--text-muted);
+}
+.rpe-pill.selected {
+  background: var(--accent);
+  color: #000;
+}
+
+.ai-bubble {
+  position: absolute;
+  bottom: 190px;
+  right: 16px;
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  padding: 10px 14px;
+  max-width: 220px;
+  font-size: 11px;
+  color: var(--text-secondary);
+  animation: bubbleBounce 0.6s ease;
+  line-height: 1.4;
+}
+.ai-bubble .sparkle { margin-right: 4px; }
+@keyframes bubbleBounce {
+  0% { opacity: 0; transform: translateY(20px) scale(0.9); }
+  60% { transform: translateY(-4px) scale(1.02); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.swipe-hint {
+  position: absolute;
+  top: 50%;
+  font-size: 20px;
+  color: rgba(255,255,255,0.15);
+}
+.swipe-hint.left { left: 8px; }
+.swipe-hint.right { right: 8px; }
+
+/* ===== SCREEN 3: Rest Timer ===== */
+.rest-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  position: relative;
+  padding: 20px;
+}
+.rest-label {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+.timer-ring {
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  border: 6px solid rgba(255,255,255,0.08);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 32px;
+  animation: timerPulse 2s ease-in-out infinite;
+}
+.timer-ring::before {
+  content: '';
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  border: 6px solid transparent;
+  border-top-color: var(--accent);
+  border-right-color: var(--accent);
+  transform: rotate(-30deg);
+}
+.timer-ring .time {
+  font-size: 52px;
+  font-weight: 900;
+  letter-spacing: -2px;
+}
+@keyframes timerPulse {
+  0%, 100% { box-shadow: 0 0 20px rgba(205,255,0,0.1); }
+  50% { box-shadow: 0 0 40px rgba(205,255,0,0.25), 0 0 80px rgba(205,255,0,0.1); }
+}
+
+.next-exercise {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.next-exercise span { color: var(--text-primary); font-weight: 600; }
+
+.rest-tip {
+  width: 100%;
+  max-width: 300px;
+}
+.rest-tip .icon { margin-right: 6px; }
+
+.sound-waves {
+  display: flex;
+  gap: 3px;
+  align-items: flex-end;
+  margin: 24px 0;
+  height: 20px;
+}
+.sound-bar {
+  width: 3px;
+  background: var(--accent);
+  border-radius: 2px;
+  animation: soundWave 1s ease-in-out infinite;
+}
+.sound-bar:nth-child(1) { height: 8px; animation-delay: 0s; }
+.sound-bar:nth-child(2) { height: 16px; animation-delay: 0.2s; }
+.sound-bar:nth-child(3) { height: 12px; animation-delay: 0.4s; }
+@keyframes soundWave {
+  0%, 100% { transform: scaleY(1); }
+  50% { transform: scaleY(0.4); }
+}
+
+.skip-btn {
+  margin-top: 16px;
+  width: 200px;
+}
+
+/* ===== SCREEN 4: Stats ===== */
+.period-tabs {
+  display: flex;
+  gap: 0;
+  padding: 0 20px 12px;
+}
+.period-tab {
+  flex: 1;
+  text-align: center;
+  padding: 8px 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+  border-bottom: 2px solid transparent;
+}
+.period-tab.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+.wins-banner {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding: 0 20px 12px;
+  -webkit-overflow-scrolling: touch;
+}
+.wins-banner::-webkit-scrollbar { display: none; }
+.win-card {
+  flex: 0 0 auto;
+  background: rgba(205,255,0,0.08);
+  border: 1px solid rgba(205,255,0,0.2);
+  border-radius: var(--radius-card);
+  padding: 12px 16px;
+  white-space: nowrap;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent);
+  position: relative;
+  overflow: hidden;
+}
+.win-card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(205,255,0,0.1), transparent);
+  animation: shimmer 3s ease-in-out infinite;
+}
+@keyframes shimmer {
+  0% { left: -100%; }
+  100% { left: 200%; }
+}
+.win-card .win-icon { margin-right: 6px; }
+
+.heatmap-section {
+  padding: 0 20px 12px;
+}
+.heatmap-card {
+  background: var(--bg-card);
+  border-radius: var(--radius-card);
+  padding: 16px;
+}
+.heatmap-title {
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+.body-silhouette {
+  position: relative;
+  width: 120px;
+  height: 200px;
+  margin: 0 auto 12px;
+}
+/* CSS body parts */
+.body-head {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.15);
+  margin: 0 auto 4px;
+}
+.body-neck {
+  width: 12px;
+  height: 8px;
+  background: rgba(255,255,255,0.12);
+  margin: 0 auto;
+  border-radius: 2px;
+}
+.body-torso {
+  display: flex;
+  justify-content: center;
+  gap: 2px;
+  margin-top: 2px;
+}
+.body-chest {
+  width: 56px;
+  height: 40px;
+  background: var(--accent);
+  border-radius: 8px 8px 4px 4px;
+  margin: 0 auto;
+  opacity: 0.9;
+}
+.body-shoulders {
+  display: flex;
+  justify-content: center;
+  gap: 48px;
+  margin-top: -36px;
+}
+.body-shoulder {
+  width: 18px;
+  height: 22px;
+  background: #22C55E;
+  border-radius: 6px;
+  opacity: 0.7;
+}
+.body-arms {
+  display: flex;
+  justify-content: center;
+  gap: 52px;
+  margin-top: 2px;
+}
+.body-arm {
+  width: 14px;
+  height: 44px;
+  background: rgba(255,255,255,0.15);
+  border-radius: 6px;
+}
+.body-core {
+  width: 48px;
+  height: 32px;
+  background: rgba(255,255,255,0.15);
+  margin: 2px auto 0;
+  border-radius: 4px 4px 8px 8px;
+}
+.body-legs {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 2px;
+}
+.body-leg {
+  width: 20px;
+  height: 56px;
+  background: rgba(102,102,102,0.4);
+  border-radius: 6px;
+}
+.heatmap-legend {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.legend-swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+}
+.legend-swatch.high { background: var(--accent); }
+.legend-swatch.med { background: #22C55E; }
+.legend-swatch.low { background: rgba(102,102,102,0.5); }
+
+.trend-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  padding: 0 20px;
+}
+.trend-card {
+  background: var(--bg-card);
+  border-radius: var(--radius-card);
+  padding: 14px;
+}
+.trend-card .trend-label {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+.trend-card .trend-value {
+  font-size: 20px;
+  font-weight: 800;
+  margin-bottom: 2px;
+}
+.trend-card .trend-change {
+  font-size: 12px;
+  font-weight: 600;
+}
+.trend-change.up { color: var(--success); }
+.trend-change.same { color: var(--warning); }
+
+/* ===== SCREEN 5: AI Program Generator ===== */
+.chat-container {
+  padding: 0 20px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.chat-bubble {
+  max-width: 85%;
+  padding: 12px 16px;
+  border-radius: 16px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.chat-bubble.ai {
+  background: var(--bg-card);
+  align-self: flex-start;
+  border-bottom-left-radius: 4px;
+  color: var(--text-secondary);
+}
+.chat-bubble.user {
+  background: rgba(205,255,0,0.12);
+  color: var(--accent);
+  align-self: flex-end;
+  border-bottom-right-radius: 4px;
+  font-weight: 600;
+}
+
+.goal-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  padding: 0 20px 10px;
+}
+.goal-card {
+  background: var(--bg-card);
+  border: 2px solid transparent;
+  border-radius: var(--radius-card);
+  padding: 16px 12px;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 600;
+}
+.goal-card .goal-icon {
+  font-size: 24px;
+  display: block;
+  margin-bottom: 6px;
+}
+.goal-card.selected {
+  border-color: var(--accent);
+  background: rgba(205,255,0,0.06);
+  color: var(--accent);
+}
+
+.day-pills {
+  display: flex;
+  gap: 8px;
+  padding: 0 20px 12px;
+  justify-content: center;
+}
+.day-pill {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+  background: var(--bg-card);
+  color: var(--text-muted);
+}
+.day-pill.selected {
+  background: var(--accent);
+  color: #000;
+}
+
+.chat-input {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  background: var(--bg-card);
+  border-top: 1px solid var(--glass-border);
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+.chat-input .field {
+  flex: 1;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+.chat-input .send-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+}
+
+/* ===== SCREEN 6: AI Copilot ===== */
+.copilot-badge {
+  display: inline-block;
+  background: rgba(205,255,0,0.12);
+  color: var(--accent);
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 700;
+  margin-left: 8px;
+}
+
+.insight-card {
+  background: var(--bg-card);
+  border-radius: var(--radius-card);
+  padding: 14px 16px;
+  margin-bottom: 10px;
+  border-left: 3px solid;
+}
+.insight-card.lime-border { border-left-color: var(--accent); }
+.insight-card.blue-border { border-left-color: var(--blue); }
+.insight-card.amber-border { border-left-color: var(--warning); }
+
+.insight-card .insight-type {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+.insight-card.lime-border .insight-type { color: var(--accent); }
+.insight-card.blue-border .insight-type { color: var(--blue); }
+.insight-card.amber-border .insight-type { color: var(--warning); }
+
+.insight-card .insight-text {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin-bottom: 8px;
+}
+.insight-card .feedback {
+  display: flex;
+  gap: 8px;
+  font-size: 16px;
+}
+
+.sparkline {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  height: 40px;
+  padding: 12px 20px;
+}
+.sparkline-bar {
+  flex: 1;
+  background: rgba(205,255,0,0.3);
+  border-radius: 2px;
+  min-height: 4px;
+}
+.sparkline-bar:last-child {
+  background: var(--accent);
+}
+
+.quick-pills {
+  display: flex;
+  gap: 8px;
+  padding: 0 20px 12px;
+  flex-wrap: wrap;
+}
+.quick-pill {
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: 1px solid rgba(255,255,255,0.15);
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+/* ===== SCREEN 7: Post-Workout ===== */
+.celebration {
+  text-align: center;
+  padding: 24px 20px 16px;
+  position: relative;
+}
+.celebration h2 {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--accent);
+  margin-bottom: 16px;
+}
+/* Confetti dots */
+.confetti-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 80px;
+  overflow: hidden;
+  pointer-events: none;
+}
+.confetti-dot {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  animation: confettiFall 3s ease-in-out infinite;
+}
+@keyframes confettiFall {
+  0% { transform: translateY(-10px) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(80px) rotate(360deg); opacity: 0; }
+}
+
+.summary-stats {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  margin-bottom: 16px;
+}
+.summary-stat {
+  text-align: center;
+}
+.summary-stat .val {
+  font-size: 22px;
+  font-weight: 800;
+}
+.summary-stat .lbl {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.pr-card {
+  background: rgba(245,158,11,0.1);
+  border: 1px solid rgba(245,158,11,0.3);
+  border-radius: var(--radius-card);
+  padding: 14px 16px;
+  margin: 0 20px 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 0 20px rgba(245,158,11,0.1);
+}
+.pr-card .pr-icon { font-size: 20px; }
+.pr-card .pr-text {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--warning);
+}
+
+.ai-summary-card {
+  margin: 0 20px 12px;
+}
+.ai-summary-card .ai-icon {
+  margin-right: 4px;
+}
+.ai-summary-card p {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin-bottom: 8px;
+}
+.ai-summary-card p:last-child { margin-bottom: 0; }
+
+.exercise-list {
+  padding: 0 20px 12px;
+}
+.exercise-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  font-size: 13px;
+}
+.exercise-item:last-child { border-bottom: none; }
+.exercise-item .check { color: var(--success); margin-right: 8px; }
+.exercise-item .pr-badge-sm {
+  background: rgba(245,158,11,0.15);
+  color: var(--warning);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  margin-left: 8px;
+}
+
+.share-section {
+  padding: 0 20px 16px;
+}
+.back-link {
+  text-align: center;
+  font-size: 13px;
+  color: var(--text-muted);
+  padding: 8px 0 20px;
+}
+
+/* ===== SCREEN 8: Share Card ===== */
+.share-card-screen {
+  background: linear-gradient(180deg, #0A0A0A 0%, #1A1A1A 100%);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 24px 20px;
+}
+.share-watermark {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 700;
+  letter-spacing: 1px;
+  margin-bottom: 24px;
+}
+.share-user {
+  font-size: 20px;
+  font-weight: 800;
+  margin-bottom: 4px;
+}
+.share-date {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 32px;
+}
+.share-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+.share-workout-name {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--accent);
+  margin-bottom: 16px;
+}
+.share-duration {
+  font-size: 48px;
+  font-weight: 900;
+  letter-spacing: -2px;
+  margin-bottom: 4px;
+}
+.share-duration span {
+  font-size: 18px;
+  font-weight: 400;
+  color: var(--text-secondary);
+}
+.share-volume {
+  font-size: 16px;
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+}
+.share-sets-label {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin-bottom: 20px;
+}
+.share-pr-banner {
+  background: var(--accent);
+  color: #000;
+  padding: 10px 20px;
+  border-radius: var(--radius-btn);
+  font-size: 14px;
+  font-weight: 800;
+  margin-bottom: 24px;
+}
+.share-exercises {
+  text-align: left;
+  width: 100%;
+  padding: 0 12px;
+  margin-bottom: 24px;
+}
+.share-ex-item {
+  font-size: 12px;
+  color: var(--text-secondary);
+  padding: 4px 0;
+  display: flex;
+  justify-content: space-between;
+}
+.share-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: auto;
+}
+.share-footer .url {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--accent);
+}
+.share-footer .tagline {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+.qr-placeholder {
+  width: 52px;
+  height: 52px;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  grid-template-rows: repeat(5, 1fr);
+  gap: 1px;
+}
+.qr-cell {
+  background: var(--text-muted);
+  border-radius: 1px;
+}
+.qr-cell.empty { background: transparent; }
+
+/* ===== Responsive ===== */
+@media (max-width: 1400px) {
+  .grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+  .phone-frame {
+    width: 340px;
+    height: 735px;
+  }
+}
+
+@media (max-width: 1100px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    padding: 0 24px 48px;
+  }
+  .phone-frame {
+    width: 340px;
+    height: 735px;
+  }
+}
+
+@media (max-width: 767px) {
+  .page-header {
+    padding: 32px 16px 24px;
+  }
+  .page-header h1 { font-size: 24px; }
+  .page-header p { font-size: 14px; }
+
+  .grid {
+    grid-template-columns: 1fr;
+    gap: 24px;
+    padding: 0 0 48px;
+  }
+  .phone-wrapper { width: 100%; }
+  .phone-frame {
+    width: 100%;
+    height: auto;
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+    box-shadow: none;
+  }
+  .phone-frame .screen {
+    overflow: visible;
+    padding-bottom: 16px;
+  }
+  .phone-label {
+    padding: 0 16px;
+  }
+  .status-bar { display: none; }
+}
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <h1>SetFlow <span>10x</span> - Experience Vision</h1>
+  <p>8 screens showing the redesigned gym tracking experience</p>
+</div>
+
+<div class="grid">
+
+  <!-- ===== SCREEN 1: New Home Dashboard ===== -->
+  <div class="phone-wrapper">
+    <div class="phone-frame">
+      <div class="screen">
+        <div class="status-bar">
+          <div>9:41</div>
+          <div class="right">
+            <span>LTE</span>
+            <span>100%</span>
+          </div>
+        </div>
+
+        <div class="app-header">
+          <div class="logo">Set<span>Flow</span></div>
+          <div class="icon-btn">&#9881;</div>
+        </div>
+
+        <div class="program-label">Nordic PPL</div>
+
+        <div class="screen-content">
+          <div class="card hero-workout">
+            <h3>Upper Body - Push</h3>
+            <div class="sub">6 exercises - ~45 min</div>
+            <button class="btn-accent">Start Workout</button>
+            <div class="quick-start">Quick Start: Lower Body (next)</div>
+          </div>
+
+          <div class="gamification-strip">
+            <div class="item">&#128293; <strong>5</strong></div>
+            <div class="item"><span class="badge">Lv.12</span></div>
+            <div class="item">
+              2/3 daily
+              <div class="progress-dots">
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot empty"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="day-tabs">
+            <div class="day-tab active">Day 1</div>
+            <div class="day-tab">Day 2</div>
+            <div class="day-tab">Day 3</div>
+            <div class="day-tab">Day 4</div>
+          </div>
+
+          <div class="exercise-preview">
+            <div>
+              <div class="name">Bench Press</div>
+              <div class="detail">4 x 8-10 reps</div>
+            </div>
+            <div style="color:var(--text-muted); font-size:14px;">&#10095;</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="phone-label">1. Home Dashboard</div>
+  </div>
+
+  <!-- ===== SCREEN 2: Active Workout ===== -->
+  <div class="phone-wrapper">
+    <div class="phone-frame" style="position:relative;">
+      <div class="screen" style="display:flex; flex-direction:column;">
+        <div class="status-bar">
+          <div>9:47</div>
+          <div class="right"><span>LTE</span><span>98%</span></div>
+        </div>
+
+        <div class="workout-header">
+          <div class="back">&#8592;</div>
+          <div class="title">Upper Body - Push</div>
+          <div class="counter">3/6</div>
+        </div>
+
+        <div class="progress-bar-dots">
+          <div class="pdot filled"></div>
+          <div class="pdot filled"></div>
+          <div class="pdot filled"></div>
+          <div class="pdot"></div>
+          <div class="pdot"></div>
+          <div class="pdot"></div>
+        </div>
+
+        <div class="exercise-main">
+          <h2>Bench Press</h2>
+          <div class="sets-reps">4 sets x 8-10 reps</div>
+          <div class="tempo-badge">T: 3010</div>
+          <div class="weight-display">85 <span class="weight-unit">kg</span></div>
+          <div class="set-indicators">
+            <div class="set-ind done">&#10003;</div>
+            <div class="set-ind done">&#10003;</div>
+            <div class="set-ind active">3</div>
+            <div class="set-ind empty">4</div>
+          </div>
+        </div>
+
+        <div style="flex:1;"></div>
+
+        <div class="bottom-sheet">
+          <div class="drag-handle"></div>
+          <div class="sheet-label">Set 3 of 4</div>
+          <div class="input-row">
+            <div class="label">Weight</div>
+            <div class="controls">
+              <div class="ctrl-btn">-</div>
+              <div class="value">85</div>
+              <div class="ctrl-btn">+</div>
+            </div>
+          </div>
+          <div class="input-row">
+            <div class="label">Reps</div>
+            <div class="controls">
+              <div class="ctrl-btn">-</div>
+              <div class="value">8</div>
+              <div class="ctrl-btn">+</div>
+            </div>
+          </div>
+          <div class="rpe-row">
+            <div class="label">RPE</div>
+            <div class="rpe-pill">5</div>
+            <div class="rpe-pill">6</div>
+            <div class="rpe-pill selected">7</div>
+            <div class="rpe-pill">8</div>
+            <div class="rpe-pill">9</div>
+            <div class="rpe-pill">10</div>
+          </div>
+          <button class="btn-accent">Log Set</button>
+        </div>
+
+        <div class="ai-bubble">
+          <span class="sparkle">&#10024;</span> Try 87.5kg - you hit 8 reps easily last time
+        </div>
+        <div class="swipe-hint left">&#10094;</div>
+        <div class="swipe-hint right">&#10095;</div>
+      </div>
+    </div>
+    <div class="phone-label">2. Active Workout</div>
+  </div>
+
+  <!-- ===== SCREEN 3: Rest Timer ===== -->
+  <div class="phone-wrapper">
+    <div class="phone-frame">
+      <div class="screen">
+        <div class="status-bar">
+          <div>9:52</div>
+          <div class="right"><span>LTE</span><span>96%</span></div>
+        </div>
+
+        <div class="rest-screen">
+          <div class="rest-label">REST</div>
+
+          <div class="timer-ring">
+            <div class="time">1:32</div>
+          </div>
+
+          <div class="next-exercise">Next: <span>Incline DB Press</span> &#10095;</div>
+
+          <div class="sound-waves">
+            <div class="sound-bar"></div>
+            <div class="sound-bar"></div>
+            <div class="sound-bar"></div>
+          </div>
+
+          <div class="glass-card rest-tip">
+            <span class="icon">&#128161;</span> Stretch your chest between sets for better range of motion
+          </div>
+
+          <button class="btn-outline skip-btn">Skip Rest</button>
+        </div>
+      </div>
+    </div>
+    <div class="phone-label">3. Rest Timer</div>
+  </div>
+
+  <!-- ===== SCREEN 4: Smart Stats Dashboard ===== -->
+  <div class="phone-wrapper">
+    <div class="phone-frame">
+      <div class="screen">
+        <div class="status-bar">
+          <div>10:15</div>
+          <div class="right"><span>LTE</span><span>92%</span></div>
+        </div>
+
+        <div class="app-header">
+          <div class="logo" style="font-size:18px;">Stats</div>
+          <div></div>
+        </div>
+
+        <div class="period-tabs">
+          <div class="period-tab active">Week</div>
+          <div class="period-tab">Month</div>
+          <div class="period-tab">3M</div>
+          <div class="period-tab">Year</div>
+        </div>
+
+        <div class="wins-banner">
+          <div class="win-card"><span class="win-icon">&#127942;</span> 3 PRs This Week</div>
+          <div class="win-card"><span class="win-icon">&#128293;</span> 12-Day Streak</div>
+          <div class="win-card"><span class="win-icon">&#128200;</span> +450kg Volume</div>
+        </div>
+
+        <div class="heatmap-section">
+          <div class="heatmap-card">
+            <div class="heatmap-title">Muscle Activity</div>
+            <div class="body-silhouette">
+              <div class="body-head"></div>
+              <div class="body-neck"></div>
+              <div class="body-chest"></div>
+              <div class="body-shoulders">
+                <div class="body-shoulder"></div>
+                <div class="body-shoulder"></div>
+              </div>
+              <div class="body-arms">
+                <div class="body-arm"></div>
+                <div class="body-arm"></div>
+              </div>
+              <div class="body-core"></div>
+              <div class="body-legs">
+                <div class="body-leg"></div>
+                <div class="body-leg"></div>
+              </div>
+            </div>
+            <div class="heatmap-legend">
+              <div class="legend-item"><div class="legend-swatch high"></div> High</div>
+              <div class="legend-item"><div class="legend-swatch med"></div> Medium</div>
+              <div class="legend-item"><div class="legend-swatch low"></div> Low</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="trend-grid">
+          <div class="trend-card">
+            <div class="trend-label">Bench Press</div>
+            <div class="trend-value">85kg</div>
+            <div class="trend-change up">&#9650; +2.5kg</div>
+          </div>
+          <div class="trend-card">
+            <div class="trend-label">Squat</div>
+            <div class="trend-value">120kg</div>
+            <div class="trend-change up">&#9650; +5kg</div>
+          </div>
+          <div class="trend-card">
+            <div class="trend-label">Volume</div>
+            <div class="trend-value">12,450 kg</div>
+            <div class="trend-change up">&#9650; +8%</div>
+          </div>
+          <div class="trend-card">
+            <div class="trend-label">Sessions</div>
+            <div class="trend-value">4/week</div>
+            <div class="trend-change same">&#8212; same</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="phone-label">4. Smart Stats</div>
+  </div>
+
+  <!-- ===== SCREEN 5: AI Program Generator ===== -->
+  <div class="phone-wrapper">
+    <div class="phone-frame">
+      <div class="screen" style="position:relative; padding-bottom:64px;">
+        <div class="status-bar">
+          <div>10:30</div>
+          <div class="right"><span>LTE</span><span>89%</span></div>
+        </div>
+
+        <div class="app-header">
+          <div class="logo" style="font-size:18px;">&#10024; AI Program Generator</div>
+          <div></div>
+        </div>
+
+        <div class="chat-container">
+          <div class="chat-bubble ai">I'll create a personalized program based on your goals. Let's start with a few questions.</div>
+          <div class="chat-bubble ai">What's your primary training goal?</div>
+        </div>
+
+        <div class="goal-grid">
+          <div class="goal-card selected">
+            <span class="goal-icon">&#127947;&#65039;</span>
+            Muscle Growth
+          </div>
+          <div class="goal-card">
+            <span class="goal-icon">&#127947;</span>
+            Strength
+          </div>
+          <div class="goal-card">
+            <span class="goal-icon">&#128293;</span>
+            Fat Loss
+          </div>
+          <div class="goal-card">
+            <span class="goal-icon">&#127939;</span>
+            Athletic
+          </div>
+        </div>
+
+        <div class="chat-container">
+          <div class="chat-bubble user">Muscle Growth</div>
+          <div class="chat-bubble ai">How many days per week can you train?</div>
+        </div>
+
+        <div class="day-pills">
+          <div class="day-pill">3</div>
+          <div class="day-pill selected">4</div>
+          <div class="day-pill">5</div>
+          <div class="day-pill">6</div>
+        </div>
+
+        <div class="chat-input">
+          <div class="field">Ask anything about your program...</div>
+          <div class="send-btn">&#9654;</div>
+        </div>
+      </div>
+    </div>
+    <div class="phone-label">5. AI Program Generator</div>
+  </div>
+
+  <!-- ===== SCREEN 6: AI Workout Copilot ===== -->
+  <div class="phone-wrapper">
+    <div class="phone-frame">
+      <div class="screen" style="position:relative; padding-bottom:64px;">
+        <div class="status-bar">
+          <div>9:55</div>
+          <div class="right"><span>LTE</span><span>95%</span></div>
+        </div>
+
+        <div class="app-header">
+          <div class="logo" style="font-size:18px;">&#10024; AI Copilot <span class="copilot-badge">During Workout</span></div>
+          <div></div>
+        </div>
+
+        <div class="screen-content">
+          <div class="insight-card lime-border">
+            <div class="insight-type">Weight Suggestion</div>
+            <div class="insight-text">Increase to 87.5kg - you completed all 8 reps at RPE 7 last session</div>
+            <div class="feedback">&#128077; &#128078;</div>
+          </div>
+
+          <div class="insight-card blue-border">
+            <div class="insight-type">&#9201; Rest Time</div>
+            <div class="insight-text">You're averaging 3:12 rest today. Try 2:00 for more metabolic stress</div>
+          </div>
+
+          <div class="insight-card amber-border">
+            <div class="insight-type">&#9888; Plateau Alert</div>
+            <div class="insight-text">Bench press hasn't increased in 3 weeks. Consider: pause reps, drop sets, or deload</div>
+          </div>
+
+          <div style="font-size:12px; color:var(--text-muted); margin-bottom:4px; padding-left:4px;">Weight trend (last 8 sessions)</div>
+          <div class="sparkline">
+            <div class="sparkline-bar" style="height:40%;"></div>
+            <div class="sparkline-bar" style="height:50%;"></div>
+            <div class="sparkline-bar" style="height:45%;"></div>
+            <div class="sparkline-bar" style="height:55%;"></div>
+            <div class="sparkline-bar" style="height:60%;"></div>
+            <div class="sparkline-bar" style="height:65%;"></div>
+            <div class="sparkline-bar" style="height:70%;"></div>
+            <div class="sparkline-bar" style="height:85%;"></div>
+          </div>
+        </div>
+
+        <div class="quick-pills">
+          <div class="quick-pill">Form tips</div>
+          <div class="quick-pill">Alternative exercise</div>
+          <div class="quick-pill">Adjust volume</div>
+        </div>
+
+        <div class="chat-input">
+          <div class="field">Ask AI anything...</div>
+          <div style="font-size:18px; color:var(--text-muted); margin-right:4px;">&#127908;</div>
+          <div class="send-btn">&#9654;</div>
+        </div>
+      </div>
+    </div>
+    <div class="phone-label">6. AI Workout Copilot</div>
+  </div>
+
+  <!-- ===== SCREEN 7: Post-Workout Summary ===== -->
+  <div class="phone-wrapper">
+    <div class="phone-frame">
+      <div class="screen">
+        <div class="status-bar">
+          <div>10:34</div>
+          <div class="right"><span>LTE</span><span>87%</span></div>
+        </div>
+
+        <div class="celebration">
+          <div class="confetti-container">
+            <div class="confetti-dot" style="left:10%; background:var(--accent); animation-delay:0s;"></div>
+            <div class="confetti-dot" style="left:25%; background:#60A5FA; animation-delay:0.3s;"></div>
+            <div class="confetti-dot" style="left:40%; background:var(--warning); animation-delay:0.6s;"></div>
+            <div class="confetti-dot" style="left:55%; background:var(--accent); animation-delay:0.9s;"></div>
+            <div class="confetti-dot" style="left:70%; background:#EF4444; animation-delay:1.2s;"></div>
+            <div class="confetti-dot" style="left:85%; background:var(--accent); animation-delay:1.5s;"></div>
+            <div class="confetti-dot" style="left:15%; background:#60A5FA; animation-delay:0.4s;"></div>
+            <div class="confetti-dot" style="left:60%; background:var(--warning); animation-delay:0.8s;"></div>
+            <div class="confetti-dot" style="left:80%; background:var(--accent); animation-delay:1.1s;"></div>
+            <div class="confetti-dot" style="left:35%; background:#22C55E; animation-delay:0.2s;"></div>
+          </div>
+
+          <h2>Workout Complete!</h2>
+
+          <div class="summary-stats">
+            <div class="summary-stat">
+              <div class="val">47</div>
+              <div class="lbl">min</div>
+            </div>
+            <div class="summary-stat">
+              <div class="val">8,450</div>
+              <div class="lbl">kg volume</div>
+            </div>
+            <div class="summary-stat">
+              <div class="val">24</div>
+              <div class="lbl">sets</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pr-card">
+          <div class="pr-icon">&#11088;</div>
+          <div class="pr-text">NEW PR! Bench Press 87.5kg x 8</div>
+        </div>
+
+        <div class="glass-card ai-summary-card" style="margin:0 20px 12px;">
+          <p><span class="ai-icon">&#10024;</span> Great session! You increased bench press by 2.5kg and maintained form across all sets.</p>
+          <p>Suggestion: Next session, try 90kg for your top set.</p>
+        </div>
+
+        <div class="exercise-list">
+          <div class="exercise-item">
+            <div><span class="check">&#10003;</span> Bench Press: 4x8 @ 87.5kg <span class="pr-badge-sm">PR</span></div>
+          </div>
+          <div class="exercise-item">
+            <div><span class="check">&#10003;</span> Incline DB: 3x10 @ 32kg</div>
+          </div>
+          <div class="exercise-item">
+            <div><span class="check">&#10003;</span> Cable Fly: 3x12 @ 15kg</div>
+          </div>
+        </div>
+
+        <div class="share-section">
+          <button class="btn-outline">&#8599; Share Workout</button>
+        </div>
+
+        <div class="back-link">Back to Home</div>
+      </div>
+    </div>
+    <div class="phone-label">7. Post-Workout Summary</div>
+  </div>
+
+  <!-- ===== SCREEN 8: Workout Share Card ===== -->
+  <div class="phone-wrapper">
+    <div class="phone-frame">
+      <div class="screen">
+        <div class="share-card-screen">
+          <div class="share-watermark">SETFLOW</div>
+
+          <div class="share-user">Kwadwo</div>
+          <div class="share-date">March 4, 2026</div>
+
+          <div class="share-main">
+            <div class="share-workout-name">Upper Body - Push</div>
+            <div class="share-duration">47 <span>min</span></div>
+            <div class="share-volume">8,450 kg total volume</div>
+            <div class="share-sets-label">24 sets completed</div>
+
+            <div class="share-pr-banner">NEW PR: Bench 87.5kg x 8</div>
+
+            <div class="share-exercises">
+              <div class="share-ex-item">
+                <span>Bench Press</span>
+                <span>87.5kg x 8</span>
+              </div>
+              <div class="share-ex-item">
+                <span>Incline DB Press</span>
+                <span>32kg x 10</span>
+              </div>
+              <div class="share-ex-item">
+                <span>Cable Fly</span>
+                <span>15kg x 12</span>
+              </div>
+              <div class="share-ex-item">
+                <span>Lateral Raise</span>
+                <span>12kg x 15</span>
+              </div>
+              <div class="share-ex-item">
+                <span>Tricep Pushdown</span>
+                <span>25kg x 12</span>
+              </div>
+              <div class="share-ex-item">
+                <span>Overhead Extension</span>
+                <span>20kg x 10</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="share-footer">
+            <div>
+              <div class="url">gym.adu.dk</div>
+              <div class="tagline">Tracked with SetFlow</div>
+            </div>
+            <div class="qr-placeholder">
+              <div class="qr-cell"></div><div class="qr-cell"></div><div class="qr-cell"></div><div class="qr-cell empty"></div><div class="qr-cell"></div>
+              <div class="qr-cell"></div><div class="qr-cell empty"></div><div class="qr-cell"></div><div class="qr-cell"></div><div class="qr-cell empty"></div>
+              <div class="qr-cell"></div><div class="qr-cell"></div><div class="qr-cell empty"></div><div class="qr-cell"></div><div class="qr-cell"></div>
+              <div class="qr-cell empty"></div><div class="qr-cell"></div><div class="qr-cell"></div><div class="qr-cell empty"></div><div class="qr-cell"></div>
+              <div class="qr-cell"></div><div class="qr-cell empty"></div><div class="qr-cell"></div><div class="qr-cell"></div><div class="qr-cell"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="phone-label">8. Workout Share Card</div>
+  </div>
+
+</div>
+
+</body>
+</html>
