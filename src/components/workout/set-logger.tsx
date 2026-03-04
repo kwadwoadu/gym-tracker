@@ -12,9 +12,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Check, Minus, Plus, TrendingUp, TrendingDown, Play, ChevronDown, ChevronUp, SkipForward } from "lucide-react";
+import { Check, Minus, Plus, TrendingUp, TrendingDown, Play, ChevronDown, ChevronUp, SkipForward, Camera } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { MuscleMapMini } from "@/components/shared/MuscleMapMini";
+import { isFormAnalysisSupported, getFormRuleByExerciseId } from "@/data/form-rules";
+import { FormCamera } from "./form-camera";
 
 // Extract YouTube video ID from URL
 function getYouTubeId(url: string): string | null {
@@ -79,6 +81,7 @@ const buttonExitVariants = {
 };
 
 interface SetLoggerProps {
+  exerciseId?: string;
   exerciseName: string;
   supersetLabel: string;
   exerciseLabel: string;
@@ -103,6 +106,7 @@ interface SetLoggerProps {
 }
 
 export function SetLogger({
+  exerciseId,
   exerciseName,
   supersetLabel,
   exerciseLabel,
@@ -134,9 +138,14 @@ export function SetLogger({
   const [showVideoDialog, setShowVideoDialog] = useState(false);
   const weightInputRef = useRef<HTMLInputElement>(null);
 
+  const [showFormAnalysis, setShowFormAnalysis] = useState(false);
+
   const videoId = videoUrl ? getYouTubeId(videoUrl) : null;
   const isSearchUrl = videoUrl ? isYouTubeSearchUrl(videoUrl) : false;
   const hasVideo = videoId || isSearchUrl;
+
+  const formRule = exerciseId ? getFormRuleByExerciseId(exerciseId) : null;
+  const hasFormAnalysis = exerciseId ? isFormAnalysisSupported(exerciseId) : false;
 
   // Update weight when suggestion props arrive (async fetch)
   useEffect(() => {
@@ -417,6 +426,34 @@ export function SetLogger({
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Form Analysis */}
+      {hasFormAnalysis && formRule && !isCompleted && (
+        <>
+          {!showFormAnalysis ? (
+            <div className="mb-6">
+              <Button
+                variant="outline"
+                className="w-full h-12 border-[#CDFF00]/30 text-[#CDFF00] hover:bg-[#CDFF00]/10"
+                onClick={() => setShowFormAnalysis(true)}
+              >
+                <Camera className="w-4 h-4 mr-2" />
+                Analyze Form
+              </Button>
+            </div>
+          ) : (
+            <div className="mb-6">
+              <FormCamera
+                exerciseId={exerciseId!}
+                exerciseName={exerciseName}
+                formRule={formRule}
+                onClose={() => setShowFormAnalysis(false)}
+                onSaveReport={() => setShowFormAnalysis(false)}
+              />
+            </div>
+          )}
+        </>
+      )}
 
       {/* Weight input */}
       <div className="mb-6">

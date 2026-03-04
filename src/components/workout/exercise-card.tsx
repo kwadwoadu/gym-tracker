@@ -3,11 +3,19 @@
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ChevronDown, ChevronUp, Play } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+} from "@/components/ui/dialog";
+import { ChevronDown, ChevronUp, Play, Camera } from "lucide-react";
 import { cn, getYouTubeThumbnail, isYouTubeUrl } from "@/lib/utils";
 import { MuscleMap } from "@/components/shared/MuscleMap";
+import { isFormAnalysisSupported, getFormRuleByExerciseId } from "@/data/form-rules";
+import { FormCamera } from "./form-camera";
 
 interface ExerciseCardProps {
+  exerciseId?: string;
   name: string;
   sets: number;
   reps: string;
@@ -26,6 +34,7 @@ interface ExerciseCardProps {
 }
 
 export function ExerciseCard({
+  exerciseId,
   name,
   sets,
   reps,
@@ -40,6 +49,10 @@ export function ExerciseCard({
   lastWeekReps,
 }: ExerciseCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [showFormAnalysis, setShowFormAnalysis] = useState(false);
+
+  const formRule = exerciseId ? getFormRuleByExerciseId(exerciseId) : null;
+  const hasFormAnalysis = exerciseId ? isFormAnalysisSupported(exerciseId) : false;
 
   const formatTempo = (tempo: string) => {
     // T:30A1 -> "3s down, controlled up, 1s hold"
@@ -198,8 +211,38 @@ export function ExerciseCard({
                 )}
               </>
             )}
+
+            {/* Form Analysis button */}
+            {hasFormAnalysis && formRule && (
+              <Button
+                variant="outline"
+                className="w-full h-12 border-[#CDFF00]/30 text-[#CDFF00] hover:bg-[#CDFF00]/10"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowFormAnalysis(true);
+                }}
+              >
+                <Camera className="w-4 h-4 mr-2" />
+                Analyze Form
+              </Button>
+            )}
           </div>
         </div>
+      )}
+
+      {/* Form Analysis Dialog */}
+      {hasFormAnalysis && formRule && (
+        <Dialog open={showFormAnalysis} onOpenChange={setShowFormAnalysis}>
+          <DialogContent className="max-w-lg p-0 bg-[#0A0A0A] border-[#2A2A2A]">
+            <FormCamera
+              exerciseId={exerciseId!}
+              exerciseName={name}
+              formRule={formRule}
+              onClose={() => setShowFormAnalysis(false)}
+              onSaveReport={() => setShowFormAnalysis(false)}
+            />
+          </DialogContent>
+        </Dialog>
       )}
     </Card>
   );

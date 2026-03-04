@@ -54,6 +54,7 @@ export function SetLoggerSheet({
       <DrawerContent className="bg-[#1A1A1A] border-t border-[#2A2A2A] max-h-[70vh]">
         <div className="px-4 py-2 overflow-y-auto">
           <SetLogger
+            exerciseId={flatExercise.exerciseId}
             exerciseName={exercise.name}
             supersetLabel={flatExercise.supersetLabel}
             exerciseLabel={exerciseLabel}

@@ -50,6 +50,7 @@ export function SupersetView({
           return (
             <ExerciseCard
               key={ssExercise.exerciseId}
+              exerciseId={ssExercise.exerciseId}
               name={exercise.name}
               sets={ssExercise.sets}
               reps={ssExercise.reps}
