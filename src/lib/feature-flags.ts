@@ -49,3 +49,11 @@ export function canAccessAIWorkoutCopilot(): boolean {
 export function canAccessAIVoiceLogging(): boolean {
   return true;
 }
+
+/**
+ * Check if AI nutrition coach is enabled
+ * Photo meal logging, macro recommendations, grocery list generation
+ */
+export function canAccessAINutritionCoach(): boolean {
+  return true;
+}
