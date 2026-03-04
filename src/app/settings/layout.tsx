@@ -1,7 +1,8 @@
 "use client";
 
+import { useState, useMemo } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { ArrowLeft, User, Dumbbell, UtensilsCrossed, Database } from "lucide-react";
+import { ArrowLeft, User, Dumbbell, UtensilsCrossed, Database, Search, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -12,9 +13,38 @@ const SETTINGS_TABS = [
   { href: "/settings/data", label: "Data", icon: Database },
 ];
 
+const SEARCH_INDEX = [
+  { label: "Display Name", description: "Change your profile name", tab: "/settings" },
+  { label: "Handle", description: "Your @username", tab: "/settings" },
+  { label: "Bio", description: "Profile description", tab: "/settings" },
+  { label: "Sign Out", description: "Log out of your account", tab: "/settings" },
+  { label: "Privacy", description: "Share streak, volume, workouts", tab: "/settings" },
+  { label: "Notifications", description: "Reminders and alerts", tab: "/settings/notifications" },
+  { label: "Rest Timer", description: "Default rest timer duration", tab: "/settings/training" },
+  { label: "Weight Unit", description: "kg or lbs preference", tab: "/settings/training" },
+  { label: "Calorie Goal", description: "Daily calorie target", tab: "/settings/nutrition" },
+  { label: "Protein Goal", description: "Daily protein target", tab: "/settings/nutrition" },
+  { label: "Meal Times", description: "Meal schedule preferences", tab: "/settings/nutrition" },
+  { label: "Export Data", description: "Download your workout data", tab: "/settings/data" },
+  { label: "Import Data", description: "Restore from backup", tab: "/settings/data" },
+  { label: "Clear Data", description: "Delete local data", tab: "/settings/data" },
+];
+
 export default function SettingsLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [showSearch, setShowSearch] = useState(false);
+
+  const searchResults = useMemo(() => {
+    if (!searchQuery.trim()) return [];
+    const q = searchQuery.toLowerCase();
+    return SEARCH_INDEX.filter(
+      (item) =>
+        item.label.toLowerCase().includes(q) ||
+        item.description.toLowerCase().includes(q)
+    );
+  }, [searchQuery]);
 
   return (
     <div className="min-h-screen pb-44 lg:pb-8">
@@ -29,8 +59,46 @@ export default function SettingsLayout({ children }: { children: React.ReactNode
           >
             <ArrowLeft className="w-5 h-5" />
           </Button>
-          <h1 className="text-xl font-bold text-foreground">Settings</h1>
+          <h1 className="text-xl font-bold text-foreground flex-1">Settings</h1>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setShowSearch(!showSearch)}
+            className="h-10 w-10"
+          >
+            {showSearch ? <X className="w-5 h-5" /> : <Search className="w-5 h-5" />}
+          </Button>
         </div>
+        {showSearch && (
+          <div className="mt-3">
+            <input
+              type="text"
+              placeholder="Search settings..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              autoFocus
+              className="w-full bg-[#1A1A1A] border border-[#2A2A2A] rounded-lg px-4 py-2.5 text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-[#CDFF00]/50"
+            />
+            {searchResults.length > 0 && (
+              <div className="mt-2 bg-[#1A1A1A] border border-[#2A2A2A] rounded-lg divide-y divide-[#2A2A2A]">
+                {searchResults.map((result, i) => (
+                  <button
+                    key={i}
+                    onClick={() => {
+                      router.push(result.tab);
+                      setSearchQuery("");
+                      setShowSearch(false);
+                    }}
+                    className="w-full px-4 py-3 text-left"
+                  >
+                    <p className="text-sm font-medium text-white">{result.label}</p>
+                    <p className="text-xs text-white/40">{result.description}</p>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
       </header>
 
       {/* Tab navigation */}
