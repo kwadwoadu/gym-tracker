@@ -311,6 +311,17 @@ Timer modes are accessible during an active workout session. Users can:
 
 ## 7. Technical Spec
 
+### Dexie Schema Migration
+
+```typescript
+// In /src/lib/db.ts - add to next schema version
+db.version(N).stores({
+  // ... existing stores unchanged
+  timerPresets: 'id, createdAt',
+  timerResults: 'id, workoutLogId, completedAt',
+});
+```
+
 ### Timer Engine
 
 ```typescript
@@ -523,6 +534,14 @@ export class TimerEngine {
   }
 }
 ```
+
+### Timer Accuracy
+
+- Use wall-clock tracking instead of interval counting: `elapsed = (performance.now() - startTime) / 1000`
+- setInterval at 100ms (not 1000ms) for smoother countdown display
+- On each tick, calculate remaining = totalSeconds - elapsed (not remaining--)
+- Handle visibility changes: when app returns to foreground, recalculate elapsed from wall clock
+- For AMRAP (30+ min): test timer accuracy within +/-1 second over 30 minutes
 
 ### Timer Audio Controller
 

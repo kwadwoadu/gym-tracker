@@ -244,6 +244,24 @@ Implement a context-aware dashboard that adapts its primary content block based 
 
 ## 7. Technical Spec
 
+### Integration Architecture
+
+HeroWorkoutCard sits above DashboardStateProvider. The dashboard content area replaces the current workout preview section below the gamification strip.
+
+```tsx
+<!-- page.tsx layout order -->
+<Header />
+<HeroWorkoutCard />           <!-- from hero-workout-action.md -->
+<GamificationStrip />          <!-- from hero-workout-action.md -->
+<DashboardStateProvider>       <!-- from this PRD -->
+  {state === 'morning' && <MorningDashboard />}
+  {state === 'pre-workout' && <PreWorkoutDashboard />}
+  {state === 'post-workout' && <PostWorkoutDashboard />}
+  {state === 'rest-day' && <RestDayDashboard />}
+</DashboardStateProvider>
+<DayTabs />
+```
+
 ### Dashboard State Machine
 
 ```typescript

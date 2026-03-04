@@ -156,6 +156,15 @@ Audio cues   Form report card
 | `/src/lib/feature-flags.ts` | Add `AI_FORM_ANALYSIS` feature flag |
 | `/src/lib/audio.ts` | Add form cue sounds (brief spoken words or distinct tones) |
 
+### Bundle & Loading Strategy
+
+- MediaPipe WASM + model (5MB) must be lazy-loaded via dynamic `import()` - never bundled with the main app chunk
+- Load triggered only when user taps "Analyze Form" button for the first time
+- Show loading state: "Preparing camera... (downloading pose model)" with progress indicator
+- Code-split ai-form-analysis into separate Next.js chunk (`next/dynamic` with `ssr: false`)
+- Cache WASM in service worker after first download for offline re-use
+- Feature flag: `AI_FORM_ANALYSIS` gates entire feature; if disabled, 0KB impact on bundle
+
 ### New Dependencies
 
 | Package | Purpose | Size |
@@ -327,6 +336,17 @@ Form analysis is technically complex (MediaPipe integration, exercise-specific r
 
 ---
 
+## Agents to Consult
+
+- **Software Engineer** - MediaPipe initialization, inference pipeline, WASM caching
+- **Frontend Specialist** - Camera UX, pose overlay rendering, form report card
+- **Movement Specialist** - Form rule validation for each exercise, checkpoint definitions
+- **Injury & Rehab Specialist** - Safety guardrails, liability disclaimers for form advice
+- **Audio Engineer** - Real-time form cue sound design
+- **PWA Specialist** - Camera API compatibility, iOS Safari restrictions
+
+---
+
 ## Dependencies
 
 | Dependency | Status | Required For |
@@ -353,6 +373,8 @@ Initial launch with 8 compound movements that benefit most from form analysis:
 8. Bulgarian Split Squat
 
 Additional exercises added based on usage data and community requests.
+
+> **Scalability Note**: V1 launches with form rules for 8 compound exercises only. Each exercise's rules are validated by Movement Specialist before release. Scaling beyond 8 requires either: (a) manual rule creation per exercise (high effort), or (b) collecting labeled form data from V1 users to train a lightweight ML model (future). Exercises without validated rules show "Form analysis not yet available for this exercise" instead of inaccurate scoring.
 
 ---
 

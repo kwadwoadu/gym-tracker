@@ -120,6 +120,15 @@ Show inline tip    ┌───────────────────�
 - Periodization recommendations
 - Fatigue pattern analysis across sessions
 
+### Plateau Detection Criteria
+
+- **Compound lifts**: stall = same weight x same reps for 2 consecutive sessions AND weekly volume stable (+/-10%)
+- **Isolation exercises**: stall = 3 consecutive sessions without weight or rep increase
+- **Consistent training**: completed 2+ sessions/week for past 4 weeks (otherwise insufficient data)
+- **Volume calculation**: sum of (weight x reps x sets) per exercise per session
+- **Exception**: first 3 weeks of a new program are adaptation phase - don't flag plateaus
+- **Suggestion types** when plateau detected: (1) micro-progression (+1.25kg), (2) rep scheme change, (3) tempo variation, (4) deload recommendation if 6+ week stall
+
 ### Files to Create
 
 | File | Purpose |
@@ -266,6 +275,8 @@ Show inline tip    ┌───────────────────�
 | Suggestion history (accepted/dismissed) | Stored locally in IndexedDB | Until user clears data |
 | Tier 1 analysis | Never leaves device | Local only |
 
+> **Storage Note**: CopilotSuggestion is stored in Dexie.js (local IndexedDB), consistent with SetFlow's offline-first architecture. Suggestion history is local-only, not synced to server. Data is cleared when user clears app data.
+
 ### User Control
 - Toggle copilot on/off in Settings (default: on)
 - Individual suggestion types can be disabled (weight, rest, fatigue, plateaus)
@@ -278,6 +289,15 @@ Show inline tip    ┌───────────────────�
 **P1 - Should Ship**
 
 The copilot transforms SetFlow from a passive tracker into an active training partner. The two-tier architecture (local rules + AI) ensures the feature works even offline, with AI adding depth when connectivity allows. This is the most visible AI feature during the core use case (active workout session).
+
+---
+
+### Agents to Consult
+- **Software Engineer** - API route design, AI orchestration, two-tier analysis system
+- **Frontend Specialist** - Copilot card UI, dismissal state, insight animations
+- **Progress Analyst** - Plateau detection thresholds, form score interpretation
+- **Periodization Specialist** - Deload recommendations, volume adjustment rules
+- **Movement Specialist** - Exercise substitution muscle matching accuracy
 
 ---
 

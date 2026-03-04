@@ -334,6 +334,18 @@ export interface BodyFatEntry {
 }
 ```
 
+### Photo Storage Strategy
+
+Progress photos must be compressed on capture to stay within device storage limits.
+
+- **Compress on capture**: Resize all photos to 720p max using canvas resize before storing
+- **Full-res photo**: Target 300-500KB JPEG (quality 0.7)
+- **Thumbnail**: 200px wide, target 30-50KB JPEG (quality 0.5)
+- **Storage budget**: ~50MB for photos (approximately 100 photo sets at 500KB each)
+- **Warning at 80%**: Alert user when photo storage approaches the 50MB budget
+- **Cleanup option**: Add "Clear old photos" option in settings (delete photos older than user-selected threshold)
+- **Compression utility**: See `src/lib/body-composition/photo-compression.ts` for canvas-based resize
+
 ### Dexie.js Schema Extension
 
 ```typescript
@@ -655,6 +667,16 @@ export function WeightChart({ entries, goalWeight, period }: WeightChartProps) {
 }
 ```
 
+### Chart Performance
+
+Recharts can struggle with large datasets on low-end devices. Apply these optimizations:
+
+- **Memoization**: Wrap `WeightChart` in `React.memo()` to prevent unnecessary re-renders
+- **Downsampling for 3M+ periods**: Reduce 365 daily points to 52 weekly averages
+- **Downsampling for "All" period**: If more than 1 year of data, downsample to monthly averages
+- **Performance budget**: Chart must render in < 500ms on iPhone 8 equivalent
+- **Testing target**: Verify 60fps scrolling on lowest-target device (iPhone SE) using DevTools performance profiler
+
 ### Files to Create
 
 | File | Purpose |
@@ -673,6 +695,7 @@ export function WeightChart({ entries, goalWeight, period }: WeightChartProps) {
 | `src/components/body-composition/BodyTabs.tsx` | Tab navigation for body section |
 | `src/app/body/page.tsx` | Body composition main page |
 | `src/app/body/photos/page.tsx` | Photo comparison page |
+| `src/lib/body-composition/photo-compression.ts` | Canvas-based photo resize and compression |
 
 ### Files to Modify
 

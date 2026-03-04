@@ -24,6 +24,8 @@ For users with Whoop or similar wearables, recovery data exists but is siloed in
 
 ## 2. Solution
 
+> **Whoop Dependency Note:** Self-assessment (1-5 scale) is the primary recovery signal and works for all users. Whoop integration is a pure optional overlay - if connected, it provides validation of self-assessment, not replacement. If Whoop disconnects mid-session, the app continues with the last self-assessment without re-prompting. Core rest day features (mobility routines, next workout preview, nutrition tips) never depend on Whoop data.
+
 ### Intelligent Rest Day Screen
 When the app detects no workout is scheduled (or the user explicitly marks a rest day), show a dedicated rest day experience:
 

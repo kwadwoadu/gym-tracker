@@ -3,7 +3,7 @@
 > **Status:** Draft
 > **Owner:** Kwadwo
 > **Created:** 2026-03-04
-> **Project:** gym-tracker (SetFlow Webapp)
+> **Priority:** P0
 > **Roadmap Phase:** Phase 3 - Polish & Delight
 
 ---

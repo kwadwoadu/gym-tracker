@@ -76,7 +76,7 @@ Implement four types of intelligent notifications that provide genuine value rat
 ### Should Have
 - [ ] Smart timing based on user's typical app open time
 - [ ] Weekly digest push notification with workout summary
-- [ ] Weekly digest email via Resend (optional opt-in)
+- [ ] Weekly digest email via Resend (optional opt-in) - Push notification digest ships first (simpler, validates user demand). Email digest added in V2 based on user feedback.
 - [ ] Streak milestone celebrations (7, 14, 30, 60, 100 days)
 - [ ] Notification history/log viewable in app
 - [ ] Quiet hours setting (no notifications between 10pm-7am default)
@@ -271,6 +271,18 @@ Implement four types of intelligent notifications that provide genuine value rat
 
 ## 7. Technical Spec
 
+### Architecture Note: Server-Side Dependency
+
+Smart notifications is the first SetFlow feature requiring server-side infrastructure (PostgreSQL via Prisma). This is necessary because push subscription endpoints are device-specific URLs that must be stored server-side to send notifications when the user isn't in the app. This is an intentional exception to SetFlow's offline-first model. Core workout tracking remains fully offline. Notification preferences are stored in both Prisma (server, for scheduled sends) and Dexie (local, for UI display).
+
+### Timezone Handling
+
+- Add `timezone: string` field to NotificationPreference model (e.g., 'Europe/Madrid')
+- Detect timezone from browser on first subscription: `Intl.DateTimeFormat().resolvedOptions().timeZone`
+- All date comparisons for streaks use user's local timezone, not UTC
+- Streak calculation: convert workout log dates to user timezone before comparing with "today"
+- Quiet hours use user's local timezone
+
 ### Push Subscription Schema (Prisma)
 
 ```typescript
@@ -292,6 +304,7 @@ model PushSubscription {
 model NotificationPreference {
   id                String   @id @default(cuid())
   userId            String   @unique
+  timezone          String   @default("UTC")    // IANA timezone e.g. 'Europe/Madrid'
   trainingReminders Boolean  @default(true)
   trainingDays      Int[]    @default([1, 3, 5]) // 0=Sun, 1=Mon...
   reminderTime      String   @default("07:30")   // HH:MM format
@@ -637,6 +650,8 @@ export function formatDigestMessage(digest: WeeklyDigest): string {
 
 ### Notification API Route
 
+> **Timeout policy:** Set 5-second timeout per `webpush.sendNotification()` call. If a subscription endpoint is unreachable or slow, skip it and continue with remaining subscriptions. Log failed sends for monitoring.
+
 ```typescript
 // /src/app/api/notifications/send/route.ts
 import { NextResponse } from 'next/server';
@@ -697,6 +712,8 @@ export async function POST(request: Request) {
 ```
 
 ### Email Digest via Resend
+
+> **Note:** Production implementation should extract email HTML to `/src/email-templates/weekly-digest.tsx` using React Email for maintainability. The inline template shown here is for illustration only. Design system colors should be imported from shared constants, not hardcoded.
 
 ```typescript
 // /src/lib/notifications/email-digest.ts

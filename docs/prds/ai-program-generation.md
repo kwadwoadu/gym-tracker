@@ -8,7 +8,7 @@
 
 ---
 
-## Problem Statement
+## 1. Problem
 
 SetFlow's current onboarding offers preset program templates only (Full Body A/B/C). Users with specific goals, schedules, injuries, or equipment constraints get a one-size-fits-all program that doesn't match their needs. Intermediate and advanced lifters especially find template programs too generic, leading to suboptimal progress and eventual churn.
 
@@ -16,7 +16,7 @@ The onboarding flow already collects the right data (goals, experience level, eq
 
 ---
 
-## Proposed Solution
+## 2. Solution
 
 AI generates a fully periodized training program based on the user's onboarding profile and training history. The system produces 4-12 week mesocycles with built-in progression, auto-adjusts volume and intensity per muscle group, and respects injury constraints and equipment availability.
 
@@ -45,7 +45,7 @@ AI generates a fully periodized training program based on the user's onboarding 
 
 ---
 
-## Success Metrics
+## 3. Success Metrics
 
 | Metric | Target | How to Measure |
 |--------|--------|----------------|
@@ -57,7 +57,7 @@ AI generates a fully periodized training program based on the user's onboarding 
 
 ---
 
-## User Stories
+## 4. User Stories
 
 - As a beginner, I want a program generated for my 3-day schedule with basic equipment so I don't have to research programming myself.
 - As an intermediate lifter with a shoulder injury, I want AI to build a program that avoids aggravating movements while still training upper body.
@@ -67,7 +67,7 @@ AI generates a fully periodized training program based on the user's onboarding 
 
 ---
 
-## Technical Scope
+## 5. Technical Scope
 
 ### Architecture
 
@@ -149,9 +149,49 @@ User completes onboarding / taps "Generate Program"
 | Rate limiting | Max 3 generations per user per day |
 | Structured output | JSON mode with Zod schema validation |
 
+### Program Generation Output Schema
+
+The AI structured output is validated against this Zod schema before saving:
+
+```typescript
+import { z } from 'zod';
+
+const ExerciseSchema = z.object({
+  exerciseId: z.string(),
+  sets: z.number().min(1).max(10),
+  reps: z.string(), // "8-10" or "12"
+  weight: z.number().optional(),
+  tempo: z.string().optional(),
+  restSeconds: z.number().min(30).max(300),
+  notes: z.string().optional(),
+});
+
+const TrainingDaySchema = z.object({
+  name: z.string(),
+  supersets: z.array(z.object({
+    label: z.string(),
+    exercises: z.array(ExerciseSchema),
+  })),
+  warmup: z.array(ExerciseSchema).optional(),
+  finisher: z.array(ExerciseSchema).optional(),
+});
+
+const GeneratedProgramSchema = z.object({
+  name: z.string(),
+  description: z.string(),
+  durationWeeks: z.number().min(4).max(12),
+  daysPerWeek: z.number().min(2).max(6),
+  days: z.array(TrainingDaySchema),
+  deloadWeek: z.number().optional(),
+  progressionStrategy: z.string(),
+});
+```
+
+This schema lives in `/src/lib/ai/validators/program-validator.ts` and is used both for AI output validation and as the structured output format hint passed to Claude.
+
 ---
 
-## Design Requirements
+## 6. Design Requirements
 
 ### AI Program Wizard Flow
 
@@ -231,7 +271,7 @@ User completes onboarding / taps "Generate Program"
 
 ---
 
-## Edge Cases
+## 7. Edge Cases
 
 | Edge Case | Handling |
 |-----------|----------|
@@ -247,7 +287,7 @@ User completes onboarding / taps "Generate Program"
 
 ---
 
-## Privacy & Data
+## 8. Privacy & Data
 
 | Data | Where It Goes | Retention |
 |------|---------------|-----------|
@@ -263,7 +303,7 @@ User completes onboarding / taps "Generate Program"
 
 ---
 
-## Priority
+## 9. Priority
 
 **P0 - Must Ship**
 
@@ -271,7 +311,7 @@ This is the highest-impact AI feature. It transforms onboarding from "pick a tem
 
 ---
 
-## Dependencies
+## 10. Dependencies
 
 | Dependency | Status | Required For |
 |------------|--------|-------------|
@@ -281,11 +321,28 @@ This is the highest-impact AI feature. It transforms onboarding from "pick a tem
 | Claude API access | Needs setup | AI generation |
 | Vercel API routes | Available | Server-side API key management |
 | Feature flags system | Complete | Gating rollout |
+| `/src/lib/ai/ai-client.ts` (shared) | Created by this PRD | AI client for all Phase 3 features |
+| `/src/lib/ai/` directory (shared) | Created by this PRD | Shared AI infrastructure |
+
+### Shared AI Infrastructure
+
+This PRD owns creation of the shared AI infrastructure used by all Phase 3 AI features:
+
+- **`/src/lib/ai/ai-client.ts`** - Shared AI API client (Claude/OpenAI), token management, retry logic. Created by this PRD, consumed by ai-workout-copilot and ai-voice-logging.
+- **`/src/lib/ai/`** directory - All AI-related modules live here. This PRD establishes the directory structure.
+
+**Phase 3 Dependency Chain:**
+- **Phase 3.1**: `ai-program-generation.md` ships first, creating the shared AI client and `/src/lib/ai/` directory.
+- **Phase 3.2**: `ai-workout-copilot.md` depends on this. Reuses `ai-client.ts` for real-time coaching.
+- **Phase 3.3**: `ai-voice-logging.md` depends on this. Reuses `ai-client.ts` for voice transcription and parsing.
 
 ---
 
-## Changelog
+## 11. Changelog
 
 | Date | Change |
 |------|--------|
 | 2026-03-04 | Initial draft |
+| 2026-03-04 | Fix REV-001: Add shared AI infrastructure ownership and Phase 3 dependency chain |
+| 2026-03-04 | Fix REV-014: Renumber section headings to match numbered format (## 1. Problem, etc.) |
+| 2026-03-04 | Fix REV-019: Add Program Generation Output Schema with Zod definitions |

@@ -120,7 +120,9 @@ Introduce a 3-tier visual hierarchy system with distinct elevation levels, hero 
 
 ## Design Requirements
 
-### Elevation Shadow System
+> **Implementation Note:** Implementation uses Tailwind utility classes and CSS variables. Raw CSS shown here defines the design tokens; actual component code uses TypeScript with Tailwind.
+
+### CSS Design Tokens: Elevation Shadow System
 
 ```css
 /* Tier 1: Hero */
@@ -171,7 +173,7 @@ Height: collapsed to single line with expand chevron
 Transition: height 0.3s ease, opacity 0.3s ease
 ```
 
-### Glassmorphism Specifications
+### CSS Design Tokens: Glassmorphism Specifications
 
 **Bottom Tab Bar**
 ```css
@@ -210,7 +212,7 @@ Height: h-2
 Border radius: rounded-full
 ```
 
-### Background Depth
+### CSS Design Tokens: Background Depth
 
 **Home Page Hero Area**
 ```css
@@ -228,7 +230,7 @@ Border radius: rounded-full
 }
 ```
 
-**Section Gradient Dividers**
+**CSS Design Tokens: Section Gradient Dividers**
 ```css
 /* Replace border-b border-border with soft gradient */
 .gradient-divider {

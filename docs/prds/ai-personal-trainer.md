@@ -6,6 +6,14 @@
 > **Priority:** P3
 > **Roadmap Phase:** Phase 4 - Advanced AI
 
+> **Scope Note**: This PRD is intentionally broad as a vision document. Implementation should be split into separate, independently shippable PRDs:
+> 1. **Conversational Trainer Chat** (P2) - Chat interface with context from user data. Ship first, validate adoption.
+> 2. **Adaptive Periodization Engine** (P3) - Auto-adjusts program based on performance data. Depends on #1.
+> 3. **Predictive Analytics** (P3) - PR predictions, injury risk scoring, fatigue forecasting. Depends on #1.
+> 4. **Recovery Integration** (P3) - Whoop/recovery-aware adjustments. Depends on #1 + #2.
+>
+> Each sub-PRD should define its own scope, costs, dependencies, and success metrics separately.
+
 ---
 
 ## Problem Statement

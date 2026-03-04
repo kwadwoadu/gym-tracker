@@ -130,6 +130,26 @@ User presses mic button / says wake phrase
 - Conversational mode guided dialogue
 - Multi-language support (future)
 
+### Confidence Scoring
+
+- Tier 1 minimum confidence threshold: 85%
+- Scoring: (fields_matched / total_required_fields) * 100
+- Required fields: weight (40%), reps (40%), RPE (20% - optional)
+- Example: "eighty-five kilos" -> weight extracted (40%), reps missing -> 40% confidence -> triggers Tier 2
+- Ambiguous keywords ("same", "up", "down"): require 95% confidence threshold to stay on Tier 1
+- If Tier 2 timeout (>1.5s): use Tier 1 result even if confidence <85%, show edit toast
+
+### Integration with Form Analysis
+
+Voice-logged sets will have formScore = null. Form analysis (ai-form-analysis.md) requires video input and only applies to manually-logged or video-analyzed sets. Voice input and form analysis are independent features that coexist on the SetLog model without conflict.
+
+### Fallback Strategy
+
+- If Tier 2 API call exceeds 1.5 seconds, auto-complete with Tier 1 result
+- Show disambiguation toast: "Couldn't parse perfectly - tap to edit"
+- Queue failed Tier 2 requests in Dexie for re-parse when network is stable
+- For offline: Tier 1 regex parser works fully offline; show "Voice input requires internet for best accuracy" toast
+
 ### Files to Create
 
 | File | Purpose |
@@ -312,6 +332,15 @@ User presses mic button / says wake phrase
 **P1 - Should Ship**
 
 Voice logging addresses the single biggest UX friction point in the app (manual data entry during workouts). It has the potential to dramatically increase logging compliance, which improves all downstream features (progressive overload, copilot, analytics). The Web Speech API is free and browser-native, making this a high-impact, relatively low-cost feature.
+
+---
+
+## Agents to Consult
+
+- **Software Engineer** - API route for Tier 2 parsing, speech capture flow
+- **Audio Engineer** - Web Audio API integration, mic activation/deactivation sounds
+- **PWA Specialist** - iOS Safari speech recognition restrictions, browser compatibility
+- **Frontend Specialist** - Voice button animation, confirmation toast UX
 
 ---
 

@@ -30,6 +30,7 @@ Build a built-in exercise form library with self-hosted video content, key form 
 ### Form Video Player
 - Self-hosted short-form videos (15-30 seconds, looping) showing proper execution
 - CDN-hosted via Vercel Blob or Cloudflare R2 for fast loading
+- **Note**: V1 uses Vercel Blob for simplicity (zero additional configuration). If video delivery costs exceed $50/month or latency is poor in key markets, migrate to Cloudflare R2 using the same VideoStorage interface. Decision deferred until real usage data is available.
 - No YouTube dependency - fully offline-capable after first cache
 - Plays inline within exercise cards (no fullscreen required)
 
@@ -474,6 +475,22 @@ export function MuscleActivationMap({ muscles }: MuscleActivationMapProps) {
 }
 ```
 
+### Storage Quota Management
+
+Video caching must respect device storage limits to prevent IndexedDB quota errors on mobile devices.
+
+- **Maximum video cache**: 50MB per device (enforced in code)
+- **Quota check before caching**: Before storing any video, check available storage:
+  ```typescript
+  const estimate = await navigator.storage.estimate();
+  const usedPercent = estimate.usage / estimate.quota * 100;
+  ```
+- **Cache scope**: Cache only exercises in the user's current active program, not all 97+ exercises
+- **LRU eviction**: When cache exceeds 50MB, delete least-recently-viewed exercise videos first
+- **User warning at 80% quota**: Display toast: "Storage almost full - some exercise videos may not be cached offline"
+- **Video compression targets**: 720p max, compressed H.264, target 1-2MB per 15-30s clip
+- **Cache manager**: See `src/lib/form-library/cache-manager.ts` for quota checking and LRU eviction logic
+
 ### Service Worker Video Caching
 
 ```typescript
@@ -533,6 +550,7 @@ export async function preCacheProgramVideos(
 | `src/lib/form-library/types.ts` | Form data types and interfaces |
 | `src/lib/form-library/video-storage.ts` | CDN upload and URL generation |
 | `src/lib/form-library/video-cache.ts` | Service worker video caching |
+| `src/lib/form-library/cache-manager.ts` | Storage quota checking and LRU eviction |
 | `src/components/form-library/FormVideoPlayer.tsx` | Looping video player component |
 | `src/components/form-library/FormCueCard.tsx` | Individual form cue display |
 | `src/components/form-library/MistakeCard.tsx` | Common mistake warning card |

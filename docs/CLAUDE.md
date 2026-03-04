@@ -19,12 +19,47 @@ Every feature needs a PRD in /docs/prds/ with:
 - Implementation checklist with [ ] items
 - Launch criteria (what must be true before shipping)
 
-## Existing PRDs
+## All PRDs
+
+### Phase 1-2 (Shipped/In Progress)
 - `onboarding-flow.md` - 8-step onboarding (Complete)
 - `weight-memory-edit-sets.md` - Progressive overload (In Progress)
 - `workout-plan-selection.md` - Program templates
 - `cross-browser-sync-domain.md` - Sync architecture
 - `exercise-database.md` - Exercise management
+- `gamification-system.md` - XP, streaks, challenges
+- `muscle-visualization.md` - Muscle group display
+- `program-management-ui.md` - Program CRUD
+- `landing-page-desktop.md` - Desktop landing page
+
+### Phase 3 - UX Polish
+- `hero-workout-action.md` (P0) - Start Workout as hero card
+- `swipe-workout-flow.md` (P1) - Horizontal swipe between exercises
+- `smart-home-dashboard.md` (P1) - Context-aware home dashboard
+- `stats-time-periods.md` (P2) - Period selector, trend arrows
+- `settings-restructure.md` (P2) - Split settings into sub-pages
+
+### Phase 3 - UI Polish
+- `micro-interactions.md` (P0) - Animations, haptics, delight
+- `visual-hierarchy-redesign.md` (P1) - Card elevation, glassmorphism
+- `typography-spacing-upgrade.md` (P1) - Larger headings, spacing
+- `landing-page-upgrade.md` (P2) - Animated walkthrough, social proof
+
+### Phase 3 - AI Features
+- `ai-program-generation.md` (P0) - AI generates periodized programs
+- `ai-workout-copilot.md` (P1) - Real-time coaching + plateau detection
+- `ai-voice-logging.md` (P1) - Voice input for set logging
+- `ai-nutrition-coach.md` (P2) - Photo meal logging, macro recommendations
+- `ai-form-analysis.md` (P3) - Camera-based pose estimation
+- `ai-personal-trainer.md` (P3) - Conversational trainer (vision doc)
+
+### Phase 4 - New Features
+- `workout-templates-sharing.md` (P2) - Create/share templates
+- `rest-day-intelligence.md` (P2) - Mobility, recovery, Whoop
+- `workout-timer-modes.md` (P2) - AMRAP, EMOM, Tabata, custom
+- `exercise-form-library.md` (P2) - Built-in video, form cues
+- `body-composition-tracking.md` (P2) - Weight trend, photos, measurements
+- `smart-notifications.md` (P2) - Push reminders, streak warnings, PR alerts
 
 ## Changelog Updates
 - Update CHANGELOG.md for every significant change

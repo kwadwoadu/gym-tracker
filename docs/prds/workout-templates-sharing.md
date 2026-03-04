@@ -444,6 +444,9 @@ export async function POST(req: NextRequest) {
 import { db } from '@/lib/db';
 import type { SerializedProgram } from '@/types/templates';
 
+// Note: The transaction wrapper can be simplified to use Dexie's bulkAdd() for atomic inserts.
+// A failed import is safely retried by the user (delete + re-import). Transaction is shown for
+// completeness but a simpler bulkAdd pattern is preferred for implementation.
 export async function importTemplate(program: SerializedProgram): Promise<string> {
   const programId = crypto.randomUUID();
 
