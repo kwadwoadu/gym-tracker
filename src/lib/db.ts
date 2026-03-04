@@ -149,6 +149,40 @@ export interface RecoveryAssessment {
   createdAt: string;
 }
 
+export interface WeightEntry {
+  id: string;
+  date: string; // YYYY-MM-DD
+  weight: number; // always stored in kg
+  unit: "kg" | "lbs";
+  createdAt: string;
+}
+
+export interface BodyMeasurement {
+  id: string;
+  date: string; // YYYY-MM-DD
+  chest?: number;
+  shoulders?: number;
+  waist?: number;
+  hips?: number;
+  neck?: number;
+  leftBicep?: number;
+  rightBicep?: number;
+  leftThigh?: number;
+  rightThigh?: number;
+  leftCalf?: number;
+  rightCalf?: number;
+  unit: "cm" | "in";
+  createdAt: string;
+}
+
+export interface BodyFatEntry {
+  id: string;
+  date: string;
+  percentage: number;
+  method: "navy" | "manual";
+  createdAt: string;
+}
+
 // ============================================================
 // Database Definition
 // ============================================================
@@ -164,6 +198,9 @@ const db = new Dexie("GymTrackerDB") as Dexie & {
   achievements: EntityTable<Achievement, "id">;
   hydrationLogs: EntityTable<HydrationLog, "id">;
   recoveryAssessments: EntityTable<RecoveryAssessment, "id">;
+  weightEntries: EntityTable<WeightEntry, "id">;
+  bodyMeasurements: EntityTable<BodyMeasurement, "id">;
+  bodyFatEntries: EntityTable<BodyFatEntry, "id">;
 };
 
 db.version(1).stores({
@@ -207,6 +244,22 @@ db.version(4).stores({
   achievements: "id, achievementId, unlockedAt",
   hydrationLogs: "id, date",
   recoveryAssessments: "id, date",
+});
+
+db.version(5).stores({
+  exercises: "id, name, *muscleGroups, equipment, isCustom",
+  programs: "id, name, isActive",
+  trainingDays: "id, programId, dayNumber",
+  workoutLogs: "id, date, programId, dayId, isComplete",
+  personalRecords: "id, exerciseId, date",
+  userSettings: "id",
+  onboardingProfiles: "id",
+  achievements: "id, achievementId, unlockedAt",
+  hydrationLogs: "id, date",
+  recoveryAssessments: "id, date",
+  weightEntries: "id, date",
+  bodyMeasurements: "id, date",
+  bodyFatEntries: "id, date",
 });
 
 // ============================================================
