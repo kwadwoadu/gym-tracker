@@ -7,10 +7,12 @@ import { Button } from "@/components/ui/button";
 import { TrainerMessage } from "@/components/trainer/trainer-message";
 import { QuickActions } from "@/components/trainer/quick-actions";
 import { PredictionCard } from "@/components/trainer/prediction-card";
+import { RiskAlert } from "@/components/trainer/risk-alert";
 import {
   usePrograms,
   useTrainingDays,
   useStats,
+  useOnboardingProfile,
 } from "@/lib/queries";
 import { buildMinimalContext, buildContextPrompt } from "@/lib/ai/context-engine";
 
@@ -25,6 +27,12 @@ export default function TrainerPage() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [sending, setSending] = useState(false);
+  const [riskAlert, setRiskAlert] = useState<{
+    title: string;
+    description: string;
+    recommendation: string;
+    severity: "low" | "medium" | "high";
+  } | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -33,6 +41,7 @@ export default function TrainerPage() {
   const activeProgram = programs?.find((p) => p.isActive);
   const { data: trainingDays } = useTrainingDays(activeProgram?.id);
   const { data: stats } = useStats();
+  const { data: profile } = useOnboardingProfile();
 
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -72,7 +81,7 @@ export default function TrainerPage() {
       setSending(true);
 
       try {
-        // Build context from available data
+        // Build context from available data including onboarding profile
         const context = buildMinimalContext(
           activeProgram?.name || null,
           (trainingDays || []).map((d) => ({
@@ -80,7 +89,12 @@ export default function TrainerPage() {
             supersets: d.supersets as Array<{ exercises: unknown[] }>,
           })),
           stats ? { currentStreak: stats.currentStreak, totalWorkouts: stats.totalWorkouts } : null,
-          [] // PRs would come from a separate query
+          [], // PRs would come from a separate query
+          profile ? {
+            goals: profile.goals,
+            experienceLevel: profile.experienceLevel,
+            injuries: profile.injuries,
+          } : undefined
         );
 
         const contextPrompt = buildContextPrompt(context);
@@ -112,6 +126,16 @@ export default function TrainerPage() {
         };
 
         setMessages((prev) => [...prev, aiMessage]);
+
+        // Show risk alert if the AI flagged a risk
+        if (data.riskLevel && data.riskLevel !== "none") {
+          setRiskAlert({
+            title: data.riskLevel === "high" ? "High Risk Detected" : "Training Advisory",
+            description: data.message.slice(0, 120) + "...",
+            recommendation: data.suggestions?.[0] || "Consider adjusting your training.",
+            severity: data.riskLevel as "low" | "medium" | "high",
+          });
+        }
       } catch {
         const errorMessage: ChatMessage = {
           id: `error-${Date.now()}`,
@@ -125,7 +149,7 @@ export default function TrainerPage() {
         setSending(false);
       }
     },
-    [sending, messages, activeProgram, trainingDays, stats]
+    [sending, messages, activeProgram, trainingDays, stats, profile]
   );
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -176,6 +200,17 @@ export default function TrainerPage() {
               />
             )}
           </div>
+        )}
+
+        {/* Risk alert from AI response */}
+        {riskAlert && (
+          <RiskAlert
+            title={riskAlert.title}
+            description={riskAlert.description}
+            recommendation={riskAlert.recommendation}
+            severity={riskAlert.severity}
+            onAcknowledge={() => setRiskAlert(null)}
+          />
         )}
 
         {messages.map((msg) => (

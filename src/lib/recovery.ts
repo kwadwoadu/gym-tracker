@@ -87,3 +87,45 @@ export function estimateMuscleRecovery(
   // Sort: least recovered first
   return estimates.sort((a, b) => a.percentRecovered - b.percentRecovered);
 }
+
+export interface RecoveryScore {
+  overall: number; // 0-100
+  label: "Not Ready" | "Partially Recovered" | "Ready to Train" | "Fully Recovered";
+  color: string;
+  fatigueCount: number;
+  recoveringCount: number;
+  recoveredCount: number;
+}
+
+/**
+ * Calculate an overall recovery score from muscle estimates.
+ */
+export function calculateRecoveryScore(estimates: MuscleRecoveryEstimate[]): RecoveryScore {
+  if (estimates.length === 0) {
+    return { overall: 100, label: "Fully Recovered", color: "#22C55E", fatigueCount: 0, recoveringCount: 0, recoveredCount: 0 };
+  }
+
+  const avgPercent = Math.round(estimates.reduce((s, e) => s + e.percentRecovered, 0) / estimates.length);
+  const fatigueCount = estimates.filter((e) => e.status === "fatigued").length;
+  const recoveringCount = estimates.filter((e) => e.status === "recovering").length;
+  const recoveredCount = estimates.filter((e) => e.status === "recovered").length;
+
+  let label: RecoveryScore["label"];
+  let color: string;
+
+  if (avgPercent >= 90) {
+    label = "Fully Recovered";
+    color = "#22C55E";
+  } else if (avgPercent >= 70) {
+    label = "Ready to Train";
+    color = "#CDFF00";
+  } else if (avgPercent >= 40) {
+    label = "Partially Recovered";
+    color = "#F59E0B";
+  } else {
+    label = "Not Ready";
+    color = "#EF4444";
+  }
+
+  return { overall: avgPercent, label, color, fatigueCount, recoveringCount, recoveredCount };
+}

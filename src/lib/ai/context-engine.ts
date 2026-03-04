@@ -90,6 +90,7 @@ export function buildMinimalContext(
   trainingDays: Array<{ name: string; supersets: unknown[] }>,
   stats: { currentStreak: number; totalWorkouts: number } | null,
   recentPRs: Array<{ exerciseName: string; weight: number; reps: number }>,
+  userProfile?: { goals: string[]; experienceLevel: string | null; injuries: string[] },
 ): TrainerContext {
   const performanceLines: string[] = [];
   if (stats) {
@@ -102,10 +103,15 @@ export function buildMinimalContext(
     .map((pr) => `${pr.exerciseName}: ${pr.weight}kg x ${pr.reps}`)
     .join("\n");
 
+  const riskFactors: string[] = [];
+  if (userProfile?.injuries?.length) {
+    riskFactors.push(`Known injuries: ${userProfile.injuries.join(", ")}`);
+  }
+
   return {
     profile: {
-      goals: ["Build muscle", "Progressive overload"],
-      experience: "Intermediate",
+      goals: userProfile?.goals?.length ? userProfile.goals : ["Build muscle", "Progressive overload"],
+      experience: userProfile?.experienceLevel || "Intermediate",
       trainingDaysPerWeek: trainingDays.length,
     },
     currentProgram: programName
@@ -123,7 +129,7 @@ export function buildMinimalContext(
       : null,
     performanceSummary: performanceLines.join("\n"),
     recentPRs: prLines || "No recent PRs",
-    riskFactors: [],
+    riskFactors,
     todayWorkout: trainingDays[0]?.name || "Rest day",
   };
 }
