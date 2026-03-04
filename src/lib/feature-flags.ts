@@ -33,3 +33,11 @@ export function canAccessNutritionByClerkId(
 export function canAccessAIProgramGeneration(): boolean {
   return true;
 }
+
+/**
+ * Check if AI workout copilot is enabled
+ * Provides real-time coaching cues during active workouts
+ */
+export function canAccessAIWorkoutCopilot(): boolean {
+  return true;
+}
