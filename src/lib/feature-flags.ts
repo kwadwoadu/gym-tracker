@@ -26,10 +26,10 @@ export function canAccessNutritionByClerkId(
   return true;
 }
 
-// Future feature flags can be added here
-// Example:
-// export function canAccessFeatureX(email: string | null | undefined): boolean {
-//   const FEATURE_X_EMAILS = ['user@example.com'];
-//   if (!email) return false;
-//   return FEATURE_X_EMAILS.includes(email.toLowerCase());
-// }
+/**
+ * Check if a user can access AI program generation
+ * Currently open to all users with ANTHROPIC_API_KEY configured server-side
+ */
+export function canAccessAIProgramGeneration(): boolean {
+  return true;
+}

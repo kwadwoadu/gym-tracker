@@ -25,9 +25,11 @@ import {
   CheckCircle,
   AlertCircle,
   Pencil,
+  Sparkles,
 } from "lucide-react";
 import { programsApi, trainingDaysApi, type TrainingDay, type Program } from "@/lib/api-client";
 import { ProgramEditorModal } from "@/components/program/program-editor-modal";
+import { AIProgramWizard } from "@/components/program/ai-program-wizard";
 import { cn } from "@/lib/utils";
 
 type ToastType = "success" | "error";
@@ -46,6 +48,7 @@ export default function ProgramPage() {
   const [isAdding, setIsAdding] = useState(false);
   const [toast, setToast] = useState<Toast | null>(null);
   const [showProgramEditor, setShowProgramEditor] = useState(false);
+  const [showAIWizard, setShowAIWizard] = useState(false);
 
   useEffect(() => {
     async function loadProgram() {
@@ -125,6 +128,24 @@ export default function ProgramPage() {
       showToast("Failed to delete training day", "error");
     } finally {
       setDayToDelete(null);
+    }
+  };
+
+  const handleAIProgramCreated = async () => {
+    setShowAIWizard(false);
+    showToast("AI program created!", "success");
+    // Reload program data
+    try {
+      const programs = await programsApi.list();
+      const activeProgram = programs.find((p) => p.isActive) || programs[0];
+      setProgram(activeProgram || null);
+      if (activeProgram) {
+        const days = await trainingDaysApi.list(activeProgram.id);
+        days.sort((a, b) => a.dayNumber - b.dayNumber);
+        setTrainingDays(days);
+      }
+    } catch (error) {
+      console.error("Failed to reload program:", error);
     }
   };
 
@@ -301,10 +322,19 @@ export default function ProgramPage() {
           </div>
         )}
 
+        {/* Generate AI Program Button */}
+        <Button
+          className="w-full h-14 mt-4 bg-[#CDFF00] hover:bg-[#CDFF00]/90 text-black font-bold"
+          onClick={() => setShowAIWizard(true)}
+        >
+          <Sparkles className="w-5 h-5 mr-2" />
+          Generate AI Program
+        </Button>
+
         {/* Add Day Button */}
         <Button
           variant="outline"
-          className="w-full h-14 mt-4 border-dashed border-2 text-muted-foreground hover:text-foreground hover:border-primary"
+          className="w-full h-14 mt-2 border-dashed border-2 text-muted-foreground hover:text-foreground hover:border-primary"
           onClick={handleAddDay}
           disabled={isAdding || !program}
         >
@@ -347,6 +377,14 @@ export default function ProgramPage() {
         onSave={handleSaveProgram}
         onDelete={handleDeleteProgram}
       />
+
+      {/* AI Program Wizard */}
+      {showAIWizard && (
+        <AIProgramWizard
+          onClose={() => setShowAIWizard(false)}
+          onProgramCreated={handleAIProgramCreated}
+        />
+      )}
     </div>
   );
 }
