@@ -77,8 +77,8 @@ export function DailyChallengeCard({
         className={cn(
           "p-4 transition-all duration-300",
           isComplete
-            ? "bg-success/10 border-success/30"
-            : "bg-card border-border hover:border-primary/30",
+            ? "bg-success/5 border-success/20 opacity-65 shadow-[var(--shadow-muted)]"
+            : "bg-card border-border hover:border-primary/30 shadow-[var(--shadow-standard)]",
           className
         )}
       >

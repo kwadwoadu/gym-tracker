@@ -47,7 +47,7 @@ export function GamificationStrip({
   const weeklyComplete = weeklyChallenges.filter((c) => c.isComplete).length;
 
   return (
-    <div className="border-b border-border">
+    <div className="gradient-divider">
       {/* Collapsed strip */}
       <button
         onClick={() => setExpanded(!expanded)}

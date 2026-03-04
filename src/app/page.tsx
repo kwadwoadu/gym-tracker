@@ -218,7 +218,7 @@ export default function Home() {
   return (
     <div className="min-h-screen pb-20 lg:pb-8">
       {/* Header */}
-      <header className="px-4 pt-safe-top pb-4 border-b border-border">
+      <header className="px-4 pt-safe-top pb-4 gradient-divider">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
@@ -261,6 +261,7 @@ export default function Home() {
       </header>
 
       {/* Hero Workout Card */}
+      <div className="hero-backdrop">
       <HeroWorkoutCard
         currentDay={currentDay || null}
         sortedDays={sortedDays}
@@ -268,6 +269,8 @@ export default function Home() {
         activeWorkout={activeWorkout}
         onSelectDay={setSelectedDay}
       />
+
+      </div>
 
       {/* Compact Gamification Strip */}
       {g && (

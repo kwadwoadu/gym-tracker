@@ -72,13 +72,12 @@ export function XPBar({
         </div>
       </div>
 
-      {/* Progress bar */}
-      <div className="relative h-3 bg-muted rounded-full overflow-hidden">
+      {/* Progress bar with gradient */}
+      <div className="relative h-3 bg-[#1A1A1A] rounded-full overflow-hidden">
         <motion.div
-          className="absolute inset-y-0 left-0 rounded-full"
+          className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-[#CDFF00] via-[#A3E635] to-[#22C55E]"
           style={{
-            backgroundColor: color,
-            boxShadow: `0 0 10px ${color}80, 0 0 20px ${color}40`,
+            boxShadow: `0 0 12px ${color}60`,
           }}
           initial={{ width: 0 }}
           animate={{ width: `${progress * 100}%` }}
@@ -87,9 +86,8 @@ export function XPBar({
 
         {/* Animated glow effect */}
         <motion.div
-          className="absolute inset-y-0 left-0 rounded-full opacity-50"
+          className="absolute inset-y-0 left-0 rounded-full opacity-50 bg-gradient-to-r from-[#CDFF00] via-[#A3E635] to-[#22C55E]"
           style={{
-            backgroundColor: color,
             width: `${progress * 100}%`,
           }}
           animate={{
