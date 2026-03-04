@@ -183,6 +183,21 @@ export interface BodyFatEntry {
   createdAt: string;
 }
 
+export interface NotificationPreference {
+  id: string;
+  trainingReminders: boolean;
+  trainingDays: number[]; // 0=Sun, 1=Mon...
+  reminderTime: string; // HH:MM
+  streakProtection: boolean;
+  prAlerts: boolean;
+  streakCelebrations: boolean;
+  weeklyDigestPush: boolean;
+  quietStart: string; // HH:MM
+  quietEnd: string; // HH:MM
+  pushEnabled: boolean;
+  updatedAt: string;
+}
+
 // ============================================================
 // Database Definition
 // ============================================================
@@ -201,6 +216,7 @@ const db = new Dexie("GymTrackerDB") as Dexie & {
   weightEntries: EntityTable<WeightEntry, "id">;
   bodyMeasurements: EntityTable<BodyMeasurement, "id">;
   bodyFatEntries: EntityTable<BodyFatEntry, "id">;
+  notificationPreferences: EntityTable<NotificationPreference, "id">;
 };
 
 db.version(1).stores({
@@ -260,6 +276,23 @@ db.version(5).stores({
   weightEntries: "id, date",
   bodyMeasurements: "id, date",
   bodyFatEntries: "id, date",
+});
+
+db.version(6).stores({
+  exercises: "id, name, *muscleGroups, equipment, isCustom",
+  programs: "id, name, isActive",
+  trainingDays: "id, programId, dayNumber",
+  workoutLogs: "id, date, programId, dayId, isComplete",
+  personalRecords: "id, exerciseId, date",
+  userSettings: "id",
+  onboardingProfiles: "id",
+  achievements: "id, achievementId, unlockedAt",
+  hydrationLogs: "id, date",
+  recoveryAssessments: "id, date",
+  weightEntries: "id, date",
+  bodyMeasurements: "id, date",
+  bodyFatEntries: "id, date",
+  notificationPreferences: "id",
 });
 
 // ============================================================

@@ -16,7 +16,10 @@ import {
   Flame,
   Dumbbell,
   Trophy,
+  Bell,
+  ChevronRight,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useUser, SignOutButton } from "@clerk/nextjs";
 import Image from "next/image";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -31,6 +34,7 @@ interface Toast {
 
 export default function ProfileSettingsPage() {
   const { user } = useUser();
+  const router = useRouter();
   const queryClient = useQueryClient();
   const [toast, setToast] = useState<Toast | null>(null);
 
@@ -248,6 +252,25 @@ export default function ProfileSettingsPage() {
             Save Profile
           </Button>
         </CardContent>
+      </Card>
+
+      {/* Notifications */}
+      <Card
+        className="bg-[#1A1A1A] border-[#2A2A2A] p-4 cursor-pointer active:scale-[0.98] transition-transform"
+        onClick={() => router.push("/settings/notifications")}
+      >
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-[#CDFF00]/10 flex items-center justify-center">
+              <Bell className="w-5 h-5 text-[#CDFF00]" />
+            </div>
+            <div>
+              <p className="font-medium text-white">Notifications</p>
+              <p className="text-sm text-white/40">Reminders, alerts, digest</p>
+            </div>
+          </div>
+          <ChevronRight className="w-5 h-5 text-white/30" />
+        </div>
       </Card>
 
       {/* Privacy */}
