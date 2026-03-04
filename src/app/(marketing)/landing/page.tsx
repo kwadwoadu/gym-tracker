@@ -1,12 +1,23 @@
 "use client";
 
-import { Hero, Features, CTA, Footer } from "@/components/landing";
+import {
+  Hero,
+  SocialProof,
+  Features,
+  Testimonials,
+  Credibility,
+  CTA,
+  Footer,
+} from "@/components/landing";
 
 export default function LandingPage() {
   return (
     <>
       <Hero />
+      <SocialProof />
       <Features />
+      <Testimonials />
+      <Credibility />
       <CTA />
       <Footer />
     </>

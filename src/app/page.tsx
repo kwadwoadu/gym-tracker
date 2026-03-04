@@ -16,7 +16,7 @@ import { PostWorkoutDashboard } from "@/components/home/PostWorkoutDashboard";
 import { RestDayDashboard } from "@/components/home/RestDayDashboard";
 import { getNextTrainingDay } from "@/lib/next-day";
 import { SupersetView } from "@/components/workout/superset-view";
-import { Hero, Features, CTA, Footer } from "@/components/landing";
+import { Hero, SocialProof, Features, Testimonials, Credibility, CTA, Footer } from "@/components/landing";
 import {
   usePrograms,
   useTrainingDays,
@@ -180,7 +180,10 @@ export default function Home() {
     return (
       <div className="min-h-screen bg-[#0A0A0A] text-white">
         <Hero />
+        <SocialProof />
         <Features />
+        <Testimonials />
+        <Credibility />
         <CTA />
         <Footer />
       </div>
