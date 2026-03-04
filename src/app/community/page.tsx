@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
   Users,
@@ -17,13 +18,89 @@ import {
   Dumbbell,
   Award,
   Home,
+  Search,
 } from "lucide-react";
 import { followApi, groupsApi, challengesApi, leaderboardApi, activityApi } from "@/lib/api-client";
 import type { LeaderboardEntry, ActivityItem } from "@/lib/api-client";
+import { TemplateCard } from "@/components/community/template-card";
+import { TemplatePreview } from "@/components/community/template-preview";
+import type { WorkoutTemplate, SplitType } from "@/types/templates";
+import { cn } from "@/lib/utils";
+
+const SPLIT_FILTERS: { value: SplitType | "all"; label: string }[] = [
+  { value: "all", label: "All" },
+  { value: "ppl", label: "PPL" },
+  { value: "upper_lower", label: "Upper/Lower" },
+  { value: "full_body", label: "Full Body" },
+  { value: "bro_split", label: "Bro Split" },
+];
+
+async function fetchTemplates(params: { splitType?: string; search?: string; sort?: string }) {
+  const sp = new URLSearchParams();
+  if (params.splitType && params.splitType !== "all") sp.set("splitType", params.splitType);
+  if (params.search) sp.set("search", params.search);
+  if (params.sort) sp.set("sort", params.sort);
+  const res = await fetch(`/api/templates?${sp.toString()}`);
+  if (!res.ok) throw new Error("Failed to fetch");
+  return res.json();
+}
 
 export default function CommunityPage() {
   const router = useRouter();
-  const [tab, setTab] = useState("activity");
+  const queryClient = useQueryClient();
+  const [tab, setTab] = useState("programs");
+  const [templateSearch, setTemplateSearch] = useState("");
+  const [splitFilter, setSplitFilter] = useState<SplitType | "all">("all");
+  const [templateSort, setTemplateSort] = useState<"upvotes" | "newest">("upvotes");
+  const [selectedTemplate, setSelectedTemplate] = useState<WorkoutTemplate | null>(null);
+  const [previewOpen, setPreviewOpen] = useState(false);
+
+  // Templates query
+  const { data: templatesData, isLoading: templatesLoading } = useQuery({
+    queryKey: ["templates", splitFilter, templateSearch, templateSort],
+    queryFn: () => fetchTemplates({ splitType: splitFilter, search: templateSearch || undefined, sort: templateSort }),
+  });
+
+  const voteMutation = useMutation({
+    mutationFn: async (templateId: string) => {
+      const res = await fetch(`/api/templates/${templateId}/vote`, { method: "POST" });
+      if (!res.ok) throw new Error("Vote failed");
+      return res.json();
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["templates"] }),
+  });
+
+  const importMutation = useMutation({
+    mutationFn: async (template: WorkoutTemplate) => {
+      const res = await fetch(`/api/templates/${template.id}/import`, { method: "POST" });
+      if (!res.ok) throw new Error("Import failed");
+      const data = await res.json();
+      const programRes = await fetch("/api/programs", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: template.programName,
+          description: `Imported from community - by @${template.authorName}`,
+          programData: data.programData,
+        }),
+      });
+      if (!programRes.ok) throw new Error("Failed to create program");
+      return programRes.json();
+    },
+    onSuccess: () => {
+      setPreviewOpen(false);
+      router.push("/programs");
+    },
+  });
+
+  const handleView = useCallback((template: WorkoutTemplate) => {
+    setSelectedTemplate(template);
+    setPreviewOpen(true);
+  }, []);
+
+  const handleVote = useCallback((id: string) => voteMutation.mutate(id), [voteMutation]);
+
+  const templates: WorkoutTemplate[] = templatesData?.templates || [];
 
   // Fetch community data
   const { data: following, isLoading: followingLoading } = useQuery({
@@ -115,10 +192,68 @@ export default function CommunityPage() {
       <Tabs value={tab} onValueChange={setTab} className="w-full">
         <div className="px-4">
           <TabsList className="w-full bg-muted/50">
+            <TabsTrigger value="programs" className="flex-1">Programs</TabsTrigger>
             <TabsTrigger value="activity" className="flex-1">Activity</TabsTrigger>
             <TabsTrigger value="leaderboard" className="flex-1">Leaderboard</TabsTrigger>
           </TabsList>
         </div>
+
+        {/* Community Programs */}
+        <TabsContent value="programs" className="mt-4">
+          <div className="px-4 space-y-3">
+            {/* Search */}
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+              <Input
+                placeholder="Search templates..."
+                value={templateSearch}
+                onChange={(e) => setTemplateSearch(e.target.value)}
+                className="pl-10 bg-[#2A2A2A] border-[#2A2A2A]"
+              />
+            </div>
+            {/* Filters */}
+            <div className="flex items-center gap-2 overflow-x-auto pb-1">
+              {SPLIT_FILTERS.map((f) => (
+                <button
+                  key={f.value}
+                  onClick={() => setSplitFilter(f.value)}
+                  className={cn(
+                    "px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors",
+                    splitFilter === f.value
+                      ? "bg-[#CDFF00] text-black"
+                      : "bg-[#1A1A1A] text-white/50"
+                  )}
+                >
+                  {f.label}
+                </button>
+              ))}
+            </div>
+            {/* Sort */}
+            <div className="flex items-center gap-2">
+              <button onClick={() => setTemplateSort("upvotes")} className={cn("text-xs font-medium", templateSort === "upvotes" ? "text-[#CDFF00]" : "text-white/40")}>Popular</button>
+              <span className="text-white/20">|</span>
+              <button onClick={() => setTemplateSort("newest")} className={cn("text-xs font-medium", templateSort === "newest" ? "text-[#CDFF00]" : "text-white/40")}>Newest</button>
+            </div>
+            {/* List */}
+            {templatesLoading ? (
+              <div className="flex items-center justify-center py-12">
+                <Loader2 className="w-6 h-6 animate-spin text-primary" />
+              </div>
+            ) : templates.length === 0 ? (
+              <Card className="p-8 text-center">
+                <Dumbbell className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+                <h3 className="font-semibold mb-2">No programs yet</h3>
+                <p className="text-sm text-muted-foreground">Be the first to share a program!</p>
+              </Card>
+            ) : (
+              <div className="space-y-3">
+                {templates.map((t) => (
+                  <TemplateCard key={t.id} template={t} onVote={handleVote} onView={handleView} />
+                ))}
+              </div>
+            )}
+          </div>
+        </TabsContent>
 
         {/* Activity Feed */}
         <TabsContent value="activity" className="mt-4">
@@ -194,6 +329,16 @@ export default function CommunityPage() {
           </Button>
         </div>
       </div>
+
+      {/* Template Preview Sheet */}
+      <TemplatePreview
+        template={selectedTemplate}
+        open={previewOpen}
+        onClose={() => setPreviewOpen(false)}
+        onImport={(t) => importMutation.mutate(t)}
+        onVote={handleVote}
+        isImporting={importMutation.isPending}
+      />
     </div>
   );
 }

@@ -586,6 +586,48 @@ model UserBadge {
 }
 
 // ============================================================
+// Workout Templates & Community Sharing (SetFlow v2.2)
+// ============================================================
+
+model WorkoutTemplate {
+  id                String   @id @default(cuid())
+  authorId          String
+  authorName        String
+  programName       String
+  description       String
+  difficulty        String   // beginner | intermediate | advanced
+  splitType         String   // ppl | upper_lower | full_body | bro_split | other
+  dayCount          Int
+  estimatedDuration Int      // minutes per session
+  programData       Json     // Full serialized program
+  upvotes           Int      @default(0)
+  imports           Int      @default(0)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  // Relations
+  votes TemplateVote[]
+
+  @@index([authorId])
+  @@index([splitType])
+  @@index([upvotes])
+  @@index([createdAt])
+}
+
+model TemplateVote {
+  id         String   @id @default(cuid())
+  userId     String
+  createdAt  DateTime @default(now())
+
+  templateId String
+  template   WorkoutTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+
+  @@unique([templateId, userId])
+  @@index([userId])
+  @@index([templateId])
+}
+
+// ============================================================
 // Focus Session Models (SetFlow v2.0 - Phase 4)
 // ============================================================
 
