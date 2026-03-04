@@ -36,6 +36,10 @@ import { RestTimer } from "@/components/workout/rest-timer";
 import { SetLogger } from "@/components/workout/set-logger";
 import { EditSetDrawer } from "@/components/workout/edit-set-drawer";
 import { ChallengeCard } from "@/components/workout/challenge-card";
+import { WorkoutCarousel } from "@/components/workout/workout-carousel";
+import { ProgressDots } from "@/components/workout/progress-dots";
+import { SetLoggerSheet } from "@/components/workout/set-logger-sheet";
+import { flattenSupersets, type FlatExercise } from "@/lib/flatten-exercises";
 import { AchievementToast, useAchievementToasts, useMilestoneModal } from "@/components/gamification";
 import { checkAchievements, XP_REWARDS } from "@/lib/gamification";
 import { useAwardXP, useBulkUpdateChallengeProgress } from "@/lib/queries";
@@ -187,6 +191,11 @@ export default function WorkoutSession() {
   const hasCheckedSession = useRef(false);
   const isRestoringSession = useRef(false);
   const lastSyncTime = useRef<number>(0);
+
+  // Swipe workout flow state
+  const [carouselIndex, setCarouselIndex] = useState(0);
+  const [sheetOpen, setSheetOpen] = useState(false);
+  const [sheetExerciseIndex, setSheetExerciseIndex] = useState(0);
   const currentDeviceId = useRef<string>("");
 
   // Global weight memory + edit sets state
@@ -1056,6 +1065,84 @@ export default function WorkoutSession() {
 
   const currentExercise = getCurrentExercise();
 
+  // Flatten supersets for carousel navigation
+  const flatExercises: FlatExercise[] = trainingDay
+    ? flattenSupersets(trainingDay.supersets)
+    : [];
+
+  // Get the flat exercise for the current sheet
+  const sheetFlatExercise = flatExercises[sheetExerciseIndex] || null;
+  const sheetExercise = sheetFlatExercise
+    ? exercises.get(sheetFlatExercise.exerciseId) || null
+    : null;
+  const sheetCompletedCount = sheetFlatExercise
+    ? completedSets.filter((s) => s.exerciseId === sheetFlatExercise.exerciseId).length
+    : 0;
+  const sheetSetNumber = sheetCompletedCount + 1;
+
+  // Handle opening set logger sheet from carousel
+  const handleOpenSheet = (exerciseIndex: number) => {
+    setSheetExerciseIndex(exerciseIndex);
+    setSheetOpen(true);
+    if (!audioInitialized) {
+      audioManager.init().then(() => setAudioInitialized(true));
+    }
+  };
+
+  // Handle set completion from sheet
+  const handleSheetSetComplete = (weight: number, reps: number, rpe?: number) => {
+    // Close sheet and delegate to existing handleSetComplete
+    setSheetOpen(false);
+
+    // We need to update workoutState to match the carousel's exercise
+    // then call the existing completion logic
+    if (sheetFlatExercise && trainingDay) {
+      // Find the superset index and exercise index for this flat exercise
+      let ssIdx = 0;
+      let exIdx = 0;
+      for (let s = 0; s < trainingDay.supersets.length; s++) {
+        for (let e = 0; e < trainingDay.supersets[s].exercises.length; e++) {
+          if (
+            trainingDay.supersets[s].id === sheetFlatExercise.supersetId &&
+            e === sheetFlatExercise.indexInSuperset
+          ) {
+            ssIdx = s;
+            exIdx = e;
+          }
+        }
+      }
+
+      // Update workout state to the exercise being logged
+      setWorkoutState({
+        supersetIndex: ssIdx,
+        exerciseIndex: exIdx,
+        setNumber: sheetSetNumber,
+      });
+
+      // Use existing handleSetComplete
+      handleSetComplete(weight, reps, rpe);
+    }
+  };
+
+  // Handle set skip from sheet
+  const handleSheetSkip = () => {
+    setSheetOpen(false);
+    handleSkipSet();
+  };
+
+  // Build weight suggestions map for carousel
+  const weightSuggestionsMap = new Map<string, { weight: number; lastWeekWeight: number; lastWeekReps: number }>();
+  if (weightSuggestion) {
+    const currentEx = getCurrentExercise();
+    if (currentEx) {
+      weightSuggestionsMap.set(currentEx.exerciseId, {
+        weight: weightSuggestion.weight,
+        lastWeekWeight: weightSuggestion.lastWeekWeight,
+        lastWeekReps: weightSuggestion.lastWeekReps,
+      });
+    }
+  }
+
   return (
     <div className="min-h-screen pb-safe-bottom">
       {/* Achievement Toast */}
@@ -1300,189 +1387,52 @@ export default function WorkoutSession() {
           </motion.div>
         )}
 
-        {/* Exercise Phase */}
-        {phase === "exercise" && currentExercise && (
+        {/* Exercise Phase - Swipe Carousel */}
+        {phase === "exercise" && trainingDay && flatExercises.length > 0 && (
           <motion.div
-            key={`exercise-${workoutState.supersetIndex}-${workoutState.exerciseIndex}-${workoutState.setNumber}`}
+            key="exercise-carousel"
             variants={phaseVariants}
             initial="initial"
             animate="animate"
             exit="exit"
             transition={phaseTransition}
-            className="space-y-6"
+            className="flex flex-col h-[calc(100vh-120px)]"
           >
-            {/* Current superset indicator */}
-            <div className="flex items-center justify-center gap-2">
-              {trainingDay.supersets.map((ss, idx) => (
-                <motion.div
-                  key={ss.id}
-                  animate={{
-                    scale: idx === workoutState.supersetIndex ? 1.1 : 1,
-                  }}
-                  transition={{ type: "spring", stiffness: 400, damping: 25 }}
-                  className={cn(
-                    "w-10 h-10 rounded-full flex items-center justify-center font-bold",
-                    idx === workoutState.supersetIndex
-                      ? "bg-primary text-primary-foreground"
-                      : idx < workoutState.supersetIndex
-                      ? "bg-success text-success-foreground"
-                      : "bg-muted text-muted-foreground"
-                  )}
-                >
-                  {ss.label}
-                </motion.div>
-              ))}
-            </div>
+            {/* Progress dots */}
+            <ProgressDots
+              flatExercises={flatExercises}
+              currentIndex={carouselIndex}
+              completedSets={completedSets}
+            />
 
-            {/* Up Next preview - helps user prepare equipment */}
-            {(() => {
-              const nextExercise = getNextExercisePreview();
-              if (!nextExercise) return null;
-              return (
-                <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="flex items-center gap-3 p-3 rounded-lg bg-muted/30 border border-border/50"
-                >
-                  <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs text-muted-foreground uppercase tracking-wider">
-                      Up Next
-                    </p>
-                    <p className="text-sm text-foreground font-medium truncate">
-                      {nextExercise.label} {nextExercise.name}
-                      {nextExercise.setNumber && ` - Set ${nextExercise.setNumber}`}
-                    </p>
-                  </div>
-                  {nextExercise.equipment && (
-                    <Badge variant="secondary" className="text-xs shrink-0">
-                      <Dumbbell className="w-3 h-3 mr-1" />
-                      {nextExercise.equipment}
-                    </Badge>
-                  )}
-                </motion.div>
-              );
-            })()}
+            {/* Swipeable exercise carousel */}
+            <WorkoutCarousel
+              flatExercises={flatExercises}
+              exercises={exercises}
+              completedSets={completedSets}
+              currentIndex={carouselIndex}
+              onIndexChange={setCarouselIndex}
+              onLogSet={handleOpenSheet}
+              isRestTimerActive={false}
+              weightSuggestions={weightSuggestionsMap}
+            />
 
-            {/* Challenge Card - Progressive overload nudge */}
-            {globalSuggestion?.shouldNudgeIncrease &&
-              globalSuggestion.nudgeWeight &&
-              !challengeDismissedExercises.has(currentExercise.exerciseId) && (
-                <ChallengeCard
-                  currentWeight={globalSuggestion.lastWeight}
-                  challengeWeight={globalSuggestion.nudgeWeight}
-                  lastReps={globalSuggestion.lastReps}
-                  isVisible={true}
-                  onAccept={() => handleChallengeAccept(currentExercise.exerciseId)}
-                  onDismiss={() => handleChallengeDismiss(currentExercise.exerciseId)}
-                />
-              )}
-
-            {/* Completed sets for this exercise - tap to edit */}
-            {(() => {
-              const exerciseCompletedSets = getCompletedSetsForCurrentExercise();
-              if (exerciseCompletedSets.length === 0) return null;
-              return (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="mb-4"
-                >
-                  <p className="text-xs text-muted-foreground uppercase tracking-wider mb-2">
-                    Completed Sets (tap to edit)
-                  </p>
-                  <div className="flex flex-wrap gap-2">
-                    {exerciseCompletedSets.map((set) => (
-                      <button
-                        key={set.id}
-                        type="button"
-                        onClick={() => handleEditSet(set)}
-                        className={cn(
-                          "px-3 py-2 rounded-lg text-sm font-medium",
-                          "bg-success/20 text-success border border-success/30",
-                          "hover:bg-success/30 active:scale-95 transition-all",
-                          "flex items-center gap-1.5"
-                        )}
-                      >
-                        <Check className="w-3.5 h-3.5" />
-                        <span>Set {set.setNumber}</span>
-                        <span className="text-success/70">
-                          {set.weight}kg x {set.actualReps}
-                        </span>
-                      </button>
-                    ))}
-                  </div>
-                </motion.div>
-              );
-            })()}
-
-            {/* Set logger */}
-            {(() => {
-              // Get session memory (from current workout's previous sets)
-              const sessionMemory = getSessionMemoryForExercise(
-                currentExercise.exerciseId,
-                workoutState.setNumber
-              );
-              // Determine memory source: session > historical > none
-              const hasSessionMemory = sessionMemory !== null;
-              const hasHistoricalMemory = globalSuggestion !== null;
-              const memorySource = hasSessionMemory ? "session" : hasHistoricalMemory ? "historical" : undefined;
-
-              return (
-                <SetLogger
-                  key={`${workoutState.supersetIndex}-${workoutState.exerciseIndex}-${workoutState.setNumber}`}
-                  exerciseName={currentExercise.name}
-                  supersetLabel={currentExercise.supersetLabel}
-                  exerciseLabel={String(workoutState.exerciseIndex + 1)}
-                  setNumber={workoutState.setNumber}
-                  totalSets={currentExercise.sets}
-                  targetReps={getTargetReps(
-                    currentExercise.reps,
-                    workoutState.setNumber
-                  )}
-                  lastWeekWeight={globalSuggestion?.lastWeight ?? weightSuggestion?.lastWeekWeight}
-                  lastWeekReps={globalSuggestion?.lastReps ?? weightSuggestion?.lastWeekReps}
-                  suggestedWeight={
-                    // Priority: session memory > challenge nudge > global/day-specific
-                    sessionMemory?.weight ??
-                    (challengeDismissedExercises.has(currentExercise.exerciseId) &&
-                    globalSuggestion?.nudgeWeight
-                      ? globalSuggestion.nudgeWeight
-                      : globalSuggestion?.suggestedWeight ?? weightSuggestion?.weight)
-                  }
-                  suggestedReps={sessionMemory?.reps ?? globalSuggestion?.suggestedReps}
-                  suggestedRpe={sessionMemory?.rpe ?? globalSuggestion?.suggestedRpe}
-                  lastWorkoutDate={globalSuggestion?.lastDate}
-                  hitTargetLastTime={globalSuggestion?.hitTargetLastTime}
-                  memorySource={memorySource}
-                  videoUrl={currentExercise.videoUrl ?? undefined}
-                  onComplete={handleSetComplete}
-                  onSkip={handleSkipSet}
-                />
-              );
-            })()}
-
-            {/* Tempo reminder */}
-            <Card className="p-4 bg-muted/30 border-border">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs text-muted-foreground uppercase tracking-wider">
-                    Tempo
-                  </p>
-                  <p className="text-lg font-mono text-foreground">
-                    {currentExercise.tempo}
-                  </p>
-                </div>
-                <div className="text-right">
-                  <p className="text-xs text-muted-foreground uppercase tracking-wider">
-                    Rest
-                  </p>
-                  <p className="text-lg font-mono text-foreground">
-                    {currentExercise.restSeconds}s
-                  </p>
-                </div>
-              </div>
-            </Card>
+            {/* Set Logger Bottom Sheet */}
+            <SetLoggerSheet
+              open={sheetOpen}
+              onOpenChange={setSheetOpen}
+              flatExercise={sheetFlatExercise}
+              exercise={sheetExercise}
+              setNumber={sheetSetNumber}
+              totalSets={sheetFlatExercise?.sets || 4}
+              suggestedWeight={weightSuggestion?.weight}
+              suggestedReps={undefined}
+              suggestedRpe={undefined}
+              lastWeekWeight={weightSuggestion?.lastWeekWeight}
+              lastWeekReps={weightSuggestion?.lastWeekReps}
+              onComplete={handleSheetSetComplete}
+              onSkip={handleSheetSkip}
+            />
           </motion.div>
         )}
 
