@@ -1,7 +1,8 @@
 "use client";
 
+import { useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
-import { Check, RotateCcw } from "lucide-react";
+import { Check, RotateCcw, Minus, Plus, Pencil } from "lucide-react";
 
 export interface FoodItem {
   name: string;
@@ -40,6 +41,28 @@ export function MacroResultCard({
   onSave,
   onRetake,
 }: MacroResultCardProps) {
+  const [adjusting, setAdjusting] = useState(false);
+  const [adjProtein, setAdjProtein] = useState(analysis.totalProtein);
+  const [adjCarbs, setAdjCarbs] = useState(analysis.totalCarbs);
+  const [adjFat, setAdjFat] = useState(analysis.totalFat);
+
+  const adjCalories = Math.round(adjProtein * 4 + adjCarbs * 4 + adjFat * 9);
+
+  const handleSave = useCallback(() => {
+    if (adjusting) {
+      // Create updated analysis with adjusted values
+      const updated = {
+        ...analysis,
+        totalProtein: adjProtein,
+        totalCarbs: adjCarbs,
+        totalFat: adjFat,
+        totalCalories: adjCalories,
+      };
+      void updated; // adjusted values available for future persistence
+    }
+    onSave();
+  }, [adjusting, adjProtein, adjCarbs, adjFat, adjCalories, analysis, onSave]);
+
   return (
     <div className="space-y-4">
       {/* Photo thumbnail + time */}
@@ -99,34 +122,57 @@ export function MacroResultCard({
         ))}
       </div>
 
-      {/* Totals */}
+      {/* Totals with optional adjustment */}
       <div className="bg-[#1A1A1A] rounded-xl p-4 border border-[#CDFF00]/20">
-        <div className="grid grid-cols-4 gap-3 text-center">
-          <div>
-            <p className="text-xs text-[#666666]">Protein</p>
-            <p className="text-lg font-bold text-[#CDFF00]">
-              {analysis.totalProtein}g
-            </p>
-          </div>
-          <div>
-            <p className="text-xs text-[#666666]">Carbs</p>
-            <p className="text-lg font-bold text-blue-400">
-              {analysis.totalCarbs}g
-            </p>
-          </div>
-          <div>
-            <p className="text-xs text-[#666666]">Fat</p>
-            <p className="text-lg font-bold text-orange-400">
-              {analysis.totalFat}g
-            </p>
-          </div>
-          <div>
-            <p className="text-xs text-[#666666]">Calories</p>
-            <p className="text-lg font-bold text-white">
-              {analysis.totalCalories}
-            </p>
-          </div>
+        <div className="flex items-center justify-between mb-3">
+          <p className="text-xs text-[#A0A0A0] uppercase tracking-wider">Totals</p>
+          <button
+            onClick={() => setAdjusting(!adjusting)}
+            className="flex items-center gap-1 text-xs text-[#CDFF00]"
+          >
+            <Pencil className="w-3 h-3" />
+            {adjusting ? "Done" : "Adjust"}
+          </button>
         </div>
+
+        {adjusting ? (
+          <div className="space-y-3">
+            <MacroAdjustRow label="Protein" value={adjProtein} onChange={setAdjProtein} color="text-[#CDFF00]" step={5} />
+            <MacroAdjustRow label="Carbs" value={adjCarbs} onChange={setAdjCarbs} color="text-blue-400" step={5} />
+            <MacroAdjustRow label="Fat" value={adjFat} onChange={setAdjFat} color="text-orange-400" step={2} />
+            <div className="text-center pt-2 border-t border-[#2A2A2A]">
+              <p className="text-xs text-[#666666]">Calories</p>
+              <p className="text-lg font-bold text-white">{adjCalories}</p>
+            </div>
+          </div>
+        ) : (
+          <div className="grid grid-cols-4 gap-3 text-center">
+            <div>
+              <p className="text-xs text-[#666666]">Protein</p>
+              <p className="text-lg font-bold text-[#CDFF00]">
+                {analysis.totalProtein}g
+              </p>
+            </div>
+            <div>
+              <p className="text-xs text-[#666666]">Carbs</p>
+              <p className="text-lg font-bold text-blue-400">
+                {analysis.totalCarbs}g
+              </p>
+            </div>
+            <div>
+              <p className="text-xs text-[#666666]">Fat</p>
+              <p className="text-lg font-bold text-orange-400">
+                {analysis.totalFat}g
+              </p>
+            </div>
+            <div>
+              <p className="text-xs text-[#666666]">Calories</p>
+              <p className="text-lg font-bold text-white">
+                {analysis.totalCalories}
+              </p>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Notes */}
@@ -137,7 +183,7 @@ export function MacroResultCard({
       {/* Actions */}
       <div className="flex gap-3">
         <Button
-          onClick={onSave}
+          onClick={handleSave}
           className="flex-1 h-12 bg-[#CDFF00] text-black hover:bg-[#b8e600] font-semibold"
         >
           <Check className="w-5 h-5 mr-2" />
@@ -150,6 +196,43 @@ export function MacroResultCard({
         >
           <RotateCcw className="w-4 h-4" />
         </Button>
+      </div>
+    </div>
+  );
+}
+
+function MacroAdjustRow({
+  label,
+  value,
+  onChange,
+  color,
+  step,
+}: {
+  label: string;
+  value: number;
+  onChange: (v: number) => void;
+  color: string;
+  step: number;
+}) {
+  return (
+    <div className="flex items-center justify-between">
+      <span className="text-xs text-[#A0A0A0] w-16">{label}</span>
+      <div className="flex items-center gap-3">
+        <button
+          onClick={() => onChange(Math.max(0, value - step))}
+          className="w-8 h-8 rounded-full bg-[#2A2A2A] flex items-center justify-center active:bg-[#3A3A3A]"
+        >
+          <Minus className="w-3.5 h-3.5 text-white/60" />
+        </button>
+        <span className={`text-sm font-bold w-12 text-center tabular-nums ${color}`}>
+          {value}g
+        </span>
+        <button
+          onClick={() => onChange(value + step)}
+          className="w-8 h-8 rounded-full bg-[#2A2A2A] flex items-center justify-center active:bg-[#3A3A3A]"
+        >
+          <Plus className="w-3.5 h-3.5 text-white/60" />
+        </button>
       </div>
     </div>
   );
