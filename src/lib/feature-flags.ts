@@ -57,3 +57,11 @@ export function canAccessAIVoiceLogging(): boolean {
 export function canAccessAINutritionCoach(): boolean {
   return true;
 }
+
+/**
+ * Check if AI form analysis is enabled
+ * Camera-based pose estimation and exercise form scoring
+ */
+export function canAccessAIFormAnalysis(): boolean {
+  return true;
+}
