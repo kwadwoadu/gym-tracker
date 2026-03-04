@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, usePathname } from "next/navigation";
-import { Dumbbell, UtensilsCrossed, Settings } from "lucide-react";
+import { Dumbbell, UtensilsCrossed, Settings, Timer } from "lucide-react";
 import {
   Drawer,
   DrawerContent,
@@ -29,6 +29,12 @@ const menuItems: MenuItem[] = [
     icon: Dumbbell,
     label: "Exercises",
     description: "Browse exercise library",
+  },
+  {
+    href: "/timer",
+    icon: Timer,
+    label: "Timer",
+    description: "AMRAP, EMOM, Tabata, Custom",
   },
   {
     href: "/settings",

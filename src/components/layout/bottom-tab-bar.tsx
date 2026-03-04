@@ -26,7 +26,7 @@ export function BottomTabBar() {
   const [moreOpen, setMoreOpen] = useState(false);
 
   // Check if current route is in "More" menu items
-  const isMoreActive = ["/exercises", "/nutrition", "/settings"].some(
+  const isMoreActive = ["/exercises", "/nutrition", "/settings", "/timer"].some(
     (route) => pathname === route || pathname.startsWith(route + "/")
   );
 
