@@ -157,6 +157,13 @@
   }
 }
 
+/* Typography scale */
+:root {
+  --text-h1: clamp(2rem, 5vw, 2.5rem);
+  --text-h2: clamp(1.75rem, 4vw, 2rem);
+  --text-h3: clamp(1.25rem, 3vw, 1.375rem);
+}
+
 /* Elevation system */
 :root {
   --shadow-hero: 0 4px 24px -4px rgba(205, 255, 0, 0.15),

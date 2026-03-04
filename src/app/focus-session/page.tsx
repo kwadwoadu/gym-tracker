@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { HEADING } from "@/lib/typography";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   ArrowLeft,
@@ -144,7 +145,7 @@ export default function FocusSessionStartPage() {
             <ArrowLeft className="w-5 h-5" />
           </Button>
           <div>
-            <h1 className="text-xl font-bold">Focus Session</h1>
+            <h1 className={`${HEADING.h3} text-foreground`}>Focus Session</h1>
             <p className="text-sm text-muted-foreground">One-off workout</p>
           </div>
         </div>

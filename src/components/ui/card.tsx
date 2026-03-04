@@ -1,13 +1,20 @@
 import * as React from "react"
 
 import { cn } from "@/lib/utils"
+import { ELEVATION, type ElevationTier } from "@/lib/elevation"
 
-function Card({ className, ...props }: React.ComponentProps<"div">) {
+interface CardProps extends React.ComponentProps<"div"> {
+  elevation?: ElevationTier;
+}
+
+function Card({ className, elevation, ...props }: CardProps) {
   return (
     <div
       data-slot="card"
       className={cn(
-        "bg-card text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm",
+        elevation
+          ? `text-card-foreground flex flex-col gap-6 ${ELEVATION[elevation]}`
+          : "bg-card text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm",
         className
       )}
       {...props}

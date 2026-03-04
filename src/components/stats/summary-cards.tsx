@@ -3,6 +3,7 @@
 import { Card } from "@/components/ui/card";
 import { Dumbbell, Flame, Clock, Trophy } from "lucide-react";
 import { TrendArrow } from "@/components/stats/trend-arrow";
+import { DATA } from "@/lib/typography";
 import type { WorkoutLog, PersonalRecord } from "@/lib/api-client";
 
 interface SummaryCardsProps {
@@ -116,7 +117,8 @@ export function SummaryCards({
       {stats.map((stat) => (
         <Card
           key={stat.label}
-          className="bg-card border-border p-4 flex flex-col gap-2"
+          elevation="standard"
+          className="flex flex-col gap-2"
         >
           <div className="flex items-center gap-2 min-w-0">
             <stat.icon className={`w-4 h-4 flex-shrink-0 ${stat.color}`} />
@@ -125,7 +127,7 @@ export function SummaryCards({
             </span>
           </div>
           <div className="flex items-baseline gap-2">
-            <span className="text-2xl font-bold text-foreground">
+            <span className={`${DATA.medium} text-foreground`}>
               {stat.value}{stat.valueSuffix || ""}
             </span>
             {stat.prev > 0 && (

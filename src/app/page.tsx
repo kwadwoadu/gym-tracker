@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Dumbbell, Loader2, BarChart3, ClipboardList, Settings, UtensilsCrossed, Users } from "lucide-react";
+import { HEADING, LABEL, SPACING } from "@/lib/typography";
 import { useNutritionAccess } from "@/hooks/use-nutrition-access";
 import { determineDashboardState } from "@/lib/dashboard-state";
 import { MorningDashboard } from "@/components/home/MorningDashboard";
@@ -231,7 +232,7 @@ export default function Home() {
               onClick={() => router.push("/programs")}
               className="text-left hover:opacity-80 transition-opacity"
             >
-              <h1 className="text-xl font-bold text-foreground">SetFlow</h1>
+              <h1 className={`${HEADING.h3} text-foreground`}>SetFlow</h1>
               <p className="text-sm text-muted-foreground">
                 {activeProgram?.name || "Your Training Program"}
               </p>
@@ -366,7 +367,7 @@ export default function Home() {
 
             return (
               <TabsContent key={day.id} value={day.id} className="mt-0">
-                <div className="p-4 space-y-8">
+                <div className={`p-4 ${SPACING.section}`}>
                   {/* Day Title */}
                   <div>
                     <h2 className="text-[28px] lg:text-[32px] font-bold tracking-tight leading-tight text-foreground">{day.name}</h2>
@@ -379,7 +380,7 @@ export default function Home() {
                   {warmup && warmup.length > 0 && (
                     <div className="space-y-3">
                       <div className="flex items-center gap-2">
-                        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
+                        <h3 className={`${LABEL.section} text-muted-foreground`}>
                           Warmup
                         </h3>
                         <div className="h-px flex-1 bg-border" />
@@ -419,7 +420,7 @@ export default function Home() {
                   {finisher && finisher.length > 0 && (
                     <div className="space-y-3">
                       <div className="flex items-center gap-2">
-                        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
+                        <h3 className={`${LABEL.section} text-muted-foreground`}>
                           Finisher
                         </h3>
                         <div className="h-px flex-1 bg-border" />

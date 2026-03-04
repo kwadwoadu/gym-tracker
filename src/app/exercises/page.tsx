@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { ArrowLeft, Plus, Search, Dumbbell, Loader2 } from "lucide-react";
 import { useExercises } from "@/lib/queries";
+import { HEADING } from "@/lib/typography";
 import { cn } from "@/lib/utils";
 
 export default function ExercisesPage() {
@@ -68,7 +69,7 @@ export default function ExercisesPage() {
             <ArrowLeft className="w-5 h-5" />
           </Button>
           <div className="flex-1">
-            <h1 className="text-xl font-bold text-foreground">Exercises</h1>
+            <h1 className={`${HEADING.h3} text-foreground`}>Exercises</h1>
             <p className="text-sm text-muted-foreground">
               {filteredExercises.length} exercises
             </p>

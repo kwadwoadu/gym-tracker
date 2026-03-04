@@ -1805,14 +1805,14 @@ export default function WorkoutSession() {
                 }
                 topSets={completedSets
                   .filter((s) => s.weight > 0)
-                  .sort((a, b) => b.weight * b.reps - a.weight * a.reps)
+                  .sort((a, b) => b.weight * b.actualReps - a.weight * a.actualReps)
                   .slice(0, 3)
                   .map((s) => {
                     const ex = exercises.get(s.exerciseId);
                     return {
                       exercise: ex?.name || "Exercise",
                       weight: s.weight,
-                      reps: s.reps,
+                      reps: s.actualReps,
                     };
                   })}
                 prs={newPRs.map((pr) => ({

@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import { Home, ClipboardList, BarChart3, Users, MoreHorizontal } from "lucide-react";
 import { MoreSheet } from "./more-sheet";
 import { cn } from "@/lib/utils";
+import { GLASS } from "@/lib/elevation";
 
 interface TabItem {
   href: string;
@@ -47,7 +48,7 @@ export function BottomTabBar() {
       {/* Tab Bar */}
       <nav className="fixed bottom-0 left-0 right-0 z-40 lg:hidden">
         {/* Glass background with blur */}
-        <div className="absolute inset-0 bg-[#0A0A0A]/60 backdrop-blur-xl backdrop-saturate-[1.8] border-t border-white/8 shadow-[var(--shadow-glass)] glass-bg" />
+        <div className={`absolute inset-0 ${GLASS.tabBar}`} />
 
         <div
           className="relative flex items-center justify-around px-2"

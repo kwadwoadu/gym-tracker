@@ -66,9 +66,9 @@ export async function POST(req: Request) {
           return { endpoint: sub.endpoint, sent: true };
         } catch (error) {
           // Remove expired subscriptions
+          const webPushErr = error as { statusCode?: number };
           if (
-            error instanceof webpush.WebPushError &&
-            error.statusCode === 410
+            webPushErr.statusCode === 410
           ) {
             await prisma.pushSubscription.delete({ where: { id: sub.id } });
             return { endpoint: sub.endpoint, sent: false, expired: true };

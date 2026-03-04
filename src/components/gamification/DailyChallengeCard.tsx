@@ -82,7 +82,7 @@ export function DailyChallengeCard({
           className
         )}
       >
-        <div className="flex items-start gap-3">
+        <div className="flex items-start gap-3.5">
           {/* Icon */}
           <div
             className={cn(

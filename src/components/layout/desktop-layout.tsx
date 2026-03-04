@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
 import { Sidebar } from "./sidebar";
 import { BottomTabBar } from "./bottom-tab-bar";
+import { PageTransition } from "@/components/shared/page-transition";
 
 interface DesktopLayoutProps {
   children: ReactNode;
@@ -51,7 +52,7 @@ export function DesktopLayout({ children }: DesktopLayoutProps) {
 
       {/* Main content - full width on mobile, offset on lg+ */}
       <main className="flex-1 lg:pl-64">
-        {children}
+        <PageTransition>{children}</PageTransition>
       </main>
 
       {/* Bottom Tab Bar - visible on mobile only */}

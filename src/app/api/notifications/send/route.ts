@@ -57,7 +57,8 @@ export async function POST(req: Request) {
     console.error("Push notification send error:", error);
 
     // Handle expired/invalid subscriptions
-    if (error instanceof webpush.WebPushError && error.statusCode === 410) {
+    const webPushErr = error as { statusCode?: number };
+    if (webPushErr.statusCode === 410) {
       return NextResponse.json(
         { error: "Subscription expired", expired: true },
         { status: 410 }

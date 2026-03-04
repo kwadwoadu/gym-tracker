@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dialog";
 import { Check, Minus, Plus, TrendingUp, TrendingDown, Play, ChevronDown, ChevronUp, SkipForward, Camera } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { WEIGHT_BOUNCE_UP, WEIGHT_BOUNCE_DOWN } from "@/lib/animations";
 import { MuscleMapMini } from "@/components/shared/MuscleMapMini";
 import { getFormRuleByExerciseId } from "@/data/form-rules";
 import { FormCamera } from "./form-camera";
@@ -139,6 +140,7 @@ export function SetLogger({
   const weightInputRef = useRef<HTMLInputElement>(null);
 
   const [showFormAnalysis, setShowFormAnalysis] = useState(false);
+  const [weightBounce, setWeightBounce] = useState<"up" | "down" | null>(null);
 
   const videoId = videoUrl ? getYouTubeId(videoUrl) : null;
   const isSearchUrl = videoUrl ? isYouTubeSearchUrl(videoUrl) : false;
@@ -180,6 +182,8 @@ export function SetLogger({
 
   const adjustWeight = (delta: number) => {
     setWeight((prev) => Math.max(0, +(prev + delta).toFixed(1)));
+    setWeightBounce(delta > 0 ? "up" : "down");
+    setTimeout(() => setWeightBounce(null), 300);
   };
 
   const adjustReps = (delta: number) => {
@@ -479,7 +483,7 @@ export function SetLogger({
               <span className="text-xl text-muted-foreground">kg</span>
             </div>
           ) : (
-            <button
+            <motion.button
               type="button"
               onClick={() => {
                 if (!isCompleted) {
@@ -488,6 +492,7 @@ export function SetLogger({
                 }
               }}
               disabled={isCompleted}
+              animate={weightBounce === "up" ? WEIGHT_BOUNCE_UP : weightBounce === "down" ? WEIGHT_BOUNCE_DOWN : {}}
               className={cn(
                 "px-4 py-2 rounded-lg transition-colors",
                 !isCompleted && "hover:bg-muted/50 active:bg-muted cursor-pointer"
@@ -497,7 +502,7 @@ export function SetLogger({
                 {weight}
               </span>
               <span className="text-xl text-muted-foreground ml-1">kg</span>
-            </button>
+            </motion.button>
           )}
         </div>
 

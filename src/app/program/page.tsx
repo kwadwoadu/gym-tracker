@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { HEADING } from "@/lib/typography";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -206,7 +207,7 @@ export default function ProgramPage() {
             <ArrowLeft className="w-5 h-5" />
           </Button>
           <div className="flex-1">
-            <h1 className="text-xl font-bold text-foreground">Program</h1>
+            <h1 className={`${HEADING.h3} text-foreground`}>Program</h1>
             {program && (
               <p className="text-sm text-muted-foreground">{program.name}</p>
             )}
