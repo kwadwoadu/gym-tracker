@@ -134,6 +134,21 @@ export interface Achievement {
   unlockedAt: string; // ISO date
 }
 
+export interface HydrationLog {
+  id: string;
+  date: string; // ISO date
+  glasses: number; // current count
+  target: number; // daily target
+  updatedAt: string;
+}
+
+export interface RecoveryAssessment {
+  id: string;
+  date: string; // ISO date
+  score: number; // 1-5
+  createdAt: string;
+}
+
 // ============================================================
 // Database Definition
 // ============================================================
@@ -147,6 +162,8 @@ const db = new Dexie("GymTrackerDB") as Dexie & {
   userSettings: EntityTable<UserSettings, "id">;
   onboardingProfiles: EntityTable<OnboardingProfile, "id">;
   achievements: EntityTable<Achievement, "id">;
+  hydrationLogs: EntityTable<HydrationLog, "id">;
+  recoveryAssessments: EntityTable<RecoveryAssessment, "id">;
 };
 
 db.version(1).stores({
@@ -177,6 +194,19 @@ db.version(3).stores({
   userSettings: "id",
   onboardingProfiles: "id",
   achievements: "id, achievementId, unlockedAt",
+});
+
+db.version(4).stores({
+  exercises: "id, name, *muscleGroups, equipment, isCustom",
+  programs: "id, name, isActive",
+  trainingDays: "id, programId, dayNumber",
+  workoutLogs: "id, date, programId, dayId, isComplete",
+  personalRecords: "id, exerciseId, date",
+  userSettings: "id",
+  onboardingProfiles: "id",
+  achievements: "id, achievementId, unlockedAt",
+  hydrationLogs: "id, date",
+  recoveryAssessments: "id, date",
 });
 
 // ============================================================
