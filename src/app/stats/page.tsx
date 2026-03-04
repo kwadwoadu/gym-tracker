@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo, useCallback } from "react";
+import type { MuscleVolume } from "@/lib/db";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Loader2 } from "lucide-react";
@@ -16,6 +17,8 @@ import { AchievementGallery } from "@/components/gamification";
 import { WeeklyMuscleHeatmap } from "@/components/stats/WeeklyMuscleHeatmap";
 import { PeriodSelector, type TimePeriod, getPeriodStart, filterByPeriod } from "@/components/stats/period-selector";
 import { WinsBanner } from "@/components/stats/wins-banner";
+import { MuscleDrillDown } from "@/components/stats/muscle-drill-down";
+import { EmptyPeriodState } from "@/components/stats/empty-period-state";
 import { ACHIEVEMENTS } from "@/data/achievements";
 import type { AchievementProgress } from "@/lib/gamification";
 import { useQueryClient } from "@tanstack/react-query";
@@ -32,6 +35,7 @@ export default function StatsPage() {
   const router = useRouter();
   const queryClient = useQueryClient();
   const [period, setPeriod] = useState<TimePeriod>("month");
+  const [selectedMuscle, setSelectedMuscle] = useState<string | null>(null);
 
   // React Query hooks
   const { data: workoutLogs, isLoading: logsLoading } = useWorkoutLogs({ isComplete: true });
@@ -184,6 +188,47 @@ export default function StatsPage() {
     queryClient.invalidateQueries({ queryKey: ["personal-records"] });
   }, [queryClient]);
 
+  // Build exercise breakdown for selected muscle
+  const exerciseBreakdowns = useMemo(() => {
+    if (!selectedMuscle || !workoutLogs || !exercisesList) return [];
+
+    const breakdownMap = new Map<string, { exerciseName: string; sets: number; volume: number }>();
+
+    for (const log of workoutLogs) {
+      if (!log.isComplete) continue;
+      for (const set of log.sets) {
+        if (!set.isComplete) continue;
+        const exercise = exercises.get(set.exerciseId);
+        if (!exercise) continue;
+
+        // Check if exercise targets this muscle
+        const muscleList = exercise.muscles
+          ? [...exercise.muscles.primary, ...exercise.muscles.secondary]
+          : exercise.muscleGroups;
+
+        if (!muscleList.includes(selectedMuscle)) continue;
+
+        const existing = breakdownMap.get(set.exerciseId);
+        const setVolume = set.weight * set.actualReps;
+        if (existing) {
+          existing.sets += 1;
+          existing.volume += setVolume;
+        } else {
+          breakdownMap.set(set.exerciseId, {
+            exerciseName: set.exerciseName || exercise.name,
+            sets: 1,
+            volume: setVolume,
+          });
+        }
+      }
+    }
+
+    return Array.from(breakdownMap.entries()).map(([exerciseId, data]) => ({
+      exerciseId,
+      ...data,
+    }));
+  }, [selectedMuscle, workoutLogs, exercisesList, exercises]);
+
   const isLoading = logsLoading || prsLoading || exercisesLoading || achievementsLoading || muscleVolumeLoading;
 
   if (isLoading) {
@@ -211,7 +256,7 @@ export default function StatsPage() {
             <ArrowLeft className="w-5 h-5" />
           </Button>
           <div>
-            <h1 className="text-xl font-bold text-foreground">Stats & Progress</h1>
+            <h1 className={`${HEADING.h3} text-foreground`}>Stats & Progress</h1>
             <p className="text-sm text-muted-foreground">
               {filteredLogs.length} workouts in {PERIOD_LABELS[period].toLowerCase()}
             </p>
@@ -225,6 +270,13 @@ export default function StatsPage() {
       </div>
 
       <div className="p-4 space-y-6">
+        {/* Empty state when no workouts in period */}
+        {filteredLogs.length === 0 && (
+          <EmptyPeriodState periodLabel={PERIOD_LABELS[period].toLowerCase()} />
+        )}
+
+        {filteredLogs.length > 0 && (
+        <>
         {/* Wins Banner */}
         <WinsBanner personalRecords={filteredPRs as PersonalRecord[]} periodLabel={PERIOD_LABELS[period].toLowerCase()} />
 
@@ -238,7 +290,10 @@ export default function StatsPage() {
 
         {/* Weekly Muscle Coverage Heatmap */}
         {muscleVolumes && muscleVolumes.length > 0 && (
-          <WeeklyMuscleHeatmap muscleVolumes={muscleVolumes} />
+          <WeeklyMuscleHeatmap
+            muscleVolumes={muscleVolumes}
+            onMuscleClick={(muscle) => setSelectedMuscle(muscle)}
+          />
         )}
 
         {/* Weight Progression Chart */}
@@ -258,6 +313,19 @@ export default function StatsPage() {
 
         {/* Recent Workouts */}
         <RecentWorkouts workoutLogs={filteredLogs as WorkoutLog[]} onSetEdited={handleSetEdited} />
+        </>
+        )}
+
+        {/* Muscle Drill-Down Drawer */}
+        {selectedMuscle && muscleVolumes && (
+          <MuscleDrillDown
+            muscleName={selectedMuscle}
+            isOpen={!!selectedMuscle}
+            onClose={() => setSelectedMuscle(null)}
+            muscleVolumes={muscleVolumes as MuscleVolume[]}
+            exerciseBreakdowns={exerciseBreakdowns}
+          />
+        )}
       </div>
     </div>
   );

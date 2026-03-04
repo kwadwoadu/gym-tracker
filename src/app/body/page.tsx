@@ -11,6 +11,7 @@ import {
   Scale,
   Ruler,
   Percent,
+  Camera,
 } from "lucide-react";
 import { DATA, LABEL } from "@/lib/typography";
 import db, { generateId, getToday } from "@/lib/db";
@@ -40,11 +41,13 @@ import {
 } from "recharts";
 import { MeasurementForm } from "@/components/body-composition/MeasurementForm";
 import { BodyFatCalculator } from "@/components/body-composition/BodyFatCalculator";
+import { PhotoProgress } from "@/components/body-composition/PhotoProgress";
 
 const TABS = [
   { key: "weight", label: "Weight", icon: Scale },
   { key: "measurements", label: "Measure", icon: Ruler },
   { key: "bodyfat", label: "Body Fat", icon: Percent },
+  { key: "photos", label: "Photos", icon: Camera },
 ] as const;
 
 const PERIODS: { key: Period; label: string }[] = [
@@ -574,17 +577,22 @@ export default function BodyPage() {
         </div>
       )}
 
-      {/* FAB */}
-      <button
-        onClick={() => {
-          if (tab === "weight") setShowWeightInput(true);
-          else if (tab === "measurements") setShowMeasurementForm(true);
-          else setShowBodyFatCalc(true);
-        }}
-        className="fixed bottom-24 right-4 w-14 h-14 rounded-full bg-[#CDFF00] text-black flex items-center justify-center shadow-lg active:scale-95 transition-transform z-30"
-      >
-        <Plus className="w-6 h-6" />
-      </button>
+      {/* Photos Tab */}
+      {tab === "photos" && <PhotoProgress />}
+
+      {/* FAB (hidden on photos tab - PhotoProgress has its own) */}
+      {tab !== "photos" && (
+        <button
+          onClick={() => {
+            if (tab === "weight") setShowWeightInput(true);
+            else if (tab === "measurements") setShowMeasurementForm(true);
+            else setShowBodyFatCalc(true);
+          }}
+          className="fixed bottom-24 right-4 w-14 h-14 rounded-full bg-[#CDFF00] text-black flex items-center justify-center shadow-lg active:scale-95 transition-transform z-30"
+        >
+          <Plus className="w-6 h-6" />
+        </button>
+      )}
 
       {/* Drawers */}
       <WeightInput

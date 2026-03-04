@@ -28,12 +28,17 @@ interface WeeklyMuscleHeatmapProps {
    * Show the legend explaining the colors
    */
   showLegend?: boolean;
+  /**
+   * Callback when a muscle group is tapped
+   */
+  onMuscleClick?: (muscle: string) => void;
 }
 
 export function WeeklyMuscleHeatmap({
   muscleVolumes,
   title = "Muscle Coverage This Week",
   showLegend = true,
+  onMuscleClick,
 }: WeeklyMuscleHeatmapProps) {
   // Calculate max sets for normalization
   const maxSets = useMemo(() => {
@@ -160,9 +165,10 @@ export function WeeklyMuscleHeatmap({
             </h4>
             <div className="flex flex-wrap gap-2">
               {musclesByIntensity.heavy.map((mv) => (
-                <div
+                <button
                   key={mv.muscle}
-                  className="flex items-center gap-1.5 px-2 py-1 rounded bg-primary/20 border border-primary/30"
+                  onClick={() => onMuscleClick?.(mv.muscle)}
+                  className="flex items-center gap-1.5 px-2 py-1 rounded bg-primary/20 border border-primary/30 min-h-[44px] active:scale-95 transition-transform"
                 >
                   <span className="text-sm text-foreground">
                     {getMuscleDisplayName(mv.muscle)}
@@ -170,7 +176,7 @@ export function WeeklyMuscleHeatmap({
                   <span className="text-xs text-muted-foreground">
                     {mv.sets} sets
                   </span>
-                </div>
+                </button>
               ))}
             </div>
           </div>
@@ -184,9 +190,10 @@ export function WeeklyMuscleHeatmap({
             </h4>
             <div className="flex flex-wrap gap-2">
               {musclesByIntensity.moderate.map((mv) => (
-                <div
+                <button
                   key={mv.muscle}
-                  className="flex items-center gap-1.5 px-2 py-1 rounded bg-muted/50 border border-border"
+                  onClick={() => onMuscleClick?.(mv.muscle)}
+                  className="flex items-center gap-1.5 px-2 py-1 rounded bg-muted/50 border border-border min-h-[44px] active:scale-95 transition-transform"
                 >
                   <span className="text-sm text-foreground">
                     {getMuscleDisplayName(mv.muscle)}
@@ -194,7 +201,7 @@ export function WeeklyMuscleHeatmap({
                   <span className="text-xs text-muted-foreground">
                     {mv.sets} sets
                   </span>
-                </div>
+                </button>
               ))}
             </div>
           </div>
@@ -208,9 +215,10 @@ export function WeeklyMuscleHeatmap({
             </h4>
             <div className="flex flex-wrap gap-2">
               {musclesByIntensity.light.map((mv) => (
-                <div
+                <button
                   key={mv.muscle}
-                  className="flex items-center gap-1.5 px-2 py-1 rounded bg-muted/30 border border-border/50"
+                  onClick={() => onMuscleClick?.(mv.muscle)}
+                  className="flex items-center gap-1.5 px-2 py-1 rounded bg-muted/30 border border-border/50 min-h-[44px] active:scale-95 transition-transform"
                 >
                   <span className="text-sm text-muted-foreground">
                     {getMuscleDisplayName(mv.muscle)}
@@ -218,7 +226,7 @@ export function WeeklyMuscleHeatmap({
                   <span className="text-xs text-muted-foreground">
                     {mv.sets} sets
                   </span>
-                </div>
+                </button>
               ))}
             </div>
           </div>

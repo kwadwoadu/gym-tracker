@@ -3,8 +3,6 @@
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import {
   Loader2,
@@ -12,7 +10,6 @@ import {
   AlertCircle,
   LogOut,
   User,
-  Save,
   Flame,
   Dumbbell,
   Trophy,
@@ -38,10 +35,7 @@ export default function ProfileSettingsPage() {
   const queryClient = useQueryClient();
   const [toast, setToast] = useState<Toast | null>(null);
 
-  // Profile state
-  const [displayName, setDisplayName] = useState("");
-  const [bio, setBio] = useState("");
-  const [handle, setHandle] = useState("");
+  // Privacy state
   const [shareStreak, setShareStreak] = useState(true);
   const [shareVolume, setShareVolume] = useState(false);
   const [shareWorkouts, setShareWorkouts] = useState(true);
@@ -59,39 +53,30 @@ export default function ProfileSettingsPage() {
     queryFn: () => statsApi.get(),
   });
 
-  // Update profile mutation
+  // Update privacy mutation
   const updateProfileMutation = useMutation({
-    mutationFn: (data?: Partial<{
-      displayName: string | null;
-      bio: string | null;
-      handle: string | null;
+    mutationFn: (data: Partial<{
       shareStreak: boolean;
       shareVolume: boolean;
       shareWorkouts: boolean;
     }>) =>
       userProfileApi.update({
-        displayName: data?.displayName ?? (displayName || null),
-        bio: data?.bio ?? (bio || null),
-        handle: data?.handle ?? (handle || null),
-        shareStreak: data?.shareStreak ?? shareStreak,
-        shareVolume: data?.shareVolume ?? shareVolume,
-        shareWorkouts: data?.shareWorkouts ?? shareWorkouts,
+        shareStreak: data.shareStreak ?? shareStreak,
+        shareVolume: data.shareVolume ?? shareVolume,
+        shareWorkouts: data.shareWorkouts ?? shareWorkouts,
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["profile"] });
-      showToast("Profile saved!", "success");
+      showToast("Saved!", "success");
     },
     onError: () => {
-      showToast("Failed to save profile", "error");
+      showToast("Failed to save", "error");
     },
   });
 
-  // Initialize profile form when data loads
+  // Initialize privacy state when profile loads
   useEffect(() => {
     if (profile && !profileInitialized) {
-      setDisplayName(profile.displayName || "");
-      setBio(profile.bio || "");
-      setHandle(profile.handle || "");
       setShareStreak(profile.shareStreak);
       setShareVolume(profile.shareVolume);
       setShareWorkouts(profile.shareWorkouts);
@@ -195,63 +180,23 @@ export default function ProfileSettingsPage() {
         </SignOutButton>
       </Card>
 
-      {/* Profile Info */}
-      <Card className="bg-[#1A1A1A] border-[#2A2A2A]">
-        <CardHeader className="pb-4">
-          <CardTitle className="text-lg flex items-center gap-2">
-            <User className="w-5 h-5" />
-            Profile
-          </CardTitle>
-          <CardDescription>Your community profile information</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="displayName">Display Name</Label>
-            <Input
-              id="displayName"
-              placeholder="Enter your display name"
-              value={displayName}
-              onChange={(e) => setDisplayName(e.target.value)}
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="handle">Handle</Label>
-            <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">@</span>
-              <Input
-                id="handle"
-                placeholder="yourhandle"
-                value={handle}
-                onChange={(e) => setHandle(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ""))}
-                className="pl-7"
-              />
+      {/* Profile Info - navigate to sub-page */}
+      <Card
+        className="bg-[#1A1A1A] border-[#2A2A2A] p-4 cursor-pointer active:scale-[0.98] transition-transform"
+        onClick={() => router.push("/settings/profile")}
+      >
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-[#CDFF00]/10 flex items-center justify-center">
+              <User className="w-5 h-5 text-[#CDFF00]" />
+            </div>
+            <div>
+              <p className="font-medium text-white">Edit Profile</p>
+              <p className="text-sm text-white/40">Name, handle, bio</p>
             </div>
           </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="bio">Bio</Label>
-            <Input
-              id="bio"
-              placeholder="Tell others about yourself"
-              value={bio}
-              onChange={(e) => setBio(e.target.value)}
-            />
-          </div>
-
-          <Button
-            onClick={() => updateProfileMutation.mutate({})}
-            disabled={updateProfileMutation.isPending}
-            className="w-full"
-          >
-            {updateProfileMutation.isPending ? (
-              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-            ) : (
-              <Save className="w-4 h-4 mr-2" />
-            )}
-            Save Profile
-          </Button>
-        </CardContent>
+          <ChevronRight className="w-5 h-5 text-white/30" />
+        </div>
       </Card>
 
       {/* Notifications */}
