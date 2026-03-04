@@ -7,6 +7,7 @@ import type { Exercise, SetLog } from "@/lib/api-client";
 import { Dumbbell } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { vibrateShort } from "@/lib/haptics";
 
 interface WorkoutCarouselProps {
   flatExercises: FlatExercise[];
@@ -50,6 +51,7 @@ export function WorkoutCarousel({
     const onSelect = () => {
       const idx = emblaApi.selectedScrollSnap();
       if (idx !== currentIndex) {
+        vibrateShort();
         onIndexChange(idx);
       }
     };

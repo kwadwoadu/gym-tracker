@@ -30,6 +30,13 @@ import {
 } from "@/lib/body-composition/types";
 import { WeightChart, type Period } from "@/components/body-composition/WeightChart";
 import { WeightInput } from "@/components/body-composition/WeightInput";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  ResponsiveContainer,
+} from "recharts";
 import { MeasurementForm } from "@/components/body-composition/MeasurementForm";
 import { BodyFatCalculator } from "@/components/body-composition/BodyFatCalculator";
 
@@ -449,6 +456,55 @@ export default function BodyPage() {
                   - Navy Method
                 </p>
               </div>
+
+              {/* Body Fat Trend Chart */}
+              {bodyFatEntries.length >= 2 && (
+                <div className="bg-[#1A1A1A] rounded-xl p-3">
+                  <h3 className="text-xs font-semibold text-white/40 uppercase tracking-[0.08em] mb-2">
+                    Trend
+                  </h3>
+                  <div className="h-[160px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <LineChart
+                        data={[...bodyFatEntries]
+                          .reverse()
+                          .map((e) => ({
+                            date: e.date,
+                            percentage: e.percentage,
+                          }))}
+                        margin={{ top: 5, right: 10, left: 0, bottom: 5 }}
+                      >
+                        <XAxis
+                          dataKey="date"
+                          stroke="#666"
+                          tick={{ fontSize: 10, fill: "#666" }}
+                          tickFormatter={(d: string) =>
+                            new Date(d).toLocaleDateString("en", {
+                              month: "short",
+                              day: "numeric",
+                            })
+                          }
+                        />
+                        <YAxis
+                          stroke="#666"
+                          tick={{ fontSize: 10, fill: "#666" }}
+                          domain={["auto", "auto"]}
+                          width={35}
+                          unit="%"
+                        />
+                        <Line
+                          type="monotone"
+                          dataKey="percentage"
+                          stroke="#CDFF00"
+                          strokeWidth={2}
+                          dot={{ fill: "#CDFF00", r: 3 }}
+                          activeDot={{ fill: "#CDFF00", r: 5 }}
+                        />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+              )}
 
               {bodyFatEntries.length > 1 && (
                 <div>

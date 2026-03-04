@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import type { TrainingDay, WorkoutLog } from "@/lib/api-client";
 import { estimateWorkoutDuration, countExercises, countSupersets } from "@/lib/workout-duration";
 import { getNextTrainingDay } from "@/lib/next-day";
+import { vibrateShort } from "@/lib/haptics";
 
 interface HeroWorkoutCardProps {
   currentDay: TrainingDay | null;
@@ -83,7 +84,10 @@ export function HeroWorkoutCard({
         <Button
           size="lg"
           className="w-full h-12 text-base font-semibold bg-[#CDFF00] text-[#0A0A0A] hover:bg-[#CDFF00]/90 active:scale-[0.98] transition-transform"
-          onClick={() => router.push(`/workout/${currentDay.id}`)}
+          onClick={() => {
+            vibrateShort();
+            router.push(`/workout/${currentDay.id}`);
+          }}
         >
           <Play className="w-5 h-5 mr-2" />
           {isResume ? "Resume Workout" : `Start ${currentDay.name}`}
@@ -93,10 +97,11 @@ export function HeroWorkoutCard({
         {showQuickStart && nextDay && (
           <button
             onClick={() => {
+              vibrateShort();
               onSelectDay(nextDay.id);
               router.push(`/workout/${nextDay.id}`);
             }}
-            className="w-full text-center text-sm text-[#A0A0A0] hover:text-[#CDFF00] transition-colors py-1"
+            className="w-full text-center text-sm text-[#A0A0A0] hover:text-[#CDFF00] transition-colors min-h-[44px] flex items-center justify-center"
           >
             Quick Start: {nextDay.name} (next)
           </button>

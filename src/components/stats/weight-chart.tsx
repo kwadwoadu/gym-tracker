@@ -58,7 +58,7 @@ export function WeightChart({ workoutLogs, exercises }: WeightChartProps) {
       }
     });
 
-    return Array.from(progressionMap.entries())
+    const sorted = Array.from(progressionMap.entries())
       .map(([date, data]) => ({
         date,
         displayDate: new Date(date).toLocaleDateString("en-US", {
@@ -69,6 +69,16 @@ export function WeightChart({ workoutLogs, exercises }: WeightChartProps) {
         reps: data.reps,
       }))
       .sort((a, b) => a.date.localeCompare(b.date));
+
+    // Calculate 7-day moving average
+    return sorted.map((point, i) => {
+      const windowStart = Math.max(0, i - 6);
+      const window = sorted.slice(windowStart, i + 1);
+      const avg = Math.round(
+        (window.reduce((sum, p) => sum + p.weight, 0) / window.length) * 10
+      ) / 10;
+      return { ...point, movingAvg: avg };
+    });
   }, [workoutLogs, selectedExercise]);
 
   if (loggedExercises.length === 0) {
@@ -154,6 +164,19 @@ export function WeightChart({ workoutLogs, exercises }: WeightChartProps) {
                 dot={{ fill: "#CDFF00", strokeWidth: 0, r: 4 }}
                 activeDot={{ r: 6, fill: "#CDFF00" }}
               />
+              {chartData.length >= 3 && (
+                <Line
+                  type="monotone"
+                  dataKey="movingAvg"
+                  stroke="#CDFF00"
+                  strokeWidth={1.5}
+                  strokeOpacity={0.35}
+                  strokeDasharray="6 3"
+                  dot={false}
+                  activeDot={false}
+                  name="7-day avg"
+                />
+              )}
             </LineChart>
           </ResponsiveContainer>
         </div>

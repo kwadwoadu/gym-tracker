@@ -8,6 +8,7 @@ import {
   type TimerPhase,
 } from "@/lib/timer-engine";
 import { audioManager } from "@/lib/audio";
+import { vibrateShort, vibrateDouble, vibrateCelebration } from "@/lib/haptics";
 
 function getInitialState(config: TimerConfig): TimerState {
   const seconds =
@@ -41,18 +42,22 @@ export function useTimer(initialConfig: TimerConfig) {
       onPhaseChange: (phase: TimerPhase) => {
         if (phase === "work") {
           audioManager.playSetStart();
+          vibrateShort();
         } else if (phase === "rest") {
           audioManager.playRestComplete();
+          vibrateDouble();
         }
       },
       onComplete: () => {
         audioManager.playWorkoutComplete();
+        vibrateCelebration();
       },
       onWarning: (secondsLeft: number) => {
         if (secondsLeft === 10) {
           audioManager.playWarning();
         } else if (secondsLeft <= 5) {
           audioManager.playTick();
+          vibrateShort();
         }
       },
     });
