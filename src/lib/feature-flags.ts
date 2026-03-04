@@ -41,3 +41,11 @@ export function canAccessAIProgramGeneration(): boolean {
 export function canAccessAIWorkoutCopilot(): boolean {
   return true;
 }
+
+/**
+ * Check if AI voice logging is enabled
+ * Natural language voice input for set logging
+ */
+export function canAccessAIVoiceLogging(): boolean {
+  return true;
+}
