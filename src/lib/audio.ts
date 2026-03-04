@@ -88,6 +88,50 @@ class AudioManager {
     notes.forEach((freq, i) => {
       setTimeout(() => this.playBeep(freq, 150, 0.5), i * 100);
     });
+    // Shimmer layer
+    setTimeout(() => this.playShimmer(), 200);
+  }
+
+  // Set complete - ascending two-note chime
+  playSetComplete(): void {
+    this.playBeep(523, 100, 0.4); // C5
+    setTimeout(() => this.playBeep(659, 100, 0.4), 150); // E5
+  }
+
+  // Shimmer sound for PR detection overlay
+  playShimmer(): void {
+    if (!this.audioContext) return;
+    const osc = this.audioContext.createOscillator();
+    const gain = this.audioContext.createGain();
+    osc.connect(gain);
+    gain.connect(this.audioContext.destination);
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(2000, this.audioContext.currentTime);
+    osc.frequency.linearRampToValueAtTime(4000, this.audioContext.currentTime + 0.3);
+    gain.gain.setValueAtTime(0.2, this.audioContext.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.3);
+    osc.start(this.audioContext.currentTime);
+    osc.stop(this.audioContext.currentTime + 0.3);
+  }
+
+  // Streak milestone fanfare
+  playStreakMilestone(days: number): void {
+    if (days >= 100) {
+      const notes = [523, 659, 784, 1047, 1319]; // C-E-G-C6-E6
+      notes.forEach((freq, i) => {
+        setTimeout(() => this.playBeep(freq, 200, 0.5), i * 200);
+      });
+    } else if (days >= 30) {
+      const notes = [523, 659, 784, 1047]; // C-E-G-C6
+      notes.forEach((freq, i) => {
+        setTimeout(() => this.playBeep(freq, 150, 0.45 + i * 0.05), i * 150);
+      });
+    } else {
+      const notes = [523, 659, 784]; // C-E-G
+      notes.forEach((freq, i) => {
+        setTimeout(() => this.playBeep(freq, 100, 0.4), i * 100);
+      });
+    }
   }
 }
 

@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Play, Pause, SkipForward, RotateCcw } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { audioManager } from "@/lib/audio";
+import { vibrateDouble } from "@/lib/haptics";
 
 // Animation variants for timer warning pulse
 const timerPulseVariants = {
@@ -72,6 +73,7 @@ export function RestTimer({
   const handleComplete = useCallback(() => {
     setIsRunning(false);
     audioManager.playRestComplete();
+    vibrateDouble();
     onComplete();
   }, [onComplete]);
 

@@ -1,7 +1,8 @@
 "use client";
 
 import { usePathname, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useMemo } from "react";
+import { motion } from "framer-motion";
 import { Home, ClipboardList, BarChart3, Users, MoreHorizontal } from "lucide-react";
 import { MoreSheet } from "./more-sheet";
 import { cn } from "@/lib/utils";
@@ -29,6 +30,18 @@ export function BottomTabBar() {
     (route) => pathname === route || pathname.startsWith(route + "/")
   );
 
+  // Calculate active tab index for sliding indicator
+  const activeIndex = useMemo(() => {
+    const idx = tabs.findIndex(
+      (tab) =>
+        pathname === tab.href ||
+        (tab.href !== "/" && pathname.startsWith(tab.href + "/"))
+    );
+    if (idx >= 0) return idx;
+    if (isMoreActive) return tabs.length; // "More" tab
+    return 0; // Default to home
+  }, [pathname, isMoreActive]);
+
   return (
     <>
       {/* Tab Bar */}
@@ -43,6 +56,13 @@ export function BottomTabBar() {
             paddingBottom: "env(safe-area-inset-bottom, 0px)"
           }}
         >
+          {/* Sliding active indicator */}
+          <motion.div
+            className="absolute top-0 h-[2px] bg-[#CDFF00] rounded-full"
+            style={{ width: `${100 / (tabs.length + 1)}%` }}
+            animate={{ left: `${(activeIndex * 100) / (tabs.length + 1)}%` }}
+            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+          />
           {tabs.map((tab) => {
             const isActive = pathname === tab.href ||
               (tab.href !== "/" && pathname.startsWith(tab.href + "/"));
