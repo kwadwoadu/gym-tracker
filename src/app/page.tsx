@@ -223,7 +223,7 @@ export default function Home() {
   return (
     <div className="min-h-screen pb-44 lg:pb-8">
       {/* Header */}
-      <header className="px-4 pt-safe-top pb-4 gradient-divider">
+      <header className="px-4 pt-4 pb-4 gradient-divider">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center">

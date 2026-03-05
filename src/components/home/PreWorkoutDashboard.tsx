@@ -1,9 +1,8 @@
 "use client";
 
-import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
-import { Flame, Droplets, Check, Play } from "lucide-react";
+import { motion } from "framer-motion";
+import { Flame, Droplets, Play } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -20,32 +19,8 @@ export function PreWorkoutDashboard({
   exercises,
 }: PreWorkoutDashboardProps) {
   const router = useRouter();
-  // Get muscle groups for warmup suggestions
-  const supersets = todayWorkout.supersets as Array<{
-    exercises: Array<{ exerciseId: string }>;
-  }>;
-  const todayMuscles: string[] = [];
-  for (const ss of supersets) {
-    for (const e of ss.exercises) {
-      const ex = exercises.get(e.exerciseId);
-      if (ex) ex.muscleGroups.forEach((mg) => {
-        if (!todayMuscles.includes(mg)) todayMuscles.push(mg);
-      });
-    }
-  }
 
-  const warmupChecklist = getWarmupForMuscles(todayMuscles);
-  const [checkedItems, setCheckedItems] = useState<Set<number>>(new Set());
-  const allChecked = warmupChecklist.length > 0 && checkedItems.size === warmupChecklist.length;
-
-  const toggleItem = (index: number) => {
-    setCheckedItems((prev) => {
-      const next = new Set(prev);
-      if (next.has(index)) next.delete(index);
-      else next.add(index);
-      return next;
-    });
-  };
+  const warmupExercises = (todayWorkout.warmup as Array<{ exerciseId: string; reps: number }>) || [];
 
   return (
     <div className="px-4 space-y-5">
@@ -75,58 +50,32 @@ export function PreWorkoutDashboard({
         </Card>
       </motion.div>
 
-      {/* Warmup checklist */}
-      {warmupChecklist.length > 0 && (
+      {/* Warmup */}
+      {warmupExercises.length > 0 && (
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
         >
           <h4 className={`${LABEL.caption} text-white/40 mb-2`}>
-            Warmup Checklist
+            Warmup
           </h4>
           <Card className="bg-[#1A1A1A] border-[#2A2A2A] divide-y divide-[#2A2A2A]">
-            {warmupChecklist.map((item, i) => (
-              <button
-                key={i}
-                onClick={() => toggleItem(i)}
-                className="w-full px-4 py-3 text-left"
-              >
-                <div className="flex items-center gap-3">
-                  <div
-                    className={`w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${
-                      checkedItems.has(i)
-                        ? "bg-[#CDFF00] border-[#CDFF00]"
-                        : "border-[#3A3A3A]"
-                    }`}
-                  >
-                    {checkedItems.has(i) && <Check className="w-3.5 h-3.5 text-black" />}
+            {warmupExercises.map((item, i) => {
+              const ex = exercises.get(item.exerciseId);
+              const name = ex?.name ?? item.exerciseId;
+              return (
+                <div key={i} className="px-4 py-3">
+                  <div className="flex items-center justify-between">
+                    <p className="text-sm font-medium text-white">{name}</p>
+                    <Badge className="bg-white/5 text-white/50 border-white/10 text-xs shrink-0">
+                      {item.reps} reps
+                    </Badge>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className={`text-sm font-medium transition-colors ${checkedItems.has(i) ? "text-white/40 line-through" : "text-white"}`}>
-                      {item.name}
-                    </p>
-                    <p className="text-xs text-white/40 mt-0.5">{item.description}</p>
-                  </div>
-                  <Badge className="bg-white/5 text-white/50 border-white/10 text-xs shrink-0">
-                    {item.duration}
-                  </Badge>
                 </div>
-              </button>
-            ))}
+              );
+            })}
           </Card>
-          <AnimatePresence>
-            {allChecked && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.8 }}
-                className="text-center py-2"
-              >
-                <p className="text-sm font-medium text-[#CDFF00]">Warmup complete! Time to train</p>
-              </motion.div>
-            )}
-          </AnimatePresence>
         </motion.div>
       )}
 
@@ -147,39 +96,4 @@ export function PreWorkoutDashboard({
       </motion.div>
     </div>
   );
-}
-
-interface WarmupItem {
-  name: string;
-  description: string;
-  duration: string;
-}
-
-function getWarmupForMuscles(muscles: string[]): WarmupItem[] {
-  const items: WarmupItem[] = [];
-  const seen = new Set<string>();
-
-  const WARMUPS: Record<string, WarmupItem[]> = {
-    chest: [{ name: "Arm Circles", description: "20 forward, 20 backward", duration: "1 min" }],
-    back: [{ name: "Band Pull-Aparts", description: "15 reps light resistance", duration: "1 min" }],
-    shoulders: [{ name: "Shoulder Dislocates", description: "10 reps with band or stick", duration: "1 min" }],
-    quads: [{ name: "Bodyweight Squats", description: "15 reps controlled tempo", duration: "1 min" }],
-    hamstrings: [{ name: "Leg Swings", description: "10 each leg, front to back", duration: "1 min" }],
-    glutes: [{ name: "Glute Bridges", description: "15 reps with 2s hold at top", duration: "1 min" }],
-    core: [{ name: "Dead Bugs", description: "10 reps alternating sides", duration: "1 min" }],
-  };
-
-  for (const muscle of muscles) {
-    const warmups = WARMUPS[muscle] || WARMUPS[muscle.toLowerCase()];
-    if (warmups) {
-      for (const w of warmups) {
-        if (!seen.has(w.name)) {
-          seen.add(w.name);
-          items.push(w);
-        }
-      }
-    }
-  }
-
-  return items.slice(0, 4);
 }
