@@ -17,7 +17,6 @@ import { PostWorkoutDashboard } from "@/components/home/PostWorkoutDashboard";
 import { RestDayDashboard } from "@/components/home/RestDayDashboard";
 import { getNextTrainingDay } from "@/lib/next-day";
 import { SupersetView } from "@/components/workout/superset-view";
-import { Hero, SocialProof, Features, Testimonials, Credibility, CTA, Footer } from "@/components/landing";
 import {
   usePrograms,
   useTrainingDays,
@@ -165,6 +164,13 @@ export default function Home() {
       .sort((a, b) => b.date.localeCompare(a.date))[0] || null;
   }, [currentDay, workoutLogs]);
 
+  // Redirect unauthenticated users to /landing (animations work correctly there)
+  useEffect(() => {
+    if (authLoaded && !isSignedIn) {
+      router.replace("/landing");
+    }
+  }, [authLoaded, isSignedIn, router]);
+
   // Show loading while auth is being checked
   if (!authLoaded) {
     return (
@@ -176,17 +182,13 @@ export default function Home() {
     );
   }
 
-  // If not signed in, show landing page
+  // Show spinner while redirecting to /landing
   if (!isSignedIn) {
     return (
-      <div className="min-h-screen bg-[#0A0A0A] text-white">
-        <Hero />
-        <SocialProof />
-        <Features />
-        <Testimonials />
-        <Credibility />
-        <CTA />
-        <Footer />
+      <div className="min-h-screen flex items-center justify-center bg-[#0A0A0A]">
+        <div className="text-center space-y-4">
+          <Loader2 className="w-8 h-8 animate-spin mx-auto text-[#CDFF00]" />
+        </div>
       </div>
     );
   }

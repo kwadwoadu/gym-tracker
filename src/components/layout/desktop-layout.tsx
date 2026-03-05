@@ -18,6 +18,7 @@ const excludedRoutes = [
   "/onboarding",
   "/workout",
   "/focus-session",
+  "/landing",
 ];
 
 // Routes that also hide the landing page (for non-authenticated users)
