@@ -1,10 +1,9 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Sun, Clock, Dumbbell, Flame } from "lucide-react";
+import { Sun, Flame } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { estimateWorkoutDuration, countExercises, countSupersets } from "@/lib/workout-duration";
 import type { TrainingDay, WorkoutLog, Exercise } from "@/lib/api-client";
 
 interface MorningDashboardProps {
@@ -26,10 +25,6 @@ export function MorningDashboard({
   weeklyTarget,
   streakAtRisk,
 }: MorningDashboardProps) {
-  const duration = estimateWorkoutDuration(todayWorkout);
-  const exerciseCount = countExercises(todayWorkout);
-  const supersetCount = countSupersets(todayWorkout);
-
   // Get muscle groups for today's workout
   const supersets = todayWorkout.supersets as Array<{
     exercises: Array<{ exerciseId: string }>;
@@ -84,29 +79,14 @@ export function MorningDashboard({
         </motion.div>
       )}
 
-      {/* Today's workout preview */}
+      {/* Muscle groups + last volume */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
       >
-        <Card className="bg-[#1A1A1A] border-[#2A2A2A] p-5">
-          <h3 className="text-lg font-bold text-white mb-1">
-            Today: {todayWorkout.name}
-          </h3>
-          <div className="flex items-center gap-4 mt-2 text-white/50 text-sm">
-            <div className="flex items-center gap-1">
-              <Clock className="w-3.5 h-3.5" />
-              <span>~{duration} min</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <Dumbbell className="w-3.5 h-3.5" />
-              <span>{exerciseCount} exercises</span>
-            </div>
-            <span>{supersetCount} supersets</span>
-          </div>
-
+        <Card className="bg-[#1A1A1A] border-[#2A2A2A] p-4">
           {/* Muscle groups */}
-          <div className="flex flex-wrap gap-1.5 mt-3">
+          <div className="flex flex-wrap gap-1.5">
             {todayMuscles.slice(0, 6).map((mg) => (
               <Badge
                 key={mg}
@@ -128,49 +108,11 @@ export function MorningDashboard({
         </Card>
       </motion.div>
 
-      {/* Exercise preview list */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
-      >
-        <h4 className="text-xs font-semibold text-white/40 uppercase tracking-wider mb-2">
-          Exercises
-        </h4>
-        <Card className="bg-[#1A1A1A] border-[#2A2A2A] divide-y divide-[#2A2A2A]">
-          {(todayWorkout.supersets as Array<{
-            label: string;
-            exercises: Array<{ exerciseId: string; sets: number; reps: string }>;
-          }>).map((ss) =>
-            ss.exercises.map((e, i) => {
-              const ex = exercises.get(e.exerciseId);
-              return (
-                <div key={`${ss.label}-${i}`} className="px-4 py-3">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs font-mono text-[#CDFF00]/60 w-6">
-                        {ss.label}{i + 1}
-                      </span>
-                      <span className="text-sm text-white">
-                        {ex?.name || e.exerciseId}
-                      </span>
-                    </div>
-                    <span className="text-xs text-white/40">
-                      {e.sets} x {e.reps}
-                    </span>
-                  </div>
-                </div>
-              );
-            })
-          )}
-        </Card>
-      </motion.div>
-
       {/* Weekly progress */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.15 }}
+        transition={{ delay: 0.1 }}
       >
         <Card className="bg-[#1A1A1A] border-[#2A2A2A] p-4">
           <div className="flex items-center justify-between">
