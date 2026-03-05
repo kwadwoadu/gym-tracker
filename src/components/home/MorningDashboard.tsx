@@ -1,8 +1,10 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { Sun, Flame } from "lucide-react";
+import { Sun, Flame, Play } from "lucide-react";
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import type { TrainingDay, WorkoutLog, Exercise } from "@/lib/api-client";
 
 interface MorningDashboardProps {
@@ -16,11 +18,13 @@ interface MorningDashboardProps {
 }
 
 export function MorningDashboard({
+  todayWorkout,
   currentStreak,
   weeklyWorkouts,
   weeklyTarget,
   streakAtRisk,
 }: MorningDashboardProps) {
+  const router = useRouter();
   return (
     <div className="px-4 space-y-5">
       {/* State indicator */}
@@ -75,6 +79,22 @@ export function MorningDashboard({
             />
           </div>
         </Card>
+      </motion.div>
+
+      {/* Start Workout CTA */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+      >
+        <Button
+          size="lg"
+          className="w-full h-14 text-base font-semibold bg-[#CDFF00] text-[#0A0A0A] hover:bg-[#CDFF00]/90 transition-colors"
+          onClick={() => router.push(`/workout/${todayWorkout.id}`)}
+        >
+          <Play className="w-5 h-5 mr-2" />
+          Start {todayWorkout.name}
+        </Button>
       </motion.div>
     </div>
   );

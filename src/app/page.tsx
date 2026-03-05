@@ -31,7 +31,6 @@ import {
 } from "@/lib/queries";
 import type { Exercise } from "@/lib/api-client";
 import { onboardingApi } from "@/lib/api-client";
-import { HeroWorkoutCard } from "@/components/home/HeroWorkoutCard";
 import { GamificationStrip } from "@/components/home/GamificationStrip";
 
 export default function Home() {
@@ -266,19 +265,6 @@ export default function Home() {
         </div>
       </header>
 
-      {/* Hero Workout Card */}
-      <div className="hero-backdrop">
-      <HeroWorkoutCard
-        currentDay={currentDay || null}
-        sortedDays={sortedDays}
-        workoutLogs={workoutLogs || []}
-        activeWorkout={activeWorkout}
-        onSelectDay={setSelectedDay}
-        exercises={exercises}
-      />
-
-      </div>
-
       {/* Compact Gamification Strip */}
       {g && (
         <div className="mb-2">
@@ -354,7 +340,6 @@ export default function Home() {
           </div>
 
           {sortedDays.map((day) => {
-            const warmup = day.warmup as Array<{ exerciseId: string; reps: number }>;
             const supersets = day.supersets as Array<{
               id: string;
               label: string;
@@ -382,35 +367,6 @@ export default function Home() {
                       {supersets.length} supersets - {supersets.reduce((acc, ss) => acc + ss.exercises.length, 0)} exercises
                     </p>
                   </div>
-
-                  {/* Warmup Section */}
-                  {warmup && warmup.length > 0 && (
-                    <div className="space-y-3">
-                      <div className="flex items-center gap-2">
-                        <h3 className={`${LABEL.section} text-muted-foreground`}>
-                          Warmup
-                        </h3>
-                        <div className="h-px flex-1 bg-border" />
-                      </div>
-                      <Card className="bg-card border-border p-4">
-                        <ul className="space-y-2">
-                          {warmup.map((w, idx) => {
-                            const exercise = exercises.get(w.exerciseId);
-                            return (
-                              <li key={idx} className="flex items-center justify-between">
-                                <span className="text-foreground">
-                                  {exercise?.name || w.exerciseId}
-                                </span>
-                                <Badge variant="secondary" className="text-xs">
-                                  {w.reps} reps
-                                </Badge>
-                              </li>
-                            );
-                          })}
-                        </ul>
-                      </Card>
-                    </div>
-                  )}
 
                   {/* Supersets */}
                   <div className="space-y-4">

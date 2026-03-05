@@ -181,22 +181,6 @@
   background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.08) 50%, transparent 100%);
 }
 
-/* Hero backdrop glow */
-.hero-backdrop {
-  position: relative;
-}
-.hero-backdrop::before {
-  content: '';
-  position: absolute;
-  top: -100px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 600px;
-  height: 400px;
-  background: radial-gradient(ellipse at center, rgba(205, 255, 0, 0.04) 0%, transparent 70%);
-  pointer-events: none;
-  z-index: 0;
-}
 
 /* Glass background fallback */
 @supports not (backdrop-filter: blur(1px)) {

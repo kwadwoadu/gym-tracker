@@ -1,9 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Flame, Droplets, Check } from "lucide-react";
+import { Flame, Droplets, Check, Play } from "lucide-react";
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import type { TrainingDay, Exercise } from "@/lib/api-client";
 import { LABEL } from "@/lib/typography";
@@ -17,6 +19,7 @@ export function PreWorkoutDashboard({
   todayWorkout,
   exercises,
 }: PreWorkoutDashboardProps) {
+  const router = useRouter();
   // Get muscle groups for warmup suggestions
   const supersets = todayWorkout.supersets as Array<{
     exercises: Array<{ exerciseId: string }>;
@@ -126,6 +129,22 @@ export function PreWorkoutDashboard({
           </AnimatePresence>
         </motion.div>
       )}
+
+      {/* Start Workout CTA */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+      >
+        <Button
+          size="lg"
+          className="w-full h-14 text-base font-semibold bg-[#CDFF00] text-[#0A0A0A] hover:bg-[#CDFF00]/90 transition-colors"
+          onClick={() => router.push(`/workout/${todayWorkout.id}`)}
+        >
+          <Play className="w-5 h-5 mr-2" />
+          Start {todayWorkout.name}
+        </Button>
+      </motion.div>
     </div>
   );
 }
