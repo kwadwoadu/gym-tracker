@@ -443,6 +443,7 @@ export function SetLogger({
           </Button>
           <Dialog open={showFormAnalysis} onOpenChange={setShowFormAnalysis}>
             <DialogContent className="max-w-lg p-0 bg-[#0A0A0A] border-[#2A2A2A]">
+              <DialogTitle className="sr-only">Form Analysis</DialogTitle>
               <FormCamera
                 exerciseId={exerciseId}
                 exerciseName={exerciseName}
