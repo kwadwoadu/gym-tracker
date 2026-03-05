@@ -1570,14 +1570,16 @@ export const gamificationApi = {
   getDailyChallenges: async (date?: string): Promise<GamificationResponse["dailyChallenges"]> => {
     const params = date ? `&date=${date}` : "";
     const res = await fetch(`${API_BASE}/gamification/challenges?type=daily${params}`);
-    return handleResponse(res);
+    const data = await handleResponse<{ daily: GamificationResponse["dailyChallenges"] }>(res);
+    return data.daily || [];
   },
 
   // Get weekly challenges for current week
   getWeeklyChallenges: async (weekId?: string): Promise<GamificationResponse["weeklyChallenges"]> => {
     const params = weekId ? `&weekId=${weekId}` : "";
     const res = await fetch(`${API_BASE}/gamification/challenges?type=weekly${params}`);
-    return handleResponse(res);
+    const data = await handleResponse<{ weekly: GamificationResponse["weeklyChallenges"] }>(res);
+    return data.weekly || [];
   },
 
   // Update challenge progress
