@@ -84,7 +84,7 @@ export function HydrationTracker() {
           )}
         </div>
 
-        <div className="flex items-center gap-2 justify-between">
+        <div className="flex items-center justify-between">
           {Array.from({ length: target }).map((_, i) => {
             const filled = i < glasses;
             return (
@@ -92,7 +92,7 @@ export function HydrationTracker() {
                 key={i}
                 onClick={() => handleTap(i)}
                 whileTap={{ scale: 0.85 }}
-                className="min-w-[36px] min-h-[44px] flex items-center justify-center"
+                className="flex-1 min-h-[44px] flex items-center justify-center"
               >
                 <motion.div
                   animate={{

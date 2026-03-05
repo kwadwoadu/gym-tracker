@@ -60,13 +60,13 @@ export function RecoveryAssessment({ onAssess }: RecoveryAssessmentProps) {
       <h3 className="text-sm font-semibold text-white/50 uppercase tracking-[0.08em] mb-4">
         How are you feeling?
       </h3>
-      <div className="flex items-center justify-between gap-2">
+      <div className="flex items-center justify-between gap-1">
         {EMOJIS.map(({ score, emoji, label }) => (
           <motion.button
             key={score}
             onClick={() => handleSelect(score)}
             whileTap={{ scale: 0.9 }}
-            className="flex flex-col items-center gap-1.5 min-w-[52px] min-h-[52px]"
+            className="flex flex-col items-center gap-1.5 flex-1 min-h-[52px]"
           >
             <motion.div
               animate={{

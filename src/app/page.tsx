@@ -232,10 +232,10 @@ export default function Home() {
             </div>
             <button
               onClick={() => router.push("/programs")}
-              className="text-left hover:opacity-80 transition-opacity"
+              className="text-left hover:opacity-80 transition-opacity flex-1 min-w-0"
             >
               <h1 className={`${HEADING.h3} text-foreground`}>SetFlow</h1>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-muted-foreground truncate">
                 {activeProgram?.name || "Your Training Program"}
               </p>
             </button>
@@ -280,6 +280,7 @@ export default function Home() {
 
       {/* Compact Gamification Strip */}
       {g && (
+        <div className="mb-2">
         <GamificationStrip
           streakDays={stats?.currentStreak || 0}
           level={level}
@@ -290,6 +291,7 @@ export default function Home() {
           dailyChallenges={dailyChallenges || []}
           weeklyChallenges={weeklyChallenges || []}
         />
+        </div>
       )}
 
       {/* Context-Aware Dashboard */}
