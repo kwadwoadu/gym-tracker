@@ -4,11 +4,14 @@ import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Play, Clock, Dumbbell, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import type { TrainingDay, WorkoutLog } from "@/lib/api-client";
+import type { TrainingDay, WorkoutLog, Exercise } from "@/lib/api-client";
 import { estimateWorkoutDuration, countExercises, countSupersets } from "@/lib/workout-duration";
 import { getNextTrainingDay } from "@/lib/next-day";
 import { vibrateShort } from "@/lib/haptics";
 import { HEADING } from "@/lib/typography";
+import { ELEVATION } from "@/lib/elevation";
+import { Badge } from "@/components/ui/badge";
+import { useReducedMotion } from "@/hooks/use-reduced-motion";
 
 interface HeroWorkoutCardProps {
   currentDay: TrainingDay | null;
@@ -16,6 +19,7 @@ interface HeroWorkoutCardProps {
   workoutLogs: WorkoutLog[];
   activeWorkout?: { id: string; dayId: string } | null;
   onSelectDay: (dayId: string) => void;
+  exercises?: Map<string, Exercise>;
 }
 
 export function HeroWorkoutCard({
@@ -24,8 +28,10 @@ export function HeroWorkoutCard({
   workoutLogs,
   activeWorkout,
   onSelectDay,
+  exercises,
 }: HeroWorkoutCardProps) {
   const router = useRouter();
+  const reducedMotion = useReducedMotion();
 
   if (!currentDay) return null;
 
@@ -45,19 +51,35 @@ export function HeroWorkoutCard({
     ? formatRelativeDate(lastCompleted.date)
     : null;
 
+  // Get muscle groups for today's workout
+  const supersets = currentDay.supersets as Array<{
+    exercises: Array<{ exerciseId: string }>;
+  }>;
+  const todayMuscles: string[] = [];
+  if (exercises) {
+    for (const ss of supersets) {
+      for (const e of ss.exercises) {
+        const ex = exercises.get(e.exerciseId);
+        if (ex) ex.muscleGroups.forEach((mg) => {
+          if (!todayMuscles.includes(mg)) todayMuscles.push(mg);
+        });
+      }
+    }
+  }
+
   return (
     <motion.div
-      initial={{ opacity: 0, y: 8 }}
+      initial={reducedMotion ? false : { opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
       className="px-4 py-4"
     >
-      <div className="rounded-xl bg-[#1A1A1A] border-l-[3px] border-l-[#CDFF00] p-4 space-y-3">
+      <div className={`${ELEVATION.hero} space-y-4`}>
         {/* Day name + stats */}
         <div className="flex items-start justify-between">
           <div>
-            <h2 className={`${HEADING.h3} text-white`}>{currentDay.name}</h2>
-            <div className="flex items-center gap-3 mt-1 text-sm text-[#A0A0A0]">
+            <h2 className={`${HEADING.h2} text-white`}>{currentDay.name}</h2>
+            <div className="flex items-center gap-3 mt-1.5 text-sm text-[#A0A0A0]">
               <span className="flex items-center gap-1">
                 <Dumbbell className="w-3.5 h-3.5" />
                 {exerciseCount} exercises
@@ -74,6 +96,20 @@ export function HeroWorkoutCard({
           </div>
         </div>
 
+        {/* Muscle groups */}
+        {todayMuscles.length > 0 && (
+          <div className="flex flex-wrap gap-1.5">
+            {todayMuscles.slice(0, 6).map((mg) => (
+              <Badge
+                key={mg}
+                className="bg-[#CDFF00]/10 text-[#CDFF00] border-[#CDFF00]/20 text-xs capitalize"
+              >
+                {mg}
+              </Badge>
+            ))}
+          </div>
+        )}
+
         {/* Last completed indicator */}
         {lastCompletedLabel && (
           <p className="text-xs text-[#666666]">
@@ -82,17 +118,22 @@ export function HeroWorkoutCard({
         )}
 
         {/* Primary CTA */}
-        <Button
-          size="lg"
-          className="w-full h-12 text-base font-semibold bg-[#CDFF00] text-[#0A0A0A] hover:bg-[#CDFF00]/90 active:scale-[0.98] transition-transform"
-          onClick={() => {
-            vibrateShort();
-            router.push(`/workout/${currentDay.id}`);
-          }}
+        <motion.div
+          whileTap={reducedMotion ? undefined : { scale: 0.96 }}
+          transition={{ type: "spring", stiffness: 400, damping: 17 }}
         >
-          <Play className="w-5 h-5 mr-2" />
-          {isResume ? "Resume Workout" : `Start ${currentDay.name}`}
-        </Button>
+          <Button
+            size="lg"
+            className="w-full h-12 text-base font-semibold bg-[#CDFF00] text-[#0A0A0A] hover:bg-[#CDFF00]/90 transition-colors"
+            onClick={() => {
+              vibrateShort();
+              router.push(`/workout/${currentDay.id}`);
+            }}
+          >
+            <Play className="w-5 h-5 mr-2" />
+            {isResume ? "Resume Workout" : `Start ${currentDay.name}`}
+          </Button>
+        </motion.div>
 
         {/* Quick Start */}
         {showQuickStart && nextDay && (

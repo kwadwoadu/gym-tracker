@@ -274,6 +274,7 @@ export default function Home() {
         workoutLogs={workoutLogs || []}
         activeWorkout={activeWorkout}
         onSelectDay={setSelectedDay}
+        exercises={exercises}
       />
 
       </div>
@@ -296,7 +297,7 @@ export default function Home() {
 
       {/* Context-Aware Dashboard */}
       {trainingDaysLoading ? null : (
-      <div className="py-4">
+      <div className="py-4 space-y-8">
         {dashboardCtx.state === "morning" && currentDay && (
           <MorningDashboard
             todayWorkout={currentDay}

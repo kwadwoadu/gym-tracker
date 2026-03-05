@@ -2,10 +2,9 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Flame, Clock, Dumbbell, Droplets, Check } from "lucide-react";
+import { Flame, Droplets, Check } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { estimateWorkoutDuration, countExercises } from "@/lib/workout-duration";
 import type { TrainingDay, Exercise } from "@/lib/api-client";
 import { LABEL } from "@/lib/typography";
 
@@ -18,9 +17,6 @@ export function PreWorkoutDashboard({
   todayWorkout,
   exercises,
 }: PreWorkoutDashboardProps) {
-  const duration = estimateWorkoutDuration(todayWorkout);
-  const exerciseCount = countExercises(todayWorkout);
-
   // Get muscle groups for warmup suggestions
   const supersets = todayWorkout.supersets as Array<{
     exercises: Array<{ exerciseId: string }>;
@@ -49,7 +45,7 @@ export function PreWorkoutDashboard({
   };
 
   return (
-    <div className="px-4 space-y-4">
+    <div className="px-4 space-y-5">
       {/* State indicator */}
       <div className="flex items-center gap-2">
         <div className="w-6 h-6 rounded-full bg-[#FF6B35]/20 flex items-center justify-center">
@@ -72,38 +68,6 @@ export function PreWorkoutDashboard({
                 Drink 500ml water before starting
               </p>
             </div>
-          </div>
-        </Card>
-      </motion.div>
-
-      {/* Workout summary */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-      >
-        <Card className="bg-[#1A1A1A] border-[#2A2A2A] p-5">
-          <h3 className="text-lg font-bold text-white mb-1">
-            {todayWorkout.name}
-          </h3>
-          <div className="flex items-center gap-4 mt-2 text-white/50 text-sm">
-            <div className="flex items-center gap-1">
-              <Clock className="w-3.5 h-3.5" />
-              <span>~{duration} min</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <Dumbbell className="w-3.5 h-3.5" />
-              <span>{exerciseCount} exercises</span>
-            </div>
-          </div>
-          <div className="flex flex-wrap gap-1.5 mt-3">
-            {todayMuscles.slice(0, 6).map((mg) => (
-              <Badge
-                key={mg}
-                className="bg-[#FF6B35]/10 text-[#FF6B35] border-[#FF6B35]/20 text-xs capitalize"
-              >
-                {mg}
-              </Badge>
-            ))}
           </div>
         </Card>
       </motion.div>

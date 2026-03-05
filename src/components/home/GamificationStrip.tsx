@@ -4,6 +4,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Flame, ChevronDown, Target } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { LABEL } from "@/lib/typography";
 import { XPBar, DailyChallengeCardCompact, WeeklyChallengeCardCompact } from "@/components/gamification";
 import { getTierFromLevel, getStreakMultiplier } from "@/lib/gamification";
 
@@ -51,7 +52,7 @@ export function GamificationStrip({
       {/* Collapsed strip */}
       <button
         onClick={() => setExpanded(!expanded)}
-        className="w-full px-4 py-2.5 flex items-center justify-between bg-[#111111] active:bg-[#1A1A1A] transition-colors"
+        className="w-full px-4 py-2.5 flex items-center justify-between bg-gradient-to-r from-[#111111] via-[#151515] to-[#111111] border border-white/5 backdrop-blur-sm active:bg-[#1A1A1A] transition-colors"
       >
         <div className="flex items-center gap-4">
           {/* Streak */}
@@ -122,7 +123,7 @@ export function GamificationStrip({
                 {dailyChallenges.length > 0 && (
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                      <h3 className="text-xs font-semibold text-[#666666] uppercase tracking-[0.08em]">
+                      <h3 className={`${LABEL.caption} text-[#666666]`}>
                         Daily Challenges
                       </h3>
                       <span className="text-xs text-[#666666]">
@@ -146,7 +147,7 @@ export function GamificationStrip({
                 {weeklyChallenges.length > 0 && (
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                      <h3 className="text-xs font-semibold text-[#666666] uppercase tracking-[0.08em]">
+                      <h3 className={`${LABEL.caption} text-[#666666]`}>
                         Weekly Challenges
                       </h3>
                       <span className="text-xs text-[#666666]">

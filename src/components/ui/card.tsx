@@ -5,9 +5,10 @@ import { ELEVATION, type ElevationTier } from "@/lib/elevation"
 
 interface CardProps extends React.ComponentProps<"div"> {
   elevation?: ElevationTier;
+  interactive?: boolean;
 }
 
-function Card({ className, elevation, ...props }: CardProps) {
+function Card({ className, elevation, interactive, ...props }: CardProps) {
   return (
     <div
       data-slot="card"
@@ -15,6 +16,7 @@ function Card({ className, elevation, ...props }: CardProps) {
         elevation
           ? `text-card-foreground flex flex-col gap-6 ${ELEVATION[elevation]}`
           : "bg-card text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm",
+        interactive && "transition-transform duration-150 hover:-translate-y-0.5 active:scale-[0.98]",
         className
       )}
       {...props}

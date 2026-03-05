@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { getRecoveryTips } from "@/lib/recovery-tips";
 import type { WorkoutLog, Exercise, TrainingDay } from "@/lib/api-client";
 import { DATA, LABEL } from "@/lib/typography";
+import { ELEVATION } from "@/lib/elevation";
 
 interface PostWorkoutDashboardProps {
   workout: WorkoutLog;
@@ -43,7 +44,7 @@ export function PostWorkoutDashboard({
   const recoveryTips = getRecoveryTips(muscleGroups);
 
   return (
-    <div className="px-4 space-y-4">
+    <div className="px-4 space-y-5">
       {/* State indicator */}
       <div className="flex items-center gap-2">
         <div className="w-6 h-6 rounded-full bg-[#00D4AA]/20 flex items-center justify-center">
@@ -57,7 +58,7 @@ export function PostWorkoutDashboard({
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
       >
-        <Card className="bg-[#1A1A1A] border-[#2A2A2A] p-5">
+        <Card className={ELEVATION.hero}>
           <h3 className="text-lg font-bold text-white mb-4">Great Session!</h3>
           <div className="grid grid-cols-3 gap-4">
             <div className="text-center">

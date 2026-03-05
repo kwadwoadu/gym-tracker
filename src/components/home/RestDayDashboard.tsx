@@ -63,7 +63,7 @@ export function RestDayDashboard({
 
   return (
     <>
-      <div className="px-4 space-y-4">
+      <div className="px-4 space-y-5">
         {/* State indicator */}
         <div className="flex items-center gap-2">
           <div className="w-6 h-6 rounded-full bg-[#38BDF8]/20 flex items-center justify-center">
@@ -143,7 +143,7 @@ export function RestDayDashboard({
             <h4 className="text-xs font-semibold text-white/40 uppercase tracking-[0.08em] mb-2">
               Next Workout
             </h4>
-            <Card className="bg-[#1A1A1A] border-[#2A2A2A] p-4">
+            <Card className="bg-[#1A1A1A] border-[#2A2A2A] p-5">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <Calendar className="w-5 h-5 text-[#38BDF8]" />
@@ -172,7 +172,7 @@ export function RestDayDashboard({
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
         >
-          <Card className="bg-[#1A1A1A] border-[#2A2A2A] p-4">
+          <Card className="bg-[#1A1A1A] border-[#2A2A2A] p-5">
             <div className="flex items-center justify-between">
               <span className="text-sm text-white/50">This Week</span>
               <span className="text-sm font-medium text-white">

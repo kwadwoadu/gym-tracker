@@ -66,9 +66,9 @@ export function determineDashboardState(
     };
   }
 
-  // Default: morning state for training days (ready to train)
+  // After 10am on training days with no recent completion: pre-workout
   return {
-    state: "morning",
+    state: "pre-workout",
     lastCompletedWorkout: null,
     streakAtRisk,
   };
