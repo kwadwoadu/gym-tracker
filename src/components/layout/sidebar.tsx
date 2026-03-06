@@ -16,34 +16,25 @@ import {
   ChevronLeft,
   ChevronRight,
   User,
-  Users,
 } from "lucide-react";
-import { useNutritionAccess } from "@/hooks/use-nutrition-access";
 
 const navItems = [
   { href: "/", icon: Home, label: "Home" },
   { href: "/program", icon: ClipboardList, label: "Program" },
   { href: "/stats", icon: BarChart3, label: "Stats" },
+  { href: "/nutrition", icon: UtensilsCrossed, label: "Nutrition" },
   { href: "/exercises", icon: Dumbbell, label: "Exercises" },
-  { href: "/community", icon: Users, label: "Community" },
+  { href: "/settings", icon: Settings, label: "Settings" },
 ];
 
 export function Sidebar() {
   const pathname = usePathname();
   const { user } = useUser();
-  const { hasAccess: hasNutritionAccess } = useNutritionAccess();
   const [collapsed, setCollapsed] = useState(false);
-
-  const allNavItems = hasNutritionAccess
-    ? [...navItems.slice(0, 4), { href: "/nutrition", icon: UtensilsCrossed, label: "Nutrition" }, navItems[navItems.length - 1]]
-    : navItems;
-
-  // Add settings at the end
-  const navWithSettings = [...allNavItems, { href: "/settings", icon: Settings, label: "Settings" }];
 
   return (
     <div
-      className={`flex flex-col h-full bg-[#0A0A0A] border-r border-white/10 transition-all duration-300 ${
+      className={`flex flex-col h-full bg-background border-r border-white/10 transition-all duration-300 ${
         collapsed ? "w-16" : "w-64"
       }`}
     >
@@ -57,7 +48,7 @@ export function Sidebar() {
               exit={{ opacity: 0, x: -10 }}
               className="flex items-center gap-3"
             >
-              <div className="w-10 h-10 rounded-full bg-[#CDFF00] flex items-center justify-center">
+              <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
                 <Dumbbell className="w-5 h-5 text-black" />
               </div>
               <span className="font-bold text-xl">SetFlow</span>
@@ -65,7 +56,7 @@ export function Sidebar() {
           )}
         </AnimatePresence>
         {collapsed && (
-          <div className="w-10 h-10 rounded-full bg-[#CDFF00] flex items-center justify-center mx-auto">
+          <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center mx-auto">
             <Dumbbell className="w-5 h-5 text-black" />
           </div>
         )}
@@ -74,7 +65,7 @@ export function Sidebar() {
       {/* Navigation */}
       <nav className="flex-1 py-4">
         <ul className="space-y-1 px-2">
-          {navWithSettings.map((item) => {
+          {navItems.map((item) => {
             const isActive = pathname === item.href || (item.href !== "/" && pathname?.startsWith(item.href));
             return (
               <li key={item.href}>
@@ -82,7 +73,7 @@ export function Sidebar() {
                   href={item.href}
                   className={`flex items-center gap-3 px-3 py-3 rounded-lg transition-colors ${
                     isActive
-                      ? "bg-[#CDFF00]/10 text-[#CDFF00]"
+                      ? "bg-primary/10 text-primary"
                       : "text-white/60 hover:bg-white/5 hover:text-white"
                   }`}
                 >

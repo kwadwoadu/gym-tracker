@@ -62,7 +62,7 @@ export function MeasurementForm({
 
   return (
     <Drawer open={open} onOpenChange={(o) => !o && onClose()}>
-      <DrawerContent className="bg-[#0A0A0A] border-[#2A2A2A] max-h-[85vh]">
+      <DrawerContent className="bg-background border-border max-h-[85vh]">
         <div className="overflow-y-auto px-4 pb-8">
           <DrawerHeader className="px-0">
             <DrawerTitle className="text-white text-left">
@@ -80,7 +80,7 @@ export function MeasurementForm({
                   {sites.map((site) => (
                     <div
                       key={site.key}
-                      className="flex items-center gap-3 bg-[#1A1A1A] rounded-xl p-3"
+                      className="flex items-center gap-3 bg-card rounded-xl p-3"
                     >
                       <span className="text-sm text-white/70 w-20 shrink-0">
                         {site.label}
@@ -97,7 +97,7 @@ export function MeasurementForm({
                           }))
                         }
                         placeholder="--"
-                        className="bg-[#2A2A2A] border-none text-white text-right h-10"
+                        className="bg-secondary border-none text-white text-right h-10"
                       />
                       <span className="text-xs text-white/30 w-6">{unit}</span>
                     </div>
@@ -109,7 +109,7 @@ export function MeasurementForm({
 
           <button
             onClick={handleSave}
-            className="w-full mt-6 h-14 rounded-xl bg-[#CDFF00] text-black font-semibold text-lg active:scale-[0.98] transition-transform"
+            className="w-full mt-6 h-14 rounded-xl bg-primary text-black font-semibold text-lg active:scale-[0.98] transition-transform"
           >
             Save Measurements
           </button>

@@ -56,7 +56,7 @@ export function RecoveryAssessment({ onAssess }: RecoveryAssessmentProps) {
   };
 
   return (
-    <Card className="bg-[#1A1A1A] border-[#2A2A2A] p-5">
+    <Card className="bg-card border-border p-5">
       <h3 className="text-sm font-semibold text-white/50 uppercase tracking-[0.08em] mb-4">
         How are you feeling?
       </h3>
@@ -75,7 +75,7 @@ export function RecoveryAssessment({ onAssess }: RecoveryAssessmentProps) {
               className={`w-12 h-12 rounded-full flex items-center justify-center text-2xl transition-all ${
                 selected === score
                   ? "bg-[#38BDF8]/20 ring-2 ring-[#38BDF8]"
-                  : "bg-[#2A2A2A]"
+                  : "bg-secondary"
               }`}
             >
               {emoji}

@@ -72,7 +72,7 @@ export function SupplementLibrary({ onSelectSupplement, selectable = false }: Su
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <Loader2 className="w-8 h-8 animate-spin text-[#CDFF00]" />
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
       </div>
     );
   }
@@ -82,7 +82,7 @@ export function SupplementLibrary({ onSelectSupplement, selectable = false }: Su
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Pill className="w-5 h-5 text-[#CDFF00]" />
+          <Pill className="w-5 h-5 text-primary" />
           <h2 className="text-lg font-semibold text-white">My Supplements</h2>
           {supplements && supplements.length > 0 && (
             <Badge variant="secondary" className="ml-2">
@@ -93,7 +93,7 @@ export function SupplementLibrary({ onSelectSupplement, selectable = false }: Su
         <Button
           size="sm"
           onClick={() => setIsCreatorOpen(true)}
-          className="bg-[#CDFF00] text-[#0A0A0A] hover:bg-[#CDFF00]/90"
+          className="bg-primary text-primary-foreground hover:bg-primary/90"
         >
           <Plus className="w-4 h-4 mr-1" />
           Add Supplement
@@ -106,8 +106,8 @@ export function SupplementLibrary({ onSelectSupplement, selectable = false }: Su
           {Object.entries(groupedSupplements).map(([timing, supps]) => (
             <div key={timing}>
               <div className="flex items-center gap-2 mb-2">
-                <Clock className="w-4 h-4 text-[#666666]" />
-                <h3 className="text-sm font-medium text-[#A0A0A0]">
+                <Clock className="w-4 h-4 text-dim-foreground" />
+                <h3 className="text-sm font-medium text-muted-foreground">
                   {TIMING_LABELS[timing] || timing}
                 </h3>
               </div>
@@ -116,26 +116,26 @@ export function SupplementLibrary({ onSelectSupplement, selectable = false }: Su
                   <Card
                     key={supp.id}
                     className={cn(
-                      "bg-[#1A1A1A] border-[#2A2A2A] p-3",
-                      selectable && "cursor-pointer hover:border-[#CDFF00]/50 transition-colors"
+                      "bg-card border-border p-3",
+                      selectable && "cursor-pointer hover:border-primary/50 transition-colors"
                     )}
                     onClick={() => selectable && onSelectSupplement?.(supp)}
                   >
                     <div className="flex items-center justify-between gap-3">
                       <div className="flex items-center gap-3 min-w-0">
-                        <div className="w-10 h-10 rounded-lg bg-[#2A2A2A] flex items-center justify-center flex-shrink-0">
-                          <Pill className="w-5 h-5 text-[#CDFF00]" />
+                        <div className="w-10 h-10 rounded-lg bg-secondary flex items-center justify-center flex-shrink-0">
+                          <Pill className="w-5 h-5 text-primary" />
                         </div>
                         <div className="min-w-0">
                           <h4 className="font-medium text-white truncate">{supp.name}</h4>
                           <div className="flex items-center gap-2">
-                            <span className="text-sm text-[#CDFF00]">{supp.dose}</span>
+                            <span className="text-sm text-primary">{supp.dose}</span>
                             <Badge className={cn("text-xs", TIMING_COLORS[timing])}>
                               {TIMING_LABELS[timing] || timing}
                             </Badge>
                           </div>
                           {supp.notes && (
-                            <p className="text-xs text-[#666666] mt-1 truncate">{supp.notes}</p>
+                            <p className="text-xs text-dim-foreground mt-1 truncate">{supp.notes}</p>
                           )}
                         </div>
                       </div>
@@ -148,7 +148,7 @@ export function SupplementLibrary({ onSelectSupplement, selectable = false }: Su
                             e.stopPropagation();
                             setSupplementToDelete(supp);
                           }}
-                          className="text-[#666666] hover:text-red-500 hover:bg-red-500/10 flex-shrink-0"
+                          className="text-dim-foreground hover:text-red-500 hover:bg-red-500/10 flex-shrink-0"
                         >
                           <Trash2 className="w-4 h-4" />
                         </Button>
@@ -161,12 +161,12 @@ export function SupplementLibrary({ onSelectSupplement, selectable = false }: Su
           ))}
         </div>
       ) : (
-        <Card className="bg-[#1A1A1A] border-[#2A2A2A] p-8 text-center">
-          <Pill className="w-12 h-12 text-[#666666] mx-auto mb-3" />
-          <p className="text-[#A0A0A0] mb-4">No supplements yet</p>
+        <Card className="bg-card border-border p-8 text-center">
+          <Pill className="w-12 h-12 text-dim-foreground mx-auto mb-3" />
+          <p className="text-muted-foreground mb-4">No supplements yet</p>
           <Button
             onClick={() => setIsCreatorOpen(true)}
-            className="bg-[#CDFF00] text-[#0A0A0A] hover:bg-[#CDFF00]/90"
+            className="bg-primary text-primary-foreground hover:bg-primary/90"
           >
             <Plus className="w-4 h-4 mr-2" />
             Add Your First Supplement
@@ -182,15 +182,15 @@ export function SupplementLibrary({ onSelectSupplement, selectable = false }: Su
 
       {/* Delete Confirmation */}
       <AlertDialog open={!!supplementToDelete} onOpenChange={() => setSupplementToDelete(null)}>
-        <AlertDialogContent className="bg-[#1A1A1A] border-[#2A2A2A]">
+        <AlertDialogContent className="bg-card border-border">
           <AlertDialogHeader>
             <AlertDialogTitle className="text-white">Delete Supplement</AlertDialogTitle>
-            <AlertDialogDescription className="text-[#A0A0A0]">
+            <AlertDialogDescription className="text-muted-foreground">
               Are you sure you want to delete &quot;{supplementToDelete?.name}&quot;? This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="border-[#3A3A3A] text-[#A0A0A0]">
+            <AlertDialogCancel className="border-border text-muted-foreground">
               Cancel
             </AlertDialogCancel>
             <AlertDialogAction

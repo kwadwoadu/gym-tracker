@@ -68,7 +68,7 @@ export function MacroResultCard({
       {/* Photo thumbnail + time */}
       {imagePreview && (
         <div className="flex items-center gap-3">
-          <div className="w-16 h-16 rounded-lg overflow-hidden bg-[#1A1A1A] flex-shrink-0">
+          <div className="w-16 h-16 rounded-lg overflow-hidden bg-card flex-shrink-0">
             <img
               src={imagePreview}
               alt="Meal"
@@ -77,7 +77,7 @@ export function MacroResultCard({
           </div>
           <div>
             <p className="text-sm font-medium text-white">Meal Analysis</p>
-            <p className="text-xs text-[#666666]">
+            <p className="text-xs text-dim-foreground">
               {new Date().toLocaleTimeString([], {
                 hour: "2-digit",
                 minute: "2-digit",
@@ -89,19 +89,19 @@ export function MacroResultCard({
 
       {/* Detected foods */}
       <div className="space-y-1">
-        <p className="text-xs text-[#A0A0A0] uppercase tracking-wider mb-2">
+        <p className="text-xs text-muted-foreground uppercase tracking-wider mb-2">
           Detected Foods
         </p>
         {analysis.foods.map((food, i) => (
           <div
             key={i}
-            className="bg-[#1A1A1A] rounded-lg p-3 border border-[#2A2A2A]"
+            className="bg-card rounded-lg p-3 border border-border"
           >
             <div className="flex items-start justify-between">
               <div className="flex-1">
                 <p className="text-sm font-medium text-white">{food.name}</p>
                 <div className="flex gap-3 mt-1">
-                  <span className="text-xs text-[#CDFF00]">
+                  <span className="text-xs text-primary">
                     P: {food.protein}g
                   </span>
                   <span className="text-xs text-blue-400">
@@ -123,12 +123,12 @@ export function MacroResultCard({
       </div>
 
       {/* Totals with optional adjustment */}
-      <div className="bg-[#1A1A1A] rounded-xl p-4 border border-[#CDFF00]/20">
+      <div className="bg-card rounded-xl p-4 border border-primary/20">
         <div className="flex items-center justify-between mb-3">
-          <p className="text-xs text-[#A0A0A0] uppercase tracking-wider">Totals</p>
+          <p className="text-xs text-muted-foreground uppercase tracking-wider">Totals</p>
           <button
             onClick={() => setAdjusting(!adjusting)}
-            className="flex items-center gap-1 text-xs text-[#CDFF00]"
+            className="flex items-center gap-1 text-xs text-primary"
           >
             <Pencil className="w-3 h-3" />
             {adjusting ? "Done" : "Adjust"}
@@ -137,36 +137,36 @@ export function MacroResultCard({
 
         {adjusting ? (
           <div className="space-y-3">
-            <MacroAdjustRow label="Protein" value={adjProtein} onChange={setAdjProtein} color="text-[#CDFF00]" step={5} />
+            <MacroAdjustRow label="Protein" value={adjProtein} onChange={setAdjProtein} color="text-primary" step={5} />
             <MacroAdjustRow label="Carbs" value={adjCarbs} onChange={setAdjCarbs} color="text-blue-400" step={5} />
             <MacroAdjustRow label="Fat" value={adjFat} onChange={setAdjFat} color="text-orange-400" step={2} />
-            <div className="text-center pt-2 border-t border-[#2A2A2A]">
-              <p className="text-xs text-[#666666]">Calories</p>
+            <div className="text-center pt-2 border-t border-border">
+              <p className="text-xs text-dim-foreground">Calories</p>
               <p className="text-lg font-bold text-white">{adjCalories}</p>
             </div>
           </div>
         ) : (
           <div className="grid grid-cols-4 gap-3 text-center">
             <div>
-              <p className="text-xs text-[#666666]">Protein</p>
-              <p className="text-lg font-bold text-[#CDFF00]">
+              <p className="text-xs text-dim-foreground">Protein</p>
+              <p className="text-lg font-bold text-primary">
                 {analysis.totalProtein}g
               </p>
             </div>
             <div>
-              <p className="text-xs text-[#666666]">Carbs</p>
+              <p className="text-xs text-dim-foreground">Carbs</p>
               <p className="text-lg font-bold text-blue-400">
                 {analysis.totalCarbs}g
               </p>
             </div>
             <div>
-              <p className="text-xs text-[#666666]">Fat</p>
+              <p className="text-xs text-dim-foreground">Fat</p>
               <p className="text-lg font-bold text-orange-400">
                 {analysis.totalFat}g
               </p>
             </div>
             <div>
-              <p className="text-xs text-[#666666]">Calories</p>
+              <p className="text-xs text-dim-foreground">Calories</p>
               <p className="text-lg font-bold text-white">
                 {analysis.totalCalories}
               </p>
@@ -177,14 +177,14 @@ export function MacroResultCard({
 
       {/* Notes */}
       {analysis.notes && (
-        <p className="text-xs text-[#A0A0A0] italic">{analysis.notes}</p>
+        <p className="text-xs text-muted-foreground italic">{analysis.notes}</p>
       )}
 
       {/* Actions */}
       <div className="flex gap-3">
         <Button
           onClick={handleSave}
-          className="flex-1 h-12 bg-[#CDFF00] text-black hover:bg-[#b8e600] font-semibold"
+          className="flex-1 h-12 bg-primary text-black hover:bg-primary/90 font-semibold"
         >
           <Check className="w-5 h-5 mr-2" />
           Save Meal
@@ -192,7 +192,7 @@ export function MacroResultCard({
         <Button
           onClick={onRetake}
           variant="outline"
-          className="h-12 border-[#2A2A2A] text-white hover:bg-[#1A1A1A]"
+          className="h-12 border-border text-white hover:bg-card"
         >
           <RotateCcw className="w-4 h-4" />
         </Button>
@@ -216,11 +216,11 @@ function MacroAdjustRow({
 }) {
   return (
     <div className="flex items-center justify-between">
-      <span className="text-xs text-[#A0A0A0] w-16">{label}</span>
+      <span className="text-xs text-muted-foreground w-16">{label}</span>
       <div className="flex items-center gap-3">
         <button
           onClick={() => onChange(Math.max(0, value - step))}
-          className="w-8 h-8 rounded-full bg-[#2A2A2A] flex items-center justify-center active:bg-[#3A3A3A]"
+          className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center active:bg-muted"
         >
           <Minus className="w-3.5 h-3.5 text-white/60" />
         </button>
@@ -229,7 +229,7 @@ function MacroAdjustRow({
         </span>
         <button
           onClick={() => onChange(value + step)}
-          className="w-8 h-8 rounded-full bg-[#2A2A2A] flex items-center justify-center active:bg-[#3A3A3A]"
+          className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center active:bg-muted"
         >
           <Plus className="w-3.5 h-3.5 text-white/60" />
         </button>

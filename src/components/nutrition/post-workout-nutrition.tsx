@@ -53,11 +53,11 @@ export function PostWorkoutNutrition({
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -10 }}
-        className="bg-gradient-to-r from-[#CDFF00]/10 to-[#CDFF00]/5 rounded-xl border border-[#CDFF00]/20 p-4 mb-4"
+        className="bg-gradient-to-r from-primary/10 to-primary/5 rounded-xl border border-primary/20 p-4 mb-4"
       >
         <div className="flex items-start justify-between mb-3">
           <div className="flex items-center gap-2">
-            <Zap className="w-5 h-5 text-[#CDFF00]" />
+            <Zap className="w-5 h-5 text-primary" />
             <h3 className="text-sm font-semibold text-white">
               Post-Workout Nutrition
             </h3>
@@ -69,18 +69,18 @@ export function PostWorkoutNutrition({
             }}
             className="w-6 h-6 flex items-center justify-center rounded-full hover:bg-white/10"
           >
-            <X className="w-3.5 h-3.5 text-[#A0A0A0]" />
+            <X className="w-3.5 h-3.5 text-muted-foreground" />
           </button>
         </div>
 
-        <p className="text-xs text-[#A0A0A0] mb-3">
+        <p className="text-xs text-muted-foreground mb-3">
           You just finished: <span className="text-white">{workoutName}</span> (
           {durationMinutes} min)
         </p>
 
         <div className="flex items-center gap-2 mb-3">
-          <Clock className="w-3.5 h-3.5 text-[#CDFF00]" />
-          <p className="text-xs text-[#CDFF00]">
+          <Clock className="w-3.5 h-3.5 text-primary" />
+          <p className="text-xs text-primary">
             Eat within 30 min: {proteinTarget}g protein + {carbTarget}g carbs
           </p>
         </div>
@@ -90,23 +90,23 @@ export function PostWorkoutNutrition({
             {suggestions.map((s, i) => (
               <div
                 key={i}
-                className="flex items-center justify-between bg-[#1A1A1A] rounded-lg p-3"
+                className="flex items-center justify-between bg-card rounded-lg p-3"
               >
                 <div>
                   <p className="text-sm text-white">
                     {s.templateId && (
-                      <span className="text-[#CDFF00] mr-1">{s.templateId}:</span>
+                      <span className="text-primary mr-1">{s.templateId}:</span>
                     )}
                     {s.name}
                   </p>
-                  <p className="text-xs text-[#666666]">
+                  <p className="text-xs text-dim-foreground">
                     P: {s.protein}g | C: {s.carbs}g
                   </p>
                 </div>
                 <Button
                   onClick={() => onLogMeal(s)}
                   size="sm"
-                  className="h-8 bg-[#CDFF00] text-black hover:bg-[#b8e600] text-xs"
+                  className="h-8 bg-primary text-black hover:bg-primary/90 text-xs"
                 >
                   Log
                 </Button>
@@ -116,7 +116,7 @@ export function PostWorkoutNutrition({
         )}
 
         {tip && (
-          <p className="text-[11px] text-[#A0A0A0] italic">{tip}</p>
+          <p className="text-[11px] text-muted-foreground italic">{tip}</p>
         )}
       </motion.div>
     </AnimatePresence>

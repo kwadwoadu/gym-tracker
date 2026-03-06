@@ -54,8 +54,8 @@ function CounterCard({
 
   return (
     <div className="text-center">
-      <Icon className="w-5 h-5 text-[#CDFF00]/60 mx-auto mb-2" />
-      <div className={`${DATA.large} text-[#CDFF00]`}>
+      <Icon className="w-5 h-5 text-primary/60 mx-auto mb-2" />
+      <div className={`${DATA.large} text-primary`}>
         {formatNumber(count)}
       </div>
       <div className={`${LABEL.caption} text-white/50 mt-1`}>
@@ -83,7 +83,7 @@ export function SocialProof() {
   }, []);
 
   return (
-    <section ref={ref} className="py-16 px-4 bg-[#0A0A0A]">
+    <section ref={ref} className="py-16 px-4 bg-background">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}

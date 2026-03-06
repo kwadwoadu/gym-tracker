@@ -26,7 +26,7 @@ export function SupplementsChecklist({ date }: SupplementsChecklistProps) {
   if (!isLoaded) {
     return (
       <div className="flex items-center justify-center py-12">
-        <Loader2 className="w-8 h-8 animate-spin text-[#CDFF00]" />
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
       </div>
     );
   }
@@ -36,21 +36,21 @@ export function SupplementsChecklist({ date }: SupplementsChecklistProps) {
       {/* Header with Day Type Selector */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Pill className="w-5 h-5 text-[#CDFF00]" />
+          <Pill className="w-5 h-5 text-primary" />
           <h2 className="text-lg font-semibold text-white">Supplements</h2>
         </div>
         <DayTypeSelector dayType={dayType} onChange={setDayType} />
       </div>
 
       {/* Progress Bar */}
-      <div className="bg-[#1A1A1A] rounded-xl p-3 border border-[#2A2A2A]">
+      <div className="bg-card rounded-xl p-3 border border-border">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-sm text-[#A0A0A0]">Progress</span>
+          <span className="text-sm text-muted-foreground">Progress</span>
           <span className="text-sm font-medium text-white">{progress}%</span>
         </div>
-        <div className="h-2 bg-[#2A2A2A] rounded-full overflow-hidden">
+        <div className="h-2 bg-secondary rounded-full overflow-hidden">
           <motion.div
-            className="h-full bg-[#CDFF00] rounded-full"
+            className="h-full bg-primary rounded-full"
             initial={{ width: 0 }}
             animate={{ width: `${progress}%` }}
             transition={{ duration: 0.3 }}
@@ -85,7 +85,7 @@ function DayTypeSelector({ dayType, onChange }: DayTypeSelectorProps) {
   const dayTypes: DayType[] = ['rest', 'am-training', 'pm-training'];
 
   return (
-    <div className="flex gap-1 bg-[#1A1A1A] rounded-lg p-1">
+    <div className="flex gap-1 bg-card rounded-lg p-1">
       {dayTypes.map((type) => (
         <motion.button
           key={type}
@@ -94,8 +94,8 @@ function DayTypeSelector({ dayType, onChange }: DayTypeSelectorProps) {
           className={cn(
             'px-3 py-1.5 rounded-md text-xs font-medium transition-colors',
             dayType === type
-              ? 'bg-[#CDFF00] text-[#0A0A0A]'
-              : 'text-[#A0A0A0] hover:text-white'
+              ? 'bg-primary text-primary-foreground'
+              : 'text-muted-foreground hover:text-white'
           )}
         >
           {DAY_TYPE_LABELS[type]}
@@ -126,17 +126,17 @@ function SupplementBlockCard({
       className={cn(
         'rounded-xl border transition-colors',
         isBlockCompleted
-          ? 'bg-[#CDFF00]/5 border-[#CDFF00]/30'
-          : 'bg-[#1A1A1A] border-[#2A2A2A]'
+          ? 'bg-primary/5 border-primary/30'
+          : 'bg-card border-border'
       )}
     >
       {/* Block Header */}
-      <div className="flex items-center justify-between p-3 border-b border-[#2A2A2A]/50">
+      <div className="flex items-center justify-between p-3 border-b border-border/50">
         <div className="flex items-center gap-2">
           <span className="text-lg">{block.icon}</span>
           <div>
             <p className="text-sm font-medium text-white">{block.label}</p>
-            <p className="text-xs text-[#666666]">{block.timeRange}</p>
+            <p className="text-xs text-dim-foreground">{block.timeRange}</p>
           </div>
         </div>
         <motion.button
@@ -145,8 +145,8 @@ function SupplementBlockCard({
           className={cn(
             'flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors',
             isBlockCompleted
-              ? 'bg-[#CDFF00] text-[#0A0A0A]'
-              : 'bg-[#2A2A2A] text-[#A0A0A0] hover:bg-[#3A3A3A]'
+              ? 'bg-primary text-primary-foreground'
+              : 'bg-secondary text-muted-foreground hover:bg-muted'
           )}
         >
           <Check className="w-3.5 h-3.5" />
@@ -182,18 +182,18 @@ function SupplementItemRow({ item, isCompleted, onToggle }: SupplementItemRowPro
       whileTap={{ scale: 0.98 }}
       onClick={onToggle}
       className={cn(
-        'w-full flex items-center gap-3 p-2.5 rounded-lg transition-colors text-left',
-        isCompleted ? 'bg-[#CDFF00]/10' : 'hover:bg-[#2A2A2A]/50'
+        'w-full flex items-center gap-3 bg-card rounded-xl p-3 transition-colors text-left',
+        isCompleted ? 'bg-primary/10' : 'hover:bg-secondary/50'
       )}
     >
       {/* Checkbox */}
       <div
         className={cn(
           'w-6 h-6 rounded-md flex items-center justify-center flex-shrink-0 transition-colors',
-          isCompleted ? 'bg-[#CDFF00]' : 'bg-[#2A2A2A] border border-[#3A3A3A]'
+          isCompleted ? 'bg-primary/20 border border-primary/30' : 'bg-secondary border border-border'
         )}
       >
-        {isCompleted && <Check className="w-4 h-4 text-[#0A0A0A]" />}
+        {isCompleted && <Check className="w-4 h-4 text-primary" />}
       </div>
 
       {/* Content */}
@@ -202,7 +202,7 @@ function SupplementItemRow({ item, isCompleted, onToggle }: SupplementItemRowPro
           <span
             className={cn(
               'text-sm font-medium',
-              isCompleted ? 'text-[#A0A0A0] line-through' : 'text-white'
+              isCompleted ? 'text-muted-foreground line-through' : 'text-white'
             )}
           >
             {item.name}
@@ -213,19 +213,19 @@ function SupplementItemRow({ item, isCompleted, onToggle }: SupplementItemRowPro
             </span>
           )}
           {item.alternatives && (
-            <span className="flex items-center gap-1 text-xs text-[#666666]">
+            <span className="flex items-center gap-1 text-xs text-dim-foreground">
               <Coffee className="w-3 h-3" />
               {item.alternatives}
             </span>
           )}
           {item.optional && (
-            <span className="text-xs text-[#666666] italic">(optional)</span>
+            <span className="text-xs text-dim-foreground italic">(optional)</span>
           )}
         </div>
         <div className="flex items-center gap-2 mt-0.5">
-          <span className="text-xs text-[#666666]">{item.dose}</span>
+          <span className="text-xs text-dim-foreground">{item.dose}</span>
           {item.notes && (
-            <span className="text-xs text-[#555555]">- {item.notes}</span>
+            <span className="text-xs text-dim-foreground">- {item.notes}</span>
           )}
         </div>
       </div>

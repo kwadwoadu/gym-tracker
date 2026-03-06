@@ -112,7 +112,7 @@ export function PostWorkoutDashboard({
           <h4 className={`${LABEL.caption} text-white/40 mb-2`}>
             Recovery
           </h4>
-          <Card className="bg-[#1A1A1A] border-[#2A2A2A] divide-y divide-[#2A2A2A]">
+          <Card className="bg-card border-border divide-y divide-[#2A2A2A]">
             {recoveryTips.map((tip, i) => (
               <div key={i} className="px-4 py-3">
                 <div className="flex items-center justify-between">
@@ -140,7 +140,7 @@ export function PostWorkoutDashboard({
           <h4 className={`${LABEL.caption} text-white/40 mb-2`}>
             Next Workout
           </h4>
-          <Card className="bg-[#1A1A1A] border-[#2A2A2A] p-4">
+          <Card className="bg-card border-border p-4">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-white">{nextDay.name}</p>

@@ -206,7 +206,7 @@ export default function ProgramsPage() {
           <Button
             size="sm"
             onClick={() => router.push("/onboarding/plans")}
-            className="bg-[#CDFF00] text-black hover:bg-[#CDFF00]/80"
+            className="bg-primary text-black hover:bg-primary/80"
           >
             <Plus className="w-4 h-4 mr-1" />
             Create
@@ -227,7 +227,7 @@ export default function ProgramsPage() {
             </p>
             <Button
               onClick={() => router.push("/onboarding/plans")}
-              className="bg-[#CDFF00] text-black hover:bg-[#CDFF00]/80"
+              className="bg-primary text-black hover:bg-primary/80"
             >
               <Plus className="w-4 h-4 mr-2" />
               Create Your First Program

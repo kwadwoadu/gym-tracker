@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { AlertTriangle, X } from "lucide-react";
+import { AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -66,7 +66,7 @@ export function RiskAlert({
           </span>
         </div>
 
-        <p className="text-xs text-[#A0A0A0] mb-2">{description}</p>
+        <p className="text-xs text-muted-foreground mb-2">{description}</p>
 
         <p className="text-xs text-white mb-3">
           Recommendation: {recommendation}
@@ -77,7 +77,7 @@ export function RiskAlert({
             <Button
               onClick={onAdjust}
               size="sm"
-              className="h-8 bg-[#CDFF00] text-black hover:bg-[#b8e600] text-xs"
+              className="h-8 bg-primary text-black hover:bg-primary/90 text-xs"
             >
               Adjust Program
             </Button>
@@ -89,7 +89,7 @@ export function RiskAlert({
             }}
             size="sm"
             variant="outline"
-            className="h-8 border-[#2A2A2A] text-[#A0A0A0] hover:bg-[#1A1A1A] text-xs"
+            className="h-8 border-border text-muted-foreground hover:bg-card text-xs"
           >
             Acknowledge
           </Button>

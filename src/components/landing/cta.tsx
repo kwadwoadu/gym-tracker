@@ -9,8 +9,8 @@ import { HEADING } from "@/lib/typography";
 export function CTA() {
   return (
     <section className="py-24 px-4 relative overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-b from-[#111] to-[#0A0A0A] pointer-events-none" />
-      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-[#CDFF00]/5 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-b from-card-alt to-background pointer-events-none" />
+      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-primary/5 rounded-full blur-3xl pointer-events-none" />
 
       <div className="relative z-10 max-w-3xl mx-auto text-center">
         <motion.div
@@ -20,7 +20,7 @@ export function CTA() {
           transition={{ duration: 0.5 }}
         >
           <div className="inline-flex items-center gap-2 px-4 py-2 mb-8 rounded-full bg-white/5 border border-white/10">
-            <Zap className="w-4 h-4 text-[#CDFF00]" />
+            <Zap className="w-4 h-4 text-primary" />
             <span className="text-sm text-white/80">
               Start your first workout in 60 seconds
             </span>
@@ -28,7 +28,7 @@ export function CTA() {
 
           <h2 className={`${HEADING.h2} mb-4`}>
             Your Next PR is
-            <span className="text-[#CDFF00]"> Waiting</span>
+            <span className="text-primary"> Waiting</span>
           </h2>
           <p className="text-lg text-white/60 mb-8">
             No credit card. No subscription. Just you, the bar, and better
@@ -38,7 +38,7 @@ export function CTA() {
           <Link href="/sign-up">
             <Button
               size="lg"
-              className="h-14 px-10 text-lg font-semibold bg-[#CDFF00] text-black hover:bg-[#b8e600] transition-colors"
+              className="h-14 px-10 text-lg font-semibold bg-primary text-black hover:bg-primary/90 transition-colors"
             >
               Start Tracking Free
               <ChevronRight className="w-5 h-5 ml-2" />
@@ -49,7 +49,7 @@ export function CTA() {
             Already have an account?{" "}
             <Link
               href="/sign-in"
-              className="text-[#CDFF00] hover:underline"
+              className="text-primary hover:underline"
             >
               Sign in
             </Link>

@@ -20,7 +20,7 @@ export function MobilityRoutineCard({
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
     >
-      <Card className="bg-[#1A1A1A] border-[#2A2A2A] p-5">
+      <Card className="bg-card border-border p-5">
         <div className="flex items-start justify-between mb-3">
           <div>
             <h4 className="text-sm font-semibold text-white">

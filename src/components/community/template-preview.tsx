@@ -38,7 +38,7 @@ export function TemplatePreview({
 
   return (
     <Drawer open={open} onOpenChange={(o) => !o && onClose()}>
-      <DrawerContent className="bg-[#0A0A0A] border-[#2A2A2A] max-h-[85vh]">
+      <DrawerContent className="bg-background border-border max-h-[85vh]">
         <div className="overflow-y-auto px-4 pb-8">
           <DrawerHeader className="px-0">
             <DrawerTitle className="text-white text-left">{template.programName}</DrawerTitle>
@@ -48,13 +48,13 @@ export function TemplatePreview({
             {/* Meta */}
             <div className="flex items-center gap-2 flex-wrap">
               <span className="text-sm text-white/50">by @{template.authorName}</span>
-              <span className="text-xs bg-[#2A2A2A] text-white/60 px-2 py-0.5 rounded-full">
+              <span className="text-xs bg-secondary text-white/60 px-2 py-0.5 rounded-full">
                 {DIFFICULTY_LABELS[template.difficulty]}
               </span>
-              <span className="text-xs bg-[#2A2A2A] text-white/60 px-2 py-0.5 rounded-full">
+              <span className="text-xs bg-secondary text-white/60 px-2 py-0.5 rounded-full">
                 {SPLIT_LABELS[template.splitType]}
               </span>
-              <span className="text-xs bg-[#2A2A2A] text-white/60 px-2 py-0.5 rounded-full">
+              <span className="text-xs bg-secondary text-white/60 px-2 py-0.5 rounded-full">
                 {template.dayCount} days
               </span>
             </div>
@@ -70,8 +70,8 @@ export function TemplatePreview({
                 className={cn(
                   "flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors",
                   template.hasVoted
-                    ? "text-[#CDFF00] bg-[#CDFF00]/10"
-                    : "text-white/40 bg-[#1A1A1A]"
+                    ? "text-primary bg-primary/10"
+                    : "text-white/40 bg-card"
                 )}
               >
                 <ArrowUp className="w-4 h-4" />
@@ -89,7 +89,7 @@ export function TemplatePreview({
                 Program Overview
               </h3>
               {days.map((day: SerializedTrainingDay, i: number) => (
-                <div key={i} className="bg-[#1A1A1A] rounded-xl overflow-hidden">
+                <div key={i} className="bg-card rounded-xl overflow-hidden">
                   <button
                     onClick={() => setExpandedDay(expandedDay === i ? -1 : i)}
                     className="w-full flex items-center justify-between p-4 text-left"
@@ -103,7 +103,7 @@ export function TemplatePreview({
                     <div className="px-4 pb-4 space-y-2">
                       {day.supersets.map((superset, si) => (
                         <div key={si}>
-                          <p className="text-xs text-[#CDFF00] font-medium mb-1">
+                          <p className="text-xs text-primary font-medium mb-1">
                             Superset {superset.label}
                           </p>
                           {superset.exercises.map((ex, ei) => (
@@ -125,7 +125,7 @@ export function TemplatePreview({
 
             {/* Import Button */}
             <Button
-              className="w-full h-14 text-base font-semibold bg-[#CDFF00] text-black hover:bg-[#b8e600]"
+              className="w-full h-14 text-base font-semibold bg-primary text-black hover:bg-primary/90"
               onClick={() => onImport(template)}
               disabled={isImporting}
             >

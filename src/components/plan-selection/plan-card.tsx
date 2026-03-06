@@ -33,8 +33,8 @@ export function PlanCard({
         "relative w-full p-5 rounded-2xl text-left transition-colors",
         "border-2",
         isSelected
-          ? "border-[#CDFF00] bg-[#CDFF00]/10"
-          : "border-white/10 bg-[#1A1A1A] hover:border-white/20"
+          ? "border-primary bg-primary/10"
+          : "border-white/10 bg-card hover:border-white/20"
       )}
       whileTap={{ scale: 0.98 }}
       initial={{ opacity: 0, y: 20 }}
@@ -42,7 +42,7 @@ export function PlanCard({
     >
       {/* Recommended badge */}
       {isRecommended && (
-        <div className="absolute -top-3 left-4 px-3 py-1 bg-[#CDFF00] rounded-full">
+        <div className="absolute -top-3 left-4 px-3 py-1 bg-primary rounded-full">
           <span className="text-xs font-semibold text-black">Recommended</span>
         </div>
       )}
@@ -51,7 +51,7 @@ export function PlanCard({
       <div
         className={cn(
           "absolute top-4 right-4 w-6 h-6 rounded-full flex items-center justify-center",
-          isSelected ? "bg-[#CDFF00]" : "border-2 border-white/20"
+          isSelected ? "bg-primary" : "border-2 border-white/20"
         )}
       >
         {isSelected && <Check className="w-4 h-4 text-black" />}

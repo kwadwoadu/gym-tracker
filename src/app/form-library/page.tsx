@@ -4,9 +4,11 @@ import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Search, BookOpen } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { Card } from "@/components/ui/card";
 import { EXERCISE_FORM_DATA } from "@/data/form-cues";
 import { FormSheet } from "@/components/form-library/FormSheet";
+import { ExerciseFormCard } from "@/components/form-library/ExerciseFormCard";
+import { ChipFilter } from "@/components/shared/chip-filter";
+import { HEADING, LABEL } from "@/lib/typography";
 
 const MUSCLE_FILTERS = [
   "All",
@@ -51,6 +53,8 @@ export default function FormLibraryPage() {
     }));
   }, []);
 
+  const totalExerciseCount = exercises.length;
+
   const filtered = useMemo(() => {
     return exercises.filter((ex) => {
       if (search && !ex.name.toLowerCase().includes(search.toLowerCase()))
@@ -72,78 +76,65 @@ export default function FormLibraryPage() {
   }, [filtered]);
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] pb-24">
+    <div className="min-h-screen bg-background pb-24">
       {/* Header */}
       <header className="flex items-center gap-3 px-4 pt-safe-top pb-3">
         <button onClick={() => router.back()} className="p-2 -ml-2">
-          <ArrowLeft className="w-6 h-6 text-white/60" />
+          <ArrowLeft className="w-6 h-6 text-muted-foreground" />
         </button>
-        <h1 className="text-lg font-bold text-white">Form Library</h1>
+        <div className="flex-1">
+          <h1 className={`${HEADING.h3} text-foreground`}>Form Library</h1>
+        </div>
+        <span className={`${LABEL.caption} text-muted-foreground`}>
+          {totalExerciseCount}+ exercises
+        </span>
       </header>
 
       {/* Search */}
       <div className="px-4 pb-3">
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search exercises..."
-            className="pl-10 bg-[#1A1A1A] border-[#2A2A2A] text-white placeholder:text-white/30"
+            className="pl-10 bg-card rounded-xl p-3 border-border text-foreground placeholder:text-muted-foreground"
           />
         </div>
       </div>
 
       {/* Muscle Filters */}
       <div className="px-4 pb-4">
-        <div className="flex gap-2 overflow-x-auto no-scrollbar">
-          {MUSCLE_FILTERS.map((f) => (
-            <button
-              key={f}
-              onClick={() => setFilter(f)}
-              className={`px-4 py-1.5 rounded-full text-xs font-medium shrink-0 transition-all ${
-                filter === f
-                  ? "bg-[#CDFF00] text-black"
-                  : "bg-[#1A1A1A] text-white/50"
-              }`}
-            >
-              {f}
-            </button>
-          ))}
-        </div>
+        <ChipFilter
+          options={MUSCLE_FILTERS}
+          selected={filter}
+          onSelect={setFilter}
+        />
+      </div>
+
+      {/* Exercise count indicator */}
+      <div className="px-4 pb-3">
+        <p className="text-xs text-muted-foreground">
+          {filtered.length} exercise{filtered.length !== 1 ? "s" : ""} found
+        </p>
       </div>
 
       {/* Exercise List */}
       <div className="px-4 space-y-6">
         {Object.entries(grouped).map(([group, exs]) => (
           <div key={group}>
-            <h3 className="text-xs font-semibold text-white/40 uppercase tracking-[0.08em] mb-2">
+            <h3 className={`${LABEL.caption} text-muted-foreground mb-2`}>
               {group}
             </h3>
             <div className="space-y-2">
               {exs.map((ex) => (
-                <Card
+                <ExerciseFormCard
                   key={ex.key}
-                  className="bg-[#1A1A1A] border-[#2A2A2A] p-4 active:scale-[0.98] transition-transform cursor-pointer"
+                  name={ex.name}
+                  muscleGroups={ex.data.muscles}
+                  formCues={ex.data.cues}
                   onClick={() => setSelectedExercise(ex.name)}
-                >
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-white">
-                        {ex.name}
-                      </p>
-                      <p className="text-xs text-white/40 mt-0.5">
-                        {ex.data.cues.length} cues - {ex.data.muscles
-                          .filter((m) => m.activation === "primary")
-                          .map((m) => m.name)
-                          .join(", ")}
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <BookOpen className="w-4 h-4 text-white/30" />
-                    </div>
-                  </div>
-                </Card>
+                />
               ))}
             </div>
           </div>
@@ -151,8 +142,8 @@ export default function FormLibraryPage() {
 
         {filtered.length === 0 && (
           <div className="text-center py-12">
-            <BookOpen className="w-8 h-8 text-white/20 mx-auto mb-3" />
-            <p className="text-sm text-white/40">No exercises found</p>
+            <BookOpen className="w-8 h-8 text-muted-foreground/30 mx-auto mb-3" />
+            <p className="text-sm text-muted-foreground">No exercises found</p>
           </div>
         )}
       </div>

@@ -17,20 +17,20 @@ export function NutritionNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="sticky top-0 z-50 bg-[#0A0A0A]/95 backdrop-blur-sm border-b border-[#2A2A2A]">
+    <nav className="sticky top-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-14">
           {/* Back to main app */}
           <Link
             href="/"
-            className="flex items-center gap-2 text-[#A0A0A0] hover:text-white transition-colors"
+            className="flex items-center gap-2 text-muted-foreground hover:text-white transition-colors"
           >
             <ArrowLeft className="w-5 h-5" />
             <span className="hidden sm:inline">Back</span>
           </Link>
 
           {/* Nav tabs */}
-          <div className="flex items-center gap-1 bg-[#1A1A1A] rounded-lg p-1">
+          <div className="flex items-center gap-1 bg-card rounded-lg p-1">
             {navItems.map((item) => {
               const isActive = pathname === item.href;
               const Icon = item.icon;
@@ -41,8 +41,8 @@ export function NutritionNav() {
                   className={cn(
                     'flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors',
                     isActive
-                      ? 'bg-[#CDFF00] text-[#0A0A0A]'
-                      : 'text-[#A0A0A0] hover:text-white hover:bg-[#2A2A2A]'
+                      ? 'bg-primary text-primary-foreground'
+                      : 'text-muted-foreground hover:text-white hover:bg-secondary'
                   )}
                 >
                   <Icon className="w-4 h-4" />

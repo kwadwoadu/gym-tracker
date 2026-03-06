@@ -41,7 +41,7 @@ const TESTIMONIALS: Testimonial[] = [
 
 export function Testimonials() {
   return (
-    <section className="py-24 px-4 bg-[#111]">
+    <section className="py-24 px-4 bg-card-alt">
       <div className="max-w-6xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -51,7 +51,7 @@ export function Testimonials() {
           className="text-center mb-12"
         >
           <h2 className={`${HEADING.h2} mb-4`}>
-            Trusted by <span className="text-[#CDFF00]">Real Lifters</span>
+            Trusted by <span className="text-primary">Real Lifters</span>
           </h2>
           <p className="text-lg text-white/60">
             Hear from people who track their gains with SetFlow
@@ -73,7 +73,7 @@ export function Testimonials() {
                 {Array.from({ length: t.rating }).map((_, j) => (
                   <Star
                     key={j}
-                    className="w-4 h-4 fill-[#CDFF00] text-[#CDFF00]"
+                    className="w-4 h-4 fill-primary text-primary"
                   />
                 ))}
               </div>
@@ -85,7 +85,7 @@ export function Testimonials() {
 
               {/* Author */}
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-[#CDFF00]/20 flex items-center justify-center text-xs font-bold text-[#CDFF00]">
+                <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-xs font-bold text-primary">
                   {t.initials}
                 </div>
                 <div>

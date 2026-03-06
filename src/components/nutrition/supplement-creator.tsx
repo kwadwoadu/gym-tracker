@@ -73,7 +73,7 @@ export function SupplementCreator({ isOpen, onClose }: SupplementCreatorProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="bg-[#1A1A1A] border-[#2A2A2A] max-w-md">
+      <DialogContent className="bg-card border-border max-w-md">
         <DialogHeader>
           <DialogTitle className="text-white">Add Supplement</DialogTitle>
         </DialogHeader>
@@ -81,38 +81,38 @@ export function SupplementCreator({ isOpen, onClose }: SupplementCreatorProps) {
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Name */}
           <div className="space-y-2">
-            <Label htmlFor="name" className="text-[#A0A0A0]">Supplement Name *</Label>
+            <Label htmlFor="name" className="text-muted-foreground">Supplement Name *</Label>
             <Input
               id="name"
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="e.g., Creatine Monohydrate"
-              className="bg-[#2A2A2A] border-[#3A3A3A] text-white"
+              className="bg-secondary border-border text-white"
               required
             />
           </div>
 
           {/* Dose */}
           <div className="space-y-2">
-            <Label htmlFor="dose" className="text-[#A0A0A0]">Dose *</Label>
+            <Label htmlFor="dose" className="text-muted-foreground">Dose *</Label>
             <Input
               id="dose"
               value={dose}
               onChange={(e) => setDose(e.target.value)}
               placeholder="e.g., 5g or 1 scoop"
-              className="bg-[#2A2A2A] border-[#3A3A3A] text-white"
+              className="bg-secondary border-border text-white"
               required
             />
           </div>
 
           {/* Timing */}
           <div className="space-y-2">
-            <Label className="text-[#A0A0A0]">Timing *</Label>
+            <Label className="text-muted-foreground">Timing *</Label>
             <Select value={timing} onValueChange={setTiming} required>
-              <SelectTrigger className="bg-[#2A2A2A] border-[#3A3A3A] text-white">
+              <SelectTrigger className="bg-secondary border-border text-white">
                 <SelectValue placeholder="When to take" />
               </SelectTrigger>
-              <SelectContent className="bg-[#2A2A2A] border-[#3A3A3A]">
+              <SelectContent className="bg-secondary border-border">
                 {TIMING_OPTIONS.map((opt) => (
                   <SelectItem key={opt.value} value={opt.value} className="text-white">
                     {opt.label}
@@ -124,13 +124,13 @@ export function SupplementCreator({ isOpen, onClose }: SupplementCreatorProps) {
 
           {/* Notes */}
           <div className="space-y-2">
-            <Label htmlFor="notes" className="text-[#A0A0A0]">Notes (optional)</Label>
+            <Label htmlFor="notes" className="text-muted-foreground">Notes (optional)</Label>
             <Textarea
               id="notes"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               placeholder="e.g., Take with food for better absorption"
-              className="bg-[#2A2A2A] border-[#3A3A3A] text-white min-h-[80px]"
+              className="bg-secondary border-border text-white min-h-[80px]"
             />
           </div>
 
@@ -140,14 +140,14 @@ export function SupplementCreator({ isOpen, onClose }: SupplementCreatorProps) {
               type="button"
               variant="outline"
               onClick={onClose}
-              className="flex-1 border-[#3A3A3A] text-[#A0A0A0]"
+              className="flex-1 border-border text-muted-foreground"
             >
               Cancel
             </Button>
             <Button
               type="submit"
               disabled={!name || !dose || !timing || createMutation.isPending}
-              className="flex-1 bg-[#CDFF00] text-[#0A0A0A] hover:bg-[#CDFF00]/90"
+              className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90"
             >
               {createMutation.isPending ? (
                 <Loader2 className="w-4 h-4 animate-spin" />

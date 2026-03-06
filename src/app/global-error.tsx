@@ -13,7 +13,7 @@ export default function GlobalError({
   return (
     <html lang="en">
       <body>
-        <div className="min-h-screen flex items-center justify-center bg-[#0A0A0A] text-white">
+        <div className="min-h-screen flex items-center justify-center bg-background text-white">
           <div className="text-center space-y-6 px-4">
             <div className="space-y-2">
               <h1 className="text-4xl font-bold text-red-500">Error</h1>

@@ -34,30 +34,30 @@ export function PredictionCard({
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-gradient-to-br from-[#1A1A1A] to-[#0A0A0A] rounded-xl border border-[#2A2A2A] p-4"
+      className="bg-gradient-to-br from-card to-background rounded-xl border border-border p-4"
     >
       <div className="flex items-center gap-2 mb-3">
-        <Target className="w-4 h-4 text-[#CDFF00]" />
-        <span className="text-xs text-[#A0A0A0] uppercase tracking-wider">
+        <Target className="w-4 h-4 text-primary" />
+        <span className="text-xs text-muted-foreground uppercase tracking-wider">
           PR Prediction
         </span>
       </div>
 
       <div className="flex items-center justify-between mb-2">
         <p className="text-sm font-semibold text-white">{exerciseName}</p>
-        <p className="text-lg font-bold text-[#CDFF00]">{targetWeight}kg</p>
+        <p className="text-lg font-bold text-primary">{targetWeight}kg</p>
       </div>
 
       {/* Progress bar */}
-      <div className="h-2 bg-[#2A2A2A] rounded-full overflow-hidden mb-3">
+      <div className="h-2 bg-secondary rounded-full overflow-hidden mb-3">
         <div
-          className="h-full bg-[#CDFF00] rounded-full transition-all"
+          className="h-full bg-primary rounded-full transition-all"
           style={{ width: `${progress}%` }}
         />
       </div>
 
       <div className="flex items-center justify-between text-xs">
-        <span className="text-[#A0A0A0]">
+        <span className="text-muted-foreground">
           ~{estimatedWeeks} weeks (
           {estimatedDate.toLocaleDateString("en-US", {
             month: "short",
@@ -71,7 +71,7 @@ export function PredictionCard({
         </div>
       </div>
 
-      <p className="text-[11px] text-[#666666] mt-2">
+      <p className="text-[11px] text-dim-foreground mt-2">
         Current: {currentWeight}kg x {currentReps} @ RPE {currentRPE}
       </p>
     </motion.div>

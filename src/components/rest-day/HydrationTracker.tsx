@@ -62,7 +62,7 @@ export function HydrationTracker() {
         Hydration
       </h4>
       <Card
-        className={`bg-[#1A1A1A] border-[#2A2A2A] p-5 ${
+        className={`bg-card border-border p-5 ${
           isComplete ? "border-[#38BDF8]/30" : ""
         }`}
       >
@@ -102,7 +102,7 @@ export function HydrationTracker() {
                 >
                   <Droplets
                     className={`w-6 h-6 transition-colors ${
-                      filled ? "text-[#38BDF8]" : "text-[#2A2A2A]"
+                      filled ? "text-[#38BDF8]" : "text-secondary"
                     }`}
                     fill={filled ? "#38BDF8" : "none"}
                   />

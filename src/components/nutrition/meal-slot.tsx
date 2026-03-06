@@ -25,17 +25,17 @@ export function MealSlotComponent({ slotType, mealId, onRemove }: MealSlotProps)
     <div
       ref={setNodeRef}
       className={cn(
-        'rounded-xl border-2 border-dashed transition-all duration-200',
+        'rounded-xl transition-all duration-200',
         isOver
-          ? 'border-[#CDFF00] bg-[#CDFF00]/10'
+          ? 'border-2 border-primary border-dashed bg-primary/10'
           : meal
-            ? 'border-[#2A2A2A] bg-[#1A1A1A]'
-            : 'border-[#2A2A2A] bg-[#0A0A0A]'
+            ? 'border border-border bg-card'
+            : 'border border-dashed border-border bg-background'
       )}
     >
       {/* Slot Header */}
-      <div className="px-4 py-2 border-b border-[#2A2A2A]">
-        <span className="text-sm font-medium text-[#A0A0A0]">
+      <div className="px-4 py-2 border-b border-border">
+        <span className="text-sm font-medium text-muted-foreground">
           {SLOT_LABELS[slotType]}
         </span>
       </div>
@@ -83,10 +83,10 @@ function MealSlotContent({
       >
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
-            <span className="text-xs font-bold text-[#CDFF00]">{meal.id}</span>
+            <span className="text-xs font-bold text-primary">{meal.id}</span>
             <span className="text-sm font-medium text-white">{meal.name}</span>
             {hasIngredients && (
-              <span className="text-[#666666]">
+              <span className="text-dim-foreground">
                 {isExpanded ? (
                   <ChevronUp className="w-4 h-4" />
                 ) : (
@@ -95,11 +95,23 @@ function MealSlotContent({
               </span>
             )}
           </div>
-          <div className="flex items-center gap-3 text-xs">
-            <span className="text-[#CDFF00] font-semibold">{meal.protein}g P</span>
-            <span className="text-[#A0A0A0]">{meal.carbs}g C</span>
-            <span className="text-[#A0A0A0]">{meal.fat}g F</span>
-            <span className="text-[#666666]">{meal.calories} cal</span>
+          <div className="flex items-center gap-3 text-xs mb-2">
+            <span className="text-primary font-semibold">{meal.protein}g P</span>
+            <span className="text-gym-blue">{meal.carbs}g C</span>
+            <span className="text-gym-warning">{meal.fat}g F</span>
+            <span className="text-dim-foreground">{meal.calories} cal</span>
+          </div>
+          {/* Mini macro bars */}
+          <div className="flex items-center gap-1.5">
+            <div className="flex-1 h-1 bg-secondary rounded-full overflow-hidden">
+              <div className="h-full bg-primary rounded-full" style={{ width: `${Math.min((meal.protein / 50) * 100, 100)}%` }} />
+            </div>
+            <div className="flex-1 h-1 bg-secondary rounded-full overflow-hidden">
+              <div className="h-full bg-gym-blue rounded-full" style={{ width: `${Math.min((meal.carbs / 80) * 100, 100)}%` }} />
+            </div>
+            <div className="flex-1 h-1 bg-secondary rounded-full overflow-hidden">
+              <div className="h-full bg-gym-warning rounded-full" style={{ width: `${Math.min((meal.fat / 30) * 100, 100)}%` }} />
+            </div>
           </div>
         </div>
         <button
@@ -107,7 +119,7 @@ function MealSlotContent({
             e.stopPropagation();
             onRemove();
           }}
-          className="w-8 h-8 rounded-full bg-[#2A2A2A] flex items-center justify-center text-[#666666] hover:text-[#EF4444] hover:bg-[#EF4444]/10 transition-colors"
+          className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center text-dim-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
         >
           <X className="w-4 h-4" />
         </button>
@@ -123,12 +135,12 @@ function MealSlotContent({
             transition={{ duration: 0.2 }}
             className="overflow-hidden"
           >
-            <div className="mt-3 pt-3 border-t border-[#2A2A2A]">
-              <p className="text-xs font-medium text-[#A0A0A0] mb-2">Ingredients:</p>
+            <div className="mt-3 pt-3 border-t border-border">
+              <p className="text-xs font-medium text-muted-foreground mb-2">Ingredients:</p>
               <ul className="space-y-1">
                 {meal.ingredients!.map((ingredient, index) => (
-                  <li key={index} className="text-xs text-[#888888] flex items-start gap-2">
-                    <span className="text-[#CDFF00]">-</span>
+                  <li key={index} className="text-xs text-dim-foreground flex items-start gap-2">
+                    <span className="text-primary">-</span>
                     <span>{ingredient}</span>
                   </li>
                 ))}
@@ -146,12 +158,12 @@ function EmptySlot({ isOver }: { isOver: boolean }) {
     <div
       className={cn(
         'flex flex-col items-center justify-center text-center',
-        isOver ? 'text-[#CDFF00]' : 'text-[#666666]'
+        isOver ? 'text-primary' : 'text-dim-foreground'
       )}
     >
       <Plus className={cn('w-6 h-6 mb-1', isOver && 'animate-pulse')} />
       <span className="text-xs">
-        {isOver ? 'Drop here' : 'Drag a meal here'}
+        {isOver ? 'Drop here' : 'Add meal'}
       </span>
     </div>
   );

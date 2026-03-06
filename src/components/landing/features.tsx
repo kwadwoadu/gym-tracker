@@ -45,7 +45,7 @@ const features = [
 
 export function Features() {
   return (
-    <section className="py-24 px-4 bg-[#111]">
+    <section className="py-24 px-4 bg-card-alt">
       <div className="max-w-6xl mx-auto">
         {/* Section Header */}
         <motion.div
@@ -57,7 +57,7 @@ export function Features() {
         >
           <h2 className={`${HEADING.h2} mb-4`}>
             Everything You Need to
-            <span className="text-[#CDFF00]"> Get Stronger</span>
+            <span className="text-primary"> Get Stronger</span>
           </h2>
           <p className="text-lg text-white/60 max-w-2xl mx-auto">
             Built by lifters, for lifters. No bloat, no subscriptions, just results.
@@ -73,10 +73,10 @@ export function Features() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
-              className="group p-6 rounded-2xl bg-white/5 border border-white/10 hover:border-[#CDFF00]/30 hover:bg-white/[0.07] transition-all duration-300"
+              className="group p-6 rounded-2xl bg-white/5 border border-white/10 hover:border-primary/30 hover:bg-white/[0.07] transition-all duration-300"
             >
-              <div className="w-12 h-12 rounded-xl bg-[#CDFF00]/10 flex items-center justify-center mb-4 group-hover:bg-[#CDFF00]/20 transition-colors">
-                <feature.icon className="w-6 h-6 text-[#CDFF00]" />
+              <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
+                <feature.icon className="w-6 h-6 text-primary" />
               </div>
               <h3 className={`${HEADING.h3} mb-2`}>{feature.title}</h3>
               <p className="text-white/60 text-sm leading-relaxed">

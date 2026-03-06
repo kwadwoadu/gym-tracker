@@ -36,9 +36,9 @@ export function VoiceConfirmation({
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: 20 }}
-        className="bg-[#1A1A1A] border border-[#CDFF00]/20 rounded-xl p-4 shadow-[var(--shadow-hero)]"
+        className="bg-card border border-primary/20 rounded-xl p-4 shadow-[var(--shadow-hero)]"
       >
-        <p className="text-xs text-[#CDFF00] font-medium uppercase tracking-[0.08em] mb-2">
+        <p className="text-xs text-primary font-medium uppercase tracking-[0.08em] mb-2">
           Voice Logged
         </p>
         <div className="flex items-center gap-3 text-white">
@@ -62,7 +62,7 @@ export function VoiceConfirmation({
           <div className="flex items-center gap-2">
             <Button
               size="sm"
-              className="h-8 text-xs bg-[#CDFF00] text-black hover:bg-[#CDFF00]/80"
+              className="h-8 text-xs bg-primary text-black hover:bg-primary/80"
               onClick={onConfirm}
             >
               <Check className="w-3.5 h-3.5 mr-1" />

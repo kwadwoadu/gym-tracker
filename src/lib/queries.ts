@@ -667,7 +667,7 @@ export function useGenerateMealPlan() {
 // Gamification (XP System)
 // ============================================================
 
-import { gamificationApi, type GamificationResponse, type AwardXPResponse, type CompleteChallengeResponse } from "./api-client";
+import { gamificationApi } from "./api-client";
 import { getTodayDate } from "@/data/daily-challenges";
 import { getWeekId } from "@/data/weekly-challenges";
 

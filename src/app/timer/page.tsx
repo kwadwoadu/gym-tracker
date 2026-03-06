@@ -129,7 +129,7 @@ export default function TimerPage() {
   ]);
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] flex flex-col">
+    <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
       <header className="flex items-center justify-between px-4 pt-safe-top pb-3">
         <button onClick={() => router.back()} className="p-2 -ml-2">
@@ -344,7 +344,7 @@ export default function TimerPage() {
           <div className="flex gap-3">
             <Button
               variant="outline"
-              className="flex-1 h-14 border-[#2A2A2A] text-white"
+              className="flex-1 h-14 border-border text-white"
               onClick={state.isPaused ? resume : pause}
             >
               {state.isPaused ? (
@@ -361,7 +361,7 @@ export default function TimerPage() {
             </Button>
             <Button
               variant="outline"
-              className="h-14 px-6 border-[#2A2A2A] text-white/50"
+              className="h-14 px-6 border-border text-white/50"
               onClick={handleReset}
             >
               <RotateCcw className="w-5 h-5" />
@@ -381,7 +381,7 @@ export default function TimerPage() {
             </Button>
             <Button
               variant="outline"
-              className="w-full h-12 border-[#2A2A2A] text-white/60"
+              className="w-full h-12 border-border text-white/60"
               onClick={() => router.back()}
             >
               Done
@@ -405,12 +405,12 @@ function ConfigRow({
   onPlus: () => void;
 }) {
   return (
-    <div className="flex items-center justify-between bg-[#1A1A1A] rounded-xl px-4 py-3">
+    <div className="flex items-center justify-between bg-card rounded-xl px-4 py-3">
       <span className="text-sm text-white/60">{label}</span>
       <div className="flex items-center gap-4">
         <button
           onClick={onMinus}
-          className="w-10 h-10 rounded-full bg-[#2A2A2A] flex items-center justify-center active:bg-[#3A3A3A]"
+          className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center active:bg-muted"
         >
           <Minus className="w-4 h-4 text-white/60" />
         </button>
@@ -419,7 +419,7 @@ function ConfigRow({
         </span>
         <button
           onClick={onPlus}
-          className="w-10 h-10 rounded-full bg-[#2A2A2A] flex items-center justify-center active:bg-[#3A3A3A]"
+          className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center active:bg-muted"
         >
           <Plus className="w-4 h-4 text-white/60" />
         </button>

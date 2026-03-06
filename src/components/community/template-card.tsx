@@ -15,7 +15,7 @@ interface TemplateCardProps {
 export function TemplateCard({ template, onVote, onView }: TemplateCardProps) {
   return (
     <Card
-      className="bg-[#1A1A1A] border-[#2A2A2A] p-4 active:scale-[0.98] transition-transform"
+      className="bg-card border-border p-4 active:scale-[0.98] transition-transform"
       onClick={() => onView(template)}
     >
       <div className="flex items-start justify-between gap-3">
@@ -23,13 +23,13 @@ export function TemplateCard({ template, onVote, onView }: TemplateCardProps) {
           <h3 className="font-semibold text-white truncate">{template.programName}</h3>
           <p className="text-sm text-white/50 truncate">by @{template.authorName}</p>
           <div className="flex items-center gap-2 mt-2">
-            <span className="text-xs bg-[#2A2A2A] text-white/60 px-2 py-0.5 rounded-full">
+            <span className="text-xs bg-secondary text-white/60 px-2 py-0.5 rounded-full">
               {template.dayCount} days
             </span>
-            <span className="text-xs bg-[#2A2A2A] text-white/60 px-2 py-0.5 rounded-full">
+            <span className="text-xs bg-secondary text-white/60 px-2 py-0.5 rounded-full">
               {DIFFICULTY_LABELS[template.difficulty]}
             </span>
-            <span className="text-xs bg-[#2A2A2A] text-white/60 px-2 py-0.5 rounded-full">
+            <span className="text-xs bg-secondary text-white/60 px-2 py-0.5 rounded-full">
               {SPLIT_LABELS[template.splitType]}
             </span>
           </div>
@@ -45,7 +45,7 @@ export function TemplateCard({ template, onVote, onView }: TemplateCardProps) {
             className={cn(
               "flex flex-col items-center gap-0.5 min-w-[44px] min-h-[44px] justify-center rounded-lg transition-colors",
               template.hasVoted
-                ? "text-[#CDFF00] bg-[#CDFF00]/10"
+                ? "text-primary bg-primary/10"
                 : "text-white/40 hover:text-white/60"
             )}
           >

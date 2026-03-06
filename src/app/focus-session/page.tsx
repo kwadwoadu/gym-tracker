@@ -131,7 +131,7 @@ export default function FocusSessionStartPage() {
   if (activeSessionLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-[#CDFF00]" />
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
       </div>
     );
   }
@@ -167,7 +167,7 @@ export default function FocusSessionStartPage() {
                   className={cn(
                     "p-4 rounded-lg border text-center transition-all min-h-[72px] flex flex-col items-center justify-center gap-1.5",
                     focusArea === area.id
-                      ? "border-[#CDFF00] bg-[#CDFF00]/10 text-[#CDFF00]"
+                      ? "border-primary bg-primary/10 text-primary"
                       : "border-border bg-card hover:border-muted-foreground"
                   )}
                 >
@@ -184,7 +184,7 @@ export default function FocusSessionStartPage() {
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-[#CDFF00]" />
+                <Sparkles className="w-4 h-4 text-primary" />
                 <span className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
                   Recommended for you
                 </span>
@@ -194,7 +194,7 @@ export default function FocusSessionStartPage() {
                   variant="ghost"
                   size="sm"
                   onClick={addAllRecommendations}
-                  className="text-[#CDFF00] hover:text-[#CDFF00]/80"
+                  className="text-primary hover:text-primary/80"
                 >
                   Add all
                 </Button>
@@ -220,7 +220,7 @@ export default function FocusSessionStartPage() {
                         "p-3 rounded-lg border text-left transition-all",
                         isSelected
                           ? "border-success/50 bg-success/10"
-                          : "border-border bg-card hover:border-[#CDFF00]/50"
+                          : "border-border bg-card hover:border-primary/50"
                       )}
                     >
                       <div className="flex items-start justify-between">
@@ -249,7 +249,7 @@ export default function FocusSessionStartPage() {
                   variant="outline"
                   size="sm"
                   onClick={() => router.push('/exercises')}
-                  className="text-[#CDFF00] border-[#CDFF00]/50"
+                  className="text-primary border-primary/50"
                 >
                   <Dumbbell className="w-4 h-4 mr-2" />
                   Browse Exercises
@@ -267,7 +267,7 @@ export default function FocusSessionStartPage() {
         {selectedExercises.length > 0 && (
           <div className="space-y-3">
             <div className="flex items-center gap-2">
-              <Target className="w-4 h-4 text-[#CDFF00]" />
+              <Target className="w-4 h-4 text-primary" />
               <span className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
                 Selected ({selectedExercises.length})
               </span>
@@ -348,7 +348,7 @@ export default function FocusSessionStartPage() {
                           className={cn(
                             "w-full flex items-center gap-3 p-3 rounded-lg text-left transition-all",
                             isSelected
-                              ? "bg-[#CDFF00]/10 border border-[#CDFF00]/50"
+                              ? "bg-primary/10 border border-primary/50"
                               : "hover:bg-muted/50"
                           )}
                         >
@@ -378,7 +378,7 @@ export default function FocusSessionStartPage() {
       <div className="fixed bottom-0 left-0 right-0 p-4 pb-safe-bottom bg-background/80 backdrop-blur-lg border-t border-border">
         <Button
           size="lg"
-          className="w-full h-14 text-lg font-semibold bg-[#CDFF00] text-[#0A0A0A] hover:bg-[#CDFF00]/90"
+          className="w-full h-14 text-lg font-semibold bg-primary text-primary-foreground hover:bg-primary/90"
           onClick={handleStartSession}
           disabled={selectedExercises.length === 0 || createSessionMutation.isPending}
         >

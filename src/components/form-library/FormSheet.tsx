@@ -32,7 +32,7 @@ export function FormSheet({ exerciseName, open, onClose }: FormSheetProps) {
 
   return (
     <Drawer open={open} onOpenChange={(o) => !o && onClose()}>
-      <DrawerContent className="bg-[#0A0A0A] border-[#2A2A2A] max-h-[85vh]">
+      <DrawerContent className="bg-background border-border max-h-[85vh]">
         <div className="overflow-y-auto px-4 pb-8">
           <DrawerHeader className="px-0">
             <DrawerTitle className="text-white text-left">
@@ -58,9 +58,9 @@ export function FormSheet({ exerciseName, open, onClose }: FormSheetProps) {
                   {formData.cues.map((cue, i) => (
                     <div
                       key={i}
-                      className="flex gap-3 bg-[#1A1A1A] rounded-xl p-3.5 border-l-[3px] border-[#CDFF00]"
+                      className="flex gap-3 bg-card rounded-xl p-3.5 border-l-[3px] border-primary"
                     >
-                      <CheckCircle2 className="w-5 h-5 text-[#CDFF00] shrink-0 mt-0.5" />
+                      <CheckCircle2 className="w-5 h-5 text-primary shrink-0 mt-0.5" />
                       <div>
                         <p className="text-sm text-white">{cue.text}</p>
                         <p className="text-xs text-white/30 mt-0.5">
@@ -81,17 +81,17 @@ export function FormSheet({ exerciseName, open, onClose }: FormSheetProps) {
                   {formData.mistakes.map((mistake, i) => (
                     <div
                       key={i}
-                      className={`flex gap-3 bg-[#1A1A1A] rounded-xl p-3.5 border-l-[3px] ${
+                      className={`flex gap-3 bg-card rounded-xl p-3.5 border-l-[3px] ${
                         mistake.severity === "dangerous"
-                          ? "border-[#EF4444]"
-                          : "border-[#F59E0B]"
+                          ? "border-destructive"
+                          : "border-gym-warning"
                       }`}
                     >
                       <XCircle
                         className={`w-5 h-5 shrink-0 mt-0.5 ${
                           mistake.severity === "dangerous"
-                            ? "text-[#EF4444]"
-                            : "text-[#F59E0B]"
+                            ? "text-destructive"
+                            : "text-gym-warning"
                         }`}
                       />
                       <div>
@@ -110,9 +110,9 @@ export function FormSheet({ exerciseName, open, onClose }: FormSheetProps) {
                 <h3 className="text-xs font-semibold text-white/40 uppercase tracking-[0.08em] mb-3">
                   Muscles Worked
                 </h3>
-                <div className="bg-[#1A1A1A] rounded-xl p-4 space-y-3">
+                <div className="bg-card rounded-xl p-4 space-y-3">
                   <div>
-                    <p className="text-xs text-[#CDFF00] font-medium mb-1.5">
+                    <p className="text-xs text-primary font-medium mb-1.5">
                       Primary
                     </p>
                     <div className="flex flex-wrap gap-1.5">
@@ -121,7 +121,7 @@ export function FormSheet({ exerciseName, open, onClose }: FormSheetProps) {
                         .map((m) => (
                           <span
                             key={m.name}
-                            className="text-xs bg-[#CDFF00]/10 text-[#CDFF00] px-2.5 py-1 rounded-full"
+                            className="text-xs bg-primary/10 text-primary px-2.5 py-1 rounded-full"
                           >
                             {m.name}
                           </span>

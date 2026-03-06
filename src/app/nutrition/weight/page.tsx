@@ -131,7 +131,7 @@ export default function WeightTrackingPage() {
   if (isLoading) {
     return (
       <div className="max-w-lg mx-auto flex items-center justify-center py-12">
-        <Loader2 className="w-8 h-8 animate-spin text-[#CDFF00]" />
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
       </div>
     );
   }
@@ -144,25 +144,25 @@ export default function WeightTrackingPage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
         onSubmit={handleSubmit}
-        className="bg-[#1A1A1A] rounded-xl p-4 border border-[#2A2A2A] space-y-4"
+        className="bg-card rounded-xl p-4 border border-border space-y-4"
       >
         <h2 className="text-lg font-semibold text-white flex items-center gap-2">
-          <Scale className="w-5 h-5 text-[#CDFF00]" />
+          <Scale className="w-5 h-5 text-primary" />
           Log Weight
         </h2>
 
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="text-xs text-[#A0A0A0] mb-1 block">Date</label>
+            <label className="text-xs text-muted-foreground mb-1 block">Date</label>
             <input
               type="date"
               value={date}
               onChange={(e) => setDate(e.target.value)}
-              className="w-full h-11 px-3 rounded-lg bg-[#2A2A2A] border border-[#2A2A2A] text-white text-sm focus:outline-none focus:border-[#CDFF00] transition-colors"
+              className="w-full h-11 px-3 rounded-lg bg-secondary border border-border text-white text-sm focus:outline-none focus:border-primary transition-colors"
             />
           </div>
           <div>
-            <label className="text-xs text-[#A0A0A0] mb-1 block">Weight (kg)</label>
+            <label className="text-xs text-muted-foreground mb-1 block">Weight (kg)</label>
             <input
               type="number"
               step="0.1"
@@ -171,19 +171,19 @@ export default function WeightTrackingPage() {
               value={weight}
               onChange={(e) => setWeight(e.target.value)}
               placeholder="80.5"
-              className="w-full h-11 px-3 rounded-lg bg-[#2A2A2A] border border-[#2A2A2A] text-white text-sm focus:outline-none focus:border-[#CDFF00] transition-colors placeholder:text-[#666666]"
+              className="w-full h-11 px-3 rounded-lg bg-secondary border border-border text-white text-sm focus:outline-none focus:border-primary transition-colors placeholder:text-dim-foreground"
             />
           </div>
         </div>
 
         <div>
-          <label className="text-xs text-[#A0A0A0] mb-1 block">Notes (optional)</label>
+          <label className="text-xs text-muted-foreground mb-1 block">Notes (optional)</label>
           <textarea
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             placeholder="e.g. after breakfast, morning weigh-in"
             rows={2}
-            className="w-full px-3 py-2 rounded-lg bg-[#2A2A2A] border border-[#2A2A2A] text-white text-sm focus:outline-none focus:border-[#CDFF00] transition-colors placeholder:text-[#666666] resize-none"
+            className="w-full px-3 py-2 rounded-lg bg-secondary border border-border text-white text-sm focus:outline-none focus:border-primary transition-colors placeholder:text-dim-foreground resize-none"
           />
         </div>
 
@@ -194,8 +194,8 @@ export default function WeightTrackingPage() {
           className={cn(
             'w-full h-12 rounded-xl font-semibold text-sm transition-colors',
             weight
-              ? 'bg-[#CDFF00] text-[#0A0A0A] hover:bg-[#CDFF00]/90'
-              : 'bg-[#2A2A2A] text-[#666666] cursor-not-allowed'
+              ? 'bg-primary text-primary-foreground hover:bg-primary/90'
+              : 'bg-secondary text-dim-foreground cursor-not-allowed'
           )}
         >
           {createLog.isPending ? (
@@ -213,38 +213,38 @@ export default function WeightTrackingPage() {
         transition={{ duration: 0.3, delay: 0.05 }}
         className="grid grid-cols-2 gap-3"
       >
-        <div className="bg-[#1A1A1A] rounded-xl p-4 border border-[#2A2A2A]">
+        <div className="bg-card rounded-xl p-4 border border-border">
           <div className="flex items-center gap-2 mb-2">
-            <Scale className="w-4 h-4 text-[#A0A0A0]" />
-            <span className="text-xs text-[#A0A0A0]">Current</span>
+            <Scale className="w-4 h-4 text-muted-foreground" />
+            <span className="text-xs text-muted-foreground">Current</span>
           </div>
           <p className="text-2xl font-bold text-white">
             {trend.current !== null ? `${trend.current.toFixed(1)}` : '--'}
           </p>
-          <p className="text-xs text-[#666666] mt-1">kg</p>
+          <p className="text-xs text-dim-foreground mt-1">kg</p>
         </div>
 
-        <div className="bg-[#1A1A1A] rounded-xl p-4 border border-[#2A2A2A]">
+        <div className="bg-card rounded-xl p-4 border border-border">
           <div className="flex items-center gap-2 mb-2">
-            <Activity className="w-4 h-4 text-[#A0A0A0]" />
-            <span className="text-xs text-[#A0A0A0]">7-Day Avg</span>
+            <Activity className="w-4 h-4 text-muted-foreground" />
+            <span className="text-xs text-muted-foreground">7-Day Avg</span>
           </div>
           <p className="text-2xl font-bold text-white">
             {trend.sevenDayAvg !== null ? `${trend.sevenDayAvg.toFixed(1)}` : '--'}
           </p>
-          <p className="text-xs text-[#666666] mt-1">kg</p>
+          <p className="text-xs text-dim-foreground mt-1">kg</p>
         </div>
 
-        <div className="bg-[#1A1A1A] rounded-xl p-4 border border-[#2A2A2A]">
+        <div className="bg-card rounded-xl p-4 border border-border">
           <div className="flex items-center gap-2 mb-2">
             {trend.weeklyChange !== null && trend.weeklyChange > 0 ? (
               <TrendingUp className="w-4 h-4 text-green-500" />
             ) : trend.weeklyChange !== null && trend.weeklyChange < 0 ? (
               <TrendingDown className="w-4 h-4 text-red-500" />
             ) : (
-              <Minus className="w-4 h-4 text-[#A0A0A0]" />
+              <Minus className="w-4 h-4 text-muted-foreground" />
             )}
-            <span className="text-xs text-[#A0A0A0]">Weekly Change</span>
+            <span className="text-xs text-muted-foreground">Weekly Change</span>
           </div>
           <p
             className={cn(
@@ -260,18 +260,18 @@ export default function WeightTrackingPage() {
               ? `${trend.weeklyChange > 0 ? '+' : ''}${trend.weeklyChange.toFixed(2)}`
               : '--'}
           </p>
-          <p className="text-xs text-[#666666] mt-1">kg/week</p>
+          <p className="text-xs text-dim-foreground mt-1">kg/week</p>
         </div>
 
-        <div className="bg-[#1A1A1A] rounded-xl p-4 border border-[#2A2A2A]">
+        <div className="bg-card rounded-xl p-4 border border-border">
           <div className="flex items-center gap-2 mb-2">
-            <Target className="w-4 h-4 text-[#A0A0A0]" />
-            <span className="text-xs text-[#A0A0A0]">30-Day Avg</span>
+            <Target className="w-4 h-4 text-muted-foreground" />
+            <span className="text-xs text-muted-foreground">30-Day Avg</span>
           </div>
           <p className="text-2xl font-bold text-white">
             {trend.thirtyDayAvg !== null ? `${trend.thirtyDayAvg.toFixed(1)}` : '--'}
           </p>
-          <p className="text-xs text-[#666666] mt-1">kg</p>
+          <p className="text-xs text-dim-foreground mt-1">kg</p>
         </div>
       </motion.div>
 
@@ -281,7 +281,7 @@ export default function WeightTrackingPage() {
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3, delay: 0.1 }}
-          className="bg-[#1A1A1A] rounded-xl p-4 border border-[#2A2A2A]"
+          className="bg-card rounded-xl p-4 border border-border"
         >
           <h2 className="text-lg font-semibold text-white mb-4">Weight Trend</h2>
           <div className="h-64">
@@ -333,14 +333,14 @@ export default function WeightTrackingPage() {
               </LineChart>
             </ResponsiveContainer>
           </div>
-          <div className="flex items-center justify-center gap-6 mt-3 pt-3 border-t border-[#2A2A2A]">
+          <div className="flex items-center justify-center gap-6 mt-3 pt-3 border-t border-border">
             <div className="flex items-center gap-2">
-              <div className="w-4 h-0.5 bg-[#CDFF00]" />
-              <span className="text-xs text-[#A0A0A0]">Weight</span>
+              <div className="w-4 h-0.5 bg-primary" />
+              <span className="text-xs text-muted-foreground">Weight</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-4 h-0.5 bg-[#666666] border-dashed" style={{ borderTop: '1.5px dashed #666666', height: 0 }} />
-              <span className="text-xs text-[#A0A0A0]">7-Day Avg</span>
+              <div className="w-4 h-0.5 bg-dim-foreground border-dashed" style={{ borderTop: '1.5px dashed #666666', height: 0 }} />
+              <span className="text-xs text-muted-foreground">7-Day Avg</span>
             </div>
           </div>
         </motion.section>
@@ -357,7 +357,7 @@ export default function WeightTrackingPage() {
             ? 'bg-green-500/10 border-green-500/20'
             : recommendation.type === 'warning'
               ? 'bg-yellow-500/10 border-yellow-500/20'
-              : 'bg-[#1A1A1A] border-[#2A2A2A]'
+              : 'bg-card border-border'
         )}
       >
         <div className="flex items-start gap-3">
@@ -368,7 +368,7 @@ export default function WeightTrackingPage() {
                 ? 'bg-green-500/20'
                 : recommendation.type === 'warning'
                   ? 'bg-yellow-500/20'
-                  : 'bg-[#2A2A2A]'
+                  : 'bg-secondary'
             )}
           >
             {recommendation.type === 'success' ? (
@@ -376,7 +376,7 @@ export default function WeightTrackingPage() {
             ) : recommendation.type === 'warning' ? (
               <Activity className="w-4 h-4 text-yellow-500" />
             ) : (
-              <Calendar className="w-4 h-4 text-[#A0A0A0]" />
+              <Calendar className="w-4 h-4 text-muted-foreground" />
             )}
           </div>
           <p
@@ -386,7 +386,7 @@ export default function WeightTrackingPage() {
                 ? 'text-green-400'
                 : recommendation.type === 'warning'
                   ? 'text-yellow-400'
-                  : 'text-[#A0A0A0]'
+                  : 'text-muted-foreground'
             )}
           >
             {recommendation.message}
@@ -402,9 +402,9 @@ export default function WeightTrackingPage() {
       >
         <h2 className="text-lg font-semibold text-white mb-3">Recent Entries</h2>
         {recentEntries.length === 0 ? (
-          <div className="bg-[#1A1A1A] rounded-xl p-8 border border-[#2A2A2A] text-center">
-            <Scale className="w-10 h-10 text-[#2A2A2A] mx-auto mb-3" />
-            <p className="text-sm text-[#666666]">No entries yet. Log your first weight above.</p>
+          <div className="bg-card rounded-xl p-8 border border-border text-center">
+            <Scale className="w-10 h-10 text-secondary mx-auto mb-3" />
+            <p className="text-sm text-dim-foreground">No entries yet. Log your first weight above.</p>
           </div>
         ) : (
           <div className="space-y-2">
@@ -417,11 +417,11 @@ export default function WeightTrackingPage() {
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.95 }}
                   transition={{ duration: 0.2 }}
-                  className="bg-[#1A1A1A] rounded-xl p-4 border border-[#2A2A2A] flex items-center justify-between"
+                  className="bg-card rounded-xl p-4 border border-border flex items-center justify-between"
                 >
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-3">
-                      <span className="text-sm text-[#A0A0A0]">
+                      <span className="text-sm text-muted-foreground">
                         {format(parseISO(entry.date), 'MMM d, yyyy')}
                       </span>
                       <span className="text-lg font-semibold text-white">
@@ -429,7 +429,7 @@ export default function WeightTrackingPage() {
                       </span>
                     </div>
                     {entry.notes && (
-                      <p className="text-xs text-[#666666] mt-1 truncate">{entry.notes}</p>
+                      <p className="text-xs text-dim-foreground mt-1 truncate">{entry.notes}</p>
                     )}
                   </div>
 
@@ -437,7 +437,7 @@ export default function WeightTrackingPage() {
                     whileTap={{ scale: 0.9 }}
                     onClick={() => handleDelete(entry.id)}
                     disabled={deleteLog.isPending}
-                    className="w-11 h-11 rounded-lg flex items-center justify-center text-[#666666] hover:text-red-500 hover:bg-red-500/10 transition-colors flex-shrink-0 ml-3"
+                    className="w-11 h-11 rounded-lg flex items-center justify-center text-dim-foreground hover:text-red-500 hover:bg-red-500/10 transition-colors flex-shrink-0 ml-3"
                   >
                     <Trash2 className="w-4 h-4" />
                   </motion.button>

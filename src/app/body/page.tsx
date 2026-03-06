@@ -14,6 +14,7 @@ import {
   Camera,
 } from "lucide-react";
 import { DATA, LABEL } from "@/lib/typography";
+import { COLORS } from "@/lib/design-tokens";
 import db, { generateId, getToday } from "@/lib/db";
 import type {
   WeightEntry,
@@ -165,7 +166,7 @@ export default function BodyPage() {
   const previousMeasurement = bodyMeasurements?.[1] || null;
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] pb-24">
+    <div className="min-h-screen bg-background pb-24">
       {/* Header */}
       <header className="flex items-center justify-between px-4 pt-safe-top pb-3">
         <div className="flex items-center gap-3">
@@ -176,7 +177,7 @@ export default function BodyPage() {
         </div>
         <button
           onClick={() => setUnit(unit === "kg" ? "lbs" : "kg")}
-          className="px-3 py-1.5 rounded-full text-xs font-medium bg-[#1A1A1A] text-white/50"
+          className="px-3 py-1.5 rounded-full text-xs font-medium bg-card text-white/50"
         >
           {unit.toUpperCase()}
         </button>
@@ -184,14 +185,14 @@ export default function BodyPage() {
 
       {/* Tabs */}
       <div className="px-4 pb-4">
-        <div className="flex gap-1 bg-[#1A1A1A] rounded-xl p-1">
+        <div className="flex gap-1 bg-card rounded-xl p-1">
           {TABS.map((t) => (
             <button
               key={t.key}
               onClick={() => setTab(t.key)}
               className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-lg text-xs font-medium transition-all ${
                 tab === t.key
-                  ? "bg-[#CDFF00] text-black"
+                  ? "bg-primary text-black"
                   : "text-white/40"
               }`}
             >
@@ -206,16 +207,16 @@ export default function BodyPage() {
       {tab === "weight" && (
         <div className="px-4 space-y-4">
           {/* Current Weight + Trend */}
-          <div className="bg-[#1A1A1A] rounded-xl p-4">
+          <div className="bg-card rounded-xl p-4">
             <div className="flex items-center justify-between mb-1">
               <p className="text-xs text-white/40">Current Weight</p>
               {weeklyRate !== null && (
                 <div className="flex items-center gap-1">
                   {trend === "losing" && (
-                    <TrendingDown className="w-3.5 h-3.5 text-[#22C55E]" />
+                    <TrendingDown className="w-3.5 h-3.5 text-gym-success" />
                   )}
                   {trend === "gaining" && (
-                    <TrendingUp className="w-3.5 h-3.5 text-[#F59E0B]" />
+                    <TrendingUp className="w-3.5 h-3.5 text-gym-warning" />
                   )}
                   {trend === "maintaining" && (
                     <Minus className="w-3.5 h-3.5 text-white/40" />
@@ -223,9 +224,9 @@ export default function BodyPage() {
                   <span
                     className={`text-xs font-medium ${
                       trend === "losing"
-                        ? "text-[#22C55E]"
+                        ? "text-gym-success"
                         : trend === "gaining"
-                        ? "text-[#F59E0B]"
+                        ? "text-gym-warning"
                         : "text-white/40"
                     }`}
                   >
@@ -250,8 +251,8 @@ export default function BodyPage() {
                 onClick={() => setPeriod(p.key)}
                 className={`flex-1 py-1.5 rounded-lg text-xs font-medium transition-all ${
                   period === p.key
-                    ? "bg-[#CDFF00] text-black"
-                    : "bg-[#1A1A1A] text-white/40"
+                    ? "bg-primary text-black"
+                    : "bg-card text-white/40"
                 }`}
               >
                 {p.label}
@@ -260,7 +261,7 @@ export default function BodyPage() {
           </div>
 
           {/* Chart */}
-          <div className="bg-[#1A1A1A] rounded-xl p-3">
+          <div className="bg-card rounded-xl p-3">
             <WeightChart
               entries={
                 (weightEntries || []).map((e) => ({
@@ -294,7 +295,7 @@ export default function BodyPage() {
                     return (
                       <div
                         key={entry.id}
-                        className="flex items-center justify-between bg-[#1A1A1A] rounded-lg px-4 py-3"
+                        className="flex items-center justify-between bg-card rounded-lg px-4 py-3"
                       >
                         <span className="text-sm text-white/60">
                           {new Date(entry.date).toLocaleDateString("en", {
@@ -310,9 +311,9 @@ export default function BodyPage() {
                             <span
                               className={`text-xs ${
                                 delta > 0
-                                  ? "text-[#F59E0B]"
+                                  ? "text-gym-warning"
                                   : delta < 0
-                                  ? "text-[#22C55E]"
+                                  ? "text-gym-success"
                                   : "text-white/30"
                               }`}
                             >
@@ -352,7 +353,7 @@ export default function BodyPage() {
               </p>
               <button
                 onClick={() => setShowMeasurementForm(true)}
-                className="px-6 py-3 rounded-xl bg-[#CDFF00] text-black font-semibold active:scale-[0.98] transition-transform"
+                className="px-6 py-3 rounded-xl bg-primary text-black font-semibold active:scale-[0.98] transition-transform"
               >
                 Add First Measurement
               </button>
@@ -382,7 +383,7 @@ export default function BodyPage() {
                       <h3 className={`${LABEL.caption} text-white/40 mb-2`}>
                         {group}
                       </h3>
-                      <div className="grid grid-cols-3 gap-2">
+                      <div className="bg-card rounded-xl overflow-hidden divide-y divide-white/5">
                         {sites.map((site) => {
                           const val =
                             latestMeasurement[
@@ -401,25 +402,22 @@ export default function BodyPage() {
                           return (
                             <div
                               key={site.key}
-                              className="bg-[#1A1A1A] rounded-xl p-3"
+                              className="flex items-center justify-between px-4 py-3"
                             >
-                              <p className="text-[11px] text-white/40 mb-1">
+                              <span className="text-sm text-white/60">
                                 {site.label}
-                              </p>
-                              <p className={`${DATA.small} text-white`}>
-                                {val}
-                              </p>
-                              <div className="flex items-center gap-1 mt-0.5">
-                                <span className="text-[10px] text-white/30">
-                                  cm
+                              </span>
+                              <div className="flex items-center gap-3">
+                                <span className="text-sm font-medium text-white tabular-nums">
+                                  {val} cm
                                 </span>
                                 {delta !== null && (
                                   <span
-                                    className={`text-[10px] font-medium ${
-                                      delta > 0
-                                        ? "text-[#22C55E]"
-                                        : delta < 0
-                                        ? "text-[#EF4444]"
+                                    className={`text-xs font-medium min-w-[36px] text-right ${
+                                      delta < 0
+                                        ? "text-gym-success"
+                                        : delta > 0
+                                        ? "text-gym-warning"
                                         : "text-white/30"
                                     }`}
                                   >
@@ -446,7 +444,7 @@ export default function BodyPage() {
         <div className="px-4 space-y-4">
           {bodyFatEntries && bodyFatEntries.length > 0 ? (
             <>
-              <div className="bg-[#1A1A1A] rounded-xl p-5 text-center">
+              <div className="bg-card rounded-xl p-5 text-center">
                 <p className="text-xs text-white/40 mb-1">Latest Estimate</p>
                 <p className={`${DATA.large} text-white`}>
                   {bodyFatEntries[0].percentage}%
@@ -463,7 +461,7 @@ export default function BodyPage() {
 
               {/* Body Fat Trend Chart */}
               {bodyFatEntries.length >= 2 && (
-                <div className="bg-[#1A1A1A] rounded-xl p-3">
+                <div className="bg-card rounded-xl p-3">
                   <h3 className={`${LABEL.caption} text-white/40 mb-2`}>
                     Trend
                   </h3>
@@ -480,8 +478,8 @@ export default function BodyPage() {
                       >
                         <XAxis
                           dataKey="date"
-                          stroke="#666"
-                          tick={{ fontSize: 10, fill: "#666" }}
+                          stroke={COLORS.textMuted}
+                          tick={{ fontSize: 10, fill: COLORS.textMuted }}
                           tickFormatter={(d: string) =>
                             new Date(d).toLocaleDateString("en", {
                               month: "short",
@@ -490,8 +488,8 @@ export default function BodyPage() {
                           }
                         />
                         <YAxis
-                          stroke="#666"
-                          tick={{ fontSize: 10, fill: "#666" }}
+                          stroke={COLORS.textMuted}
+                          tick={{ fontSize: 10, fill: COLORS.textMuted }}
                           domain={["auto", "auto"]}
                           width={35}
                           unit="%"
@@ -499,10 +497,10 @@ export default function BodyPage() {
                         <Line
                           type="monotone"
                           dataKey="percentage"
-                          stroke="#CDFF00"
+                          stroke={COLORS.accent}
                           strokeWidth={2}
-                          dot={{ fill: "#CDFF00", r: 3 }}
-                          activeDot={{ fill: "#CDFF00", r: 5 }}
+                          dot={{ fill: COLORS.accent, r: 3 }}
+                          activeDot={{ fill: COLORS.accent, r: 5 }}
                         />
                       </LineChart>
                     </ResponsiveContainer>
@@ -526,7 +524,7 @@ export default function BodyPage() {
                       return (
                         <div
                           key={entry.id}
-                          className="flex items-center justify-between bg-[#1A1A1A] rounded-lg px-4 py-3"
+                          className="flex items-center justify-between bg-card rounded-lg px-4 py-3"
                         >
                           <span className="text-sm text-white/60">
                             {new Date(entry.date).toLocaleDateString("en", {
@@ -542,9 +540,9 @@ export default function BodyPage() {
                               <span
                                 className={`text-xs ${
                                   delta < 0
-                                    ? "text-[#22C55E]"
+                                    ? "text-gym-success"
                                     : delta > 0
-                                    ? "text-[#EF4444]"
+                                    ? "text-destructive"
                                     : "text-white/30"
                                 }`}
                               >
@@ -568,7 +566,7 @@ export default function BodyPage() {
               </p>
               <button
                 onClick={() => setShowBodyFatCalc(true)}
-                className="px-6 py-3 rounded-xl bg-[#CDFF00] text-black font-semibold active:scale-[0.98] transition-transform"
+                className="px-6 py-3 rounded-xl bg-primary text-black font-semibold active:scale-[0.98] transition-transform"
               >
                 Calculate Body Fat
               </button>
@@ -588,7 +586,7 @@ export default function BodyPage() {
             else if (tab === "measurements") setShowMeasurementForm(true);
             else setShowBodyFatCalc(true);
           }}
-          className="fixed bottom-24 right-4 w-14 h-14 rounded-full bg-[#CDFF00] text-black flex items-center justify-center shadow-lg active:scale-95 transition-transform z-30"
+          className="fixed bottom-24 right-4 w-14 h-14 rounded-full bg-primary text-black flex items-center justify-center shadow-lg active:scale-95 transition-transform z-30"
         >
           <Plus className="w-6 h-6" />
         </button>

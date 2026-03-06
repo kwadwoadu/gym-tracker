@@ -14,6 +14,8 @@ export const HEADING = {
 export const LABEL = {
   section: "text-sm font-semibold uppercase tracking-[0.08em]",
   caption: "text-xs uppercase tracking-[0.08em]",
+  sectionTitle: "text-lg font-semibold text-foreground",
+  subtitle: "text-sm text-muted-foreground",
 } as const;
 
 /** Data display presets (weights, reps, timer values) */

@@ -101,7 +101,7 @@ export function MealCreator({ isOpen, onClose }: MealCreatorProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="bg-[#1A1A1A] border-[#2A2A2A] max-w-md">
+      <DialogContent className="bg-card border-border max-w-md">
         <DialogHeader>
           <DialogTitle className="text-white">Create Custom Meal</DialogTitle>
         </DialogHeader>
@@ -109,25 +109,25 @@ export function MealCreator({ isOpen, onClose }: MealCreatorProps) {
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Name */}
           <div className="space-y-2">
-            <Label htmlFor="name" className="text-[#A0A0A0]">Meal Name *</Label>
+            <Label htmlFor="name" className="text-muted-foreground">Meal Name *</Label>
             <Input
               id="name"
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="e.g., Chicken & Rice Bowl"
-              className="bg-[#2A2A2A] border-[#3A3A3A] text-white"
+              className="bg-secondary border-border text-white"
               required
             />
           </div>
 
           {/* Category */}
           <div className="space-y-2">
-            <Label className="text-[#A0A0A0]">Category *</Label>
+            <Label className="text-muted-foreground">Category *</Label>
             <Select value={category} onValueChange={setCategory} required>
-              <SelectTrigger className="bg-[#2A2A2A] border-[#3A3A3A] text-white">
+              <SelectTrigger className="bg-secondary border-border text-white">
                 <SelectValue placeholder="Select category" />
               </SelectTrigger>
-              <SelectContent className="bg-[#2A2A2A] border-[#3A3A3A]">
+              <SelectContent className="bg-secondary border-border">
                 {CATEGORIES.map((cat) => (
                   <SelectItem key={cat.value} value={cat.value} className="text-white">
                     {cat.label}
@@ -140,70 +140,70 @@ export function MealCreator({ isOpen, onClose }: MealCreatorProps) {
           {/* Macros */}
           <div className="grid grid-cols-3 gap-3">
             <div className="space-y-2">
-              <Label htmlFor="protein" className="text-[#A0A0A0]">Protein (g)</Label>
+              <Label htmlFor="protein" className="text-muted-foreground">Protein (g)</Label>
               <Input
                 id="protein"
                 type="number"
                 value={protein}
                 onChange={(e) => setProtein(e.target.value)}
                 placeholder="0"
-                className="bg-[#2A2A2A] border-[#3A3A3A] text-white"
+                className="bg-secondary border-border text-white"
                 min="0"
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="carbs" className="text-[#A0A0A0]">Carbs (g)</Label>
+              <Label htmlFor="carbs" className="text-muted-foreground">Carbs (g)</Label>
               <Input
                 id="carbs"
                 type="number"
                 value={carbs}
                 onChange={(e) => setCarbs(e.target.value)}
                 placeholder="0"
-                className="bg-[#2A2A2A] border-[#3A3A3A] text-white"
+                className="bg-secondary border-border text-white"
                 min="0"
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="fat" className="text-[#A0A0A0]">Fat (g)</Label>
+              <Label htmlFor="fat" className="text-muted-foreground">Fat (g)</Label>
               <Input
                 id="fat"
                 type="number"
                 value={fat}
                 onChange={(e) => setFat(e.target.value)}
                 placeholder="0"
-                className="bg-[#2A2A2A] border-[#3A3A3A] text-white"
+                className="bg-secondary border-border text-white"
                 min="0"
               />
             </div>
           </div>
 
           {/* Calculated Calories */}
-          <div className="bg-[#2A2A2A] rounded-lg p-3 text-center">
-            <p className="text-xs text-[#666666]">Calculated Calories</p>
-            <p className="text-2xl font-bold text-[#CDFF00]">{calculateCalories()}</p>
+          <div className="bg-secondary rounded-lg p-3 text-center">
+            <p className="text-xs text-dim-foreground">Calculated Calories</p>
+            <p className="text-2xl font-bold text-primary">{calculateCalories()}</p>
           </div>
 
           {/* Prep Time */}
           <div className="space-y-2">
-            <Label htmlFor="prepTime" className="text-[#A0A0A0]">Prep Time</Label>
+            <Label htmlFor="prepTime" className="text-muted-foreground">Prep Time</Label>
             <Input
               id="prepTime"
               value={prepTime}
               onChange={(e) => setPrepTime(e.target.value)}
               placeholder="e.g., 15 min"
-              className="bg-[#2A2A2A] border-[#3A3A3A] text-white"
+              className="bg-secondary border-border text-white"
             />
           </div>
 
           {/* Ingredients */}
           <div className="space-y-2">
-            <Label className="text-[#A0A0A0]">Ingredients (optional)</Label>
+            <Label className="text-muted-foreground">Ingredients (optional)</Label>
             <div className="flex gap-2">
               <Input
                 value={newIngredient}
                 onChange={(e) => setNewIngredient(e.target.value)}
                 placeholder="Add ingredient"
-                className="bg-[#2A2A2A] border-[#3A3A3A] text-white"
+                className="bg-secondary border-border text-white"
                 onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddIngredient())}
               />
               <Button
@@ -211,7 +211,7 @@ export function MealCreator({ isOpen, onClose }: MealCreatorProps) {
                 size="icon"
                 variant="outline"
                 onClick={handleAddIngredient}
-                className="border-[#3A3A3A] text-[#CDFF00]"
+                className="border-border text-primary"
               >
                 <Plus className="w-4 h-4" />
               </Button>
@@ -221,13 +221,13 @@ export function MealCreator({ isOpen, onClose }: MealCreatorProps) {
                 {ingredients.map((ing, i) => (
                   <span
                     key={i}
-                    className="inline-flex items-center gap-1 px-2 py-1 bg-[#2A2A2A] rounded text-sm text-white"
+                    className="inline-flex items-center gap-1 px-2 py-1 bg-secondary rounded text-sm text-white"
                   >
                     {ing}
                     <button
                       type="button"
                       onClick={() => handleRemoveIngredient(i)}
-                      className="text-[#666666] hover:text-red-500"
+                      className="text-dim-foreground hover:text-red-500"
                     >
                       <X className="w-3 h-3" />
                     </button>
@@ -243,14 +243,14 @@ export function MealCreator({ isOpen, onClose }: MealCreatorProps) {
               type="button"
               variant="outline"
               onClick={onClose}
-              className="flex-1 border-[#3A3A3A] text-[#A0A0A0]"
+              className="flex-1 border-border text-muted-foreground"
             >
               Cancel
             </Button>
             <Button
               type="submit"
               disabled={!name || !category || createMutation.isPending}
-              className="flex-1 bg-[#CDFF00] text-[#0A0A0A] hover:bg-[#CDFF00]/90"
+              className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90"
             >
               {createMutation.isPending ? (
                 <Loader2 className="w-4 h-4 animate-spin" />

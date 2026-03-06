@@ -1,6 +1,6 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
+// NextRequest available via clerkMiddleware callback
 import { decodeClerkJwt } from "@/lib/jwt-utils";
 
 const isPublicRoute = createRouteMatcher([

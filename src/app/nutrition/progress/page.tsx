@@ -23,7 +23,7 @@ export default function NutritionProgressPage() {
   if (isLoading) {
     return (
       <div className="max-w-lg mx-auto flex items-center justify-center py-12">
-        <Loader2 className="w-8 h-8 animate-spin text-[#CDFF00]" />
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
       </div>
     );
   }
@@ -50,9 +50,9 @@ export default function NutritionProgressPage() {
       <section>
         <h2 className="text-lg font-semibold text-white mb-3">This Week</h2>
         <div className="grid grid-cols-2 gap-3">
-          <div className="bg-[#1A1A1A] rounded-xl p-4 border border-[#2A2A2A]">
+          <div className="bg-card rounded-xl p-4 border border-border">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm text-[#A0A0A0]">Protein Goals</span>
+              <span className="text-sm text-muted-foreground">Protein Goals</span>
               {proteinTrend > 0 && (
                 <div className="flex items-center gap-1 text-xs text-green-500">
                   <TrendingUp className="w-3 h-3" />
@@ -64,28 +64,28 @@ export default function NutritionProgressPage() {
               "text-3xl font-bold",
               proteinRate >= 80 ? "text-green-500" :
               proteinRate >= 50 ? "text-yellow-500" :
-              "text-[#A0A0A0]"
+              "text-muted-foreground"
             )}>
               {proteinRate}%
             </p>
-            <p className="text-xs text-[#666666] mt-1">
+            <p className="text-xs text-dim-foreground mt-1">
               {thisWeekData.proteinHits}/{thisWeekData.days} days hit
             </p>
           </div>
 
-          <div className="bg-[#1A1A1A] rounded-xl p-4 border border-[#2A2A2A]">
+          <div className="bg-card rounded-xl p-4 border border-border">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm text-[#A0A0A0]">Calories On Target</span>
+              <span className="text-sm text-muted-foreground">Calories On Target</span>
             </div>
             <p className={cn(
               "text-3xl font-bold",
               calorieRate >= 80 ? "text-green-500" :
               calorieRate >= 50 ? "text-yellow-500" :
-              "text-[#A0A0A0]"
+              "text-muted-foreground"
             )}>
               {calorieRate}%
             </p>
-            <p className="text-xs text-[#666666] mt-1">
+            <p className="text-xs text-dim-foreground mt-1">
               {thisWeekData.calorieHits}/{thisWeekData.days} days hit
             </p>
           </div>
@@ -95,10 +95,10 @@ export default function NutritionProgressPage() {
       {/* Day-by-Day This Week */}
       <section>
         <h2 className="text-lg font-semibold text-white mb-3">Daily Breakdown</h2>
-        <div className="bg-[#1A1A1A] rounded-xl p-4 border border-[#2A2A2A]">
+        <div className="bg-card rounded-xl p-4 border border-border">
           <div className="grid grid-cols-7 gap-2">
             {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((day, idx) => (
-              <div key={idx} className="text-center text-xs text-[#666666]">
+              <div key={idx} className="text-center text-xs text-dim-foreground">
                 {day}
               </div>
             ))}
@@ -114,11 +114,11 @@ export default function NutritionProgressPage() {
                   key={dateStr}
                   className={cn(
                     "aspect-square rounded-lg flex items-center justify-center text-xs font-medium",
-                    isToday && "ring-2 ring-[#CDFF00]",
+                    isToday && "ring-2 ring-primary",
                     hitBoth ? "bg-green-500/20 text-green-500" :
                     hitOne ? "bg-yellow-500/20 text-yellow-500" :
                     dayData ? "bg-red-500/20 text-red-500" :
-                    "bg-[#2A2A2A] text-[#666666]"
+                    "bg-secondary text-dim-foreground"
                   )}
                 >
                   {format(day, 'd')}
@@ -129,22 +129,22 @@ export default function NutritionProgressPage() {
             {Array.from({ length: 7 - weekDays.length }).map((_, idx) => (
               <div
                 key={`empty-${idx}`}
-                className="aspect-square rounded-lg bg-[#2A2A2A]/30"
+                className="aspect-square rounded-lg bg-secondary/30"
               />
             ))}
           </div>
-          <div className="flex items-center justify-center gap-4 mt-4 pt-3 border-t border-[#2A2A2A]">
+          <div className="flex items-center justify-center gap-4 mt-4 pt-3 border-t border-border">
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 rounded bg-green-500/20" />
-              <span className="text-xs text-[#A0A0A0]">Both goals</span>
+              <span className="text-xs text-muted-foreground">Both goals</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 rounded bg-yellow-500/20" />
-              <span className="text-xs text-[#A0A0A0]">One goal</span>
+              <span className="text-xs text-muted-foreground">One goal</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 rounded bg-red-500/20" />
-              <span className="text-xs text-[#A0A0A0]">Missed</span>
+              <span className="text-xs text-muted-foreground">Missed</span>
             </div>
           </div>
         </div>
@@ -157,23 +157,23 @@ export default function NutritionProgressPage() {
       </section>
 
       {/* Target Info */}
-      <section className="bg-[#1A1A1A] rounded-xl p-4 border border-[#2A2A2A] space-y-3">
+      <section className="bg-card rounded-xl p-4 border border-border space-y-3">
         <div className="flex items-center justify-between">
           <div>
             <p className="text-sm font-medium text-white">Daily Protein Target</p>
-            <p className="text-xs text-[#666666]">Training day target</p>
+            <p className="text-xs text-dim-foreground">Training day target</p>
           </div>
           <div className="text-right">
-            <p className="text-2xl font-bold text-[#CDFF00]">{PROTEIN_TARGET}g</p>
+            <p className="text-2xl font-bold text-primary">{PROTEIN_TARGET}g</p>
           </div>
         </div>
-        <div className="flex items-center justify-between pt-2 border-t border-[#2A2A2A]">
+        <div className="flex items-center justify-between pt-2 border-t border-border">
           <div>
             <p className="text-sm font-medium text-white">Daily Calorie Target</p>
-            <p className="text-xs text-[#666666]">Training day target</p>
+            <p className="text-xs text-dim-foreground">Training day target</p>
           </div>
           <div className="text-right">
-            <p className="text-2xl font-bold text-[#CDFF00]">{CALORIE_TARGET}</p>
+            <p className="text-2xl font-bold text-primary">{CALORIE_TARGET}</p>
           </div>
         </div>
       </section>

@@ -30,7 +30,9 @@ import {
 } from "lucide-react";
 import { programsApi, trainingDaysApi, type TrainingDay, type Program } from "@/lib/api-client";
 import { ProgramEditorModal } from "@/components/program/program-editor-modal";
+import { ProgramSelector } from "@/components/program/program-selector";
 import { AIProgramWizard } from "@/components/program/ai-program-wizard";
+import { LABEL } from "@/lib/typography";
 import { cn } from "@/lib/utils";
 
 type ToastType = "success" | "error";
@@ -43,6 +45,7 @@ interface Toast {
 export default function ProgramPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
+  const [allPrograms, setAllPrograms] = useState<Program[]>([]);
   const [program, setProgram] = useState<Program | null>(null);
   const [trainingDays, setTrainingDays] = useState<TrainingDay[]>([]);
   const [dayToDelete, setDayToDelete] = useState<TrainingDay | null>(null);
@@ -56,6 +59,7 @@ export default function ProgramPage() {
       try {
         // Get active program
         const programs = await programsApi.list();
+        setAllPrograms(programs);
         const activeProgram = programs.find((p) => p.isActive) || programs[0];
         setProgram(activeProgram || null);
 
@@ -132,12 +136,27 @@ export default function ProgramPage() {
     }
   };
 
+  const handleSelectProgram = async (selected: Program) => {
+    setProgram(selected);
+    try {
+      const days = await trainingDaysApi.list(selected.id);
+      days.sort((a, b) => a.dayNumber - b.dayNumber);
+      setTrainingDays(days);
+      // Activate the selected program
+      await programsApi.update(selected.id, { isActive: true });
+    } catch (error) {
+      console.error("Failed to switch program:", error);
+      showToast("Failed to switch program", "error");
+    }
+  };
+
   const handleAIProgramCreated = async () => {
     setShowAIWizard(false);
     showToast("AI program created!", "success");
     // Reload program data
     try {
       const programs = await programsApi.list();
+      setAllPrograms(programs);
       const activeProgram = programs.find((p) => p.isActive) || programs[0];
       setProgram(activeProgram || null);
       if (activeProgram) {
@@ -225,6 +244,17 @@ export default function ProgramPage() {
         </div>
       </header>
 
+      {/* Program Selector */}
+      {allPrograms.length > 1 && (
+        <div className="px-4 pt-4">
+          <ProgramSelector
+            programs={allPrograms}
+            activeProgram={program}
+            onSelect={handleSelectProgram}
+          />
+        </div>
+      )}
+
       {/* Program Description */}
       {program?.description && (
         <div className="px-4 py-4 border-b border-border">
@@ -234,7 +264,7 @@ export default function ProgramPage() {
 
       {/* Training Days List */}
       <div className="p-4 space-y-3">
-        <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-4">
+        <h2 className={`${LABEL.section} text-muted-foreground mb-4`}>
           Training Days
         </h2>
 
@@ -250,7 +280,7 @@ export default function ProgramPage() {
             <Card
               key={day.id}
               className={cn(
-                "bg-card border-border p-4 transition-all",
+                "bg-card border-border rounded-lg p-4 transition-all",
                 "active:scale-[0.98] touch-target"
               )}
             >
@@ -325,7 +355,7 @@ export default function ProgramPage() {
 
         {/* Generate AI Program Button */}
         <Button
-          className="w-full h-14 mt-4 bg-[#CDFF00] hover:bg-[#CDFF00]/90 text-black font-bold"
+          className="w-full h-14 mt-4 bg-primary hover:bg-primary/90 text-black font-bold"
           onClick={() => setShowAIWizard(true)}
         >
           <Sparkles className="w-5 h-5 mr-2" />

@@ -52,7 +52,7 @@ export function GamificationStrip({
       {/* Collapsed strip */}
       <button
         onClick={() => setExpanded(!expanded)}
-        className="w-full px-4 py-2.5 flex items-center justify-between bg-gradient-to-r from-[#111111] via-[#151515] to-[#111111] border border-white/5 backdrop-blur-sm active:bg-[#1A1A1A] transition-colors"
+        className="w-full px-4 py-2.5 flex items-center justify-between bg-gradient-to-r from-card-alt via-card-alt to-card-alt border border-white/5 backdrop-blur-sm active:bg-card transition-colors"
       >
         <div className="flex items-center gap-4">
           {/* Streak */}
@@ -71,14 +71,14 @@ export function GamificationStrip({
             >
               {level}
             </div>
-            <span className="text-sm text-[#A0A0A0]">Lv.{level}</span>
+            <span className="text-sm text-muted-foreground">Lv.{level}</span>
           </div>
 
           {/* Challenge progress */}
           {(dailyChallenges.length > 0 || weeklyChallenges.length > 0) && (
             <div className="flex items-center gap-1.5">
-              <Target className="w-3.5 h-3.5 text-[#A0A0A0]" />
-              <span className="text-sm text-[#A0A0A0]">
+              <Target className="w-3.5 h-3.5 text-muted-foreground" />
+              <span className="text-sm text-muted-foreground">
                 {dailyComplete}/{dailyChallenges.length} daily
                 {weeklyChallenges.length > 0 && `, ${weeklyComplete}/${weeklyChallenges.length} weekly`}
               </span>
@@ -88,7 +88,7 @@ export function GamificationStrip({
 
         <ChevronDown
           className={cn(
-            "w-4 h-4 text-[#666666] transition-transform duration-200",
+            "w-4 h-4 text-dim-foreground transition-transform duration-200",
             expanded && "rotate-180"
           )}
         />
@@ -123,10 +123,10 @@ export function GamificationStrip({
                 {dailyChallenges.length > 0 && (
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                      <h3 className={`${LABEL.caption} text-[#666666]`}>
+                      <h3 className={`${LABEL.caption} text-dim-foreground`}>
                         Daily Challenges
                       </h3>
-                      <span className="text-xs text-[#666666]">
+                      <span className="text-xs text-dim-foreground">
                         {dailyComplete}/{dailyChallenges.length}
                       </span>
                     </div>
@@ -147,10 +147,10 @@ export function GamificationStrip({
                 {weeklyChallenges.length > 0 && (
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                      <h3 className={`${LABEL.caption} text-[#666666]`}>
+                      <h3 className={`${LABEL.caption} text-dim-foreground`}>
                         Weekly Challenges
                       </h3>
-                      <span className="text-xs text-[#666666]">
+                      <span className="text-xs text-dim-foreground">
                         {weeklyComplete}/{weeklyChallenges.length}
                       </span>
                     </div>

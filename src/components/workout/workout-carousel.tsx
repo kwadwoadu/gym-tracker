@@ -88,7 +88,7 @@ export function WorkoutCarousel({
             >
               {/* Superset label */}
               <div className="flex items-center gap-2">
-                <Badge className="bg-[#CDFF00]/10 text-[#CDFF00] border-[#CDFF00]/20 text-xs">
+                <Badge className="bg-primary/10 text-primary border-primary/20 text-xs">
                   {flat.supersetLabel}
                   {flat.supersetSize > 1 ? `${flat.indexInSuperset + 1}` : ""}
                 </Badge>
@@ -127,10 +127,10 @@ export function WorkoutCarousel({
                       }}
                       className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-transform ${
                         isCompleted
-                          ? "bg-[#CDFF00] text-black active:scale-90"
+                          ? "bg-primary text-black active:scale-90"
                           : setIdx === completedCount
-                            ? "bg-[#CDFF00]/20 text-[#CDFF00] border border-[#CDFF00]"
-                            : "bg-[#2A2A2A] text-white/30"
+                            ? "bg-primary/20 text-primary border border-primary"
+                            : "bg-secondary text-white/30"
                       }`}
                     >
                       {setIdx + 1}
@@ -144,7 +144,7 @@ export function WorkoutCarousel({
                 <p className="text-sm text-white/40 mt-1">
                   Last: {suggestion.lastWeekWeight}kg x {suggestion.lastWeekReps}
                   {suggestion.weight > suggestion.lastWeekWeight && (
-                    <span className="text-[#CDFF00]">
+                    <span className="text-primary">
                       {" "}
                       - Try {suggestion.weight}kg
                     </span>
@@ -155,7 +155,7 @@ export function WorkoutCarousel({
               {/* Log Set button */}
               {!isComplete && (
                 <Button
-                  className="w-full max-w-xs h-14 bg-[#CDFF00] hover:bg-[#CDFF00]/90 text-black font-bold text-lg mt-4"
+                  className="w-full max-w-xs h-14 bg-primary hover:bg-primary/90 text-black font-bold text-lg mt-4"
                   onClick={() => onLogSet(idx)}
                 >
                   <Dumbbell className="w-5 h-5 mr-2" />

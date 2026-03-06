@@ -41,7 +41,7 @@ export function ShareCardButton({ data, className }: ShareCardButtonProps) {
         <button
           onClick={() => setFormat("stories")}
           className={`text-xs px-2 py-1 rounded ${
-            format === "stories" ? "bg-[#CDFF00] text-black" : "bg-[#1A1A1A] text-white/50"
+            format === "stories" ? "bg-primary text-black" : "bg-card text-white/50"
           }`}
         >
           Stories
@@ -49,7 +49,7 @@ export function ShareCardButton({ data, className }: ShareCardButtonProps) {
         <button
           onClick={() => setFormat("square")}
           className={`text-xs px-2 py-1 rounded ${
-            format === "square" ? "bg-[#CDFF00] text-black" : "bg-[#1A1A1A] text-white/50"
+            format === "square" ? "bg-primary text-black" : "bg-card text-white/50"
           }`}
         >
           Square
@@ -57,7 +57,7 @@ export function ShareCardButton({ data, className }: ShareCardButtonProps) {
       </div>
       <Button
         variant="outline"
-        className="w-full h-12 border-[#CDFF00]/30 text-[#CDFF00]"
+        className="w-full h-12 border-primary/30 text-primary"
         onClick={handleShare}
         disabled={isGenerating}
       >

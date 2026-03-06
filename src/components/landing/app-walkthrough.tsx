@@ -34,7 +34,7 @@ function ProgramScreen() {
   return (
     <div className="flex flex-col h-full">
       <div className="px-4 py-3 border-b border-white/10 flex items-center gap-3">
-        <div className="w-8 h-8 rounded-full bg-[#CDFF00] flex items-center justify-center">
+        <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
           <Dumbbell className="w-4 h-4 text-black" />
         </div>
         <div>
@@ -49,7 +49,7 @@ function ProgramScreen() {
             <div
               key={day}
               className={`flex-1 py-2 text-center text-xs font-medium rounded-lg ${
-                i === 0 ? "bg-[#CDFF00] text-black" : "bg-white/10 text-white/60"
+                i === 0 ? "bg-primary text-black" : "bg-white/10 text-white/60"
               }`}
             >
               {day}
@@ -69,7 +69,7 @@ function ProgramScreen() {
             key={ex.name}
             className="flex items-center gap-3 p-3 rounded-lg bg-white/5"
           >
-            <div className="w-8 h-8 rounded-lg bg-[#CDFF00]/20 flex items-center justify-center text-xs font-bold text-[#CDFF00]">
+            <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center text-xs font-bold text-primary">
               {ex.label}
             </div>
             <div className="flex-1 min-w-0">
@@ -81,7 +81,7 @@ function ProgramScreen() {
       </div>
 
       <div className="p-4 border-t border-white/10">
-        <div className="w-full h-12 rounded-lg bg-[#CDFF00] flex items-center justify-center text-black font-semibold text-sm">
+        <div className="w-full h-12 rounded-lg bg-primary flex items-center justify-center text-black font-semibold text-sm">
           <Play className="w-4 h-4 mr-2" />
           Start Full Body A
         </div>
@@ -98,7 +98,7 @@ function WorkoutScreen() {
           <div className="text-sm font-bold text-white">Barbell Bench Press</div>
           <div className="text-xs text-white/40">Set 3 of 4 - Superset A1</div>
         </div>
-        <div className="text-xs text-[#CDFF00] font-medium">T:30A1</div>
+        <div className="text-xs text-primary font-medium">T:30A1</div>
       </div>
 
       <div className="flex-1 p-4 space-y-4">
@@ -137,9 +137,9 @@ function WorkoutScreen() {
           </div>
         </div>
 
-        <div className="bg-[#CDFF00]/10 border border-[#CDFF00]/20 rounded-lg p-3 flex items-center gap-2">
+        <div className="bg-primary/10 border border-primary/20 rounded-lg p-3 flex items-center gap-2">
           <TrendingUpIcon />
-          <div className="text-xs text-[#CDFF00]">
+          <div className="text-xs text-primary">
             +2.5kg from last week! Keep pushing.
           </div>
         </div>
@@ -150,9 +150,9 @@ function WorkoutScreen() {
               key={set}
               className={`flex-1 py-2 text-center rounded-lg text-xs font-medium ${
                 set < 3
-                  ? "bg-[#22C55E]/20 text-[#22C55E]"
+                  ? "bg-gym-success/20 text-gym-success"
                   : set === 3
-                  ? "bg-[#CDFF00] text-black"
+                  ? "bg-primary text-black"
                   : "bg-white/5 text-white/40"
               }`}
             >
@@ -163,7 +163,7 @@ function WorkoutScreen() {
       </div>
 
       <div className="p-4 border-t border-white/10">
-        <div className="w-full h-12 rounded-lg bg-[#CDFF00] flex items-center justify-center text-black font-semibold text-sm">
+        <div className="w-full h-12 rounded-lg bg-primary flex items-center justify-center text-black font-semibold text-sm">
           Log Set
         </div>
       </div>
@@ -188,7 +188,7 @@ function TimerScreen() {
           <div className="text-sm font-bold text-white">Rest Time</div>
           <div className="text-xs text-white/40">Next: A2 - Bent Over Row</div>
         </div>
-        <Timer className="w-5 h-5 text-[#CDFF00]" />
+        <Timer className="w-5 h-5 text-primary" />
       </div>
 
       <div className="flex-1 flex flex-col items-center justify-center p-4">
@@ -220,7 +220,7 @@ function TimerScreen() {
         <div className="mt-8 text-center space-y-2">
           <div className="text-sm text-white/60">Set 3 of 4 completed</div>
           <div className="flex items-center justify-center gap-2">
-            <div className="text-xs text-[#22C55E] font-medium">82.5kg x 8</div>
+            <div className="text-xs text-gym-success font-medium">82.5kg x 8</div>
             <div className="w-1 h-1 rounded-full bg-white/20" />
             <div className="text-xs text-white/40">RPE 8</div>
           </div>
@@ -230,7 +230,7 @@ function TimerScreen() {
           <div className="px-4 py-2 rounded-lg bg-white/5 text-xs text-white/60 font-medium">
             -30s
           </div>
-          <div className="px-6 py-2 rounded-lg bg-[#CDFF00]/20 text-xs text-[#CDFF00] font-medium">
+          <div className="px-6 py-2 rounded-lg bg-primary/20 text-xs text-primary font-medium">
             Skip Rest
           </div>
           <div className="px-4 py-2 rounded-lg bg-white/5 text-xs text-white/60 font-medium">
@@ -246,8 +246,8 @@ function CompleteScreen() {
   return (
     <div className="flex flex-col h-full">
       <div className="flex-1 flex flex-col items-center justify-center p-4 space-y-4">
-        <div className="w-16 h-16 rounded-full bg-[#22C55E]/20 flex items-center justify-center">
-          <Trophy className="w-8 h-8 text-[#22C55E]" />
+        <div className="w-16 h-16 rounded-full bg-gym-success/20 flex items-center justify-center">
+          <Trophy className="w-8 h-8 text-gym-success" />
         </div>
 
         <div className="text-center">
@@ -269,23 +269,23 @@ function CompleteScreen() {
             <div className="text-xs text-white/40">Sets</div>
           </div>
           <div className="bg-white/5 rounded-lg p-3 text-center">
-            <div className="text-lg font-bold text-[#CDFF00] tabular-nums">2</div>
+            <div className="text-lg font-bold text-primary tabular-nums">2</div>
             <div className="text-xs text-white/40">New PRs</div>
           </div>
         </div>
 
-        <div className="w-full bg-[#CDFF00]/10 border border-[#CDFF00]/20 rounded-lg p-3">
+        <div className="w-full bg-primary/10 border border-primary/20 rounded-lg p-3">
           <div className="flex items-center gap-2 mb-2">
-            <Trophy className="w-4 h-4 text-[#CDFF00]" />
-            <span className="text-sm font-semibold text-[#CDFF00]">New PR!</span>
+            <Trophy className="w-4 h-4 text-primary" />
+            <span className="text-sm font-semibold text-primary">New PR!</span>
           </div>
           <div className="flex items-center justify-between text-sm">
             <span className="text-white">Bench Press</span>
-            <span className="text-[#CDFF00] font-bold">85kg x 8</span>
+            <span className="text-primary font-bold">85kg x 8</span>
           </div>
         </div>
 
-        <div className="flex items-center gap-2 text-[#F59E0B]">
+        <div className="flex items-center gap-2 text-gym-warning">
           <span className="text-2xl">&#128293;</span>
           <span className="text-sm font-medium">12 day streak!</span>
         </div>
@@ -295,7 +295,7 @@ function CompleteScreen() {
         <div className="w-full h-10 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-white/60 text-sm font-medium">
           Share Workout
         </div>
-        <div className="w-full h-10 rounded-lg bg-[#CDFF00] flex items-center justify-center text-black text-sm font-semibold">
+        <div className="w-full h-10 rounded-lg bg-primary flex items-center justify-center text-black text-sm font-semibold">
           Back to Home
         </div>
       </div>
@@ -326,11 +326,11 @@ export function AppWalkthrough() {
       onTouchEnd={() => setIsPaused(false)}
     >
       {/* Phone frame */}
-      <div className="relative rounded-[40px] bg-[#1A1A1A] p-2 shadow-2xl border border-white/10">
+      <div className="relative rounded-[40px] bg-card p-2 shadow-2xl border border-white/10">
         {/* Notch */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-6 bg-[#1A1A1A] rounded-b-2xl z-20" />
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-6 bg-card rounded-b-2xl z-20" />
 
-        <div className="rounded-[32px] bg-[#0A0A0A] overflow-hidden aspect-[9/16] flex flex-col relative">
+        <div className="rounded-[32px] bg-background overflow-hidden aspect-[9/16] flex flex-col relative">
           <AnimatePresence mode="wait">
             <motion.div
               key={SCREENS[activeIndex].id}
@@ -357,7 +357,7 @@ export function AppWalkthrough() {
           >
             <motion.div
               className={`h-2 rounded-full transition-colors ${
-                i === activeIndex ? "bg-[#CDFF00]" : "bg-white/20"
+                i === activeIndex ? "bg-primary" : "bg-white/20"
               }`}
               animate={{ width: i === activeIndex ? 24 : 8 }}
               transition={{ type: "spring", stiffness: 300, damping: 25 }}
@@ -377,7 +377,7 @@ export function AppWalkthrough() {
       </motion.p>
 
       {/* Glow under phone */}
-      <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 w-3/4 h-32 bg-[#CDFF00]/20 blur-3xl pointer-events-none" />
+      <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 w-3/4 h-32 bg-primary/20 blur-3xl pointer-events-none" />
     </div>
   );
 }

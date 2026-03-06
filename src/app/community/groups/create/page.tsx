@@ -100,7 +100,7 @@ export default function CreateGroupPage() {
                 <Card
                   key={type.value}
                   className={`p-4 cursor-pointer transition-colors ${
-                    goalType === type.value ? "border-[#CDFF00] bg-[#CDFF00]/10" : "hover:bg-white/5"
+                    goalType === type.value ? "border-primary bg-primary/10" : "hover:bg-white/5"
                   }`}
                   onClick={() => setGoalType(type.value)}
                 >

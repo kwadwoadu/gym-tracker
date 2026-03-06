@@ -14,7 +14,7 @@ interface CopilotCardProps {
 }
 
 const TYPE_CONFIG: Record<CopilotSuggestionType, { icon: typeof Brain; color: string; borderColor: string }> = {
-  weight: { icon: TrendingUp, color: "text-[#CDFF00]", borderColor: "border-l-[#CDFF00]" },
+  weight: { icon: TrendingUp, color: "text-primary", borderColor: "border-l-primary" },
   rest: { icon: Brain, color: "text-blue-400", borderColor: "border-l-blue-400" },
   fatigue: { icon: AlertTriangle, color: "text-amber-400", borderColor: "border-l-amber-400" },
   quality: { icon: Sparkles, color: "text-[#00D4AA]", borderColor: "border-l-[#00D4AA]" },
@@ -41,7 +41,7 @@ export function CopilotCard({ suggestion, onApply, onDismiss }: CopilotCardProps
           exit={{ opacity: 0, y: -10, scale: 0.95 }}
           transition={{ type: "spring", stiffness: 300, damping: 25 }}
         >
-          <Card className={`bg-[#1A1A1A] border-[#2A2A2A] border-l-4 ${config.borderColor} p-4`}>
+          <Card className={`bg-card border-border border-l-4 ${config.borderColor} p-4`}>
             <div className="flex items-start gap-3">
               <div className={`w-8 h-8 rounded-full bg-white/5 flex items-center justify-center shrink-0 ${config.color}`}>
                 <Icon className="w-4 h-4" />
@@ -64,7 +64,7 @@ export function CopilotCard({ suggestion, onApply, onDismiss }: CopilotCardProps
                   <div className="flex items-center gap-2 mt-3">
                     <Button
                       size="sm"
-                      className="h-8 text-xs bg-[#CDFF00] text-black hover:bg-[#CDFF00]/80"
+                      className="h-8 text-xs bg-primary text-black hover:bg-primary/80"
                       onClick={() => onApply(suggestion.action!.value)}
                     >
                       {suggestion.action.label}

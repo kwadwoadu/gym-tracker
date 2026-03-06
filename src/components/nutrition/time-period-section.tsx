@@ -52,21 +52,21 @@ export function TimePeriodSection({
       className={cn(
         'rounded-xl border transition-all duration-200',
         isAllComplete
-          ? 'bg-[#CDFF00]/5 border-[#CDFF00]/30'
-          : 'bg-[#1A1A1A] border-[#2A2A2A]'
+          ? 'bg-primary/5 border-primary/30'
+          : 'bg-card border-border'
       )}
     >
       {/* Section Header */}
       <motion.button
         whileTap={{ scale: 0.99 }}
         onClick={() => setIsExpanded(!isExpanded)}
-        className="w-full flex items-center justify-between p-3 hover:bg-[#2A2A2A]/30 transition-colors rounded-t-xl"
+        className="w-full flex items-center justify-between p-3 hover:bg-secondary/30 transition-colors rounded-t-xl"
       >
         <div className="flex items-center gap-3">
           <span className="text-xl">{period.icon}</span>
           <div className="text-left">
             <p className="text-sm font-semibold text-white">{period.label}</p>
-            <p className="text-xs text-[#666666]">{period.timeRange}</p>
+            <p className="text-xs text-dim-foreground">{period.timeRange}</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -75,14 +75,14 @@ export function TimePeriodSection({
               className={cn(
                 'text-xs font-medium px-2 py-0.5 rounded-full',
                 isAllComplete
-                  ? 'bg-[#CDFF00] text-[#0A0A0A]'
-                  : 'bg-[#2A2A2A] text-[#A0A0A0]'
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-secondary text-muted-foreground'
               )}
             >
               {completedItems}/{totalItems}
             </span>
           )}
-          <span className="text-[#666666]">
+          <span className="text-dim-foreground">
             {isExpanded ? (
               <ChevronUp className="w-4 h-4" />
             ) : (
@@ -153,21 +153,21 @@ function SupplementBlockInline({
       className={cn(
         'rounded-lg border transition-colors',
         isBlockCompleted
-          ? 'bg-[#CDFF00]/5 border-[#CDFF00]/20'
-          : 'bg-[#0A0A0A]/50 border-[#2A2A2A]'
+          ? 'bg-primary/5 border-primary/20'
+          : 'bg-background/50 border-border'
       )}
     >
       {/* Block Header */}
-      <div className="flex items-center justify-between px-2 py-1.5 border-b border-[#2A2A2A]/50">
-        <span className="text-xs font-medium text-[#A0A0A0]">Supplements</span>
+      <div className="flex items-center justify-between px-2 py-1.5 border-b border-border/50">
+        <span className="text-xs font-medium text-muted-foreground">Supplements</span>
         <motion.button
           whileTap={{ scale: 0.9 }}
           onClick={onCompleteBlock}
           className={cn(
             'flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-medium transition-colors',
             isBlockCompleted
-              ? 'bg-[#CDFF00] text-[#0A0A0A]'
-              : 'bg-[#2A2A2A] text-[#A0A0A0] hover:bg-[#3A3A3A]'
+              ? 'bg-primary text-primary-foreground'
+              : 'bg-secondary text-muted-foreground hover:bg-muted'
           )}
         >
           <Check className="w-3 h-3" />
@@ -204,17 +204,17 @@ function SupplementItemCompact({ item, isCompleted, onToggle }: SupplementItemCo
       onClick={onToggle}
       className={cn(
         'w-full flex items-center gap-2 p-1.5 rounded transition-colors text-left',
-        isCompleted ? 'bg-[#CDFF00]/10' : 'hover:bg-[#2A2A2A]/50'
+        isCompleted ? 'bg-primary/10' : 'hover:bg-secondary/50'
       )}
     >
       {/* Checkbox */}
       <div
         className={cn(
           'w-5 h-5 rounded flex items-center justify-center flex-shrink-0 transition-colors',
-          isCompleted ? 'bg-[#CDFF00]' : 'bg-[#2A2A2A] border border-[#3A3A3A]'
+          isCompleted ? 'bg-primary' : 'bg-secondary border border-border'
         )}
       >
-        {isCompleted && <Check className="w-3 h-3 text-[#0A0A0A]" />}
+        {isCompleted && <Check className="w-3 h-3 text-primary-foreground" />}
       </div>
 
       {/* Content */}
@@ -223,7 +223,7 @@ function SupplementItemCompact({ item, isCompleted, onToggle }: SupplementItemCo
           <span
             className={cn(
               'text-xs font-medium',
-              isCompleted ? 'text-[#A0A0A0] line-through' : 'text-white'
+              isCompleted ? 'text-muted-foreground line-through' : 'text-white'
             )}
           >
             {item.name}
@@ -234,10 +234,10 @@ function SupplementItemCompact({ item, isCompleted, onToggle }: SupplementItemCo
             </span>
           )}
           {item.optional && (
-            <span className="text-[10px] text-[#666666] italic">(opt)</span>
+            <span className="text-[10px] text-dim-foreground italic">(opt)</span>
           )}
         </div>
-        <span className="text-[10px] text-[#666666]">{item.dose}</span>
+        <span className="text-[10px] text-dim-foreground">{item.dose}</span>
       </div>
     </motion.button>
   );

@@ -66,7 +66,7 @@ export default function NotificationSettingsPage() {
   const supported = isPushSupported();
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] pb-24">
+    <div className="min-h-screen bg-background pb-24">
       {/* Header */}
       <header className="flex items-center gap-3 px-4 pt-safe-top pb-3">
         <button onClick={() => router.back()} className="p-2 -ml-2">
@@ -77,11 +77,11 @@ export default function NotificationSettingsPage() {
 
       <div className="px-4 space-y-6">
         {/* Push Status */}
-        <div className="bg-[#1A1A1A] rounded-xl p-4">
+        <div className="bg-card rounded-xl p-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               {prefs.pushEnabled && permission === "granted" ? (
-                <Bell className="w-5 h-5 text-[#CDFF00]" />
+                <Bell className="w-5 h-5 text-primary" />
               ) : (
                 <BellOff className="w-5 h-5 text-white/30" />
               )}
@@ -117,7 +117,7 @@ export default function NotificationSettingsPage() {
             Reminders
           </h3>
           <div className="space-y-1">
-            <div className="flex items-center justify-between bg-[#1A1A1A] rounded-xl p-4">
+            <div className="flex items-center justify-between bg-card rounded-xl p-4">
               <div>
                 <p className="text-sm font-medium text-white">
                   Training Reminders
@@ -134,7 +134,7 @@ export default function NotificationSettingsPage() {
 
             {prefs.trainingReminders && (
               <>
-                <div className="bg-[#1A1A1A] rounded-xl p-4">
+                <div className="bg-card rounded-xl p-4">
                   <p className="text-sm font-medium text-white mb-3">
                     Training Days
                   </p>
@@ -145,8 +145,8 @@ export default function NotificationSettingsPage() {
                         onClick={() => toggleDay(i)}
                         className={`w-10 h-10 rounded-full text-xs font-medium transition-all ${
                           prefs.trainingDays.includes(i)
-                            ? "bg-[#CDFF00] text-black"
-                            : "bg-[#2A2A2A] text-white/40"
+                            ? "bg-primary text-black"
+                            : "bg-secondary text-white/40"
                         }`}
                       >
                         {label}
@@ -155,7 +155,7 @@ export default function NotificationSettingsPage() {
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between bg-[#1A1A1A] rounded-xl p-4">
+                <div className="flex items-center justify-between bg-card rounded-xl p-4">
                   <p className="text-sm font-medium text-white">
                     Reminder Time
                   </p>
@@ -163,7 +163,7 @@ export default function NotificationSettingsPage() {
                     type="time"
                     value={prefs.reminderTime}
                     onChange={(e) => update({ reminderTime: e.target.value })}
-                    className="bg-[#2A2A2A] text-white text-sm px-3 py-1.5 rounded-lg border-none outline-none"
+                    className="bg-secondary text-white text-sm px-3 py-1.5 rounded-lg border-none outline-none"
                   />
                 </div>
               </>
@@ -177,7 +177,7 @@ export default function NotificationSettingsPage() {
             Motivation
           </h3>
           <div className="space-y-1">
-            <div className="flex items-center justify-between bg-[#1A1A1A] rounded-xl p-4">
+            <div className="flex items-center justify-between bg-card rounded-xl p-4">
               <div>
                 <p className="text-sm font-medium text-white">
                   Streak Protection
@@ -192,7 +192,7 @@ export default function NotificationSettingsPage() {
               />
             </div>
 
-            <div className="flex items-center justify-between bg-[#1A1A1A] rounded-xl p-4">
+            <div className="flex items-center justify-between bg-card rounded-xl p-4">
               <div>
                 <p className="text-sm font-medium text-white">
                   PR Proximity Alerts
@@ -207,7 +207,7 @@ export default function NotificationSettingsPage() {
               />
             </div>
 
-            <div className="flex items-center justify-between bg-[#1A1A1A] rounded-xl p-4">
+            <div className="flex items-center justify-between bg-card rounded-xl p-4">
               <div>
                 <p className="text-sm font-medium text-white">
                   Streak Celebrations
@@ -229,7 +229,7 @@ export default function NotificationSettingsPage() {
           <h3 className="text-xs font-semibold text-white/40 uppercase tracking-[0.08em] mb-2">
             Summary
           </h3>
-          <div className="flex items-center justify-between bg-[#1A1A1A] rounded-xl p-4">
+          <div className="flex items-center justify-between bg-card rounded-xl p-4">
             <div>
               <p className="text-sm font-medium text-white">
                 Weekly Digest
@@ -250,7 +250,7 @@ export default function NotificationSettingsPage() {
           <h3 className="text-xs font-semibold text-white/40 uppercase tracking-[0.08em] mb-2">
             Quiet Hours
           </h3>
-          <div className="bg-[#1A1A1A] rounded-xl p-4">
+          <div className="bg-card rounded-xl p-4">
             <p className="text-sm font-medium text-white mb-3">
               Do Not Disturb
             </p>
@@ -259,14 +259,14 @@ export default function NotificationSettingsPage() {
                 type="time"
                 value={prefs.quietStart}
                 onChange={(e) => update({ quietStart: e.target.value })}
-                className="bg-[#2A2A2A] text-white text-sm px-3 py-1.5 rounded-lg border-none outline-none flex-1 text-center"
+                className="bg-secondary text-white text-sm px-3 py-1.5 rounded-lg border-none outline-none flex-1 text-center"
               />
               <span className="text-white/30 text-sm">to</span>
               <input
                 type="time"
                 value={prefs.quietEnd}
                 onChange={(e) => update({ quietEnd: e.target.value })}
-                className="bg-[#2A2A2A] text-white text-sm px-3 py-1.5 rounded-lg border-none outline-none flex-1 text-center"
+                className="bg-secondary text-white text-sm px-3 py-1.5 rounded-lg border-none outline-none flex-1 text-center"
               />
             </div>
           </div>

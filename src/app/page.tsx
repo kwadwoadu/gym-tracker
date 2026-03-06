@@ -7,14 +7,16 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Dumbbell, Loader2, BarChart3, ClipboardList, Settings, UtensilsCrossed, Users } from "lucide-react";
+import { Dumbbell, Loader2 } from "lucide-react";
 import { HEADING, LABEL, SPACING } from "@/lib/typography";
-import { useNutritionAccess } from "@/hooks/use-nutrition-access";
 import { determineDashboardState } from "@/lib/dashboard-state";
 import { MorningDashboard } from "@/components/home/MorningDashboard";
 import { PreWorkoutDashboard } from "@/components/home/PreWorkoutDashboard";
 import { PostWorkoutDashboard } from "@/components/home/PostWorkoutDashboard";
 import { RestDayDashboard } from "@/components/home/RestDayDashboard";
+import { WhoopRecoveryCard } from "@/components/home/WhoopRecoveryCard";
+import { QuickStatsGrid } from "@/components/home/QuickStatsGrid";
+import { AppHeader } from "@/components/layout/app-header";
 import { getNextTrainingDay } from "@/lib/next-day";
 import { SupersetView } from "@/components/workout/superset-view";
 import {
@@ -32,10 +34,9 @@ import type { Exercise } from "@/lib/api-client";
 import { GamificationStrip } from "@/components/home/GamificationStrip";
 
 export default function Home() {
-  const { isSignedIn, isLoaded: authLoaded } = useUser();
+  const { isSignedIn, isLoaded: authLoaded, user } = useUser();
   const router = useRouter();
   const [selectedDay, setSelectedDay] = useState<string | null>(null);
-  const { hasAccess: hasNutritionAccess } = useNutritionAccess();
 
   // React Query hooks
   const { data: programs, isLoading: programsLoading, isFetching: programsFetching } = usePrograms();
@@ -116,6 +117,22 @@ export default function Home() {
       .sort((a, b) => b.date.localeCompare(a.date))[0] || null;
   }, [currentDay, workoutLogs]);
 
+  // Personalized greeting with first name + date
+  const personalizedGreeting = useMemo(() => {
+    const firstName = user?.firstName || user?.emailAddresses?.[0]?.emailAddress?.split("@")[0] || "";
+    const today = new Date();
+    const dateStr = today.toLocaleDateString("en-US", {
+      weekday: "long",
+      month: "short",
+      day: "numeric",
+    });
+    const hour = today.getHours();
+    let greeting = "Good evening";
+    if (hour < 12) greeting = "Good morning";
+    else if (hour < 17) greeting = "Good afternoon";
+    return firstName ? `${greeting}, ${firstName} - ${dateStr}` : `${greeting} - ${dateStr}`;
+  }, [user]);
+
   // Redirect unauthenticated users to /landing (animations work correctly there)
   useEffect(() => {
     if (authLoaded && !isSignedIn) {
@@ -126,9 +143,9 @@ export default function Home() {
   // Show loading while auth is being checked
   if (!authLoaded) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#0A0A0A]">
+      <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center space-y-4">
-          <Loader2 className="w-8 h-8 animate-spin mx-auto text-[#CDFF00]" />
+          <Loader2 className="w-8 h-8 animate-spin mx-auto text-primary" />
         </div>
       </div>
     );
@@ -137,9 +154,9 @@ export default function Home() {
   // Show spinner while redirecting to /landing
   if (!isSignedIn) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#0A0A0A]">
+      <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center space-y-4">
-          <Loader2 className="w-8 h-8 animate-spin mx-auto text-[#CDFF00]" />
+          <Loader2 className="w-8 h-8 animate-spin mx-auto text-primary" />
         </div>
       </div>
     );
@@ -177,7 +194,7 @@ export default function Home() {
             </div>
             <Button
               onClick={() => router.push("/programs")}
-              className="w-full h-14 bg-[#CDFF00] text-black font-semibold text-lg hover:bg-[#b8e600]"
+              className="w-full h-14 bg-primary text-black font-semibold text-lg hover:bg-primary/90"
             >
               View Programs
             </Button>
@@ -201,7 +218,7 @@ export default function Home() {
           </div>
           <Button
             onClick={() => router.push("/onboarding/plans")}
-            className="w-full h-14 bg-[#CDFF00] text-black font-semibold text-lg hover:bg-[#b8e600]"
+            className="w-full h-14 bg-primary text-black font-semibold text-lg hover:bg-primary/90"
           >
             Choose a Plan
           </Button>
@@ -217,47 +234,7 @@ export default function Home() {
   return (
     <div className="min-h-screen pb-44 lg:pb-8">
       {/* Header */}
-      <header className="px-4 pt-6 pb-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
-              <Dumbbell className="w-5 h-5 text-primary-foreground" />
-            </div>
-            <button
-              onClick={() => router.push("/programs")}
-              className="text-left hover:opacity-80 transition-opacity flex-1 min-w-0"
-            >
-              <h1 className={`${HEADING.h3} text-foreground`}>SetFlow</h1>
-              <p className="text-sm text-muted-foreground truncate">
-                {activeProgram?.name || "Your Training Program"}
-              </p>
-            </button>
-          </div>
-          {/* Header icons - hidden on mobile (use bottom tab bar instead) */}
-          <div className="hidden lg:flex items-center gap-1">
-            <Button variant="ghost" size="icon" onClick={() => router.push("/exercises")} className="h-10 w-10">
-              <Dumbbell className="w-5 h-5 text-muted-foreground" />
-            </Button>
-            <Button variant="ghost" size="icon" onClick={() => router.push("/program")} className="h-10 w-10">
-              <ClipboardList className="w-5 h-5 text-muted-foreground" />
-            </Button>
-            <Button variant="ghost" size="icon" onClick={() => router.push("/stats")} className="h-10 w-10">
-              <BarChart3 className="w-5 h-5 text-muted-foreground" />
-            </Button>
-            {hasNutritionAccess && (
-              <Button variant="ghost" size="icon" onClick={() => router.push("/nutrition")} className="h-10 w-10">
-                <UtensilsCrossed className="w-5 h-5 text-muted-foreground" />
-              </Button>
-            )}
-            <Button variant="ghost" size="icon" onClick={() => router.push("/community")} className="h-10 w-10">
-              <Users className="w-5 h-5 text-muted-foreground" />
-            </Button>
-            <Button variant="ghost" size="icon" onClick={() => router.push("/settings")} className="h-10 w-10">
-              <Settings className="w-5 h-5 text-muted-foreground" />
-            </Button>
-          </div>
-        </div>
-      </header>
+      <AppHeader title="SetFlow" subtitle={personalizedGreeting} />
       <div className="gradient-divider" />
 
       {/* Compact Gamification Strip */}
@@ -275,6 +252,11 @@ export default function Home() {
         />
         </div>
       )}
+
+      {/* Whoop Recovery Card */}
+      <div className="mt-3">
+        <WhoopRecoveryCard />
+      </div>
 
       {/* Context-Aware Dashboard */}
       {trainingDaysLoading ? null : (
@@ -316,6 +298,15 @@ export default function Home() {
         )}
       </div>
       )}
+
+      {/* Quick Stats Grid */}
+      <div className="mt-4">
+        <QuickStatsGrid
+          weeklyWorkouts={weeklyWorkouts}
+          totalPRs={stats?.personalRecordsCount || 0}
+          totalVolume={stats?.totalVolume || 0}
+        />
+      </div>
 
       {/* Day Tabs + Workout Content */}
       {sortedDays.length > 0 && selectedDay && (

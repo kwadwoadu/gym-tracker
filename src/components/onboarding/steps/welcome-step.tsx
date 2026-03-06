@@ -18,7 +18,7 @@ export function WelcomeStep() {
         initial={{ scale: 0.8, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ delay: 0.1 }}
-        className="w-24 h-24 rounded-2xl bg-gradient-to-br from-[#CDFF00] to-[#9ECC00] flex items-center justify-center mb-8"
+        className="w-24 h-24 rounded-2xl bg-gradient-to-br from-primary to-gym-accent-muted flex items-center justify-center mb-8"
       >
         <Dumbbell className="w-12 h-12 text-black" />
       </motion.div>
@@ -55,7 +55,7 @@ export function WelcomeStep() {
             key={index}
             className="flex items-center gap-3 p-4 rounded-xl bg-white/5 border border-white/10"
           >
-            <feature.icon className="w-5 h-5 text-[#CDFF00]" />
+            <feature.icon className="w-5 h-5 text-primary" />
             <span className="text-white/80 text-sm">{feature.label}</span>
           </div>
         ))}

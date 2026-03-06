@@ -130,7 +130,7 @@ export default function DataSettingsPage() {
       />
 
       {/* Export / Import */}
-      <Card className="bg-[#1A1A1A] border-[#2A2A2A]">
+      <Card className="bg-card border-border">
         <CardHeader className="pb-4">
           <CardTitle className="text-lg">Backup</CardTitle>
           <CardDescription>Export or import your workout data</CardDescription>
@@ -166,7 +166,7 @@ export default function DataSettingsPage() {
       </Card>
 
       {/* Danger Zone */}
-      <Card className="bg-[#1A1A1A] border-red-500/20">
+      <Card className="bg-card border-red-500/20">
         <CardHeader className="pb-4">
           <CardTitle className="text-lg text-red-400">Danger Zone</CardTitle>
           <CardDescription>Irreversible actions</CardDescription>

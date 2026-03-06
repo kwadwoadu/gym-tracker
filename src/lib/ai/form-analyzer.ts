@@ -53,7 +53,7 @@ export function analyzeFrame(
 function scoreCheckpoint(
   kp: Keypoint3D[],
   checkpoint: FormCheckpoint,
-  _rule: FormRule
+  _rule: FormRule // eslint-disable-line @typescript-eslint/no-unused-vars
 ): number {
   // Exercise-specific scoring logic
   switch (checkpoint.id) {

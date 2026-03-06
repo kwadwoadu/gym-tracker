@@ -89,7 +89,7 @@ export default function ProfileEditPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A]">
+    <div className="min-h-screen bg-background">
       {/* Toast */}
       {toast && (
         <div
@@ -107,7 +107,7 @@ export default function ProfileEditPage() {
       )}
 
       {/* Header */}
-      <header className="flex items-center gap-3 px-4 pt-safe-top pb-3 border-b border-[#2A2A2A]">
+      <header className="flex items-center gap-3 px-4 pt-safe-top pb-3 border-b border-border">
         <button
           onClick={() => router.back()}
           className="p-2 -ml-2 min-w-[44px] min-h-[44px] flex items-center justify-center"
@@ -118,7 +118,7 @@ export default function ProfileEditPage() {
       </header>
 
       <div className="p-4">
-        <Card className="bg-[#1A1A1A] border-[#2A2A2A]">
+        <Card className="bg-card border-border">
           <CardHeader className="pb-4">
             <CardTitle className="text-lg flex items-center gap-2">
               <User className="w-5 h-5" />

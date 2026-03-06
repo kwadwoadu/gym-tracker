@@ -31,7 +31,7 @@ import { CHALLENGE_TEMPLATES, calculateEndDate, type ChallengeTemplate } from "@
 const challengeTypeConfig: Record<ChallengeType, { label: string; icon: React.ReactNode; color: string }> = {
   streak: { label: "Streak", icon: <Flame className="w-4 h-4" />, color: "text-orange-400" },
   volume: { label: "Volume", icon: <Dumbbell className="w-4 h-4" />, color: "text-blue-400" },
-  workouts: { label: "Workouts", icon: <Calendar className="w-4 h-4" />, color: "text-[#CDFF00]" },
+  workouts: { label: "Workouts", icon: <Calendar className="w-4 h-4" />, color: "text-primary" },
   consistency: { label: "Consistency", icon: <Target className="w-4 h-4" />, color: "text-purple-400" },
 };
 
@@ -94,7 +94,7 @@ export default function ChallengesPage() {
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-[#CDFF00]" />
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
       </div>
     );
   }

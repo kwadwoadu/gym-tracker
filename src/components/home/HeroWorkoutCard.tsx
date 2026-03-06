@@ -74,12 +74,12 @@ export function HeroWorkoutCard({
       transition={{ duration: 0.3 }}
       className="px-4 py-4"
     >
-      <div className={`${ELEVATION.hero} space-y-4`}>
+      <div className={`${ELEVATION.accentLeft} space-y-4`}>
         {/* Day name + stats */}
         <div className="flex items-start justify-between">
           <div>
             <h2 className={`${HEADING.h2} text-white`}>{currentDay.name}</h2>
-            <div className="flex items-center gap-3 mt-1.5 text-sm text-[#A0A0A0]">
+            <div className="flex items-center gap-3 mt-1.5 text-sm text-muted-foreground">
               <span className="flex items-center gap-1">
                 <Dumbbell className="w-3.5 h-3.5" />
                 {exerciseCount} exercises
@@ -90,7 +90,7 @@ export function HeroWorkoutCard({
               </span>
             </div>
           </div>
-          <div className="flex items-center gap-1 text-sm text-[#A0A0A0]">
+          <div className="flex items-center gap-1 text-sm text-muted-foreground">
             <Clock className="w-3.5 h-3.5" />
             ~{duration}min
           </div>
@@ -102,7 +102,7 @@ export function HeroWorkoutCard({
             {todayMuscles.slice(0, 6).map((mg) => (
               <Badge
                 key={mg}
-                className="bg-[#CDFF00]/10 text-[#CDFF00] border-[#CDFF00]/20 text-xs capitalize"
+                className="bg-primary/10 text-primary border-primary/20 text-xs capitalize"
               >
                 {mg}
               </Badge>
@@ -112,7 +112,7 @@ export function HeroWorkoutCard({
 
         {/* Last completed indicator */}
         {lastCompletedLabel && (
-          <p className="text-xs text-[#666666]">
+          <p className="text-xs text-dim-foreground">
             Last trained: {lastCompletedLabel}
           </p>
         )}
@@ -124,7 +124,7 @@ export function HeroWorkoutCard({
         >
           <Button
             size="lg"
-            className="w-full h-12 text-base font-semibold bg-[#CDFF00] text-[#0A0A0A] hover:bg-[#CDFF00]/90 transition-colors"
+            className="w-full h-12 text-base font-semibold bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
             onClick={() => {
               vibrateShort();
               router.push(`/workout/${currentDay.id}`);
@@ -143,7 +143,7 @@ export function HeroWorkoutCard({
               onSelectDay(nextDay.id);
               router.push(`/workout/${nextDay.id}`);
             }}
-            className="w-full text-center text-sm text-[#A0A0A0] hover:text-[#CDFF00] transition-colors min-h-[44px] flex items-center justify-center"
+            className="w-full text-center text-sm text-muted-foreground hover:text-primary transition-colors min-h-[44px] flex items-center justify-center"
           >
             Quick Start: {nextDay.name} (next)
           </button>

@@ -30,7 +30,7 @@ export default function LeaderboardPage() {
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-[#CDFF00]" />
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
       </div>
     );
   }
@@ -153,7 +153,7 @@ function LeaderboardRow({
         <p className="font-semibold truncate">{entry.displayName || "Anonymous"}</p>
       </div>
       <div className="text-right">
-        <p className="text-xl font-bold text-[#CDFF00]">
+        <p className="text-xl font-bold text-primary">
           {entry.metric === "volume" ? entry.value.toLocaleString() : entry.value}
         </p>
         <p className="text-xs text-muted-foreground">{metricLabel}</p>

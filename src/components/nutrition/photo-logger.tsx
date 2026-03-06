@@ -82,18 +82,18 @@ export function PhotoLogger({ onSave, onClose }: PhotoLoggerProps) {
         <h3 className="text-lg font-semibold text-white">Log with Photo</h3>
         <button
           onClick={onClose}
-          className="w-8 h-8 flex items-center justify-center rounded-full bg-[#1A1A1A]"
+          className="w-8 h-8 flex items-center justify-center rounded-full bg-card"
         >
-          <X className="w-4 h-4 text-[#A0A0A0]" />
+          <X className="w-4 h-4 text-muted-foreground" />
         </button>
       </div>
 
       {!imagePreview ? (
         /* Capture buttons */
         <div className="space-y-3">
-          <div className="aspect-[4/3] bg-[#1A1A1A] rounded-xl border-2 border-dashed border-[#2A2A2A] flex flex-col items-center justify-center gap-3">
-            <Camera className="w-10 h-10 text-[#666666]" />
-            <p className="text-sm text-[#666666]">
+          <div className="aspect-[4/3] bg-card rounded-xl border-2 border-dashed border-border flex flex-col items-center justify-center gap-3">
+            <Camera className="w-10 h-10 text-dim-foreground" />
+            <p className="text-sm text-dim-foreground">
               Center your plate in the frame
             </p>
           </div>
@@ -101,7 +101,7 @@ export function PhotoLogger({ onSave, onClose }: PhotoLoggerProps) {
           <div className="flex gap-3">
             <Button
               onClick={() => cameraInputRef.current?.click()}
-              className="flex-1 h-12 bg-[#CDFF00] text-black hover:bg-[#b8e600] font-semibold"
+              className="flex-1 h-12 bg-primary text-black hover:bg-primary/90 font-semibold"
             >
               <Camera className="w-5 h-5 mr-2" />
               Take Photo
@@ -109,7 +109,7 @@ export function PhotoLogger({ onSave, onClose }: PhotoLoggerProps) {
             <Button
               onClick={() => fileInputRef.current?.click()}
               variant="outline"
-              className="flex-1 h-12 border-[#2A2A2A] text-white hover:bg-[#1A1A1A]"
+              className="flex-1 h-12 border-border text-white hover:bg-card"
             >
               <ImagePlus className="w-5 h-5 mr-2" />
               Gallery
@@ -135,7 +135,7 @@ export function PhotoLogger({ onSave, onClose }: PhotoLoggerProps) {
       ) : !analysis ? (
         /* Preview + analyze */
         <div className="space-y-3">
-          <div className="relative aspect-[4/3] rounded-xl overflow-hidden bg-[#1A1A1A]">
+          <div className="relative aspect-[4/3] rounded-xl overflow-hidden bg-card">
             <img
               src={imagePreview}
               alt="Meal photo"
@@ -143,7 +143,7 @@ export function PhotoLogger({ onSave, onClose }: PhotoLoggerProps) {
             />
             {analyzing && (
               <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center gap-3">
-                <Loader2 className="w-8 h-8 animate-spin text-[#CDFF00]" />
+                <Loader2 className="w-8 h-8 animate-spin text-primary" />
                 <p className="text-sm text-white">Analyzing your meal...</p>
               </div>
             )}
@@ -159,7 +159,7 @@ export function PhotoLogger({ onSave, onClose }: PhotoLoggerProps) {
             <Button
               onClick={analyzePhoto}
               disabled={analyzing}
-              className="flex-1 h-12 bg-[#CDFF00] text-black hover:bg-[#b8e600] font-semibold"
+              className="flex-1 h-12 bg-primary text-black hover:bg-primary/90 font-semibold"
             >
               {analyzing ? (
                 <>
@@ -173,7 +173,7 @@ export function PhotoLogger({ onSave, onClose }: PhotoLoggerProps) {
             <Button
               onClick={handleRetake}
               variant="outline"
-              className="h-12 border-[#2A2A2A] text-white hover:bg-[#1A1A1A]"
+              className="h-12 border-border text-white hover:bg-card"
             >
               Retake
             </Button>

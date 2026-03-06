@@ -100,7 +100,7 @@ export default function NutritionLogPage() {
   if (!isLoaded) {
     return (
       <div className="max-w-lg mx-auto flex items-center justify-center py-12">
-        <Loader2 className="w-8 h-8 animate-spin text-[#CDFF00]" />
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
       </div>
     );
   }
@@ -112,7 +112,7 @@ export default function NutritionLogPage() {
         <motion.button
           whileTap={{ scale: 0.95 }}
           onClick={() => navigateDate('prev')}
-          className="w-10 h-10 rounded-full bg-[#1A1A1A] flex items-center justify-center text-[#A0A0A0] hover:text-white hover:bg-[#2A2A2A] transition-colors"
+          className="w-10 h-10 rounded-full bg-card flex items-center justify-center text-muted-foreground hover:text-white hover:bg-secondary transition-colors"
         >
           <ChevronLeft className="w-5 h-5" />
         </motion.button>
@@ -120,15 +120,15 @@ export default function NutritionLogPage() {
         <div className="text-center">
           <button
             onClick={() => setSelectedDate(new Date())}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-[#1A1A1A] transition-colors"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-card transition-colors"
           >
-            <Calendar className="w-4 h-4 text-[#CDFF00]" />
+            <Calendar className="w-4 h-4 text-primary" />
             <span className="text-lg font-semibold text-white">
               {isToday ? 'Today' : format(selectedDate, 'MMM d, yyyy')}
             </span>
           </button>
           {!isToday && (
-            <p className="text-xs text-[#666666] mt-1">
+            <p className="text-xs text-dim-foreground mt-1">
               {format(selectedDate, 'EEEE')}
             </p>
           )}
@@ -137,7 +137,7 @@ export default function NutritionLogPage() {
         <motion.button
           whileTap={{ scale: 0.95 }}
           onClick={() => navigateDate('next')}
-          className="w-10 h-10 rounded-full bg-[#1A1A1A] flex items-center justify-center text-[#A0A0A0] hover:text-white hover:bg-[#2A2A2A] transition-colors"
+          className="w-10 h-10 rounded-full bg-card flex items-center justify-center text-muted-foreground hover:text-white hover:bg-secondary transition-colors"
           disabled={isToday}
         >
           <ChevronRight
@@ -152,35 +152,35 @@ export default function NutritionLogPage() {
       </div>
 
       {/* Combined Progress Bar */}
-      <div className="bg-[#1A1A1A] rounded-xl p-3 border border-[#2A2A2A] mb-4">
+      <div className="bg-card rounded-xl p-3 border border-border mb-4">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-sm text-[#A0A0A0]">Daily Progress</span>
+          <span className="text-sm text-muted-foreground">Daily Progress</span>
           <span className="text-sm font-medium text-white">{overallProgress}%</span>
         </div>
-        <div className="h-2 bg-[#2A2A2A] rounded-full overflow-hidden">
+        <div className="h-2 bg-secondary rounded-full overflow-hidden">
           <motion.div
-            className="h-full bg-[#CDFF00] rounded-full"
+            className="h-full bg-primary rounded-full"
             initial={{ width: 0 }}
             animate={{ width: `${overallProgress}%` }}
             transition={{ duration: 0.3 }}
           />
         </div>
         {/* Macros Summary */}
-        <div className="flex items-center justify-between mt-3 pt-3 border-t border-[#2A2A2A]">
+        <div className="flex items-center justify-between mt-3 pt-3 border-t border-border">
           <div className="text-center">
-            <p className="text-xs text-[#666666]">Protein</p>
-            <p className="text-sm font-semibold text-[#CDFF00]">{totalMacros.protein}g</p>
+            <p className="text-xs text-dim-foreground">Protein</p>
+            <p className="text-sm font-semibold text-primary">{totalMacros.protein}g</p>
           </div>
           <div className="text-center">
-            <p className="text-xs text-[#666666]">Carbs</p>
+            <p className="text-xs text-dim-foreground">Carbs</p>
             <p className="text-sm font-medium text-white">{totalMacros.carbs}g</p>
           </div>
           <div className="text-center">
-            <p className="text-xs text-[#666666]">Fat</p>
+            <p className="text-xs text-dim-foreground">Fat</p>
             <p className="text-sm font-medium text-white">{totalMacros.fat}g</p>
           </div>
           <div className="text-center">
-            <p className="text-xs text-[#666666]">Calories</p>
+            <p className="text-xs text-dim-foreground">Calories</p>
             <p className="text-sm font-medium text-white">{totalMacros.calories}</p>
           </div>
         </div>
@@ -231,7 +231,7 @@ function DayTypeSelector({ dayType, onChange }: DayTypeSelectorProps) {
   const dayTypes: DayType[] = ['rest', 'am-training', 'pm-training'];
 
   return (
-    <div className="flex gap-1 bg-[#1A1A1A] rounded-lg p-1">
+    <div className="flex gap-1 bg-card rounded-lg p-1">
       {dayTypes.map((type) => (
         <motion.button
           key={type}
@@ -240,8 +240,8 @@ function DayTypeSelector({ dayType, onChange }: DayTypeSelectorProps) {
           className={cn(
             'px-3 py-1.5 rounded-md text-xs font-medium transition-colors',
             dayType === type
-              ? 'bg-[#CDFF00] text-[#0A0A0A]'
-              : 'text-[#A0A0A0] hover:text-white'
+              ? 'bg-primary text-primary-foreground'
+              : 'text-muted-foreground hover:text-white'
           )}
         >
           {DAY_TYPE_LABELS[type]}

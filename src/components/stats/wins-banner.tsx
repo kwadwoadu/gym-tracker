@@ -13,9 +13,9 @@ export function WinsBanner({ personalRecords, periodLabel }: WinsBannerProps) {
   if (personalRecords.length === 0) return null;
 
   return (
-    <Card className="bg-gradient-to-r from-[#1A1A1A] to-[#141414] border-[#CDFF00]/20 p-4">
+    <Card className="bg-gradient-to-r from-card to-card-alt border-primary/20 p-4">
       <div className="flex items-center gap-2 mb-3">
-        <Sparkles className="w-4 h-4 text-[#CDFF00]" />
+        <Sparkles className="w-4 h-4 text-primary" />
         <h3 className="text-sm font-semibold text-white/50 uppercase tracking-[0.08em]">
           Wins this {periodLabel}
         </h3>
@@ -32,7 +32,7 @@ export function WinsBanner({ personalRecords, periodLabel }: WinsBannerProps) {
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-white truncate">{pr.exerciseName}</p>
             </div>
-            <p className="text-sm font-bold text-[#CDFF00]">
+            <p className="text-sm font-bold text-primary">
               {pr.weight}kg x {pr.reps}
             </p>
           </div>

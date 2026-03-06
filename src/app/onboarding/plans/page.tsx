@@ -92,7 +92,7 @@ export default function PlansPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] flex flex-col">
+    <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
       <div className="px-6 pt-12 pb-6">
         <motion.h1
@@ -141,7 +141,7 @@ export default function PlansPage() {
               <div className="w-full border-t border-white/10" />
             </div>
             <div className="relative flex justify-center">
-              <span className="bg-[#0A0A0A] px-4 text-sm text-white/40">
+              <span className="bg-background px-4 text-sm text-white/40">
                 or
               </span>
             </div>
@@ -169,11 +169,11 @@ export default function PlansPage() {
       )}
 
       {/* Bottom CTA */}
-      <div className="fixed bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-[#0A0A0A] via-[#0A0A0A] to-transparent">
+      <div className="fixed bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-background via-background to-transparent">
         <Button
           onClick={handleContinue}
           disabled={!selection || isLoading}
-          className="w-full h-14 bg-[#CDFF00] text-black font-semibold text-lg hover:bg-[#b8e600] disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full h-14 bg-primary text-black font-semibold text-lg hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isLoading ? (
             <Loader2 className="w-5 h-5 animate-spin" />

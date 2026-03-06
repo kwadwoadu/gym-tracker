@@ -32,10 +32,10 @@ export function ProgramPreviewCard({ program, exercises }: ProgramPreviewCardPro
 
       {/* Program meta */}
       <div className="flex flex-wrap gap-2">
-        <Badge className="bg-[#CDFF00]/10 text-[#CDFF00] border-[#CDFF00]/20">
+        <Badge className="bg-primary/10 text-primary border-primary/20">
           {program.durationWeeks} weeks
         </Badge>
-        <Badge className="bg-[#CDFF00]/10 text-[#CDFF00] border-[#CDFF00]/20">
+        <Badge className="bg-primary/10 text-primary border-primary/20">
           {program.daysPerWeek} days/week
         </Badge>
         {program.deloadWeek && (
@@ -47,7 +47,7 @@ export function ProgramPreviewCard({ program, exercises }: ProgramPreviewCardPro
 
       {/* Progression */}
       <div className="flex items-start gap-2 p-3 rounded-lg bg-white/5">
-        <Info className="w-4 h-4 text-[#CDFF00] mt-0.5 shrink-0" />
+        <Info className="w-4 h-4 text-primary mt-0.5 shrink-0" />
         <p className="text-sm text-white/70">{program.progressionStrategy}</p>
       </div>
 
@@ -65,14 +65,14 @@ export function ProgramPreviewCard({ program, exercises }: ProgramPreviewCardPro
           );
 
           return (
-            <Card key={dayIdx} className="bg-[#1A1A1A] border-[#2A2A2A] overflow-hidden">
+            <Card key={dayIdx} className="bg-card border-border overflow-hidden">
               {/* Day header */}
               <button
                 className="w-full flex items-center justify-between p-4"
                 onClick={() => setExpandedDay(isExpanded ? -1 : dayIdx)}
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-[#CDFF00] flex items-center justify-center">
+                  <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
                     <span className="text-sm font-bold text-black">{dayIdx + 1}</span>
                   </div>
                   <div className="text-left">
@@ -122,7 +122,7 @@ export function ProgramPreviewCard({ program, exercises }: ProgramPreviewCardPro
                       {/* Supersets */}
                       {day.supersets.map((superset, ssIdx) => (
                         <div key={ssIdx}>
-                          <p className="text-xs font-medium text-[#CDFF00]/60 uppercase tracking-wider mb-1">
+                          <p className="text-xs font-medium text-primary/60 uppercase tracking-wider mb-1">
                             {superset.label}
                           </p>
                           {superset.exercises.map((ex, exIdx) => {

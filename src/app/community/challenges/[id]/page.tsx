@@ -23,7 +23,7 @@ import type { ChallengeType, ChallengeParticipant } from "@/lib/api-client";
 const challengeTypeConfig: Record<ChallengeType, { label: string; icon: React.ReactNode; color: string }> = {
   streak: { label: "Streak", icon: <Flame className="w-6 h-6" />, color: "text-orange-400" },
   volume: { label: "Volume", icon: <Dumbbell className="w-6 h-6" />, color: "text-blue-400" },
-  workouts: { label: "Workouts", icon: <Calendar className="w-6 h-6" />, color: "text-[#CDFF00]" },
+  workouts: { label: "Workouts", icon: <Calendar className="w-6 h-6" />, color: "text-primary" },
   consistency: { label: "Consistency", icon: <Target className="w-6 h-6" />, color: "text-purple-400" },
 };
 
@@ -51,7 +51,7 @@ export default function ChallengeDetailPage({ params }: { params: Promise<{ id: 
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-[#CDFF00]" />
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
       </div>
     );
   }
@@ -107,7 +107,7 @@ export default function ChallengeDetailPage({ params }: { params: Promise<{ id: 
           )}
           <div className="grid grid-cols-3 gap-4 text-center">
             <div>
-              <p className="text-2xl font-bold text-[#CDFF00]">{challenge.participantCount}</p>
+              <p className="text-2xl font-bold text-primary">{challenge.participantCount}</p>
               <p className="text-xs text-muted-foreground">Participants</p>
             </div>
             <div>
@@ -180,7 +180,7 @@ export default function ChallengeDetailPage({ params }: { params: Promise<{ id: 
                       />
                     </div>
                     <div className="text-right">
-                      <p className="font-bold text-[#CDFF00]">{participant.progress}</p>
+                      <p className="font-bold text-primary">{participant.progress}</p>
                       <p className="text-xs text-muted-foreground">/ {challenge.target}</p>
                     </div>
                   </div>

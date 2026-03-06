@@ -76,7 +76,7 @@ export default function TrainingSettingsPage() {
       <h2 className="text-[28px] font-bold tracking-tight text-white">Training</h2>
 
       {/* Weight Unit */}
-      <Card className="bg-[#1A1A1A] border-[#2A2A2A] p-5">
+      <Card className="bg-card border-border p-5">
         <div className="flex items-center justify-between">
           <div>
             <p className="font-medium text-foreground">Weight Unit</p>
@@ -84,11 +84,11 @@ export default function TrainingSettingsPage() {
               {settings.weightUnit === "kg" ? "Kilograms" : "Pounds"}
             </p>
           </div>
-          <div className="flex items-center gap-2 bg-[#111111] rounded-lg p-1">
+          <div className="flex items-center gap-2 bg-card-alt rounded-lg p-1">
             <button
               className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
                 settings.weightUnit === "kg"
-                  ? "bg-[#CDFF00] text-black"
+                  ? "bg-primary text-black"
                   : "text-white/50"
               }`}
               onClick={() => handleSettingChange("weightUnit", "kg")}
@@ -98,7 +98,7 @@ export default function TrainingSettingsPage() {
             <button
               className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
                 settings.weightUnit === "lbs"
-                  ? "bg-[#CDFF00] text-black"
+                  ? "bg-primary text-black"
                   : "text-white/50"
               }`}
               onClick={() => handleSettingChange("weightUnit", "lbs")}
@@ -110,13 +110,13 @@ export default function TrainingSettingsPage() {
       </Card>
 
       {/* Rest Timer */}
-      <Card className="bg-[#1A1A1A] border-[#2A2A2A] p-5 space-y-3">
+      <Card className="bg-card border-border p-5 space-y-3">
         <div className="flex items-center justify-between">
           <div>
             <p className="font-medium text-foreground">Default Rest Timer</p>
             <p className="text-sm text-muted-foreground">Rest between sets</p>
           </div>
-          <span className="text-lg font-semibold text-[#CDFF00]">
+          <span className="text-lg font-semibold text-primary">
             {settings.defaultRestSeconds}s
           </span>
         </div>
@@ -135,7 +135,7 @@ export default function TrainingSettingsPage() {
       </Card>
 
       {/* Progression Increment */}
-      <Card className="bg-[#1A1A1A] border-[#2A2A2A] p-5 space-y-3">
+      <Card className="bg-card border-border p-5 space-y-3">
         <div>
           <p className="font-medium text-foreground">Progression Increment</p>
           <p className="text-sm text-muted-foreground">Weight increase suggestion</p>
@@ -146,8 +146,8 @@ export default function TrainingSettingsPage() {
               key={option.value}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                 settings.progressionIncrement === option.value
-                  ? "bg-[#CDFF00] text-black"
-                  : "bg-[#111111] text-white/50 hover:text-white/80"
+                  ? "bg-primary text-black"
+                  : "bg-card-alt text-white/50 hover:text-white/80"
               }`}
               onClick={() => handleSettingChange("progressionIncrement", option.value)}
             >
@@ -158,7 +158,7 @@ export default function TrainingSettingsPage() {
       </Card>
 
       {/* Toggle Settings */}
-      <Card className="bg-[#1A1A1A] border-[#2A2A2A] p-5 space-y-5">
+      <Card className="bg-card border-border p-5 space-y-5">
         <div className="flex items-center justify-between">
           <div>
             <p className="font-medium text-foreground">Auto-Progress Weight</p>
@@ -192,7 +192,7 @@ export default function TrainingSettingsPage() {
       </Card>
 
       {/* Training Program */}
-      <Card className="bg-[#1A1A1A] border-[#2A2A2A]">
+      <Card className="bg-card border-border">
         <CardHeader className="pb-4">
           <CardTitle className="text-lg">Training Program</CardTitle>
           <CardDescription>Your current workout program</CardDescription>

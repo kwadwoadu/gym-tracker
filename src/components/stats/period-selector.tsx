@@ -20,7 +20,7 @@ const PERIODS: { value: TimePeriod; label: string }[] = [
 
 export function PeriodSelector({ value, onChange, className }: PeriodSelectorProps) {
   return (
-    <div className={cn("flex items-center bg-[#1A1A1A] rounded-lg p-1", className)}>
+    <div className={cn("flex items-center bg-card rounded-lg p-1", className)}>
       {PERIODS.map((p) => (
         <button
           key={p.value}
@@ -28,7 +28,7 @@ export function PeriodSelector({ value, onChange, className }: PeriodSelectorPro
           className={cn(
             "px-3 py-1.5 rounded-md text-xs font-medium transition-colors touch-target",
             value === p.value
-              ? "bg-[#CDFF00] text-black"
+              ? "bg-primary text-black"
               : "text-white/50 hover:text-white/80"
           )}
         >

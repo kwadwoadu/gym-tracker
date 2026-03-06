@@ -52,7 +52,7 @@ export function BodyFatCalculator({
 
   return (
     <Drawer open={open} onOpenChange={(o) => !o && onClose()}>
-      <DrawerContent className="bg-[#0A0A0A] border-[#2A2A2A] max-h-[85vh]">
+      <DrawerContent className="bg-background border-border max-h-[85vh]">
         <div className="overflow-y-auto px-4 pb-8">
           <DrawerHeader className="px-0">
             <DrawerTitle className="text-white text-left">
@@ -72,8 +72,8 @@ export function BodyFatCalculator({
                   }}
                   className={`flex-1 py-2.5 rounded-xl text-sm font-medium transition-all ${
                     gender === g
-                      ? "bg-[#CDFF00] text-black"
-                      : "bg-[#1A1A1A] text-white/50"
+                      ? "bg-primary text-black"
+                      : "bg-card text-white/50"
                   }`}
                 >
                   {g === "male" ? "Male" : "Female"}
@@ -83,7 +83,7 @@ export function BodyFatCalculator({
 
             {/* Inputs */}
             <div className="space-y-3">
-              <div className="flex items-center gap-3 bg-[#1A1A1A] rounded-xl p-3">
+              <div className="flex items-center gap-3 bg-card rounded-xl p-3">
                 <span className="text-sm text-white/70 w-20 shrink-0">
                   Height
                 </span>
@@ -96,12 +96,12 @@ export function BodyFatCalculator({
                     setResult(null);
                   }}
                   placeholder="175"
-                  className="bg-[#2A2A2A] border-none text-white text-right h-10"
+                  className="bg-secondary border-none text-white text-right h-10"
                 />
                 <span className="text-xs text-white/30 w-6">cm</span>
               </div>
 
-              <div className="flex items-center gap-3 bg-[#1A1A1A] rounded-xl p-3">
+              <div className="flex items-center gap-3 bg-card rounded-xl p-3">
                 <span className="text-sm text-white/70 w-20 shrink-0">
                   Neck
                 </span>
@@ -114,12 +114,12 @@ export function BodyFatCalculator({
                     setResult(null);
                   }}
                   placeholder="38"
-                  className="bg-[#2A2A2A] border-none text-white text-right h-10"
+                  className="bg-secondary border-none text-white text-right h-10"
                 />
                 <span className="text-xs text-white/30 w-6">cm</span>
               </div>
 
-              <div className="flex items-center gap-3 bg-[#1A1A1A] rounded-xl p-3">
+              <div className="flex items-center gap-3 bg-card rounded-xl p-3">
                 <span className="text-sm text-white/70 w-20 shrink-0">
                   Waist
                 </span>
@@ -132,13 +132,13 @@ export function BodyFatCalculator({
                     setResult(null);
                   }}
                   placeholder="82"
-                  className="bg-[#2A2A2A] border-none text-white text-right h-10"
+                  className="bg-secondary border-none text-white text-right h-10"
                 />
                 <span className="text-xs text-white/30 w-6">cm</span>
               </div>
 
               {gender === "female" && (
-                <div className="flex items-center gap-3 bg-[#1A1A1A] rounded-xl p-3">
+                <div className="flex items-center gap-3 bg-card rounded-xl p-3">
                   <span className="text-sm text-white/70 w-20 shrink-0">
                     Hip
                   </span>
@@ -151,7 +151,7 @@ export function BodyFatCalculator({
                       setResult(null);
                     }}
                     placeholder="96"
-                    className="bg-[#2A2A2A] border-none text-white text-right h-10"
+                    className="bg-secondary border-none text-white text-right h-10"
                   />
                   <span className="text-xs text-white/30 w-6">cm</span>
                 </div>
@@ -161,14 +161,14 @@ export function BodyFatCalculator({
             {/* Calculate Button */}
             <button
               onClick={calculate}
-              className="w-full h-12 rounded-xl bg-[#1A1A1A] text-white font-medium border border-[#2A2A2A] active:scale-[0.98] transition-transform"
+              className="w-full h-12 rounded-xl bg-card text-white font-medium border border-border active:scale-[0.98] transition-transform"
             >
               Calculate
             </button>
 
             {/* Result */}
             {result !== null && category && (
-              <div className="bg-[#1A1A1A] rounded-xl p-5 text-center space-y-2">
+              <div className="bg-card rounded-xl p-5 text-center space-y-2">
                 <p className="text-4xl font-bold text-white">{result}%</p>
                 <p className="text-sm font-medium" style={{ color: category.color }}>
                   {category.label}
@@ -183,7 +183,7 @@ export function BodyFatCalculator({
             {result !== null && (
               <button
                 onClick={handleSave}
-                className="w-full h-14 rounded-xl bg-[#CDFF00] text-black font-semibold text-lg active:scale-[0.98] transition-transform"
+                className="w-full h-14 rounded-xl bg-primary text-black font-semibold text-lg active:scale-[0.98] transition-transform"
               >
                 Save Result
               </button>

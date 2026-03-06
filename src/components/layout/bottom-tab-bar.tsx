@@ -3,7 +3,7 @@
 import { usePathname, useRouter } from "next/navigation";
 import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
-import { Home, ClipboardList, BarChart3, Users, MoreHorizontal } from "lucide-react";
+import { Home, ClipboardList, BarChart3, UtensilsCrossed, Settings, MoreHorizontal } from "lucide-react";
 import { MoreSheet } from "./more-sheet";
 import { cn } from "@/lib/utils";
 import { GLASS } from "@/lib/elevation";
@@ -18,7 +18,8 @@ const tabs: TabItem[] = [
   { href: "/", icon: Home, label: "Home" },
   { href: "/program", icon: ClipboardList, label: "Program" },
   { href: "/stats", icon: BarChart3, label: "Stats" },
-  { href: "/community", icon: Users, label: "Community" },
+  { href: "/nutrition", icon: UtensilsCrossed, label: "Nutrition" },
+  { href: "/settings", icon: Settings, label: "Settings" },
 ];
 
 export function BottomTabBar() {
@@ -27,7 +28,7 @@ export function BottomTabBar() {
   const [moreOpen, setMoreOpen] = useState(false);
 
   // Check if current route is in "More" menu items
-  const isMoreActive = ["/exercises", "/nutrition", "/settings", "/timer", "/form-library", "/body", "/trainer"].some(
+  const isMoreActive = ["/exercises", "/community", "/timer", "/form-library", "/body", "/trainer", "/gamification"].some(
     (route) => pathname === route || pathname?.startsWith(route + "/")
   );
 
@@ -59,7 +60,7 @@ export function BottomTabBar() {
         >
           {/* Sliding active indicator */}
           <motion.div
-            className="absolute top-0 h-[2px] bg-[#CDFF00] rounded-full"
+            className="absolute top-0 h-[2px] bg-primary rounded-full"
             style={{ width: `${100 / (tabs.length + 1)}%` }}
             animate={{ left: `${(activeIndex * 100) / (tabs.length + 1)}%` }}
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
@@ -74,7 +75,7 @@ export function BottomTabBar() {
                 onClick={() => router.push(tab.href)}
                 className={cn(
                   "flex flex-col items-center justify-center gap-0.5 min-w-[64px] h-[49px] transition-colors",
-                  isActive ? "text-[#CDFF00]" : "text-[#666666]"
+                  isActive ? "text-primary" : "text-dim-foreground"
                 )}
               >
                 <tab.icon
@@ -91,7 +92,7 @@ export function BottomTabBar() {
             onClick={() => setMoreOpen(true)}
             className={cn(
               "flex flex-col items-center justify-center gap-0.5 min-w-[64px] h-[49px] transition-colors",
-              isMoreActive || moreOpen ? "text-[#CDFF00]" : "text-[#666666]"
+              isMoreActive || moreOpen ? "text-primary" : "text-dim-foreground"
             )}
           >
             <MoreHorizontal

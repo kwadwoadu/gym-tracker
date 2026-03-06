@@ -14,8 +14,8 @@ export default function NutritionLayout({
   // Show loading state while checking access
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center">
-        <div className="animate-pulse text-[#A0A0A0]">Loading...</div>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="animate-pulse text-muted-foreground">Loading...</div>
       </div>
     );
   }
@@ -26,7 +26,7 @@ export default function NutritionLayout({
   }
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A]">
+    <div className="min-h-screen bg-background">
       <NutritionNav />
       <main className="container mx-auto px-4 pb-24 pt-4">
         {children}

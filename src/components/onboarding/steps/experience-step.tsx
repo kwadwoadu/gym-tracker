@@ -55,7 +55,7 @@ export function ExperienceStep({ selected, onSelect }: ExperienceStepProps) {
               onClick={() => onSelect(level.id)}
               className={`w-full p-4 rounded-xl border-2 transition-all text-left ${
                 isSelected
-                  ? "border-[#CDFF00] bg-[#CDFF00]/10"
+                  ? "border-primary bg-primary/10"
                   : "border-white/10 bg-white/5 hover:border-white/20"
               }`}
             >
@@ -73,7 +73,7 @@ export function ExperienceStep({ selected, onSelect }: ExperienceStepProps) {
                   <motion.div
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
-                    className="w-6 h-6 rounded-full bg-[#CDFF00] flex items-center justify-center flex-shrink-0 ml-3"
+                    className="w-6 h-6 rounded-full bg-primary flex items-center justify-center flex-shrink-0 ml-3"
                   >
                     <Check className="w-4 h-4 text-black" />
                   </motion.div>

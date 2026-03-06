@@ -1,5 +1,7 @@
 "use client";
 
+import { HEADING, LABEL } from "@/lib/typography";
+
 interface OnboardingStepProps {
   title: string;
   subtitle?: string;
@@ -10,9 +12,9 @@ export function OnboardingStep({ title, subtitle, children }: OnboardingStepProp
   return (
     <div className="flex flex-col h-full px-6 py-8">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-white mb-2">{title}</h1>
+        <h1 className={`${HEADING.h2} text-foreground mb-2`}>{title}</h1>
         {subtitle && (
-          <p className="text-white/60 text-base">{subtitle}</p>
+          <p className={`${LABEL.subtitle} text-muted-foreground`}>{subtitle}</p>
         )}
       </div>
       <div className="flex-1">{children}</div>

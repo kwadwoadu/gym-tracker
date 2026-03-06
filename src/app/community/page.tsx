@@ -1,31 +1,37 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
-import Link from "next/link";
+import { useState, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
   Users,
   Trophy,
-  Target,
-  UserPlus,
-  ChevronRight,
   Loader2,
   Dumbbell,
-  Award,
-  Home,
+  ArrowLeft,
   Search,
+  Zap,
+  LayoutGrid,
 } from "lucide-react";
-import { followApi, groupsApi, challengesApi, leaderboardApi, activityApi } from "@/lib/api-client";
+import { groupsApi, challengesApi, leaderboardApi, activityApi } from "@/lib/api-client";
 import type { LeaderboardEntry, ActivityItem } from "@/lib/api-client";
 import { TemplateCard } from "@/components/community/template-card";
 import { TemplatePreview } from "@/components/community/template-preview";
+import { LeaderboardList, type LeaderboardEntryData } from "@/components/community/leaderboard-list";
+import { ActivityFeed, type ActivityItemData } from "@/components/community/activity-feed";
+import { GroupChallengeCard } from "@/components/community/group-challenge-card";
 import type { WorkoutTemplate, SplitType } from "@/types/templates";
 import { cn } from "@/lib/utils";
+
+const TABS = [
+  { key: "activity", label: "Activity", icon: Zap },
+  { key: "leaderboard", label: "Leaderboard", icon: Trophy },
+  { key: "templates", label: "Templates", icon: Dumbbell },
+  { key: "groups", label: "Groups", icon: LayoutGrid },
+] as const;
+
+type TabKey = (typeof TABS)[number]["key"];
 
 const SPLIT_FILTERS: { value: SplitType | "all"; label: string }[] = [
   { value: "all", label: "All" },
@@ -48,7 +54,7 @@ async function fetchTemplates(params: { splitType?: string; search?: string; sor
 export default function CommunityPage() {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const [tab, setTab] = useState("programs");
+  const [tab, setTab] = useState<TabKey>("leaderboard");
   const [templateSearch, setTemplateSearch] = useState("");
   const [splitFilter, setSplitFilter] = useState<SplitType | "all">("all");
   const [templateSort, setTemplateSort] = useState<"upvotes" | "newest">("upvotes");
@@ -103,17 +109,12 @@ export default function CommunityPage() {
   const templates: WorkoutTemplate[] = templatesData?.templates || [];
 
   // Fetch community data
-  const { data: following, isLoading: followingLoading } = useQuery({
-    queryKey: ["following"],
-    queryFn: () => followApi.getFollowing(),
-  });
-
-  const { data: groups, isLoading: groupsLoading } = useQuery({
+  const { data: groups } = useQuery({
     queryKey: ["groups", "joined"],
     queryFn: () => groupsApi.list({ joined: true }),
   });
 
-  const { data: challenges, isLoading: challengesLoading } = useQuery({
+  const { data: challenges } = useQuery({
     queryKey: ["challenges", "active", "joined"],
     queryFn: () => challengesApi.list({ active: true, joined: true }),
   });
@@ -128,207 +129,249 @@ export default function CommunityPage() {
     queryFn: () => activityApi.getFeed(10),
   });
 
-  const isLoading = followingLoading || groupsLoading || challengesLoading || leaderboardLoading || activityLoading;
+  // Map API data to component props
+  const leaderboardEntries: LeaderboardEntryData[] = useMemo(() => {
+    if (!leaderboard) return [];
+    return leaderboard.map((entry: LeaderboardEntry) => ({
+      userId: entry.userId,
+      name: entry.displayName || "Anonymous",
+      xp: entry.value,
+      avatarUrl: entry.avatarUrl || "",
+    }));
+  }, [leaderboard]);
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-[#CDFF00]" />
-      </div>
-    );
-  }
+  const activityItems: ActivityItemData[] = useMemo(() => {
+    if (!activity) return [];
+    return activity.map((item: ActivityItem) => {
+      const actionText = getActionText(item);
+      return {
+        id: item.id,
+        userId: item.userId,
+        userName: item.displayName || "Anonymous",
+        avatarUrl: item.avatarUrl || "",
+        action: actionText,
+        type: item.type,
+        timestamp: item.createdAt,
+        data: item.data,
+      };
+    });
+  }, [activity]);
 
   return (
-    <div className="min-h-screen pb-24 overflow-x-hidden">
+    <div className="min-h-screen bg-background pb-24 overflow-x-hidden">
       {/* Header */}
-      <header className="px-4 pt-safe-top pb-4 border-b border-border">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => router.push("/")}
-            >
-              <Home className="w-5 h-5" />
-            </Button>
-            <h1 className="text-2xl font-bold">Community</h1>
-          </div>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => router.push("/community/profile")}
-          >
-            <Users className="w-5 h-5" />
-          </Button>
+      <header className="flex items-center justify-between px-4 pt-safe-top pb-3">
+        <div className="flex items-center gap-3">
+          <button onClick={() => router.push("/")} className="p-2 -ml-2">
+            <ArrowLeft className="w-6 h-6 text-white/60" />
+          </button>
+          <h1 className="text-lg font-bold text-white">Community</h1>
         </div>
+        <button
+          onClick={() => router.push("/community/profile")}
+          className="p-2 -mr-2"
+        >
+          <Users className="w-5 h-5 text-white/60" />
+        </button>
       </header>
 
-      {/* Quick Stats */}
-      <div className="p-4 grid grid-cols-3 gap-3">
-        <Link href="/community/friends">
-          <Card className="p-4 text-center hover:bg-white/5 transition-colors">
-            <UserPlus className="w-6 h-6 mx-auto mb-2 text-[#CDFF00]" />
-            <p className="text-2xl font-bold">{following?.length || 0}</p>
-            <p className="text-xs text-muted-foreground">Following</p>
-          </Card>
-        </Link>
-        <Link href="/community/groups">
-          <Card className="p-4 text-center hover:bg-white/5 transition-colors">
-            <Users className="w-6 h-6 mx-auto mb-2 text-blue-400" />
-            <p className="text-2xl font-bold">{groups?.length || 0}</p>
-            <p className="text-xs text-muted-foreground">Groups</p>
-          </Card>
-        </Link>
-        <Link href="/community/challenges">
-          <Card className="p-4 text-center hover:bg-white/5 transition-colors">
-            <Target className="w-6 h-6 mx-auto mb-2 text-orange-400" />
-            <p className="text-2xl font-bold">{challenges?.length || 0}</p>
-            <p className="text-xs text-muted-foreground">Challenges</p>
-          </Card>
-        </Link>
+      {/* Tab Bar */}
+      <div className="px-4 pb-4">
+        <div className="flex gap-1 bg-card rounded-xl p-1">
+          {TABS.map((t) => (
+            <button
+              key={t.key}
+              onClick={() => setTab(t.key)}
+              className={cn(
+                "flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-lg text-xs font-medium transition-all",
+                tab === t.key
+                  ? "bg-primary text-black"
+                  : "text-white/40"
+              )}
+            >
+              <t.icon className="w-3.5 h-3.5" />
+              {t.label}
+            </button>
+          ))}
+        </div>
       </div>
 
-      {/* Tabs */}
-      <Tabs value={tab} onValueChange={setTab} className="w-full">
+      {/* Activity Tab */}
+      {tab === "activity" && (
         <div className="px-4">
-          <TabsList className="w-full bg-muted/50">
-            <TabsTrigger value="programs" className="flex-1">Programs</TabsTrigger>
-            <TabsTrigger value="activity" className="flex-1">Activity</TabsTrigger>
-            <TabsTrigger value="leaderboard" className="flex-1">Leaderboard</TabsTrigger>
-          </TabsList>
-        </div>
-
-        {/* Community Programs */}
-        <TabsContent value="programs" className="mt-4">
-          <div className="px-4 space-y-3">
-            {/* Search */}
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
-              <Input
-                placeholder="Search templates..."
-                value={templateSearch}
-                onChange={(e) => setTemplateSearch(e.target.value)}
-                className="pl-10 bg-[#2A2A2A] border-[#2A2A2A]"
-              />
+          {activityLoading ? (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="w-6 h-6 animate-spin text-primary" />
             </div>
-            {/* Filters */}
-            <div className="flex items-center gap-2 overflow-x-auto pb-1">
-              {SPLIT_FILTERS.map((f) => (
-                <button
-                  key={f.value}
-                  onClick={() => setSplitFilter(f.value)}
-                  className={cn(
-                    "px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors",
-                    splitFilter === f.value
-                      ? "bg-[#CDFF00] text-black"
-                      : "bg-[#1A1A1A] text-white/50"
-                  )}
-                >
-                  {f.label}
-                </button>
+          ) : (
+            <ActivityFeed activities={activityItems} />
+          )}
+        </div>
+      )}
+
+      {/* Leaderboard Tab */}
+      {tab === "leaderboard" && (
+        <div className="px-4">
+          {leaderboardLoading ? (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="w-6 h-6 animate-spin text-primary" />
+            </div>
+          ) : (
+            <LeaderboardList
+              entries={leaderboardEntries}
+              currentUserId=""
+            />
+          )}
+        </div>
+      )}
+
+      {/* Templates Tab */}
+      {tab === "templates" && (
+        <div className="px-4 space-y-3">
+          {/* Search */}
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+            <Input
+              placeholder="Search templates..."
+              value={templateSearch}
+              onChange={(e) => setTemplateSearch(e.target.value)}
+              className="pl-10 bg-secondary border-border"
+            />
+          </div>
+          {/* Filters */}
+          <div className="flex items-center gap-2 overflow-x-auto pb-1">
+            {SPLIT_FILTERS.map((f) => (
+              <button
+                key={f.value}
+                onClick={() => setSplitFilter(f.value)}
+                className={cn(
+                  "px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors",
+                  splitFilter === f.value
+                    ? "bg-primary text-black"
+                    : "bg-card text-white/50"
+                )}
+              >
+                {f.label}
+              </button>
+            ))}
+          </div>
+          {/* Sort */}
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setTemplateSort("upvotes")}
+              className={cn(
+                "text-xs font-medium",
+                templateSort === "upvotes" ? "text-primary" : "text-white/40"
+              )}
+            >
+              Popular
+            </button>
+            <span className="text-white/20">|</span>
+            <button
+              onClick={() => setTemplateSort("newest")}
+              className={cn(
+                "text-xs font-medium",
+                templateSort === "newest" ? "text-primary" : "text-white/40"
+              )}
+            >
+              Newest
+            </button>
+          </div>
+          {/* List */}
+          {templatesLoading ? (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="w-6 h-6 animate-spin text-primary" />
+            </div>
+          ) : templates.length === 0 ? (
+            <div className="text-center py-12">
+              <Dumbbell className="w-8 h-8 text-white/20 mx-auto mb-3" />
+              <p className="text-sm text-white/40">No programs yet</p>
+              <p className="text-xs text-white/30 mt-1">
+                Be the first to share a program!
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {templates.map((t) => (
+                <TemplateCard key={t.id} template={t} onVote={handleVote} onView={handleView} />
               ))}
             </div>
-            {/* Sort */}
-            <div className="flex items-center gap-2">
-              <button onClick={() => setTemplateSort("upvotes")} className={cn("text-xs font-medium", templateSort === "upvotes" ? "text-[#CDFF00]" : "text-white/40")}>Popular</button>
-              <span className="text-white/20">|</span>
-              <button onClick={() => setTemplateSort("newest")} className={cn("text-xs font-medium", templateSort === "newest" ? "text-[#CDFF00]" : "text-white/40")}>Newest</button>
-            </div>
-            {/* List */}
-            {templatesLoading ? (
-              <div className="flex items-center justify-center py-12">
-                <Loader2 className="w-6 h-6 animate-spin text-primary" />
-              </div>
-            ) : templates.length === 0 ? (
-              <Card className="p-8 text-center">
-                <Dumbbell className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
-                <h3 className="font-semibold mb-2">No programs yet</h3>
-                <p className="text-sm text-muted-foreground">Be the first to share a program!</p>
-              </Card>
-            ) : (
-              <div className="space-y-3">
-                {templates.map((t) => (
-                  <TemplateCard key={t.id} template={t} onVote={handleVote} onView={handleView} />
-                ))}
-              </div>
-            )}
-          </div>
-        </TabsContent>
-
-        {/* Activity Feed */}
-        <TabsContent value="activity" className="mt-4">
-          <div className="px-4 space-y-3">
-            {activity && activity.length > 0 ? (
-              activity.map((item) => (
-                <ActivityCard key={item.id} item={item} />
-              ))
-            ) : (
-              <Card className="p-8 text-center">
-                <Users className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
-                <h3 className="font-semibold mb-2">No activity yet</h3>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Follow friends to see their workout activity
-                </p>
-                <Button onClick={() => router.push("/community/friends")}>
-                  Find Friends
-                </Button>
-              </Card>
-            )}
-          </div>
-        </TabsContent>
-
-        {/* Leaderboard */}
-        <TabsContent value="leaderboard" className="mt-4">
-          <div className="px-4">
-            {leaderboard && leaderboard.length > 0 ? (
-              <Card className="overflow-hidden">
-                {leaderboard.map((entry, index) => (
-                  <LeaderboardRow key={entry.userId} entry={entry} isFirst={index === 0} />
-                ))}
-              </Card>
-            ) : (
-              <Card className="p-8 text-center">
-                <Trophy className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
-                <h3 className="font-semibold mb-2">No leaderboard data</h3>
-                <p className="text-sm text-muted-foreground">
-                  Follow friends to compete on the leaderboard
-                </p>
-              </Card>
-            )}
-            <Button
-              variant="outline"
-              className="w-full mt-4"
-              onClick={() => router.push("/community/leaderboard")}
-            >
-              View Full Leaderboard
-              <ChevronRight className="w-4 h-4 ml-2" />
-            </Button>
-          </div>
-        </TabsContent>
-      </Tabs>
-
-      {/* Quick Actions */}
-      <div className="p-4 space-y-3">
-        <h2 className="text-lg font-semibold">Quick Actions</h2>
-        <div className="grid grid-cols-2 gap-3">
-          <Button
-            variant="outline"
-            className="h-auto py-4 flex flex-col items-center gap-2"
-            onClick={() => router.push("/community/groups")}
-          >
-            <Users className="w-5 h-5" />
-            <span>Find Groups</span>
-          </Button>
-          <Button
-            variant="outline"
-            className="h-auto py-4 flex flex-col items-center gap-2"
-            onClick={() => router.push("/community/challenges")}
-          >
-            <Target className="w-5 h-5" />
-            <span>Join Challenge</span>
-          </Button>
+          )}
         </div>
-      </div>
+      )}
+
+      {/* Groups Tab */}
+      {tab === "groups" && (
+        <div className="px-4 space-y-4">
+          {/* Active Challenges */}
+          {challenges && challenges.length > 0 && (
+            <div>
+              <h3 className="text-xs uppercase tracking-[0.08em] text-white/40 font-semibold mb-2">
+                Active Challenges
+              </h3>
+              <div className="space-y-2">
+                {challenges.map((challenge: Record<string, unknown>, i: number) => (
+                  <GroupChallengeCard
+                    key={(challenge.id as string) || i}
+                    title={(challenge.name as string) || "Challenge"}
+                    description={(challenge.description as string) || ""}
+                    progress={(challenge.progress as number) || 0}
+                    memberCount={(challenge.memberCount as number) || 0}
+                    gradient={
+                      i % 2 === 0
+                        ? "bg-gradient-to-r from-primary/20 to-gym-blue/20"
+                        : "bg-gradient-to-r from-gym-warning/20 to-gym-error/20"
+                    }
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Groups */}
+          {groups && groups.length > 0 ? (
+            <div>
+              <h3 className="text-xs uppercase tracking-[0.08em] text-white/40 font-semibold mb-2">
+                Your Groups
+              </h3>
+              <div className="bg-card rounded-xl overflow-hidden divide-y divide-white/5">
+                {groups.map((group: Record<string, unknown>, i: number) => (
+                  <div
+                    key={(group.id as string) || i}
+                    className="flex items-center gap-3 px-4 py-3"
+                  >
+                    <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                      <Users className="w-5 h-5 text-primary" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-white truncate">
+                        {(group.name as string) || "Group"}
+                      </p>
+                      <p className="text-xs text-white/40">
+                        {(group.memberCount as number) || 0} members
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <div className="text-center py-12">
+              <Users className="w-8 h-8 text-white/20 mx-auto mb-3" />
+              <p className="text-sm text-white/40">No groups yet</p>
+              <p className="text-xs text-white/30 mt-1">
+                Join or create a group to get started
+              </p>
+              <button
+                onClick={() => router.push("/community/groups")}
+                className="mt-4 px-6 py-3 rounded-xl bg-primary text-black font-semibold text-sm active:scale-[0.98] transition-transform"
+              >
+                Find Groups
+              </button>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Template Preview Sheet */}
       <TemplatePreview
@@ -343,102 +386,27 @@ export default function CommunityPage() {
   );
 }
 
-function ActivityCard({ item }: { item: ActivityItem }) {
-  const [now, setNow] = useState<number | null>(null);
-  useEffect(() => { setNow(Date.now()); }, []);
-
-  const getActivityIcon = () => {
-    switch (item.type) {
-      case "workout_completed":
-        return <Dumbbell className="w-4 h-4 text-[#CDFF00]" />;
-      case "pr_achieved":
-        return <Award className="w-4 h-4 text-orange-400" />;
-      default:
-        return <Users className="w-4 h-4 text-blue-400" />;
+/** Map ActivityItem type to human-readable action text */
+function getActionText(item: ActivityItem): string {
+  switch (item.type) {
+    case "workout_completed": {
+      const data = item.data as { dayName?: string; duration?: number };
+      const parts = ["completed"];
+      if (data.dayName) parts.push(data.dayName);
+      if (data.duration) parts.push(`in ${data.duration} min`);
+      return parts.join(" ");
     }
-  };
-
-  const getActivityText = () => {
-    switch (item.type) {
-      case "workout_completed":
-        const workoutData = item.data as { dayName?: string; duration?: number; totalVolume?: number };
-        return (
-          <>
-            completed <span className="text-[#CDFF00]">{workoutData.dayName}</span>
-            {workoutData.duration && ` in ${workoutData.duration} min`}
-          </>
-        );
-      case "pr_achieved":
-        const prData = item.data as { exerciseName?: string; weight?: number; reps?: number; unit?: string };
-        return (
-          <>
-            set a new PR: <span className="text-orange-400">{prData.weight}{prData.unit}</span> x{prData.reps} on {prData.exerciseName}
-          </>
-        );
-      default:
-        return "activity";
+    case "pr_achieved": {
+      const data = item.data as { exerciseName?: string; weight?: number; reps?: number; unit?: string };
+      return `set a new PR: ${data.weight || ""}${data.unit || "kg"} x${data.reps || ""} on ${data.exerciseName || "exercise"}`;
     }
-  };
-
-  const timeAgo = (date: string) => {
-    if (!now) return "";
-    const diff = now - new Date(date).getTime();
-    const hours = Math.floor(diff / (1000 * 60 * 60));
-    if (hours < 1) return "just now";
-    if (hours < 24) return `${hours}h ago`;
-    const days = Math.floor(hours / 24);
-    return `${days}d ago`;
-  };
-
-  return (
-    <Card className="p-4">
-      <div className="flex items-start gap-3">
-        <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0">
-          {item.avatarUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={item.avatarUrl} alt="" className="w-10 h-10 rounded-full" />
-          ) : (
-            getActivityIcon()
-          )}
-        </div>
-        <div className="flex-1 min-w-0">
-          <p className="text-sm">
-            <span className="font-semibold">{item.displayName || "Anonymous"}</span>{" "}
-            {getActivityText()}
-          </p>
-          <p className="text-xs text-muted-foreground mt-1">{timeAgo(item.createdAt)}</p>
-        </div>
-      </div>
-    </Card>
-  );
-}
-
-function LeaderboardRow({ entry, isFirst }: { entry: LeaderboardEntry; isFirst: boolean }) {
-  return (
-    <div className={`flex items-center gap-3 p-4 ${!isFirst && "border-t border-border"}`}>
-      <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold ${
-        entry.rank === 1 ? "bg-yellow-500/20 text-yellow-500" :
-        entry.rank === 2 ? "bg-gray-400/20 text-gray-400" :
-        entry.rank === 3 ? "bg-orange-600/20 text-orange-600" :
-        "bg-white/10 text-white/60"
-      }`}>
-        {entry.rank}
-      </div>
-      <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0">
-        {entry.avatarUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={entry.avatarUrl} alt="" className="w-10 h-10 rounded-full" />
-        ) : (
-          <Users className="w-4 h-4 text-white/60" />
-        )}
-      </div>
-      <div className="flex-1 min-w-0">
-        <p className="font-medium truncate">{entry.displayName || "Anonymous"}</p>
-      </div>
-      <div className="text-right">
-        <p className="font-bold text-[#CDFF00]">{entry.value}</p>
-        <p className="text-xs text-muted-foreground">{entry.metric}</p>
-      </div>
-    </div>
-  );
+    case "challenge_joined":
+      return "joined a challenge";
+    case "badge_earned":
+      return "earned a badge";
+    case "group_joined":
+      return "joined a group";
+    default:
+      return "activity";
+  }
 }

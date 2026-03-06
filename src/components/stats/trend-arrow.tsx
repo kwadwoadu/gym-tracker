@@ -21,8 +21,8 @@ export function TrendArrow({ current, previous, suffix = "", className }: TrendA
     <span
       className={cn(
         "inline-flex items-center gap-0.5 text-xs font-medium",
-        isUp && "text-[#22C55E]",
-        isDown && "text-[#EF4444]",
+        isUp && "text-gym-success",
+        isDown && "text-destructive",
         !isUp && !isDown && "text-white/40",
         className
       )}

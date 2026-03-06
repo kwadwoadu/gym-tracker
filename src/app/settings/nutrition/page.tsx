@@ -89,7 +89,7 @@ export default function NutritionSettingsPage() {
       <h2 className="text-[28px] font-bold tracking-tight text-white">Nutrition</h2>
 
       {/* Training Day Targets */}
-      <Card className="bg-[#1A1A1A] border-[#2A2A2A] p-5 space-y-3">
+      <Card className="bg-card border-border p-5 space-y-3">
         <h3 className="text-sm font-semibold text-white/50 uppercase tracking-[0.08em]">Training Day Targets</h3>
         <div className="grid grid-cols-2 gap-3">
           <div className="space-y-1.5">
@@ -136,7 +136,7 @@ export default function NutritionSettingsPage() {
       </Card>
 
       {/* Rest Day Targets */}
-      <Card className="bg-[#1A1A1A] border-[#2A2A2A] p-5 space-y-3">
+      <Card className="bg-card border-border p-5 space-y-3">
         <h3 className="text-sm font-semibold text-white/50 uppercase tracking-[0.08em]">Rest Day Targets</h3>
         <div className="grid grid-cols-2 gap-3">
           <div className="space-y-1.5">
@@ -183,19 +183,19 @@ export default function NutritionSettingsPage() {
       </Card>
 
       {/* Weight Management */}
-      <Card className="bg-[#1A1A1A] border-[#2A2A2A] p-5 space-y-4">
+      <Card className="bg-card border-border p-5 space-y-4">
         <h3 className="text-sm font-semibold text-white/50 uppercase tracking-[0.08em]">Weight Management</h3>
 
         {/* Phase Selector */}
         <div className="space-y-1.5">
           <Label>Current Phase</Label>
-          <div className="flex items-center gap-2 bg-[#111111] rounded-lg p-1">
+          <div className="flex items-center gap-2 bg-card-alt rounded-lg p-1">
             {(["bulk", "cut", "maintain"] as const).map((phase) => (
               <button
                 key={phase}
                 className={`flex-1 px-3 py-1.5 rounded-md text-sm font-medium transition-colors capitalize ${
                   nutritionFields.currentPhase === phase
-                    ? "bg-[#CDFF00] text-black"
+                    ? "bg-primary text-black"
                     : "text-white/50"
                 }`}
                 onClick={() => handlePhaseChange(phase)}

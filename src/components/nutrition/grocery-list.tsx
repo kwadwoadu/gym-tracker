@@ -63,18 +63,18 @@ export function GroceryList({ data }: GroceryListProps) {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <ShoppingCart className="w-5 h-5 text-[#CDFF00]" />
+          <ShoppingCart className="w-5 h-5 text-primary" />
           <h3 className="text-lg font-semibold text-white">Grocery List</h3>
         </div>
-        <span className="text-xs text-[#666666]">
+        <span className="text-xs text-dim-foreground">
           {checkedCount}/{totalItems} items
         </span>
       </div>
 
       {/* Progress */}
-      <div className="h-1.5 bg-[#2A2A2A] rounded-full overflow-hidden">
+      <div className="h-1.5 bg-secondary rounded-full overflow-hidden">
         <div
-          className="h-full bg-[#CDFF00] rounded-full transition-all duration-300"
+          className="h-full bg-primary rounded-full transition-all duration-300"
           style={{
             width: `${totalItems > 0 ? (checkedCount / totalItems) * 100 : 0}%`,
           }}
@@ -84,7 +84,7 @@ export function GroceryList({ data }: GroceryListProps) {
       {/* Sections */}
       {data.sections.map((section) => (
         <div key={section.name}>
-          <h4 className="text-xs text-[#A0A0A0] uppercase tracking-wider mb-2">
+          <h4 className="text-xs text-muted-foreground uppercase tracking-wider mb-2">
             {section.name}
           </h4>
           <div className="space-y-1">
@@ -95,13 +95,13 @@ export function GroceryList({ data }: GroceryListProps) {
                 <button
                   key={key}
                   onClick={() => toggleItem(section.name, item.name)}
-                  className="w-full flex items-center gap-3 py-2.5 px-3 rounded-lg bg-[#1A1A1A] hover:bg-[#2A2A2A] transition-colors"
+                  className="w-full flex items-center gap-3 py-2.5 px-3 rounded-lg bg-card hover:bg-secondary transition-colors"
                 >
                   <div
                     className={`w-5 h-5 rounded border flex items-center justify-center flex-shrink-0 transition-colors ${
                       isChecked
-                        ? "bg-[#CDFF00] border-[#CDFF00]"
-                        : "border-[#666666]"
+                        ? "bg-primary border-primary"
+                        : "border-dim-foreground"
                     }`}
                   >
                     {isChecked && <Check className="w-3 h-3 text-black" />}
@@ -109,13 +109,13 @@ export function GroceryList({ data }: GroceryListProps) {
                   <span
                     className={`text-sm flex-1 text-left transition-colors ${
                       isChecked
-                        ? "text-[#666666] line-through"
+                        ? "text-dim-foreground line-through"
                         : "text-white"
                     }`}
                   >
                     {item.name}
                   </span>
-                  <span className="text-xs text-[#666666]">
+                  <span className="text-xs text-dim-foreground">
                     {item.quantity}
                   </span>
                 </button>
@@ -127,8 +127,8 @@ export function GroceryList({ data }: GroceryListProps) {
 
       {/* Skipped staples */}
       {data.skippedStaples.length > 0 && (
-        <div className="pt-2 border-t border-[#2A2A2A]">
-          <p className="text-xs text-[#666666]">
+        <div className="pt-2 border-t border-border">
+          <p className="text-xs text-dim-foreground">
             Already in pantry (skipped):{" "}
             {data.skippedStaples.join(", ")}
           </p>
@@ -137,7 +137,7 @@ export function GroceryList({ data }: GroceryListProps) {
 
       {/* Cost estimate */}
       {data.totalEstimatedCost && (
-        <p className="text-xs text-[#A0A0A0]">
+        <p className="text-xs text-muted-foreground">
           Est. cost: {data.totalEstimatedCost}
         </p>
       )}
@@ -146,11 +146,11 @@ export function GroceryList({ data }: GroceryListProps) {
       <Button
         onClick={copyToClipboard}
         variant="outline"
-        className="w-full h-11 border-[#2A2A2A] text-white hover:bg-[#1A1A1A]"
+        className="w-full h-11 border-border text-white hover:bg-card"
       >
         {copied ? (
           <>
-            <Check className="w-4 h-4 mr-2 text-[#CDFF00]" />
+            <Check className="w-4 h-4 mr-2 text-primary" />
             Copied!
           </>
         ) : (
@@ -168,8 +168,8 @@ export function GroceryList({ data }: GroceryListProps) {
 export function GroceryListLoading() {
   return (
     <div className="flex flex-col items-center justify-center py-12 gap-3">
-      <Loader2 className="w-8 h-8 animate-spin text-[#CDFF00]" />
-      <p className="text-sm text-[#A0A0A0]">Generating grocery list...</p>
+      <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      <p className="text-sm text-muted-foreground">Generating grocery list...</p>
     </div>
   );
 }

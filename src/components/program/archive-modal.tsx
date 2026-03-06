@@ -29,7 +29,7 @@ export function ArchiveModal({
 }: ArchiveModalProps) {
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent className="bg-[#1A1A1A] border-white/10">
+      <AlertDialogContent className="bg-card border-white/10">
         <AlertDialogHeader>
           <div className="flex items-center gap-3 mb-2">
             <div className="p-2 rounded-full bg-amber-500/20">
@@ -81,7 +81,7 @@ export function RestoreModal({
 }: RestoreModalProps) {
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent className="bg-[#1A1A1A] border-white/10">
+      <AlertDialogContent className="bg-card border-white/10">
         <AlertDialogHeader>
           <div className="flex items-center gap-3 mb-2">
             <div className="p-2 rounded-full bg-green-500/20">
@@ -134,7 +134,7 @@ export function DeletePermanentModal({
 }: DeletePermanentModalProps) {
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent className="bg-[#1A1A1A] border-white/10">
+      <AlertDialogContent className="bg-card border-white/10">
         <AlertDialogHeader>
           <div className="flex items-center gap-3 mb-2">
             <div className="p-2 rounded-full bg-red-500/20">

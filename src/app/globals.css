@@ -51,15 +51,26 @@
   --color-gym-success: #22C55E;
   --color-gym-warning: #F59E0B;
   --color-gym-error: #EF4444;
+
+  /* SetFlow Evolved design tokens */
+  --color-dim-foreground: var(--dim-foreground);
+  --color-card-alt: var(--card-alt);
+  --color-gym-blue: #60A5FA;
+  --color-page: var(--page);
+  --color-glass-bg: rgba(26, 26, 26, 0.8);
+  --color-glass-border: rgba(255, 255, 255, 0.1);
 }
 
 /* Gym Tracker: Dark-first design */
 :root {
   --radius: 0.75rem;
   /* Dark theme as default */
+  --page: #050505;
   --background: #0A0A0A;
   --foreground: #FFFFFF;
   --card: #1A1A1A;
+  --card-alt: #111111;
+  --dim-foreground: #666666;
   --card-foreground: #FFFFFF;
   --popover: #1A1A1A;
   --popover-foreground: #FFFFFF;
@@ -91,9 +102,12 @@
 }
 
 .dark {
+  --page: #050505;
   --background: #0A0A0A;
   --foreground: #FFFFFF;
   --card: #1A1A1A;
+  --card-alt: #111111;
+  --dim-foreground: #666666;
   --card-foreground: #FFFFFF;
   --popover: #1A1A1A;
   --popover-foreground: #FFFFFF;
@@ -213,6 +227,21 @@
   animation: shimmer 2s ease-in-out infinite;
   background-size: 200% 100%;
 }
+
+/* XP bar glow animation */
+@keyframes xp-glow {
+  0%, 100% {
+    box-shadow: 0 0 8px rgba(205, 255, 0, 0.3), 0 0 16px rgba(205, 255, 0, 0.1);
+  }
+  50% {
+    box-shadow: 0 0 12px rgba(205, 255, 0, 0.5), 0 0 24px rgba(205, 255, 0, 0.2);
+  }
+}
+
+.animate-xp-glow {
+  animation: xp-glow 2s ease-in-out infinite;
+}
+
 
 /* PR/celebration color tokens */
 :root {

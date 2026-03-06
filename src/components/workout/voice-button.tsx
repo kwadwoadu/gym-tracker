@@ -30,8 +30,8 @@ export function VoiceButton({
         isListening
           ? "bg-red-500 text-white"
           : isProcessing
-            ? "bg-[#2A2A2A] text-white/50"
-            : "bg-[#CDFF00] text-black",
+            ? "bg-secondary text-white/50"
+            : "bg-primary text-black",
         className
       )}
       onTouchStart={onPress}

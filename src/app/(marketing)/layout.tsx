@@ -8,7 +8,7 @@ export default function MarketingLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className={`${inter.className} min-h-screen bg-[#0A0A0A] text-white`}>
+    <div className={`${inter.className} min-h-screen bg-background text-white`}>
       {children}
     </div>
   );

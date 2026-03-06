@@ -27,7 +27,7 @@ const goalTypeConfig: Record<GroupGoalType, { label: string; icon: React.ReactNo
   weight_loss: { label: "Weight Loss", icon: <Heart className="w-4 h-4" />, color: "text-pink-400" },
   muscle_building: { label: "Muscle Building", icon: <Target className="w-4 h-4" />, color: "text-orange-400" },
   endurance: { label: "Endurance", icon: <Zap className="w-4 h-4" />, color: "text-blue-400" },
-  general: { label: "General", icon: <Users className="w-4 h-4" />, color: "text-[#CDFF00]" },
+  general: { label: "General", icon: <Users className="w-4 h-4" />, color: "text-primary" },
 };
 
 export default function GroupsPage() {
@@ -50,7 +50,7 @@ export default function GroupsPage() {
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-[#CDFF00]" />
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
       </div>
     );
   }

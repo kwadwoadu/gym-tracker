@@ -42,7 +42,7 @@ export function NotificationPrompt({
 }: NotificationPromptProps) {
   return (
     <Drawer open={open} onOpenChange={(o) => !o && onClose()}>
-      <DrawerContent className="bg-[#0A0A0A] border-[#2A2A2A]">
+      <DrawerContent className="bg-background border-border">
         <DrawerHeader className="pb-2">
           <DrawerTitle className="text-xl text-center text-white">
             Stay On Track
@@ -56,7 +56,7 @@ export function NotificationPrompt({
           {PREVIEW_ITEMS.map((item) => (
             <div
               key={item.title}
-              className="flex items-center gap-3 bg-[#1A1A1A] rounded-xl p-4"
+              className="flex items-center gap-3 bg-card rounded-xl p-4"
             >
               <div
                 className="w-10 h-10 rounded-lg flex items-center justify-center"
@@ -76,7 +76,7 @@ export function NotificationPrompt({
 
           <button
             onClick={onEnable}
-            className="w-full h-14 rounded-xl bg-[#CDFF00] text-black font-semibold text-lg active:scale-[0.98] transition-transform mt-4"
+            className="w-full h-14 rounded-xl bg-primary text-black font-semibold text-lg active:scale-[0.98] transition-transform mt-4"
           >
             Enable Smart Reminders
           </button>

@@ -55,13 +55,13 @@ export function EquipmentStep({ selected, onSelect }: EquipmentStepProps) {
               onClick={() => onSelect(option.id)}
               className={`w-full p-4 rounded-xl border-2 transition-all text-left flex items-center gap-4 ${
                 isSelected
-                  ? "border-[#CDFF00] bg-[#CDFF00]/10"
+                  ? "border-primary bg-primary/10"
                   : "border-white/10 bg-white/5 hover:border-white/20"
               }`}
             >
               <div
                 className={`w-14 h-14 rounded-xl flex items-center justify-center ${
-                  isSelected ? "bg-[#CDFF00]" : "bg-white/10"
+                  isSelected ? "bg-primary" : "bg-white/10"
                 }`}
               >
                 <option.icon
@@ -76,7 +76,7 @@ export function EquipmentStep({ selected, onSelect }: EquipmentStepProps) {
                 <motion.div
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
-                  className="w-6 h-6 rounded-full bg-[#CDFF00] flex items-center justify-center"
+                  className="w-6 h-6 rounded-full bg-primary flex items-center justify-center"
                 >
                   <Check className="w-4 h-4 text-black" />
                 </motion.div>

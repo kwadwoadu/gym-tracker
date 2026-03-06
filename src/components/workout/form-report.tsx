@@ -32,10 +32,10 @@ export function FormReport({ report, previousScore, onClose }: FormReportProps) 
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-[#0A0A0A] rounded-xl border border-[#2A2A2A] overflow-hidden"
+      className="bg-background rounded-xl border border-border overflow-hidden"
     >
       {/* Header */}
-      <div className="p-4 border-b border-[#2A2A2A]">
+      <div className="p-4 border-b border-border">
         <h3 className="text-sm font-semibold text-white">
           Form Report - {report.exerciseName}
         </h3>
@@ -97,19 +97,19 @@ export function FormReport({ report, previousScore, onClose }: FormReportProps) 
 
         {/* Rep breakdown */}
         <div>
-          <p className="text-xs text-[#A0A0A0] uppercase tracking-wider mb-2">
+          <p className="text-xs text-muted-foreground uppercase tracking-wider mb-2">
             Rep Breakdown
           </p>
           <div className="flex gap-1">
             {report.repScores.map((rep) => (
               <div key={rep.repNumber} className="flex-1 text-center">
-                <div className="h-12 bg-[#1A1A1A] rounded relative overflow-hidden mb-1">
+                <div className="h-12 bg-card rounded relative overflow-hidden mb-1">
                   <div
                     className={`absolute bottom-0 left-0 right-0 ${getScoreBg(rep.score)} transition-all`}
                     style={{ height: `${rep.score}%` }}
                   />
                 </div>
-                <span className="text-[10px] text-[#666666]">
+                <span className="text-[10px] text-dim-foreground">
                   R{rep.repNumber}
                 </span>
                 <p className={`text-[10px] font-medium ${getScoreColor(rep.score)}`}>
@@ -123,7 +123,7 @@ export function FormReport({ report, previousScore, onClose }: FormReportProps) 
         {/* Strengths */}
         {report.strengths.length > 0 && (
           <div>
-            <p className="text-xs text-[#A0A0A0] uppercase tracking-wider mb-2">
+            <p className="text-xs text-muted-foreground uppercase tracking-wider mb-2">
               Strengths
             </p>
             <div className="space-y-1.5">
@@ -140,7 +140,7 @@ export function FormReport({ report, previousScore, onClose }: FormReportProps) 
         {/* Improvements */}
         {report.improvements.length > 0 && (
           <div>
-            <p className="text-xs text-[#A0A0A0] uppercase tracking-wider mb-2">
+            <p className="text-xs text-muted-foreground uppercase tracking-wider mb-2">
               Areas to Improve
             </p>
             <div className="space-y-1.5">
@@ -157,7 +157,7 @@ export function FormReport({ report, previousScore, onClose }: FormReportProps) 
         {/* Actions */}
         <Button
           onClick={onClose}
-          className="w-full h-11 bg-[#CDFF00] text-black hover:bg-[#b8e600] font-semibold"
+          className="w-full h-11 bg-primary text-black hover:bg-primary/90 font-semibold"
         >
           Save & Continue
         </Button>

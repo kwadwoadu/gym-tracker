@@ -78,10 +78,10 @@ export default function SettingsLayout({ children }: { children: React.ReactNode
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               autoFocus
-              className="w-full bg-[#1A1A1A] border border-[#2A2A2A] rounded-lg px-4 py-2.5 text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-[#CDFF00]/50"
+              className="w-full bg-card border border-border rounded-lg px-4 py-2.5 text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-primary/50"
             />
             {searchResults.length > 0 && (
-              <div className="mt-2 bg-[#1A1A1A] border border-[#2A2A2A] rounded-lg divide-y divide-[#2A2A2A]">
+              <div className="mt-2 bg-card border border-border rounded-lg divide-y divide-border">
                 {searchResults.map((result, i) => (
                   <button
                     key={i}
@@ -105,7 +105,7 @@ export default function SettingsLayout({ children }: { children: React.ReactNode
 
       {/* Tab navigation */}
       <div className="px-4 py-3 gradient-divider">
-        <div className="flex items-center gap-1 bg-[#111111] rounded-lg p-1">
+        <div className="flex items-center gap-1 bg-card-alt rounded-lg p-1">
           {SETTINGS_TABS.map((tab) => {
             const isActive = pathname === tab.href ||
               (tab.href !== "/settings" && pathname?.startsWith(tab.href));
@@ -117,7 +117,7 @@ export default function SettingsLayout({ children }: { children: React.ReactNode
                 className={cn(
                   "flex-1 flex items-center justify-center gap-1.5 py-2 rounded-md text-xs font-medium transition-colors touch-target",
                   isActive
-                    ? "bg-[#CDFF00] text-black"
+                    ? "bg-primary text-black"
                     : "text-white/50"
                 )}
               >

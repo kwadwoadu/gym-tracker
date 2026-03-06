@@ -70,7 +70,7 @@ export default function FriendsPage() {
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-[#CDFF00]" />
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
       </div>
     );
   }
@@ -250,7 +250,7 @@ function SearchResultCard({
         <div className="flex-1 min-w-0">
           <p className="font-semibold truncate">{user.displayName || "Anonymous"}</p>
           {user.handle && (
-            <p className="text-sm text-[#CDFF00] truncate">@{user.handle}</p>
+            <p className="text-sm text-primary truncate">@{user.handle}</p>
           )}
           {user.bio && !user.handle && (
             <p className="text-sm text-muted-foreground truncate">{user.bio}</p>
@@ -275,7 +275,7 @@ function SearchResultCard({
             size="sm"
             onClick={onFollow}
             disabled={isPending}
-            className="bg-[#CDFF00] text-[#0A0A0A] hover:bg-[#CDFF00]/90"
+            className="bg-primary text-primary-foreground hover:bg-primary/90"
           >
             {isPending ? (
               <Loader2 className="w-4 h-4 animate-spin" />
@@ -319,7 +319,7 @@ function UserCard({
         <div className="flex-1 min-w-0">
           <p className="font-semibold truncate">{user.displayName || "Anonymous"}</p>
           {user.handle && (
-            <p className="text-sm text-[#CDFF00] truncate">@{user.handle}</p>
+            <p className="text-sm text-primary truncate">@{user.handle}</p>
           )}
           {user.bio && !user.handle && (
             <p className="text-sm text-muted-foreground truncate">{user.bio}</p>

@@ -57,7 +57,7 @@ export function SetLoggerSheet({
 
   return (
     <Drawer open={open} onOpenChange={onOpenChange}>
-      <DrawerContent className="bg-[#1A1A1A] border-t border-[#2A2A2A] max-h-[70vh]">
+      <DrawerContent className="bg-card border-t border-border max-h-[70vh]">
         <DrawerTitle className="sr-only">Log Set</DrawerTitle>
         <div className="px-4 py-2 overflow-y-auto">
           <SetLogger

@@ -51,7 +51,7 @@ export function MuscleDrillDown({
 
   return (
     <Drawer open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DrawerContent className="bg-[#0A0A0A] border-[#2A2A2A] max-h-[85vh]">
+      <DrawerContent className="bg-background border-border max-h-[85vh]">
         <DrawerHeader className="pb-2">
           <DrawerTitle className={`${HEADING.h3} text-white`}>
             {displayName}
@@ -65,15 +65,15 @@ export function MuscleDrillDown({
           {/* Summary stats */}
           {muscleData && (
             <div className="flex gap-3 mb-6">
-              <div className="flex-1 bg-[#1A1A1A] rounded-xl p-4">
+              <div className="flex-1 bg-card rounded-xl p-4">
                 <p className={`${LABEL.caption} text-white/40 mb-1`}>
                   Total Sets
                 </p>
-                <p className={`${DATA.medium} text-[#CDFF00]`}>
+                <p className={`${DATA.medium} text-primary`}>
                   {muscleData.sets}
                 </p>
               </div>
-              <div className="flex-1 bg-[#1A1A1A] rounded-xl p-4">
+              <div className="flex-1 bg-card rounded-xl p-4">
                 <p className={`${LABEL.caption} text-white/40 mb-1`}>
                   Total Volume
                 </p>
@@ -101,7 +101,7 @@ export function MuscleDrillDown({
                   return (
                     <div
                       key={ex.exerciseId}
-                      className="bg-[#1A1A1A] rounded-xl p-4"
+                      className="bg-card rounded-xl p-4"
                     >
                       <div className="flex items-center justify-between mb-2">
                         <p className="text-sm font-medium text-white truncate pr-3">
@@ -113,9 +113,9 @@ export function MuscleDrillDown({
                       </div>
                       {/* Volume bar */}
                       <div className="flex items-center gap-3">
-                        <div className="flex-1 h-2 bg-[#2A2A2A] rounded-full overflow-hidden">
+                        <div className="flex-1 h-2 bg-secondary rounded-full overflow-hidden">
                           <div
-                            className="h-full bg-[#CDFF00] rounded-full transition-all"
+                            className="h-full bg-primary rounded-full transition-all"
                             style={{ width: `${percentage}%` }}
                           />
                         </div>

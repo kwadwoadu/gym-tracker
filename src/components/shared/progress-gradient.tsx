@@ -15,7 +15,7 @@ interface ProgressGradientProps {
 
 export function ProgressGradient({
   value,
-  gradient = "bg-gradient-to-r from-[#CDFF00] via-[#A3E635] to-[#22C55E]",
+  gradient = "bg-gradient-to-r from-primary via-gym-success to-gym-success",
   trackClassName,
   className,
   glow = false,
@@ -25,7 +25,7 @@ export function ProgressGradient({
   const clamped = Math.min(100, Math.max(0, value));
 
   return (
-    <div className={cn("relative rounded-full overflow-hidden", height, trackClassName || "bg-[#1A1A1A]", className)}>
+    <div className={cn("relative rounded-full overflow-hidden", height, trackClassName || "bg-card", className)}>
       <motion.div
         className={cn("absolute inset-y-0 left-0 rounded-full", gradient)}
         style={glow ? { boxShadow: `0 0 12px ${glowColor}` } : undefined}

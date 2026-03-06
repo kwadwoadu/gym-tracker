@@ -46,7 +46,7 @@ export function InlineMealSlot({
   };
 
   return (
-    <div className={cn('rounded-lg transition-colors', compact ? 'bg-transparent' : 'bg-[#1A1A1A]')}>
+    <div className={cn('rounded-lg transition-colors', compact ? 'bg-transparent' : 'bg-card')}>
       {meal ? (
         <SelectedMealDisplay
           meal={meal}
@@ -82,8 +82,8 @@ function SelectedMealDisplay({ meal, onRemove, compact }: SelectedMealDisplayPro
       initial={{ opacity: 0, scale: 0.98 }}
       animate={{ opacity: 1, scale: 1 }}
       className={cn(
-        'border rounded-lg',
-        isShake ? 'border-[#CDFF00]/30 bg-[#CDFF00]/5' : 'border-[#2A2A2A] bg-[#1A1A1A]',
+        'border rounded-xl',
+        isShake ? 'border-primary/30 bg-primary/5' : 'border-border bg-card',
         compact ? 'p-2' : 'p-3'
       )}
     >
@@ -93,8 +93,8 @@ function SelectedMealDisplay({ meal, onRemove, compact }: SelectedMealDisplayPro
           onClick={() => hasIngredients && setShowIngredients(!showIngredients)}
         >
           <div className="flex items-center gap-2 mb-1">
-            <Utensils className={cn('text-[#CDFF00]', compact ? 'w-3.5 h-3.5' : 'w-4 h-4')} />
-            <span className={cn('font-bold text-[#CDFF00]', compact ? 'text-xs' : 'text-xs')}>
+            <Utensils className={cn('text-primary', compact ? 'w-3.5 h-3.5' : 'w-4 h-4')} />
+            <span className={cn('font-bold text-primary', compact ? 'text-xs' : 'text-xs')}>
               {meal.id}
             </span>
             <span className={cn('font-medium text-white truncate', compact ? 'text-xs' : 'text-sm')}>
@@ -102,7 +102,7 @@ function SelectedMealDisplay({ meal, onRemove, compact }: SelectedMealDisplayPro
             </span>
             {isShake && <span className="text-sm" title="Shake - can add supplements">🥤</span>}
             {hasIngredients && (
-              <span className="text-[#666666]">
+              <span className="text-dim-foreground">
                 {showIngredients ? (
                   <ChevronUp className="w-3.5 h-3.5" />
                 ) : (
@@ -111,18 +111,30 @@ function SelectedMealDisplay({ meal, onRemove, compact }: SelectedMealDisplayPro
               </span>
             )}
           </div>
-          <div className={cn('flex items-center gap-2', compact ? 'text-[10px]' : 'text-xs')}>
-            <span className="text-[#CDFF00] font-semibold">{meal.protein}g P</span>
-            <span className="text-[#A0A0A0]">{meal.carbs}g C</span>
-            <span className="text-[#A0A0A0]">{meal.fat}g F</span>
-            <span className="text-[#666666]">{meal.calories} cal</span>
+          <div className={cn('flex items-center gap-2 mb-1.5', compact ? 'text-[10px]' : 'text-xs')}>
+            <span className="text-primary font-semibold">{meal.protein}g P</span>
+            <span className="text-gym-blue">{meal.carbs}g C</span>
+            <span className="text-gym-warning">{meal.fat}g F</span>
+            <span className="text-dim-foreground">{meal.calories} cal</span>
+          </div>
+          {/* Mini macro bars */}
+          <div className="flex items-center gap-1.5">
+            <div className="flex-1 h-1 bg-secondary rounded-full overflow-hidden">
+              <div className="h-full bg-primary rounded-full" style={{ width: `${Math.min((meal.protein / 50) * 100, 100)}%` }} />
+            </div>
+            <div className="flex-1 h-1 bg-secondary rounded-full overflow-hidden">
+              <div className="h-full bg-gym-blue rounded-full" style={{ width: `${Math.min((meal.carbs / 80) * 100, 100)}%` }} />
+            </div>
+            <div className="flex-1 h-1 bg-secondary rounded-full overflow-hidden">
+              <div className="h-full bg-gym-warning rounded-full" style={{ width: `${Math.min((meal.fat / 30) * 100, 100)}%` }} />
+            </div>
           </div>
         </div>
         <motion.button
           whileTap={{ scale: 0.9 }}
           onClick={onRemove}
           className={cn(
-            'rounded-full bg-[#2A2A2A] flex items-center justify-center text-[#666666] hover:text-[#EF4444] hover:bg-[#EF4444]/10 transition-colors',
+            'rounded-full bg-secondary flex items-center justify-center text-dim-foreground hover:text-destructive hover:bg-destructive/10 transition-colors',
             compact ? 'w-6 h-6' : 'w-7 h-7'
           )}
         >
@@ -140,11 +152,11 @@ function SelectedMealDisplay({ meal, onRemove, compact }: SelectedMealDisplayPro
             transition={{ duration: 0.2 }}
             className="overflow-hidden"
           >
-            <div className="mt-2 pt-2 border-t border-[#2A2A2A]">
+            <div className="mt-2 pt-2 border-t border-border">
               <ul className="space-y-0.5">
                 {meal.ingredients!.map((ingredient, index) => (
-                  <li key={index} className="text-[10px] text-[#888888] flex items-start gap-1.5">
-                    <span className="text-[#CDFF00]">-</span>
+                  <li key={index} className="text-[10px] text-dim-foreground flex items-start gap-1.5">
+                    <span className="text-primary">-</span>
                     <span>{ingredient}</span>
                   </li>
                 ))}
@@ -192,22 +204,22 @@ function EmptySlotSelector({
   };
 
   return (
-    <div className={cn('border border-dashed rounded-lg', isExpanded ? 'border-[#CDFF00]/50' : 'border-[#3A3A3A]')}>
+    <div className={cn('border border-dashed rounded-xl', isExpanded ? 'border-primary/50' : 'border-border')}>
       <motion.button
         whileTap={{ scale: 0.98 }}
         onClick={handleToggle}
         className={cn(
-          'w-full flex items-center justify-between transition-colors hover:bg-[#1A1A1A]',
+          'w-full flex items-center justify-between transition-colors hover:bg-card',
           compact ? 'px-2 py-1.5' : 'px-3 py-2'
         )}
       >
         <div className="flex items-center gap-2">
-          <Plus className={cn('text-[#666666]', compact ? 'w-3.5 h-3.5' : 'w-4 h-4')} />
-          <span className={cn('text-[#666666]', compact ? 'text-xs' : 'text-sm')}>
+          <Plus className={cn('text-dim-foreground', compact ? 'w-3.5 h-3.5' : 'w-4 h-4')} />
+          <span className={cn('text-dim-foreground', compact ? 'text-xs' : 'text-sm')}>
             Add {SLOT_LABELS[slotType].toLowerCase()}
           </span>
         </div>
-        <span className="text-[#555555]">
+        <span className="text-dim-foreground">
           {isExpanded ? (
             <ChevronUp className="w-4 h-4" />
           ) : (
@@ -226,15 +238,15 @@ function EmptySlotSelector({
             className="overflow-hidden"
           >
             {/* Search input */}
-            <div className={cn('border-t border-[#2A2A2A]', compact ? 'px-1.5 pt-1.5' : 'px-2 pt-2')}>
+            <div className={cn('border-t border-border', compact ? 'px-1.5 pt-1.5' : 'px-2 pt-2')}>
               <div className="relative">
-                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#666666]" />
+                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-dim-foreground" />
                 <input
                   type="text"
                   placeholder="Search meals..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full bg-[#0A0A0A] border border-[#2A2A2A] rounded-lg pl-8 pr-3 py-2 text-sm text-white placeholder-[#666666] outline-none focus:border-[#CDFF00]/50 transition-colors"
+                  className="w-full bg-background border border-border rounded-lg pl-8 pr-3 py-2 text-sm text-white placeholder-dim-foreground outline-none focus:border-primary/50 transition-colors"
                 />
               </div>
             </div>
@@ -251,15 +263,15 @@ function EmptySlotSelector({
                   />
                 ))
               ) : (
-                <p className="text-[#666666] text-sm text-center py-4">No meals found</p>
+                <p className="text-dim-foreground text-sm text-center py-4">No meals found</p>
               )}
             </div>
 
             {/* View Full Library link */}
-            <div className={cn('border-t border-[#2A2A2A]', compact ? 'px-1.5 py-1.5' : 'px-2 py-2')}>
+            <div className={cn('border-t border-border', compact ? 'px-1.5 py-1.5' : 'px-2 py-2')}>
               <Link
                 href="/nutrition/library"
-                className="flex items-center justify-center gap-1.5 text-[#CDFF00] text-xs font-medium hover:opacity-80 transition-opacity"
+                className="flex items-center justify-center gap-1.5 text-primary text-xs font-medium hover:opacity-80 transition-opacity"
               >
                 View Full Library
                 <ArrowRight className="w-3.5 h-3.5" />
@@ -286,28 +298,28 @@ function MealOption({ meal, onSelect, compact }: MealOptionProps) {
       whileTap={{ scale: 0.98 }}
       onClick={onSelect}
       className={cn(
-        'w-full text-left rounded-lg transition-colors hover:bg-[#2A2A2A]',
-        isShake ? 'bg-[#CDFF00]/5 border border-[#CDFF00]/20' : 'bg-[#1A1A1A]',
+        'w-full text-left rounded-lg transition-colors hover:bg-secondary',
+        isShake ? 'bg-primary/5 border border-primary/20' : 'bg-card',
         compact ? 'p-1.5' : 'p-2'
       )}
     >
       <div className="flex items-center gap-2 mb-0.5">
-        <span className={cn('font-bold text-[#CDFF00]', compact ? 'text-[10px]' : 'text-xs')}>
+        <span className={cn('font-bold text-primary', compact ? 'text-[10px]' : 'text-xs')}>
           {meal.id}
         </span>
         <span className={cn('font-medium text-white truncate', compact ? 'text-xs' : 'text-sm')}>
           {meal.name}
         </span>
         {isShake && <span className="text-xs" title="Shake - can add supplements">🥤</span>}
-        <span className="bg-[#2A2A2A] text-[#A0A0A0] text-[9px] px-1.5 py-0.5 rounded shrink-0">
+        <span className="bg-secondary text-muted-foreground text-[9px] px-1.5 py-0.5 rounded shrink-0">
           {CATEGORY_LABELS[meal.category]}
         </span>
       </div>
       <div className={cn('flex items-center gap-2', compact ? 'text-[9px]' : 'text-[10px]')}>
-        <span className="text-[#CDFF00] font-medium">{meal.protein}g P</span>
-        <span className="text-[#888888]">{meal.carbs}g C</span>
-        <span className="text-[#888888]">{meal.fat}g F</span>
-        <span className="text-[#666666]">{meal.calories} cal</span>
+        <span className="text-primary font-medium">{meal.protein}g P</span>
+        <span className="text-gym-blue">{meal.carbs}g C</span>
+        <span className="text-gym-warning">{meal.fat}g F</span>
+        <span className="text-dim-foreground">{meal.calories} cal</span>
       </div>
     </motion.button>
   );

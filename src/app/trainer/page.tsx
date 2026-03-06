@@ -158,19 +158,19 @@ export default function TrainerPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] flex flex-col">
+    <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
-      <header className="sticky top-0 z-20 bg-[#0A0A0A]/95 backdrop-blur-sm border-b border-[#2A2A2A]">
+      <header className="sticky top-0 z-20 bg-background/95 backdrop-blur-sm border-b border-border">
         <div className="flex items-center gap-3 px-4 h-14">
           <Link
             href="/"
-            className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-[#1A1A1A] transition-colors"
+            className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-card transition-colors"
           >
-            <ArrowLeft className="w-5 h-5 text-[#A0A0A0]" />
+            <ArrowLeft className="w-5 h-5 text-muted-foreground" />
           </Link>
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-[#CDFF00]/20 flex items-center justify-center">
-              <Bot className="w-4 h-4 text-[#CDFF00]" />
+            <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
+              <Bot className="w-4 h-4 text-primary" />
             </div>
             <div>
               <p className="text-sm font-semibold text-white">AI Coach</p>
@@ -224,18 +224,18 @@ export default function TrainerPage() {
 
         {sending && (
           <div className="flex gap-3">
-            <div className="w-8 h-8 rounded-full bg-[#CDFF00]/20 flex items-center justify-center flex-shrink-0">
-              <Bot className="w-4 h-4 text-[#CDFF00]" />
+            <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
+              <Bot className="w-4 h-4 text-primary" />
             </div>
-            <div className="bg-[#1A1A1A] rounded-2xl px-4 py-3 border-l-2 border-[#CDFF00]/30">
+            <div className="bg-card rounded-2xl px-4 py-3 border-l-2 border-primary/30">
               <div className="flex gap-1">
-                <span className="w-2 h-2 bg-[#CDFF00] rounded-full animate-bounce" />
+                <span className="w-2 h-2 bg-primary rounded-full animate-bounce" />
                 <span
-                  className="w-2 h-2 bg-[#CDFF00] rounded-full animate-bounce"
+                  className="w-2 h-2 bg-primary rounded-full animate-bounce"
                   style={{ animationDelay: "0.15s" }}
                 />
                 <span
-                  className="w-2 h-2 bg-[#CDFF00] rounded-full animate-bounce"
+                  className="w-2 h-2 bg-primary rounded-full animate-bounce"
                   style={{ animationDelay: "0.3s" }}
                 />
               </div>
@@ -252,7 +252,7 @@ export default function TrainerPage() {
       </div>
 
       {/* Input bar */}
-      <div className="fixed bottom-0 left-0 right-0 bg-[#0A0A0A]/95 backdrop-blur-sm border-t border-[#2A2A2A] p-3 pb-safe-bottom">
+      <div className="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-sm border-t border-border p-3 pb-safe-bottom">
         <form onSubmit={handleSubmit} className="flex items-center gap-2 max-w-lg mx-auto">
           <input
             ref={inputRef}
@@ -261,12 +261,12 @@ export default function TrainerPage() {
             onChange={(e) => setInputValue(e.target.value)}
             placeholder="Ask your AI coach..."
             disabled={sending}
-            className="flex-1 h-11 bg-[#1A1A1A] border border-[#2A2A2A] rounded-full px-4 text-sm text-white placeholder-[#666666] focus:outline-none focus:border-[#CDFF00]/50 disabled:opacity-50"
+            className="flex-1 h-11 bg-card border border-border rounded-full px-4 text-sm text-white placeholder-[#666666] focus:outline-none focus:border-primary/50 disabled:opacity-50"
           />
           <Button
             type="submit"
             disabled={!inputValue.trim() || sending}
-            className="w-11 h-11 rounded-full bg-[#CDFF00] text-black hover:bg-[#b8e600] disabled:opacity-50 p-0"
+            className="w-11 h-11 rounded-full bg-primary text-black hover:bg-primary/90 disabled:opacity-50 p-0"
           >
             {sending ? (
               <Loader2 className="w-5 h-5 animate-spin" />

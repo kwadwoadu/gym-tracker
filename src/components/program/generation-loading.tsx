@@ -27,7 +27,7 @@ export function GenerationLoading() {
     <div className="flex flex-col items-center justify-center py-16 px-4">
       {/* Pulsing icon */}
       <motion.div
-        className="w-20 h-20 rounded-full bg-[#CDFF00]/10 flex items-center justify-center mb-8"
+        className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mb-8"
         animate={{
           scale: [1, 1.1, 1],
           boxShadow: [
@@ -46,7 +46,7 @@ export function GenerationLoading() {
             exit={{ opacity: 0, scale: 0.5 }}
             transition={{ duration: 0.3 }}
           >
-            <CurrentIcon className="w-10 h-10 text-[#CDFF00]" />
+            <CurrentIcon className="w-10 h-10 text-primary" />
           </motion.div>
         </AnimatePresence>
       </motion.div>

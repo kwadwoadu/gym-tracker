@@ -88,7 +88,7 @@ export function ActiveRecoverySession({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 bg-[#0A0A0A] flex flex-col"
+      className="fixed inset-0 z-50 bg-background flex flex-col"
     >
       {/* Header */}
       <div className="flex items-center justify-between px-4 pt-safe-top pb-3">
@@ -106,7 +106,7 @@ export function ActiveRecoverySession({
         {steps.map((_, i) => (
           <div
             key={i}
-            className="h-1 flex-1 rounded-full overflow-hidden bg-[#2A2A2A]"
+            className="h-1 flex-1 rounded-full overflow-hidden bg-secondary"
           >
             <div
               className="h-full bg-[#38BDF8] transition-all duration-300"
@@ -191,7 +191,7 @@ export function ActiveRecoverySession({
         <div className="flex gap-3">
           <Button
             variant="outline"
-            className="flex-1 h-14 border-[#2A2A2A] text-white"
+            className="flex-1 h-14 border-border text-white"
             onClick={() => setIsPaused(!isPaused)}
           >
             {isPaused ? (
@@ -203,7 +203,7 @@ export function ActiveRecoverySession({
           </Button>
           <Button
             variant="outline"
-            className="flex-1 h-14 border-[#2A2A2A] text-white"
+            className="flex-1 h-14 border-border text-white"
             onClick={nextStep}
           >
             <SkipForward className="w-5 h-5 mr-2" />

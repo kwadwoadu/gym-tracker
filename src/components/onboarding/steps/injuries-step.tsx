@@ -45,13 +45,13 @@ export function InjuriesStep({ selected, onSelect }: InjuriesStepProps) {
           onClick={setNoInjuries}
           className={`w-full p-4 rounded-xl border-2 transition-all text-left flex items-center gap-4 ${
             hasNoInjuries
-              ? "border-[#22C55E] bg-[#22C55E]/10"
+              ? "border-gym-success bg-gym-success/10"
               : "border-white/10 bg-white/5 hover:border-white/20"
           }`}
         >
           <div
             className={`w-12 h-12 rounded-xl flex items-center justify-center ${
-              hasNoInjuries ? "bg-[#22C55E]" : "bg-white/10"
+              hasNoInjuries ? "bg-gym-success" : "bg-white/10"
             }`}
           >
             <ShieldCheck
@@ -66,7 +66,7 @@ export function InjuriesStep({ selected, onSelect }: InjuriesStepProps) {
             <motion.div
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
-              className="w-6 h-6 rounded-full bg-[#22C55E] flex items-center justify-center"
+              className="w-6 h-6 rounded-full bg-gym-success flex items-center justify-center"
             >
               <Check className="w-4 h-4 text-black" />
             </motion.div>
@@ -93,14 +93,14 @@ export function InjuriesStep({ selected, onSelect }: InjuriesStepProps) {
                 onClick={() => toggleInjury(injury.id)}
                 className={`p-4 rounded-xl border-2 transition-all text-center ${
                   isSelected
-                    ? "border-[#F59E0B] bg-[#F59E0B]/10"
+                    ? "border-gym-warning bg-gym-warning/10"
                     : "border-white/10 bg-white/5 hover:border-white/20"
                 }`}
               >
                 <div className="text-2xl mb-1">{injury.emoji}</div>
                 <div
                   className={`text-sm font-medium ${
-                    isSelected ? "text-[#F59E0B]" : "text-white/70"
+                    isSelected ? "text-gym-warning" : "text-white/70"
                   }`}
                 >
                   {injury.label}

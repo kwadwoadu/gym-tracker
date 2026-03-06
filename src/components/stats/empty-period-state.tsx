@@ -14,7 +14,7 @@ export function EmptyPeriodState({ periodLabel }: EmptyPeriodStateProps) {
 
   return (
     <div className="flex flex-col items-center justify-center py-16 px-6">
-      <div className="w-16 h-16 rounded-2xl bg-[#1A1A1A] flex items-center justify-center mb-4">
+      <div className="w-16 h-16 rounded-2xl bg-card flex items-center justify-center mb-4">
         <Dumbbell className="w-8 h-8 text-white/20" />
       </div>
       <h3 className={`${HEADING.h3} text-white mb-2 text-center`}>
@@ -27,7 +27,7 @@ export function EmptyPeriodState({ periodLabel }: EmptyPeriodStateProps) {
       </p>
       <Button
         onClick={() => router.push("/")}
-        className="bg-[#CDFF00] text-black font-semibold px-8 h-12 rounded-xl hover:bg-[#CDFF00]/90 active:scale-[0.98] transition-transform"
+        className="bg-primary text-black font-semibold px-8 h-12 rounded-xl hover:bg-primary/90 active:scale-[0.98] transition-transform"
       >
         <Dumbbell className="w-4 h-4 mr-2" />
         Start Workout

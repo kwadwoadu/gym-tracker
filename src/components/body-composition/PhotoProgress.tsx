@@ -125,8 +125,8 @@ export function PhotoProgress() {
             }}
             className={`flex-1 py-2.5 rounded-xl text-xs font-medium transition-all ${
               selectedPose === p.key
-                ? "bg-[#CDFF00] text-black"
-                : "bg-[#1A1A1A] text-white/40"
+                ? "bg-primary text-black"
+                : "bg-card text-white/40"
             }`}
           >
             {p.label}
@@ -137,7 +137,7 @@ export function PhotoProgress() {
       {posePhotos.length === 0 ? (
         /* Empty state */
         <div className="text-center py-12">
-          <div className="w-16 h-16 rounded-2xl bg-[#1A1A1A] flex items-center justify-center mx-auto mb-4">
+          <div className="w-16 h-16 rounded-2xl bg-card flex items-center justify-center mx-auto mb-4">
             <Camera className="w-8 h-8 text-white/20" />
           </div>
           <h3 className={`${HEADING.h3} text-white mb-2`}>
@@ -149,7 +149,7 @@ export function PhotoProgress() {
           </p>
           <button
             onClick={() => fileInputRef.current?.click()}
-            className="px-6 py-3 rounded-xl bg-[#CDFF00] text-black font-semibold active:scale-[0.98] transition-transform"
+            className="px-6 py-3 rounded-xl bg-primary text-black font-semibold active:scale-[0.98] transition-transform"
           >
             Take First Photo
           </button>
@@ -163,7 +163,7 @@ export function PhotoProgress() {
             </h3>
             <button
               onClick={() => setCompareMode(false)}
-              className="text-xs text-[#CDFF00] font-medium"
+              className="text-xs text-primary font-medium"
             >
               Exit Compare
             </button>
@@ -172,7 +172,7 @@ export function PhotoProgress() {
           {/* Date navigation */}
           <div className="flex gap-2 mb-3">
             {/* Before date */}
-            <div className="flex-1 flex items-center justify-between bg-[#1A1A1A] rounded-lg px-3 py-2">
+            <div className="flex-1 flex items-center justify-between bg-card rounded-lg px-3 py-2">
               <button
                 onClick={() => navigateCompare("next", 0)}
                 disabled={compareIndices[0] >= posePhotos.length - 1}
@@ -195,7 +195,7 @@ export function PhotoProgress() {
               </button>
             </div>
             {/* After date */}
-            <div className="flex-1 flex items-center justify-between bg-[#1A1A1A] rounded-lg px-3 py-2">
+            <div className="flex-1 flex items-center justify-between bg-card rounded-lg px-3 py-2">
               <button
                 onClick={() => navigateCompare("next", 1)}
                 disabled={compareIndices[1] >= posePhotos.length - 1}
@@ -222,7 +222,7 @@ export function PhotoProgress() {
           {/* Slider comparison */}
           <div
             ref={sliderRef}
-            className="relative w-full aspect-[3/4] rounded-xl overflow-hidden bg-[#1A1A1A] touch-none select-none"
+            className="relative w-full aspect-[3/4] rounded-xl overflow-hidden bg-card touch-none select-none"
             onPointerDown={handlePointerDown}
             onPointerMove={handlePointerMove}
             onPointerUp={handlePointerUp}
@@ -270,7 +270,7 @@ export function PhotoProgress() {
                   setSliderPosition(50);
                   setCompareMode(true);
                 }}
-                className="text-xs text-[#CDFF00] font-medium min-h-[44px] flex items-center"
+                className="text-xs text-primary font-medium min-h-[44px] flex items-center"
               >
                 Compare
               </button>
@@ -281,21 +281,21 @@ export function PhotoProgress() {
             {posePhotos.map((photo) => (
               <div
                 key={photo.id}
-                className="relative aspect-[3/4] rounded-xl overflow-hidden bg-[#1A1A1A] group"
+                className="relative aspect-[3/4] rounded-xl overflow-hidden bg-card group"
               >
                 <PhotoImage
                   photo={photo}
                   className="w-full h-full object-cover"
                 />
-                {/* Date overlay */}
-                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-3">
-                  <p className="text-xs text-white font-medium">
+                {/* Date overlay badge */}
+                <div className="absolute bottom-2 left-2">
+                  <span className="inline-block px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-sm text-[11px] text-white font-medium">
                     {new Date(photo.date).toLocaleDateString("en", {
                       month: "short",
                       day: "numeric",
                       year: "numeric",
                     })}
-                  </p>
+                  </span>
                 </div>
                 {/* Delete button */}
                 <button
@@ -328,7 +328,7 @@ export function PhotoProgress() {
         <div className="fixed bottom-24 right-4 z-30">
           <button
             onClick={() => fileInputRef.current?.click()}
-            className="w-14 h-14 rounded-full bg-[#CDFF00] text-black flex items-center justify-center shadow-lg active:scale-95 transition-transform"
+            className="w-14 h-14 rounded-full bg-primary text-black flex items-center justify-center shadow-lg active:scale-95 transition-transform"
           >
             <Camera className="w-6 h-6" />
           </button>
@@ -360,7 +360,7 @@ function PhotoImage({
 
   if (!url) {
     return (
-      <div className={`${className} flex items-center justify-center bg-[#1A1A1A]`}>
+      <div className={`${className} flex items-center justify-center bg-card`}>
         <ImageIcon className="w-8 h-8 text-white/10" />
       </div>
     );

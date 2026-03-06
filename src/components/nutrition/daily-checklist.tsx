@@ -44,7 +44,7 @@ export function DailyChecklist({ date }: DailyChecklistProps) {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <Loader2 className="w-8 h-8 animate-spin text-[#CDFF00]" />
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
       </div>
     );
   }
@@ -61,8 +61,8 @@ export function DailyChecklist({ date }: DailyChecklistProps) {
         className={cn(
           'w-full p-6 rounded-2xl border-2 transition-all duration-200',
           proteinHit
-            ? 'bg-[#CDFF00]/10 border-[#CDFF00] text-white'
-            : 'bg-[#1A1A1A] border-[#2A2A2A] text-[#A0A0A0]'
+            ? 'bg-primary/10 border-primary text-white'
+            : 'bg-card border-border text-muted-foreground'
         )}
         disabled={updateLog.isPending}
       >
@@ -71,31 +71,31 @@ export function DailyChecklist({ date }: DailyChecklistProps) {
             <div
               className={cn(
                 'w-12 h-12 rounded-full flex items-center justify-center',
-                proteinHit ? 'bg-[#CDFF00]' : 'bg-[#2A2A2A]'
+                proteinHit ? 'bg-primary' : 'bg-secondary'
               )}
             >
               <Target
                 className={cn(
                   'w-6 h-6',
-                  proteinHit ? 'text-[#0A0A0A]' : 'text-[#666666]'
+                  proteinHit ? 'text-primary-foreground' : 'text-dim-foreground'
                 )}
               />
             </div>
             <div className="text-left">
               <p className="text-lg font-semibold text-white">Protein Goal</p>
-              <p className="text-sm text-[#A0A0A0]">Hit {proteinTarget}g+ protein today?</p>
+              <p className="text-sm text-muted-foreground">Hit {proteinTarget}g+ protein today?</p>
             </div>
           </div>
           <div
             className={cn(
               'w-10 h-10 rounded-full flex items-center justify-center transition-colors',
-              proteinHit ? 'bg-[#CDFF00]' : 'bg-[#2A2A2A]'
+              proteinHit ? 'bg-primary' : 'bg-secondary'
             )}
           >
             {proteinHit ? (
-              <Check className="w-5 h-5 text-[#0A0A0A]" />
+              <Check className="w-5 h-5 text-primary-foreground" />
             ) : (
-              <X className="w-5 h-5 text-[#666666]" />
+              <X className="w-5 h-5 text-dim-foreground" />
             )}
           </div>
         </div>
@@ -108,8 +108,8 @@ export function DailyChecklist({ date }: DailyChecklistProps) {
         className={cn(
           'w-full p-6 rounded-2xl border-2 transition-all duration-200',
           caloriesHit
-            ? 'bg-[#CDFF00]/10 border-[#CDFF00] text-white'
-            : 'bg-[#1A1A1A] border-[#2A2A2A] text-[#A0A0A0]'
+            ? 'bg-primary/10 border-primary text-white'
+            : 'bg-card border-border text-muted-foreground'
         )}
         disabled={updateLog.isPending}
       >
@@ -118,39 +118,39 @@ export function DailyChecklist({ date }: DailyChecklistProps) {
             <div
               className={cn(
                 'w-12 h-12 rounded-full flex items-center justify-center',
-                caloriesHit ? 'bg-[#CDFF00]' : 'bg-[#2A2A2A]'
+                caloriesHit ? 'bg-primary' : 'bg-secondary'
               )}
             >
               <Flame
                 className={cn(
                   'w-6 h-6',
-                  caloriesHit ? 'text-[#0A0A0A]' : 'text-[#666666]'
+                  caloriesHit ? 'text-primary-foreground' : 'text-dim-foreground'
                 )}
               />
             </div>
             <div className="text-left">
               <p className="text-lg font-semibold text-white">Calories On Target</p>
-              <p className="text-sm text-[#A0A0A0]">Target ~{calorieTarget} cal?</p>
+              <p className="text-sm text-muted-foreground">Target ~{calorieTarget} cal?</p>
             </div>
           </div>
           <div
             className={cn(
               'w-10 h-10 rounded-full flex items-center justify-center transition-colors',
-              caloriesHit ? 'bg-[#CDFF00]' : 'bg-[#2A2A2A]'
+              caloriesHit ? 'bg-primary' : 'bg-secondary'
             )}
           >
             {caloriesHit ? (
-              <Check className="w-5 h-5 text-[#0A0A0A]" />
+              <Check className="w-5 h-5 text-primary-foreground" />
             ) : (
-              <X className="w-5 h-5 text-[#666666]" />
+              <X className="w-5 h-5 text-dim-foreground" />
             )}
           </div>
         </div>
       </motion.button>
 
       {/* Notes */}
-      <div className="bg-[#1A1A1A] rounded-2xl p-4 border border-[#2A2A2A]">
-        <label className="block text-sm font-medium text-[#A0A0A0] mb-2">
+      <div className="bg-card rounded-2xl p-4 border border-border">
+        <label className="block text-sm font-medium text-muted-foreground mb-2">
           Notes (optional)
         </label>
         <textarea
@@ -158,7 +158,7 @@ export function DailyChecklist({ date }: DailyChecklistProps) {
           onChange={(e) => setNotes(e.target.value)}
           onBlur={handleNotesBlur}
           placeholder="Any notes about today's nutrition..."
-          className="w-full bg-[#2A2A2A] text-white rounded-lg p-3 text-sm placeholder:text-[#666666] border-none focus:outline-none focus:ring-2 focus:ring-[#CDFF00] resize-none"
+          className="w-full bg-secondary text-white rounded-lg p-3 text-sm placeholder:text-dim-foreground border-none focus:outline-none focus:ring-2 focus:ring-primary resize-none"
           rows={3}
         />
       </div>
@@ -169,10 +169,10 @@ export function DailyChecklist({ date }: DailyChecklistProps) {
           className={cn(
             'px-4 py-2 rounded-full text-sm font-medium',
             proteinHit && caloriesHit
-              ? 'bg-[#22C55E]/20 text-[#22C55E]'
+              ? 'bg-gym-success/20 text-gym-success'
               : proteinHit || caloriesHit
-                ? 'bg-[#F59E0B]/20 text-[#F59E0B]'
-                : 'bg-[#2A2A2A] text-[#666666]'
+                ? 'bg-gym-warning/20 text-gym-warning'
+                : 'bg-secondary text-dim-foreground'
           )}
         >
           {proteinHit && caloriesHit

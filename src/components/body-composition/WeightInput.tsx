@@ -56,7 +56,7 @@ export function WeightInput({
         }
       }}
     >
-      <DrawerContent className="bg-[#0A0A0A] border-[#2A2A2A]">
+      <DrawerContent className="bg-background border-border">
         <DrawerHeader className="pb-2">
           <DrawerTitle className="text-lg text-center text-white">
             Log Weight
@@ -83,7 +83,7 @@ export function WeightInput({
               <button
                 key={key}
                 onClick={() => handleKey(key)}
-                className="h-14 rounded-xl bg-[#1A1A1A] text-white text-xl font-medium active:bg-[#2A2A2A] transition-colors flex items-center justify-center"
+                className="h-14 rounded-xl bg-card text-white text-xl font-medium active:bg-secondary transition-colors flex items-center justify-center"
               >
                 {key === "del" ? (
                   <Delete className="w-5 h-5 text-white/60" />
@@ -98,7 +98,7 @@ export function WeightInput({
           <button
             onClick={handleSave}
             disabled={!value || parseFloat(value) <= 0}
-            className="w-full mt-4 h-14 rounded-xl bg-[#CDFF00] text-black font-semibold text-lg disabled:opacity-30 disabled:cursor-not-allowed active:scale-[0.98] transition-transform"
+            className="w-full mt-4 h-14 rounded-xl bg-primary text-black font-semibold text-lg disabled:opacity-30 disabled:cursor-not-allowed active:scale-[0.98] transition-transform"
           >
             Save
           </button>

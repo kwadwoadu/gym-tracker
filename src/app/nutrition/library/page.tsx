@@ -14,30 +14,30 @@ export default function NutritionLibraryPage() {
     <div className="max-w-lg mx-auto space-y-4">
       <div className="text-center mb-6">
         <h1 className="text-2xl font-bold text-white">Nutrition Library</h1>
-        <p className="text-sm text-[#666666] mt-1">
+        <p className="text-sm text-dim-foreground mt-1">
           Manage your custom meals and supplements
         </p>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="w-full flex overflow-x-auto flex-nowrap bg-[#1A1A1A] p-1 rounded-lg">
+        <TabsList className="w-full flex overflow-x-auto flex-nowrap bg-card p-1 rounded-lg">
           <TabsTrigger
             value="meals"
-            className="flex items-center gap-2 whitespace-nowrap flex-shrink-0 data-[state=active]:bg-[#CDFF00] data-[state=active]:text-[#0A0A0A]"
+            className="flex items-center gap-2 whitespace-nowrap flex-shrink-0 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
           >
             <UtensilsCrossed className="w-4 h-4" />
             Meals
           </TabsTrigger>
           <TabsTrigger
             value="supplements"
-            className="flex items-center gap-2 whitespace-nowrap flex-shrink-0 data-[state=active]:bg-[#CDFF00] data-[state=active]:text-[#0A0A0A]"
+            className="flex items-center gap-2 whitespace-nowrap flex-shrink-0 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
           >
             <Pill className="w-4 h-4" />
             Supps
           </TabsTrigger>
           <TabsTrigger
             value="templates"
-            className="flex items-center gap-2 whitespace-nowrap flex-shrink-0 data-[state=active]:bg-[#CDFF00] data-[state=active]:text-[#0A0A0A]"
+            className="flex items-center gap-2 whitespace-nowrap flex-shrink-0 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
           >
             <BookOpen className="w-4 h-4" />
             Templates

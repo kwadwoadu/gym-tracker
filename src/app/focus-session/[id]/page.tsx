@@ -226,7 +226,7 @@ export default function ActiveFocusSessionPage() {
   if (sessionLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-[#CDFF00]" />
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
       </div>
     );
   }
@@ -279,7 +279,7 @@ export default function ActiveFocusSessionPage() {
                 className={cn(
                   "flex-1 p-2 rounded-lg text-center transition-all text-xs font-medium",
                   idx === currentExerciseIndex
-                    ? "bg-[#CDFF00] text-[#0A0A0A]"
+                    ? "bg-primary text-primary-foreground"
                     : hasCompletedSets
                     ? "bg-success/20 text-success border border-success/30"
                     : "bg-muted text-muted-foreground"
@@ -305,7 +305,7 @@ export default function ActiveFocusSessionPage() {
             {/* Exercise header */}
             <div className="space-y-2">
               <div className="flex items-center gap-2">
-                <Badge className="bg-[#CDFF00] text-[#0A0A0A]">
+                <Badge className="bg-primary text-primary-foreground">
                   {currentExerciseIndex + 1}/{exercises.length}
                 </Badge>
                 {session.focusArea && (
@@ -478,7 +478,7 @@ export default function ActiveFocusSessionPage() {
               {/* Log Set Button */}
               <Button
                 size="lg"
-                className="w-full h-14 text-lg font-semibold bg-[#CDFF00] text-[#0A0A0A] hover:bg-[#CDFF00]/90"
+                className="w-full h-14 text-lg font-semibold bg-primary text-primary-foreground hover:bg-primary/90"
                 onClick={handleLogSet}
                 disabled={updateMutation.isPending}
               >
@@ -557,7 +557,7 @@ export default function ActiveFocusSessionPage() {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogAction
-              className="w-full bg-[#CDFF00] text-[#0A0A0A] hover:bg-[#CDFF00]/90"
+              className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
               onClick={() => router.push("/")}
             >
               Done

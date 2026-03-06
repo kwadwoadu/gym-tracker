@@ -158,31 +158,31 @@ export default function AICoachPage() {
     <div className="max-w-lg mx-auto space-y-4">
       {/* Today's logged meals summary */}
       {savedMeals.length > 0 && (
-        <div className="bg-[#1A1A1A] rounded-xl p-4 border border-[#2A2A2A]">
-          <p className="text-xs text-[#A0A0A0] uppercase tracking-wider mb-2">
+        <div className="bg-card rounded-xl p-4 border border-border">
+          <p className="text-xs text-muted-foreground uppercase tracking-wider mb-2">
             Logged Today via AI
           </p>
           <div className="grid grid-cols-4 gap-2 text-center">
             <div>
-              <p className="text-xs text-[#666666]">Protein</p>
-              <p className="text-sm font-bold text-[#CDFF00]">
+              <p className="text-xs text-dim-foreground">Protein</p>
+              <p className="text-sm font-bold text-primary">
                 {savedMeals.reduce((s, m) => s + m.totalProtein, 0)}g
               </p>
             </div>
             <div>
-              <p className="text-xs text-[#666666]">Carbs</p>
+              <p className="text-xs text-dim-foreground">Carbs</p>
               <p className="text-sm font-bold text-blue-400">
                 {savedMeals.reduce((s, m) => s + m.totalCarbs, 0)}g
               </p>
             </div>
             <div>
-              <p className="text-xs text-[#666666]">Fat</p>
+              <p className="text-xs text-dim-foreground">Fat</p>
               <p className="text-sm font-bold text-orange-400">
                 {savedMeals.reduce((s, m) => s + m.totalFat, 0)}g
               </p>
             </div>
             <div>
-              <p className="text-xs text-[#666666]">Calories</p>
+              <p className="text-xs text-dim-foreground">Calories</p>
               <p className="text-sm font-bold text-white">
                 {savedMeals.reduce((s, m) => s + m.totalCalories, 0)}
               </p>
@@ -196,7 +196,7 @@ export default function AICoachPage() {
         <div className="space-y-3">
           <Button
             onClick={() => setActiveSection("photo")}
-            className="w-full h-14 bg-[#CDFF00] text-black hover:bg-[#b8e600] font-semibold text-base"
+            className="w-full h-14 bg-primary text-black hover:bg-primary/90 font-semibold text-base"
           >
             <Camera className="w-5 h-5 mr-2" />
             Log Meal with Photo
@@ -206,28 +206,28 @@ export default function AICoachPage() {
             <Button
               onClick={fetchSuggestions}
               variant="outline"
-              className="h-12 border-[#2A2A2A] text-white hover:bg-[#1A1A1A]"
+              className="h-12 border-border text-white hover:bg-card"
             >
-              <Sparkles className="w-4 h-4 mr-2 text-[#CDFF00]" />
+              <Sparkles className="w-4 h-4 mr-2 text-primary" />
               Suggest Meal
             </Button>
             <Button
               onClick={fetchGroceryList}
               variant="outline"
-              className="h-12 border-[#2A2A2A] text-white hover:bg-[#1A1A1A]"
+              className="h-12 border-border text-white hover:bg-card"
             >
-              <ShoppingCart className="w-4 h-4 mr-2 text-[#CDFF00]" />
+              <ShoppingCart className="w-4 h-4 mr-2 text-primary" />
               Grocery List
             </Button>
           </div>
 
           {/* Meal slot selector for suggestions */}
           <div className="flex items-center justify-center gap-2">
-            <span className="text-xs text-[#666666]">Suggesting for:</span>
+            <span className="text-xs text-dim-foreground">Suggesting for:</span>
             <select
               value={mealSlot}
               onChange={(e) => setMealSlot(e.target.value)}
-              className="text-xs bg-[#1A1A1A] text-white border border-[#2A2A2A] rounded-lg px-3 py-1.5"
+              className="text-xs bg-card text-white border border-border rounded-lg px-3 py-1.5"
             >
               <option value="breakfast">Breakfast</option>
               <option value="midMorning">Mid-Morning</option>
@@ -252,12 +252,12 @@ export default function AICoachPage() {
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <h3 className="text-lg font-semibold text-white flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-[#CDFF00]" />
+              <Sparkles className="w-5 h-5 text-primary" />
               AI Suggestions
             </h3>
             <button
               onClick={() => setActiveSection("none")}
-              className="text-xs text-[#CDFF00]"
+              className="text-xs text-primary"
             >
               Close
             </button>
@@ -265,15 +265,15 @@ export default function AICoachPage() {
 
           {suggestionsLoading ? (
             <div className="flex flex-col items-center justify-center py-12 gap-3">
-              <Loader2 className="w-8 h-8 animate-spin text-[#CDFF00]" />
-              <p className="text-sm text-[#A0A0A0]">
+              <Loader2 className="w-8 h-8 animate-spin text-primary" />
+              <p className="text-sm text-muted-foreground">
                 Finding the best meals...
               </p>
             </div>
           ) : (
             <>
               {suggestionsMessage && (
-                <p className="text-sm text-[#A0A0A0]">{suggestionsMessage}</p>
+                <p className="text-sm text-muted-foreground">{suggestionsMessage}</p>
               )}
               {suggestions?.map((s, i) => (
                 <MealSuggestionCard
@@ -294,7 +294,7 @@ export default function AICoachPage() {
             <div className="flex justify-end">
               <button
                 onClick={() => setActiveSection("none")}
-                className="text-xs text-[#CDFF00]"
+                className="text-xs text-primary"
               >
                 Close
               </button>
@@ -305,7 +305,7 @@ export default function AICoachPage() {
           ) : groceryData ? (
             <GroceryList data={groceryData} />
           ) : (
-            <p className="text-sm text-[#A0A0A0] text-center py-8">
+            <p className="text-sm text-muted-foreground text-center py-8">
               Could not generate grocery list. Try again.
             </p>
           )}

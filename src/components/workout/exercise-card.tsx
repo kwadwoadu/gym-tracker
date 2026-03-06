@@ -215,7 +215,7 @@ export function ExerciseCard({
             {formRule && exerciseId && (
               <Button
                 variant="outline"
-                className="w-full h-12 border-[#CDFF00]/30 text-[#CDFF00] hover:bg-[#CDFF00]/10"
+                className="w-full h-12 border-primary/30 text-primary hover:bg-primary/10"
                 onClick={(e) => {
                   e.stopPropagation();
                   setShowFormAnalysis(true);
@@ -232,7 +232,7 @@ export function ExerciseCard({
       {/* Form Analysis Dialog */}
       {formRule && exerciseId && (
         <Dialog open={showFormAnalysis} onOpenChange={setShowFormAnalysis}>
-          <DialogContent className="max-w-lg p-0 bg-[#0A0A0A] border-[#2A2A2A]">
+          <DialogContent className="max-w-lg p-0 bg-background border-border">
             <FormCamera
               exerciseId={exerciseId}
               exerciseName={name}

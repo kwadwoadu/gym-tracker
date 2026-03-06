@@ -60,7 +60,7 @@ export function PreWorkoutDashboard({
           <h4 className={`${LABEL.caption} text-white/40 mb-2`}>
             Warmup
           </h4>
-          <Card className="bg-[#1A1A1A] border-[#2A2A2A] divide-y divide-[#2A2A2A]">
+          <Card className="bg-card border-border divide-y divide-[#2A2A2A]">
             {warmupExercises.map((item, i) => {
               const ex = exercises.get(item.exerciseId);
               const name = ex?.name ?? item.exerciseId;
@@ -87,7 +87,7 @@ export function PreWorkoutDashboard({
       >
         <Button
           size="lg"
-          className="w-full h-14 text-base font-semibold bg-[#CDFF00] text-[#0A0A0A] hover:bg-[#CDFF00]/90 transition-colors"
+          className="w-full h-14 text-base font-semibold bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
           onClick={() => router.push(`/workout/${todayWorkout.id}`)}
         >
           <Play className="w-5 h-5 mr-2" />

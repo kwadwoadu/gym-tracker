@@ -60,14 +60,14 @@ export function CompletionStep({ profile }: CompletionStepProps) {
         className="mb-6"
       >
         <div className="relative">
-          <CheckCircle2 className="w-20 h-20 text-[#22C55E]" />
+          <CheckCircle2 className="w-20 h-20 text-gym-success" />
           <motion.div
             initial={{ scale: 0, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ delay: 0.3 }}
             className="absolute -top-2 -right-2"
           >
-            <Sparkles className="w-8 h-8 text-[#CDFF00]" />
+            <Sparkles className="w-8 h-8 text-primary" />
           </motion.div>
         </div>
       </motion.div>
@@ -107,7 +107,7 @@ export function CompletionStep({ profile }: CompletionStepProps) {
             transition={{ delay: 0.4 + index * 0.1 }}
             className="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/10"
           >
-            <item.icon className="w-5 h-5 text-[#CDFF00]" />
+            <item.icon className="w-5 h-5 text-primary" />
             <span className="text-white/50 text-sm">{item.label}</span>
             <span className="flex-1 text-right text-white font-medium text-sm">
               {item.value}

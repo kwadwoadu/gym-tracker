@@ -25,7 +25,7 @@ export function QuickActions({ onSelect, disabled }: QuickActionsProps) {
           whileTap={{ scale: 0.95 }}
           onClick={() => onSelect(action)}
           disabled={disabled}
-          className="px-3 py-1.5 rounded-full border border-[#CDFF00]/30 text-xs text-[#CDFF00] hover:bg-[#CDFF00]/10 transition-colors disabled:opacity-50"
+          className="px-3 py-1.5 rounded-full border border-primary/30 text-xs text-primary hover:bg-primary/10 transition-colors disabled:opacity-50"
         >
           {action}
         </motion.button>

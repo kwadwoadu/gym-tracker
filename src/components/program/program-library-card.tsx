@@ -52,7 +52,7 @@ export function ProgramLibraryCard({
   const getStatusBadge = () => {
     if (isActive) {
       return (
-        <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-[#CDFF00] text-black">
+        <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-primary text-black">
           ACTIVE
         </span>
       );
@@ -80,10 +80,10 @@ export function ProgramLibraryCard({
         "relative w-full p-5 rounded-2xl text-left transition-colors",
         "border-2",
         isActive
-          ? "border-[#CDFF00] bg-[#CDFF00]/5"
+          ? "border-primary bg-primary/5"
           : isArchived
-            ? "border-white/5 bg-[#1A1A1A]/60 opacity-60"
-            : "border-white/10 bg-[#1A1A1A]"
+            ? "border-white/5 bg-card/60 opacity-60"
+            : "border-white/10 bg-card"
       )}
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
@@ -141,7 +141,7 @@ export function ProgramLibraryCard({
             size="sm"
             onClick={onActivate}
             disabled={isLoading}
-            className="bg-[#CDFF00]/10 border-[#CDFF00]/30 text-[#CDFF00] hover:bg-[#CDFF00]/20"
+            className="bg-primary/10 border-primary/30 text-primary hover:bg-primary/20"
           >
             <PlayCircle className="w-4 h-4 mr-1.5" />
             Activate

@@ -143,7 +143,7 @@ export function MealPlanner({ date }: MealPlannerProps) {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <Loader2 className="w-8 h-8 animate-spin text-[#CDFF00]" />
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
       </div>
     );
   }
@@ -164,8 +164,8 @@ export function MealPlanner({ date }: MealPlannerProps) {
             exit={{ opacity: 0, y: -20 }}
             className={`fixed top-4 left-4 right-4 z-50 p-3 rounded-lg flex items-center gap-3 shadow-lg ${
               toast.type === 'success'
-                ? 'bg-[#22C55E] text-white'
-                : 'bg-[#EF4444] text-white'
+                ? 'bg-gym-success text-white'
+                : 'bg-destructive text-white'
             }`}
           >
             {toast.type === 'success' ? (
@@ -183,7 +183,7 @@ export function MealPlanner({ date }: MealPlannerProps) {
         <button
           onClick={handleCopyYesterday}
           disabled={copyPlan.isPending}
-          className="w-full flex items-center justify-center gap-2 py-3 px-4 bg-[#1A1A1A] rounded-xl border border-[#2A2A2A] text-[#A0A0A0] hover:text-white hover:bg-[#2A2A2A] transition-colors"
+          className="w-full flex items-center justify-center gap-2 py-3 px-4 bg-card rounded-xl border border-border text-muted-foreground hover:text-white hover:bg-secondary transition-colors"
         >
           {copyPlan.isPending ? (
             <Loader2 className="w-4 h-4 animate-spin" />
@@ -203,18 +203,18 @@ export function MealPlanner({ date }: MealPlannerProps) {
               const isExpanded = expandedCategories.has(category);
 
               return (
-                <div key={category} className="bg-[#1A1A1A] rounded-xl border border-[#2A2A2A] overflow-hidden">
+                <div key={category} className="bg-card rounded-xl border border-border overflow-hidden">
                   <button
                     onClick={() => toggleCategory(category)}
-                    className="w-full flex items-center justify-between px-4 py-3 hover:bg-[#2A2A2A] transition-colors"
+                    className="w-full flex items-center justify-between px-4 py-3 hover:bg-secondary transition-colors"
                   >
                     <span className="text-sm font-medium text-white">
                       {CATEGORY_LABELS[category]} ({meals.length})
                     </span>
                     {isExpanded ? (
-                      <ChevronUp className="w-4 h-4 text-[#A0A0A0]" />
+                      <ChevronUp className="w-4 h-4 text-muted-foreground" />
                     ) : (
-                      <ChevronDown className="w-4 h-4 text-[#A0A0A0]" />
+                      <ChevronDown className="w-4 h-4 text-muted-foreground" />
                     )}
                   </button>
                   <AnimatePresence>

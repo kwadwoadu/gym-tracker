@@ -74,7 +74,7 @@ export default function PublicProfilePage() {
   if (profileLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-[#CDFF00]" />
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
       </div>
     );
   }
@@ -138,7 +138,7 @@ export default function PublicProfilePage() {
             variant={isFollowingUser ? "outline" : "default"}
             className={cn(
               "w-40",
-              !isFollowingUser && "bg-[#CDFF00] text-[#0A0A0A] hover:bg-[#CDFF00]/90"
+              !isFollowingUser && "bg-primary text-primary-foreground hover:bg-primary/90"
             )}
           >
             {isPending ? (
@@ -171,7 +171,7 @@ export default function PublicProfilePage() {
             )}
             <Card className="flex-1 p-3 text-center">
               <div className="flex items-center justify-center gap-2 mb-1">
-                <Dumbbell className="w-4 h-4 text-[#CDFF00]" />
+                <Dumbbell className="w-4 h-4 text-primary" />
                 <span className="text-2xl font-bold">{stats.totalWorkouts || 0}</span>
               </div>
               <p className="text-xs text-muted-foreground">Workouts</p>
@@ -192,7 +192,7 @@ export default function PublicProfilePage() {
         {userBadges && userBadges.length > 0 && (
           <Card className="p-4">
             <div className="flex items-center gap-2 mb-3">
-              <Award className="w-5 h-5 text-[#CDFF00]" />
+              <Award className="w-5 h-5 text-primary" />
               <h2 className="font-semibold">Badges</h2>
               <Badge variant="secondary" className="ml-auto">
                 {userBadges.length}
@@ -230,7 +230,7 @@ export default function PublicProfilePage() {
         {profile.shareWorkouts && stats?.recentWorkouts && stats.recentWorkouts.length > 0 && (
           <Card className="p-4">
             <div className="flex items-center gap-2 mb-3">
-              <Clock className="w-5 h-5 text-[#CDFF00]" />
+              <Clock className="w-5 h-5 text-primary" />
               <h2 className="font-semibold">Recent Activity</h2>
             </div>
             <div className="space-y-3">

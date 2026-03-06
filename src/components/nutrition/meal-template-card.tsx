@@ -45,10 +45,10 @@ export function MealTemplateCard({ meal, isDragOverlay, onQuickAdd }: MealTempla
       style={style}
       onClick={handleCardClick}
       className={cn(
-        'bg-[#1A1A1A] rounded-lg p-3 border border-[#2A2A2A] transition-all cursor-pointer',
+        'bg-card rounded-lg p-3 border border-border transition-all cursor-pointer',
         isDragging && !isDragOverlay && 'opacity-50',
-        isDragOverlay && 'shadow-xl shadow-[#CDFF00]/20 border-[#CDFF00] scale-105',
-        isExpanded && 'bg-[#1E1E1E]'
+        isDragOverlay && 'shadow-xl shadow-[#CDFF00]/20 border-primary scale-105',
+        isExpanded && 'bg-card'
       )}
     >
       <div className="flex items-start gap-2">
@@ -58,22 +58,22 @@ export function MealTemplateCard({ meal, isDragOverlay, onQuickAdd }: MealTempla
           {...listeners}
           {...attributes}
           onClick={(e) => e.stopPropagation()}
-          className="touch-none cursor-grab active:cursor-grabbing w-8 h-8 -ml-1 flex items-center justify-center rounded hover:bg-[#2A2A2A] transition-colors"
+          className="touch-none cursor-grab active:cursor-grabbing w-8 h-8 -ml-1 flex items-center justify-center rounded hover:bg-secondary transition-colors"
         >
-          <GripVertical className="w-4 h-4 text-[#666666]" />
+          <GripVertical className="w-4 h-4 text-dim-foreground" />
         </button>
 
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
-            <span className="text-xs font-bold text-[#CDFF00]">{meal.id}</span>
+            <span className="text-xs font-bold text-primary">{meal.id}</span>
             <span className="text-sm font-medium text-white truncate">{meal.name}</span>
           </div>
-          <div className="flex items-center gap-3 text-xs text-[#A0A0A0]">
-            <span className="text-[#CDFF00] font-semibold">{meal.protein}g P</span>
+          <div className="flex items-center gap-3 text-xs text-muted-foreground">
+            <span className="text-primary font-semibold">{meal.protein}g P</span>
             <span>{meal.carbs}g C</span>
             <span>{meal.fat}g F</span>
           </div>
-          <div className="flex items-center gap-2 mt-1 text-xs text-[#666666]">
+          <div className="flex items-center gap-2 mt-1 text-xs text-dim-foreground">
             <span>{meal.calories} cal</span>
             <span>-</span>
             <span>{meal.prepTime}</span>
@@ -84,7 +84,7 @@ export function MealTemplateCard({ meal, isDragOverlay, onQuickAdd }: MealTempla
         {onQuickAdd && (
           <button
             onClick={handleQuickAddClick}
-            className="w-7 h-7 rounded-md bg-[#2A2A2A] flex items-center justify-center text-[#666666] hover:bg-[#CDFF00] hover:text-black transition-colors flex-shrink-0"
+            className="w-7 h-7 rounded-md bg-secondary flex items-center justify-center text-dim-foreground hover:bg-primary hover:text-black transition-colors flex-shrink-0"
           >
             <Plus className="w-4 h-4" />
           </button>
@@ -92,7 +92,7 @@ export function MealTemplateCard({ meal, isDragOverlay, onQuickAdd }: MealTempla
 
         {/* Expand Indicator */}
         {meal.ingredients && meal.ingredients.length > 0 && (
-          <div className="flex-shrink-0 text-[#666666]">
+          <div className="flex-shrink-0 text-dim-foreground">
             {isExpanded ? (
               <ChevronUp className="w-4 h-4" />
             ) : (
@@ -112,12 +112,12 @@ export function MealTemplateCard({ meal, isDragOverlay, onQuickAdd }: MealTempla
             transition={{ duration: 0.2 }}
             className="overflow-hidden"
           >
-            <div className="mt-3 pt-3 border-t border-[#2A2A2A]">
-              <p className="text-xs font-medium text-[#A0A0A0] mb-2">Ingredients:</p>
+            <div className="mt-3 pt-3 border-t border-border">
+              <p className="text-xs font-medium text-muted-foreground mb-2">Ingredients:</p>
               <ul className="space-y-1">
                 {meal.ingredients.map((ingredient, index) => (
-                  <li key={index} className="text-xs text-[#888888] flex items-start gap-2">
-                    <span className="text-[#CDFF00]">-</span>
+                  <li key={index} className="text-xs text-muted-foreground flex items-start gap-2">
+                    <span className="text-primary">-</span>
                     <span>{ingredient}</span>
                   </li>
                 ))}
@@ -133,16 +133,16 @@ export function MealTemplateCard({ meal, isDragOverlay, onQuickAdd }: MealTempla
 // Simplified version for drag overlay
 export function DragOverlayCard({ meal }: { meal: MealTemplate }) {
   return (
-    <div className="bg-[#1A1A1A] rounded-lg p-3 border-2 border-[#CDFF00] shadow-xl shadow-[#CDFF00]/20">
+    <div className="bg-card rounded-lg p-3 border-2 border-primary shadow-xl shadow-[#CDFF00]/20">
       <div className="flex items-start gap-2">
-        <GripVertical className="w-4 h-4 text-[#CDFF00] flex-shrink-0 mt-1" />
+        <GripVertical className="w-4 h-4 text-primary flex-shrink-0 mt-1" />
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
-            <span className="text-xs font-bold text-[#CDFF00]">{meal.id}</span>
+            <span className="text-xs font-bold text-primary">{meal.id}</span>
             <span className="text-sm font-medium text-white truncate">{meal.name}</span>
           </div>
-          <div className="flex items-center gap-3 text-xs text-[#A0A0A0]">
-            <span className="text-[#CDFF00] font-semibold">{meal.protein}g P</span>
+          <div className="flex items-center gap-3 text-xs text-muted-foreground">
+            <span className="text-primary font-semibold">{meal.protein}g P</span>
             <span>{meal.carbs}g C</span>
             <span>{meal.fat}g F</span>
           </div>

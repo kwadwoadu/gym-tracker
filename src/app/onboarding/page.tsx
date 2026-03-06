@@ -199,7 +199,7 @@ export default function OnboardingPage() {
 
       {/* Skip Confirmation Dialog */}
       <AlertDialog open={showSkipDialog} onOpenChange={setShowSkipDialog}>
-        <AlertDialogContent className="bg-[#1A1A1A] border-white/10">
+        <AlertDialogContent className="bg-card border-white/10">
           <AlertDialogHeader>
             <AlertDialogTitle className="text-white">Skip personalization?</AlertDialogTitle>
             <AlertDialogDescription className="text-white/60">
@@ -212,7 +212,7 @@ export default function OnboardingPage() {
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={handleConfirmSkip}
-              className="bg-[#CDFF00] text-black hover:bg-[#b8e600]"
+              className="bg-primary text-black hover:bg-primary/90"
             >
               Skip for Now
             </AlertDialogAction>

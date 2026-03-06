@@ -2,8 +2,8 @@
 
 import { type MealSlots, calculateTotalMacros } from '@/data/meal-templates';
 import { cn } from '@/lib/utils';
-import { Target, Flame, Dumbbell, Droplets } from 'lucide-react';
 import { useNutritionProfile } from '@/lib/queries';
+import { ProteinRing } from './protein-ring';
 
 interface MacrosSummaryProps {
   slots: MealSlots;
@@ -17,6 +17,21 @@ const DEFAULT_TARGETS = {
   fat: 89,
   calories: 2800,
 };
+
+// Static color config per macro type
+const MACRO_COLORS = {
+  protein: 'text-primary',
+  carbs: 'text-gym-blue',
+  fat: 'text-gym-warning',
+  calories: 'text-foreground',
+} as const;
+
+const MACRO_BAR_COLORS = {
+  protein: 'bg-primary',
+  carbs: 'bg-gym-blue',
+  fat: 'bg-gym-warning',
+  calories: 'bg-foreground',
+} as const;
 
 export function MacrosSummary({ slots, dayType = 'training' }: MacrosSummaryProps) {
   const { data: profile } = useNutritionProfile();
@@ -32,63 +47,45 @@ export function MacrosSummary({ slots, dayType = 'training' }: MacrosSummaryProp
       }
     : DEFAULT_TARGETS;
 
-  const getProgressColor = (current: number, target: number) => {
-    const ratio = current / target;
-    if (ratio >= 0.95) return 'text-[#22C55E]';
-    if (ratio >= 0.7) return 'text-[#F59E0B]';
-    return 'text-[#A0A0A0]';
-  };
-
-  const proteinRatio = totals.protein / TARGETS.protein;
-
   return (
-    <div className="bg-[#1A1A1A] rounded-xl p-4 border border-[#2A2A2A]">
-      {/* Main protein display */}
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-[#CDFF00]/20 flex items-center justify-center">
-            <Target className="w-5 h-5 text-[#CDFF00]" />
-          </div>
-          <div>
-            <p className="text-sm text-[#A0A0A0]">Protein</p>
-            <p className={cn('text-2xl font-bold', getProgressColor(totals.protein, TARGETS.protein))}>
-              {totals.protein}g <span className="text-sm text-[#666666]">/ {TARGETS.protein}g</span>
-            </p>
-          </div>
-        </div>
-        <div
-          className={cn(
-            'px-3 py-1 rounded-full text-xs font-medium',
-            proteinRatio >= 1
-              ? 'bg-[#22C55E]/20 text-[#22C55E]'
-              : proteinRatio >= 0.8
-                ? 'bg-[#F59E0B]/20 text-[#F59E0B]'
-                : 'bg-[#2A2A2A] text-[#666666]'
-          )}
-        >
-          {Math.round(proteinRatio * 100)}%
-        </div>
+    <div className="bg-card rounded-xl p-4 border border-border">
+      {/* Protein ring centered */}
+      <div className="flex justify-center mb-4">
+        <ProteinRing current={totals.protein} target={TARGETS.protein} size={120} />
       </div>
 
-      {/* Other macros */}
-      <div className="grid grid-cols-3 gap-4">
+      {/* Macro grid - label above value, color-coded */}
+      <div className="grid grid-cols-4 gap-3">
         <MacroItem
-          icon={Dumbbell}
+          label="Protein"
+          current={totals.protein}
+          target={TARGETS.protein}
+          colorClass={MACRO_COLORS.protein}
+          barClass={MACRO_BAR_COLORS.protein}
+          unit="g"
+        />
+        <MacroItem
           label="Carbs"
           current={totals.carbs}
           target={TARGETS.carbs}
+          colorClass={MACRO_COLORS.carbs}
+          barClass={MACRO_BAR_COLORS.carbs}
+          unit="g"
         />
         <MacroItem
-          icon={Droplets}
           label="Fat"
           current={totals.fat}
           target={TARGETS.fat}
+          colorClass={MACRO_COLORS.fat}
+          barClass={MACRO_BAR_COLORS.fat}
+          unit="g"
         />
         <MacroItem
-          icon={Flame}
           label="Calories"
           current={totals.calories}
           target={TARGETS.calories}
+          colorClass={MACRO_COLORS.calories}
+          barClass={MACRO_BAR_COLORS.calories}
           unit=""
         />
       </div>
@@ -97,32 +94,35 @@ export function MacrosSummary({ slots, dayType = 'training' }: MacrosSummaryProp
 }
 
 function MacroItem({
-  icon: Icon,
   label,
   current,
   target,
-  unit = 'g',
+  colorClass,
+  barClass,
+  unit,
 }: {
-  icon: React.ElementType;
   label: string;
   current: number;
   target: number;
-  unit?: string;
+  colorClass: string;
+  barClass: string;
+  unit: string;
 }) {
-  const ratio = current / target;
-  const getColor = () => {
-    if (ratio >= 0.95) return 'text-[#22C55E]';
-    if (ratio >= 0.7) return 'text-[#F59E0B]';
-    return 'text-[#A0A0A0]';
-  };
+  const ratio = Math.min(current / target, 1);
 
   return (
     <div className="text-center">
-      <Icon className="w-4 h-4 text-[#666666] mx-auto mb-1" />
-      <p className={cn('text-lg font-semibold', getColor())}>
+      <p className="text-xs text-muted-foreground mb-1">{label}</p>
+      <p className={cn('text-lg font-semibold', colorClass)}>
         {current}{unit}
       </p>
-      <p className="text-xs text-[#666666]">{label}</p>
+      <p className="text-[10px] text-dim-foreground mb-1.5">/ {target}{unit}</p>
+      <div className="h-1 bg-secondary rounded-full overflow-hidden">
+        <div
+          className={cn('h-full rounded-full transition-all duration-300', barClass)}
+          style={{ width: `${ratio * 100}%` }}
+        />
+      </div>
     </div>
   );
 }

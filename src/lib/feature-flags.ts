@@ -6,7 +6,7 @@
  * @param email - User's email address (from Clerk)
  * @returns true - Nutrition is now open to all users
  */
-export function canAccessNutrition(email: string | null | undefined): boolean {
+export function canAccessNutrition(_email: string | null | undefined): boolean {
   // SetFlow v2.0: Nutrition is now open to all users
   return true;
 }
@@ -19,8 +19,8 @@ export function canAccessNutrition(email: string | null | undefined): boolean {
  * @returns true - Nutrition is now open to all users
  */
 export function canAccessNutritionByClerkId(
-  clerkId: string | null | undefined,
-  email: string | null | undefined
+  _clerkId: string | null | undefined,
+  _email: string | null | undefined
 ): boolean {
   // SetFlow v2.0: Nutrition is now open to all users
   return true;

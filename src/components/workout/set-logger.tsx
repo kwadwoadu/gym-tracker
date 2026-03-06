@@ -443,14 +443,14 @@ export function SetLogger({
         <div className="mb-6">
           <Button
             variant="outline"
-            className="w-full h-12 border-[#CDFF00]/30 text-[#CDFF00] hover:bg-[#CDFF00]/10"
+            className="w-full h-12 border-primary/30 text-primary hover:bg-primary/10"
             onClick={() => setShowFormAnalysis(true)}
           >
             <Camera className="w-4 h-4 mr-2" />
             Analyze Form
           </Button>
           <Dialog open={showFormAnalysis} onOpenChange={setShowFormAnalysis}>
-            <DialogContent className="max-w-lg p-0 bg-[#0A0A0A] border-[#2A2A2A]">
+            <DialogContent className="max-w-lg p-0 bg-background border-border">
               <DialogTitle className="sr-only">Form Analysis</DialogTitle>
               <FormCamera
                 exerciseId={exerciseId}

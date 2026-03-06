@@ -64,14 +64,14 @@ export function OnboardingCarousel({
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-border">
         <div className="w-20">
           {canScrollPrev && (
             <motion.button
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               onClick={scrollPrev}
-              className="flex items-center gap-1 text-white/60 hover:text-white transition-colors"
+              className="flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors"
             >
               <ChevronLeft className="w-5 h-5" />
               <span className="text-sm">Back</span>
@@ -83,7 +83,7 @@ export function OnboardingCarousel({
           {!isLastStep && (
             <button
               onClick={onSkip}
-              className="text-sm text-white/40 hover:text-white/60 transition-colors"
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
             >
               Skip
             </button>
@@ -118,11 +118,11 @@ export function OnboardingCarousel({
       </div>
 
       {/* Footer CTA */}
-      <div className="p-4 border-t border-white/10">
+      <div className="p-4 border-t border-border">
         <Button
           onClick={scrollNext}
           disabled={!canProceedCurrent}
-          className="w-full h-14 text-lg font-semibold bg-[#CDFF00] hover:bg-[#b8e600] text-black disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full h-14 text-lg font-semibold bg-primary hover:bg-primary/90 text-primary-foreground disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isLastStep ? "Start Training" : "Continue"}
         </Button>

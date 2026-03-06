@@ -31,7 +31,7 @@ export function ScheduleStep({ daysPerWeek, onSelect }: ScheduleStepProps) {
           animate={{ scale: 1, opacity: 1 }}
           className="text-center mb-10"
         >
-          <div className="text-7xl font-bold text-[#CDFF00] mb-2">
+          <div className="text-7xl font-bold text-primary mb-2">
             {daysPerWeek}
           </div>
           <div className="text-lg text-white/60">days per week</div>

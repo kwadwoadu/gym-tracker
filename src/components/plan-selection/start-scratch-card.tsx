@@ -17,8 +17,8 @@ export function StartScratchCard({ isSelected, onSelect }: StartScratchCardProps
         "relative w-full p-5 rounded-2xl text-left transition-colors",
         "border-2 border-dashed",
         isSelected
-          ? "border-[#CDFF00] bg-[#CDFF00]/10"
-          : "border-white/20 bg-[#1A1A1A]/50 hover:border-white/30"
+          ? "border-primary bg-primary/10"
+          : "border-white/20 bg-card/50 hover:border-white/30"
       )}
       whileTap={{ scale: 0.98 }}
       initial={{ opacity: 0, y: 20 }}
@@ -28,7 +28,7 @@ export function StartScratchCard({ isSelected, onSelect }: StartScratchCardProps
       <div
         className={cn(
           "absolute top-4 right-4 w-6 h-6 rounded-full flex items-center justify-center",
-          isSelected ? "bg-[#CDFF00]" : "border-2 border-white/20"
+          isSelected ? "bg-primary" : "border-2 border-white/20"
         )}
       >
         {isSelected && <Check className="w-4 h-4 text-black" />}

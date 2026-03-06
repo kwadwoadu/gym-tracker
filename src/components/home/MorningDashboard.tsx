@@ -29,10 +29,10 @@ export function MorningDashboard({
     <div className="px-4 space-y-5">
       {/* State indicator */}
       <div className="flex items-center gap-2">
-        <div className="w-6 h-6 rounded-full bg-[#CDFF00]/20 flex items-center justify-center">
-          <Sun className="w-3.5 h-3.5 text-[#CDFF00]" />
+        <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center">
+          <Sun className="w-3.5 h-3.5 text-primary" />
         </div>
-        <span className="text-sm font-medium text-[#CDFF00]">Good morning</span>
+        <span className="text-sm font-medium text-primary">Good morning</span>
       </div>
 
       {/* Streak risk banner */}
@@ -63,16 +63,16 @@ export function MorningDashboard({
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
       >
-        <Card className="bg-[#1A1A1A] border-[#2A2A2A] p-5">
+        <Card className="bg-card border-border p-5">
           <div className="flex items-center justify-between">
             <span className="text-sm text-white/50">This Week</span>
             <span className="text-sm font-medium text-white">
               {weeklyWorkouts}/{weeklyTarget} workouts
             </span>
           </div>
-          <div className="mt-2 h-2 bg-[#2A2A2A] rounded-full overflow-hidden">
+          <div className="mt-2 h-2 bg-secondary rounded-full overflow-hidden">
             <div
-              className="h-full bg-[#CDFF00] rounded-full transition-all"
+              className="h-full bg-primary rounded-full transition-all"
               style={{
                 width: `${Math.min((weeklyWorkouts / Math.max(weeklyTarget, 1)) * 100, 100)}%`,
               }}
@@ -89,7 +89,7 @@ export function MorningDashboard({
       >
         <Button
           size="lg"
-          className="w-full h-14 text-base font-semibold bg-[#CDFF00] text-[#0A0A0A] hover:bg-[#CDFF00]/90 transition-colors"
+          className="w-full h-14 text-base font-semibold bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
           onClick={() => router.push(`/workout/${todayWorkout.id}`)}
         >
           <Play className="w-5 h-5 mr-2" />

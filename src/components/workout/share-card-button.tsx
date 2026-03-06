@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Share2, Download, X, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -39,7 +39,7 @@ export function ShareCardButton({
   const [format, setFormat] = useState<CardFormat>("stories");
   const [showPreview, setShowPreview] = useState(false);
 
-  const cardData: ShareCardData = {
+  const cardData: ShareCardData = useMemo(() => ({
     workoutName,
     date,
     totalVolume,
@@ -47,7 +47,7 @@ export function ShareCardButton({
     topSets,
     prs,
     streakDays,
-  };
+  }), [workoutName, date, totalVolume, duration, topSets, prs, streakDays]);
 
   const handleGenerate = useCallback(async () => {
     setIsGenerating(true);
@@ -143,7 +143,7 @@ export function ShareCardButton({
               className="w-full max-w-sm"
               onClick={(e) => e.stopPropagation()}
             >
-              <Card className="bg-[#1A1A1A] border-border overflow-hidden">
+              <Card className="bg-card border-border overflow-hidden">
                 {/* Header */}
                 <div className="flex items-center justify-between p-4 border-b border-white/10">
                   <h3 className="text-base font-semibold text-white">Share Card</h3>
@@ -164,7 +164,7 @@ export function ShareCardButton({
                       onClick={() => handleFormatChange(f)}
                       className={`flex-1 py-2 text-sm font-medium rounded-lg transition-colors ${
                         format === f
-                          ? "bg-[#CDFF00] text-black"
+                          ? "bg-primary text-black"
                           : "bg-white/5 text-white/60 hover:bg-white/10"
                       }`}
                     >
@@ -187,7 +187,7 @@ export function ShareCardButton({
                   )}
                   {isGenerating && (
                     <div className="flex items-center justify-center py-12">
-                      <Loader2 className="w-8 h-8 animate-spin text-[#CDFF00]" />
+                      <Loader2 className="w-8 h-8 animate-spin text-primary" />
                     </div>
                   )}
                 </div>
@@ -204,7 +204,7 @@ export function ShareCardButton({
                     Save
                   </Button>
                   <Button
-                    className="flex-1 h-12 gap-2 bg-[#CDFF00] text-black hover:bg-[#b8e600] font-semibold"
+                    className="flex-1 h-12 gap-2 bg-primary text-black hover:bg-primary/90 font-semibold"
                     onClick={handleShare}
                     disabled={!blob}
                   >

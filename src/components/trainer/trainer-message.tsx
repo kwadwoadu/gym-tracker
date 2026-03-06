@@ -21,13 +21,13 @@ export function TrainerMessage({ role, content, timestamp }: TrainerMessageProps
       {/* Avatar */}
       <div
         className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
-          isAI ? "bg-[#CDFF00]/20" : "bg-[#2A2A2A]"
+          isAI ? "bg-primary/20" : "bg-secondary"
         }`}
       >
         {isAI ? (
-          <Bot className="w-4 h-4 text-[#CDFF00]" />
+          <Bot className="w-4 h-4 text-primary" />
         ) : (
-          <User className="w-4 h-4 text-[#A0A0A0]" />
+          <User className="w-4 h-4 text-muted-foreground" />
         )}
       </div>
 
@@ -35,15 +35,15 @@ export function TrainerMessage({ role, content, timestamp }: TrainerMessageProps
       <div
         className={`max-w-[80%] rounded-2xl px-4 py-3 ${
           isAI
-            ? "bg-[#1A1A1A] border-l-2 border-[#CDFF00]/30"
-            : "bg-[#2A2A2A]"
+            ? "bg-card border-l-2 border-primary/30"
+            : "bg-secondary"
         }`}
       >
         <div className="text-sm text-white whitespace-pre-wrap leading-relaxed">
           {content}
         </div>
         {timestamp && (
-          <p className="text-[10px] text-[#666666] mt-1.5">
+          <p className="text-[10px] text-dim-foreground mt-1.5">
             {timestamp.toLocaleTimeString([], {
               hour: "2-digit",
               minute: "2-digit",

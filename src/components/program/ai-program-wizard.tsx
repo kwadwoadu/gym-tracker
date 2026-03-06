@@ -115,9 +115,9 @@ export function AIProgramWizard({ onClose, onProgramCreated }: AIProgramWizardPr
   }, [generatedProgram, onProgramCreated]);
 
   return (
-    <div className="fixed inset-0 z-50 bg-[#0A0A0A] overflow-y-auto">
+    <div className="fixed inset-0 z-50 bg-background overflow-y-auto">
       {/* Header */}
-      <header className="sticky top-0 z-10 bg-[#0A0A0A]/95 backdrop-blur-sm border-b border-[#2A2A2A]">
+      <header className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm border-b border-border">
         <div className="flex items-center gap-3 px-4 py-3">
           <Button
             variant="ghost"
@@ -128,7 +128,7 @@ export function AIProgramWizard({ onClose, onProgramCreated }: AIProgramWizardPr
             <ArrowLeft className="w-5 h-5" />
           </Button>
           <div className="flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-[#CDFF00]" />
+            <Sparkles className="w-5 h-5 text-primary" />
             <h1 className="text-lg font-bold">AI Program Generator</h1>
           </div>
         </div>
@@ -146,7 +146,7 @@ export function AIProgramWizard({ onClose, onProgramCreated }: AIProgramWizardPr
               className="space-y-6"
             >
               {/* Profile summary */}
-              <Card className="bg-[#1A1A1A] border-[#2A2A2A] p-4 space-y-3">
+              <Card className="bg-card border-border p-4 space-y-3">
                 <h2 className="text-sm font-semibold text-white/50 uppercase tracking-wider">
                   Your Profile
                 </h2>
@@ -191,8 +191,8 @@ export function AIProgramWizard({ onClose, onProgramCreated }: AIProgramWizardPr
                         onClick={() => setFocusArea(opt)}
                         className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                           focusArea === opt
-                            ? "bg-[#CDFF00] text-black"
-                            : "bg-[#1A1A1A] text-white/60 border border-[#2A2A2A]"
+                            ? "bg-primary text-black"
+                            : "bg-card text-white/60 border border-border"
                         }`}
                       >
                         {opt}
@@ -211,8 +211,8 @@ export function AIProgramWizard({ onClose, onProgramCreated }: AIProgramWizardPr
                         onClick={() => setMesocycleWeeks(weeks)}
                         className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${
                           mesocycleWeeks === weeks
-                            ? "bg-[#CDFF00] text-black"
-                            : "bg-[#1A1A1A] text-white/60 border border-[#2A2A2A]"
+                            ? "bg-primary text-black"
+                            : "bg-card text-white/60 border border-border"
                         }`}
                       >
                         {weeks}w
@@ -231,8 +231,8 @@ export function AIProgramWizard({ onClose, onProgramCreated }: AIProgramWizardPr
                         onClick={() => setSessionMinutes(mins)}
                         className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${
                           sessionMinutes === mins
-                            ? "bg-[#CDFF00] text-black"
-                            : "bg-[#1A1A1A] text-white/60 border border-[#2A2A2A]"
+                            ? "bg-primary text-black"
+                            : "bg-card text-white/60 border border-border"
                         }`}
                       >
                         {mins}m
@@ -244,7 +244,7 @@ export function AIProgramWizard({ onClose, onProgramCreated }: AIProgramWizardPr
 
               {/* Generate button */}
               <Button
-                className="w-full h-14 bg-[#CDFF00] hover:bg-[#CDFF00]/90 text-black font-bold text-lg"
+                className="w-full h-14 bg-primary hover:bg-primary/90 text-black font-bold text-lg"
                 onClick={handleGenerate}
                 disabled={!navigator.onLine}
               >
@@ -290,14 +290,14 @@ export function AIProgramWizard({ onClose, onProgramCreated }: AIProgramWizardPr
               <div className="flex gap-3">
                 <Button
                   variant="outline"
-                  className="flex-1 h-12 border-[#2A2A2A]"
+                  className="flex-1 h-12 border-border"
                   onClick={handleGenerate}
                 >
                   <RefreshCw className="w-4 h-4 mr-2" />
                   Regenerate
                 </Button>
                 <Button
-                  className="flex-1 h-12 bg-[#CDFF00] hover:bg-[#CDFF00]/90 text-black font-bold"
+                  className="flex-1 h-12 bg-primary hover:bg-primary/90 text-black font-bold"
                   onClick={handleSaveProgram}
                   disabled={isSaving}
                 >
@@ -330,12 +330,12 @@ export function AIProgramWizard({ onClose, onProgramCreated }: AIProgramWizardPr
                 <Button
                   variant="outline"
                   onClick={() => setStep("profile")}
-                  className="border-[#2A2A2A]"
+                  className="border-border"
                 >
                   Back to Settings
                 </Button>
                 <Button
-                  className="bg-[#CDFF00] hover:bg-[#CDFF00]/90 text-black"
+                  className="bg-primary hover:bg-primary/90 text-black"
                   onClick={handleGenerate}
                 >
                   Try Again

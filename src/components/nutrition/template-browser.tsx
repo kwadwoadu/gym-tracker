@@ -69,17 +69,17 @@ export function TemplateBrowser() {
   return (
     <div className="space-y-4">
       <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as "meals" | "supplements")}>
-        <TabsList className="w-full flex overflow-x-auto flex-nowrap bg-[#1A1A1A] p-1 rounded-lg">
+        <TabsList className="w-full flex overflow-x-auto flex-nowrap bg-card p-1 rounded-lg">
           <TabsTrigger
             value="meals"
-            className="flex items-center gap-2 whitespace-nowrap flex-shrink-0 data-[state=active]:bg-[#CDFF00] data-[state=active]:text-[#0A0A0A]"
+            className="flex items-center gap-2 whitespace-nowrap flex-shrink-0 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
           >
             <UtensilsCrossed className="w-4 h-4" />
             Meals ({MEAL_TEMPLATES.length})
           </TabsTrigger>
           <TabsTrigger
             value="supplements"
-            className="flex items-center gap-2 whitespace-nowrap flex-shrink-0 data-[state=active]:bg-[#CDFF00] data-[state=active]:text-[#0A0A0A]"
+            className="flex items-center gap-2 whitespace-nowrap flex-shrink-0 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
           >
             <Pill className="w-4 h-4" />
             Supplements
@@ -96,7 +96,7 @@ export function TemplateBrowser() {
                 variant={selectedCategory === cat ? "default" : "outline"}
                 size="sm"
                 onClick={() => setSelectedCategory(cat)}
-                className={`flex-shrink-0 whitespace-nowrap ${selectedCategory === cat ? "bg-[#CDFF00] text-[#0A0A0A]" : ""}`}
+                className={`flex-shrink-0 whitespace-nowrap ${selectedCategory === cat ? "bg-primary text-primary-foreground" : ""}`}
               >
                 {CATEGORY_LABELS[cat]}
               </Button>
@@ -110,7 +110,7 @@ export function TemplateBrowser() {
               const isSaving = saveMealMutation.isPending && saveMealMutation.variables?.id === meal.id;
 
               return (
-                <Card key={meal.id} className="p-4 bg-[#1A1A1A] border-border">
+                <Card key={meal.id} className="p-4 bg-card border-border">
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
@@ -122,7 +122,7 @@ export function TemplateBrowser() {
 
                       {/* Macros */}
                       <div className="flex gap-3 text-sm text-muted-foreground mb-2">
-                        <span className="text-[#CDFF00]">{meal.protein}g P</span>
+                        <span className="text-primary">{meal.protein}g P</span>
                         <span>{meal.carbs}g C</span>
                         <span>{meal.fat}g F</span>
                         <span className="text-white">{meal.calories} kcal</span>
@@ -181,7 +181,7 @@ export function TemplateBrowser() {
                 variant={selectedDayType === type ? "default" : "outline"}
                 size="sm"
                 onClick={() => setSelectedDayType(type)}
-                className={`flex-shrink-0 whitespace-nowrap ${selectedDayType === type ? "bg-[#CDFF00] text-[#0A0A0A]" : ""}`}
+                className={`flex-shrink-0 whitespace-nowrap ${selectedDayType === type ? "bg-primary text-primary-foreground" : ""}`}
               >
                 {DAY_TYPE_LABELS[type]}
               </Button>
@@ -191,7 +191,7 @@ export function TemplateBrowser() {
           {/* Supplement Blocks */}
           <div className="space-y-4">
             {supplementBlocks.map((block) => (
-              <Card key={block.id} className="p-4 bg-[#1A1A1A] border-border">
+              <Card key={block.id} className="p-4 bg-card border-border">
                 <div className="flex items-center gap-2 mb-3">
                   <span className="text-xl">{block.icon}</span>
                   <div>

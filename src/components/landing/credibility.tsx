@@ -24,8 +24,8 @@ const TRUST_SIGNALS = [
 
 export function Credibility() {
   return (
-    <section className="py-24 px-4 bg-[#0A0A0A] relative overflow-hidden">
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-[#CDFF00]/3 rounded-full blur-3xl pointer-events-none" />
+    <section className="py-24 px-4 bg-background relative overflow-hidden">
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-primary/3 rounded-full blur-3xl pointer-events-none" />
 
       <div className="relative z-10 max-w-3xl mx-auto text-center">
         <motion.div
@@ -35,7 +35,7 @@ export function Credibility() {
           transition={{ duration: 0.5 }}
         >
           <h2 className={`${HEADING.h2} mb-4`}>
-            Built by <span className="text-[#CDFF00]">Lifters</span>, for
+            Built by <span className="text-primary">Lifters</span>, for
             Lifters
           </h2>
           <p className="text-lg text-white/60 mb-12 max-w-xl mx-auto">
@@ -55,7 +55,7 @@ export function Credibility() {
               transition={{ duration: 0.5, delay: i * 0.1 }}
               className="p-5 rounded-2xl bg-white/5 border border-white/10"
             >
-              <signal.icon className="w-6 h-6 text-[#CDFF00] mx-auto mb-3" />
+              <signal.icon className="w-6 h-6 text-primary mx-auto mb-3" />
               <p className="font-semibold text-white text-sm mb-1">
                 {signal.label}
               </p>

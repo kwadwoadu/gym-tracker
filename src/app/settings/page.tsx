@@ -125,7 +125,7 @@ export default function ProfileSettingsPage() {
       <h2 className="text-[28px] font-bold tracking-tight text-white">Profile</h2>
 
       {/* Account Card */}
-      <Card className="bg-[#1A1A1A] border-[#2A2A2A] p-4">
+      <Card className="bg-card border-border p-4">
         <div className="flex items-center gap-3">
           {user?.imageUrl && (
             <Image
@@ -147,7 +147,7 @@ export default function ProfileSettingsPage() {
         </div>
 
         {stats && (
-          <div className="flex justify-around mt-4 pt-4 border-t border-[#2A2A2A]">
+          <div className="flex justify-around mt-4 pt-4 border-t border-border">
             <div className="flex flex-col items-center">
               <div className="flex items-center gap-1.5 text-orange-500">
                 <Flame className="w-4 h-4" />
@@ -182,13 +182,13 @@ export default function ProfileSettingsPage() {
 
       {/* Profile Info - navigate to sub-page */}
       <Card
-        className="bg-[#1A1A1A] border-[#2A2A2A] p-4 cursor-pointer active:scale-[0.98] transition-transform"
+        className="bg-card border-border p-4 cursor-pointer active:scale-[0.98] transition-transform"
         onClick={() => router.push("/settings/profile")}
       >
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-[#CDFF00]/10 flex items-center justify-center">
-              <User className="w-5 h-5 text-[#CDFF00]" />
+            <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+              <User className="w-5 h-5 text-primary" />
             </div>
             <div>
               <p className="font-medium text-white">Edit Profile</p>
@@ -201,13 +201,13 @@ export default function ProfileSettingsPage() {
 
       {/* Notifications */}
       <Card
-        className="bg-[#1A1A1A] border-[#2A2A2A] p-4 cursor-pointer active:scale-[0.98] transition-transform"
+        className="bg-card border-border p-4 cursor-pointer active:scale-[0.98] transition-transform"
         onClick={() => router.push("/settings/notifications")}
       >
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-[#CDFF00]/10 flex items-center justify-center">
-              <Bell className="w-5 h-5 text-[#CDFF00]" />
+            <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+              <Bell className="w-5 h-5 text-primary" />
             </div>
             <div>
               <p className="font-medium text-white">Notifications</p>
@@ -219,7 +219,7 @@ export default function ProfileSettingsPage() {
       </Card>
 
       {/* Privacy */}
-      <Card className="bg-[#1A1A1A] border-[#2A2A2A]">
+      <Card className="bg-card border-border">
         <CardHeader className="pb-4">
           <CardTitle className="text-lg">Privacy</CardTitle>
           <CardDescription>Choose what to share with followers</CardDescription>

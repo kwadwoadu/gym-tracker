@@ -31,11 +31,11 @@ export function ActivateModal({
 }: ActivateModalProps) {
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent className="bg-[#1A1A1A] border-white/10">
+      <AlertDialogContent className="bg-card border-white/10">
         <AlertDialogHeader>
           <div className="flex items-center gap-3 mb-2">
-            <div className="p-2 rounded-full bg-[#CDFF00]/20">
-              <PlayCircle className="w-5 h-5 text-[#CDFF00]" />
+            <div className="p-2 rounded-full bg-primary/20">
+              <PlayCircle className="w-5 h-5 text-primary" />
             </div>
             <AlertDialogTitle className="text-white">
               Activate Program?
@@ -65,7 +65,7 @@ export function ActivateModal({
           </AlertDialogCancel>
           <AlertDialogAction
             onClick={onConfirm}
-            className="bg-[#CDFF00] text-black hover:bg-[#CDFF00]/80"
+            className="bg-primary text-black hover:bg-primary/80"
             disabled={isLoading}
           >
             {isLoading ? "Activating..." : "Activate"}

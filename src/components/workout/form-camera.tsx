@@ -320,9 +320,9 @@ export function FormCamera({
   }
 
   return (
-    <div className="bg-[#0A0A0A] rounded-xl border border-[#2A2A2A] overflow-hidden">
+    <div className="bg-background rounded-xl border border-border overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-[#2A2A2A]">
+      <div className="flex items-center justify-between p-4 border-b border-border">
         <h3 className="text-sm font-semibold text-white">
           {viewState === "setup"
             ? `Form Analysis - ${exerciseName}`
@@ -337,12 +337,12 @@ export function FormCamera({
               onClose();
             }
           }}
-          className="w-8 h-8 flex items-center justify-center rounded-full bg-[#1A1A1A]"
+          className="w-8 h-8 flex items-center justify-center rounded-full bg-card"
         >
           {viewState === "analyzing" ? (
             <Square className="w-4 h-4 text-red-400" />
           ) : (
-            <X className="w-4 h-4 text-[#A0A0A0]" />
+            <X className="w-4 h-4 text-muted-foreground" />
           )}
         </button>
       </div>
@@ -351,7 +351,7 @@ export function FormCamera({
         /* Setup View */
         <div className="p-4 space-y-4">
           {/* Camera preview placeholder / live preview */}
-          <div className="aspect-[3/4] bg-[#1A1A1A] rounded-xl border-2 border-dashed border-[#2A2A2A] flex flex-col items-center justify-center gap-4 relative overflow-hidden">
+          <div className="aspect-[3/4] bg-card rounded-xl border-2 border-dashed border-border flex flex-col items-center justify-center gap-4 relative overflow-hidden">
             <video
               ref={videoRef}
               playsInline
@@ -359,12 +359,12 @@ export function FormCamera({
               className="absolute inset-0 w-full h-full object-cover opacity-0"
             />
             {/* Silhouette guide */}
-            <div className="w-20 h-40 border-2 border-[#CDFF00]/30 rounded-lg" />
-            <p className="text-sm text-[#666666] text-center px-8">
+            <div className="w-20 h-40 border-2 border-primary/30 rounded-lg" />
+            <p className="text-sm text-dim-foreground text-center px-8">
               Position your phone so your full body is visible
             </p>
-            <div className="absolute top-3 right-3 bg-[#CDFF00]/10 rounded-full px-3 py-1">
-              <span className="text-xs text-[#CDFF00]">
+            <div className="absolute top-3 right-3 bg-primary/10 rounded-full px-3 py-1">
+              <span className="text-xs text-primary">
                 {formRule.cameraAngle} view
               </span>
             </div>
@@ -380,21 +380,21 @@ export function FormCamera({
 
           {/* Setup tips */}
           <div className="space-y-2">
-            <p className="text-xs text-[#A0A0A0] uppercase tracking-wider">
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">
               Setup Tips
             </p>
             {formRule.setupTips.map((tip, i) => (
               <div key={i} className="flex items-start gap-2">
-                <div className="w-1.5 h-1.5 rounded-full bg-[#CDFF00] mt-1.5 flex-shrink-0" />
-                <p className="text-xs text-[#A0A0A0]">{tip}</p>
+                <div className="w-1.5 h-1.5 rounded-full bg-primary mt-1.5 flex-shrink-0" />
+                <p className="text-xs text-muted-foreground">{tip}</p>
               </div>
             ))}
           </div>
 
           {/* Privacy note */}
-          <div className="flex items-start gap-2 bg-[#CDFF00]/5 rounded-lg p-3">
-            <AlertCircle className="w-4 h-4 text-[#CDFF00] mt-0.5 flex-shrink-0" />
-            <p className="text-xs text-[#A0A0A0]">
+          <div className="flex items-start gap-2 bg-primary/5 rounded-lg p-3">
+            <AlertCircle className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
+            <p className="text-xs text-muted-foreground">
               Form analysis uses on-device AI. No video is uploaded or stored.
               First use downloads the pose model (~5MB).
             </p>
@@ -403,7 +403,7 @@ export function FormCamera({
           <Button
             onClick={handleStartAnalysis}
             disabled={loading}
-            className="w-full h-14 bg-[#CDFF00] text-black hover:bg-[#b8e600] font-semibold text-base disabled:opacity-50"
+            className="w-full h-14 bg-primary text-black hover:bg-primary/90 font-semibold text-base disabled:opacity-50"
           >
             {loading ? (
               <>
@@ -426,7 +426,7 @@ export function FormCamera({
         /* Analyzing View */
         <div className="p-4 space-y-4">
           {/* Live camera feed with skeleton overlay */}
-          <div className="aspect-[3/4] bg-[#1A1A1A] rounded-xl relative overflow-hidden">
+          <div className="aspect-[3/4] bg-card rounded-xl relative overflow-hidden">
             <video
               ref={videoRef}
               playsInline
@@ -440,14 +440,14 @@ export function FormCamera({
 
             {/* Rep counter overlay */}
             <div className="absolute top-3 left-3 bg-black/60 rounded-lg px-3 py-2">
-              <p className="text-xs text-[#A0A0A0]">Rep</p>
-              <p className="text-2xl font-bold text-[#CDFF00]">{repCount}</p>
+              <p className="text-xs text-muted-foreground">Rep</p>
+              <p className="text-2xl font-bold text-primary">{repCount}</p>
             </div>
 
             {/* Current score overlay */}
             {currentScore > 0 && (
               <div className="absolute top-3 right-3 bg-black/60 rounded-lg px-3 py-2">
-                <p className="text-xs text-[#A0A0A0]">Score</p>
+                <p className="text-xs text-muted-foreground">Score</p>
                 <p
                   className={`text-2xl font-bold ${
                     currentScore >= 80 ? "text-green-400" : "text-yellow-400"
@@ -464,7 +464,7 @@ export function FormCamera({
             {formRule.checkpoints.map((cp) => (
               <span
                 key={cp.id}
-                className="text-[10px] px-2 py-1 rounded-full bg-[#1A1A1A] text-[#A0A0A0] border border-[#2A2A2A]"
+                className="text-[10px] px-2 py-1 rounded-full bg-card text-muted-foreground border border-border"
               >
                 {cp.label}
               </span>

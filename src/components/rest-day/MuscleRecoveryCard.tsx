@@ -42,7 +42,7 @@ export function MuscleRecoveryCard({
       <h4 className="text-xs font-semibold text-white/40 uppercase tracking-[0.08em] mb-2">
         Yesterday&apos;s Impact
       </h4>
-      <Card className="bg-[#1A1A1A] border-[#2A2A2A] p-5">
+      <Card className="bg-card border-border p-5">
         {/* Workout summary */}
         <div className="flex items-center justify-between mb-4">
           <span className="text-sm font-medium text-white">
@@ -68,7 +68,7 @@ export function MuscleRecoveryCard({
                   {formatHours(est.hoursRemaining)}
                 </span>
               </div>
-              <div className="h-2 bg-[#2A2A2A] rounded-full overflow-hidden">
+              <div className="h-2 bg-secondary rounded-full overflow-hidden">
                 <motion.div
                   initial={{ width: 0 }}
                   animate={{ width: `${est.percentRecovered}%` }}

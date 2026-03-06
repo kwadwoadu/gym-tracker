@@ -111,7 +111,7 @@ export default function CreateChallengePage() {
                 <Card
                   key={t.value}
                   className={`p-4 cursor-pointer transition-colors ${
-                    type === t.value ? "border-[#CDFF00] bg-[#CDFF00]/10" : "hover:bg-white/5"
+                    type === t.value ? "border-primary bg-primary/10" : "hover:bg-white/5"
                   }`}
                   onClick={() => setType(t.value)}
                 >
