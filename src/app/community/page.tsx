@@ -15,7 +15,7 @@ import {
   LayoutGrid,
 } from "lucide-react";
 import { groupsApi, challengesApi, leaderboardApi, activityApi } from "@/lib/api-client";
-import type { LeaderboardEntry, ActivityItem } from "@/lib/api-client";
+import type { LeaderboardEntry, ActivityItem, Group, Challenge } from "@/lib/api-client";
 import { TemplateCard } from "@/components/community/template-card";
 import { TemplatePreview } from "@/components/community/template-preview";
 import { LeaderboardList, type LeaderboardEntryData } from "@/components/community/leaderboard-list";
@@ -310,13 +310,13 @@ export default function CommunityPage() {
                 Active Challenges
               </h3>
               <div className="space-y-2">
-                {challenges.map((challenge: Record<string, unknown>, i: number) => (
+                {challenges.map((challenge: Challenge, i: number) => (
                   <GroupChallengeCard
-                    key={(challenge.id as string) || i}
-                    title={(challenge.name as string) || "Challenge"}
-                    description={(challenge.description as string) || ""}
-                    progress={(challenge.progress as number) || 0}
-                    memberCount={(challenge.memberCount as number) || 0}
+                    key={challenge.id || i}
+                    title={challenge.name || "Challenge"}
+                    description={challenge.description || ""}
+                    progress={challenge.myProgress || 0}
+                    memberCount={challenge.participantCount || 0}
                     gradient={
                       i % 2 === 0
                         ? "bg-gradient-to-r from-primary/20 to-gym-blue/20"
@@ -335,9 +335,9 @@ export default function CommunityPage() {
                 Your Groups
               </h3>
               <div className="bg-card rounded-xl overflow-hidden divide-y divide-white/5">
-                {groups.map((group: Record<string, unknown>, i: number) => (
+                {groups.map((group: Group, i: number) => (
                   <div
-                    key={(group.id as string) || i}
+                    key={group.id || i}
                     className="flex items-center gap-3 px-4 py-3"
                   >
                     <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
@@ -345,10 +345,10 @@ export default function CommunityPage() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-white truncate">
-                        {(group.name as string) || "Group"}
+                        {group.name || "Group"}
                       </p>
                       <p className="text-xs text-white/40">
-                        {(group.memberCount as number) || 0} members
+                        {group.memberCount || 0} members
                       </p>
                     </div>
                   </div>
