@@ -86,6 +86,14 @@ export default function Home() {
     const hasProgram = programs && programs.length > 0;
     const onboardingState = onboarding?.onboardingState || "not_started";
 
+    // If user has programs, they're past onboarding - auto-fix state if needed
+    if (hasProgram) {
+      if (onboardingState !== "complete") {
+        onboardingApi.update({ onboardingState: "complete", hasCompletedOnboarding: true }).catch(console.error);
+      }
+      return; // Never redirect to onboarding
+    }
+
     // State machine for navigation
     switch (onboardingState) {
       case "complete":

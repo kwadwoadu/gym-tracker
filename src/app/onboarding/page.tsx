@@ -44,7 +44,13 @@ export default function OnboardingPage() {
     const state = onboardingData.onboardingState;
     const hasProgram = userPrograms && userPrograms.length > 0;
 
-    if (state === "complete" && hasProgram) {
+    // User with programs should never be on onboarding
+    if (hasProgram) {
+      router.replace("/");
+      return;
+    }
+
+    if (state === "complete") {
       router.replace("/");
     } else if (state === "profile_complete") {
       router.replace("/onboarding/plans");

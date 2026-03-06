@@ -10,9 +10,25 @@ export async function GET() {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const profile = await prisma.onboardingProfile.findUnique({
+    let profile = await prisma.onboardingProfile.findUnique({
       where: { userId: user.id },
     });
+
+    if (!profile) {
+      // Check if user already has programs (legacy user)
+      const programCount = await prisma.program.count({ where: { userId: user.id } });
+
+      profile = await prisma.onboardingProfile.create({
+        data: {
+          userId: user.id,
+          goals: [],
+          injuries: [],
+          hasCompletedOnboarding: programCount > 0,
+          skippedOnboarding: false,
+          onboardingState: programCount > 0 ? "complete" : "not_started",
+        },
+      });
+    }
 
     return NextResponse.json(profile);
   } catch (error) {
