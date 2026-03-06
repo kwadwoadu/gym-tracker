@@ -14,11 +14,28 @@ async function handleResponse<T>(response: Response): Promise<T> {
 }
 
 async function fetchWithRetry(url: string, options?: RequestInit): Promise<Response> {
-  let response = await fetch(url, options);
+  const method = options?.method?.toUpperCase() ?? "GET";
+  const isMutating = method === "POST" || method === "PUT" || method === "PATCH";
+
+  const headers: Record<string, string> = {
+    ...(options?.headers as Record<string, string>),
+  };
+
+  if (isMutating) {
+    headers["X-Idempotency-Key"] = crypto.randomUUID();
+  }
+
+  const mergedOptions: RequestInit = { ...options, headers };
+
+  let response = await fetch(url, mergedOptions);
   if (response.status === 401) {
+    console.warn("[API] 401 received, retrying after session refresh...");
     // Wait for Clerk to refresh session cookie, then retry once
     await new Promise(r => setTimeout(r, 1000));
-    response = await fetch(url, options);
+    response = await fetch(url, mergedOptions);
+    if (!response.ok) {
+      console.warn("[API] Retry after 401 failed:", response.status);
+    }
   }
   return response;
 }
@@ -332,17 +349,17 @@ export const workoutLogsApi = {
     if (options?.endDate) params.set("endDate", options.endDate);
     if (options?.isComplete !== undefined) params.set("isComplete", String(options.isComplete));
 
-    const res = await fetch(`${API_BASE}/workout-logs?${params.toString()}`);
+    const res = await fetchWithRetry(`${API_BASE}/workout-logs?${params.toString()}`);
     return handleResponse(res);
   },
 
   get: async (id: string): Promise<WorkoutLog> => {
-    const res = await fetch(`${API_BASE}/workout-logs/${id}`);
+    const res = await fetchWithRetry(`${API_BASE}/workout-logs/${id}`);
     return handleResponse(res);
   },
 
   getActive: async (): Promise<WorkoutLog | null> => {
-    const res = await fetch(`${API_BASE}/workout-logs/active`);
+    const res = await fetchWithRetry(`${API_BASE}/workout-logs/active`);
     return handleResponse(res);
   },
 
@@ -374,7 +391,7 @@ export const workoutLogsApi = {
   },
 
   delete: async (id: string): Promise<void> => {
-    const res = await fetch(`${API_BASE}/workout-logs/${id}`, {
+    const res = await fetchWithRetry(`${API_BASE}/workout-logs/${id}`, {
       method: "DELETE",
     });
     return handleResponse(res);

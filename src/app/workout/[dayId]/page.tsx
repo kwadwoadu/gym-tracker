@@ -124,6 +124,7 @@ import { HEADING, DATA } from "@/lib/typography";
 import { NotificationPrompt } from "@/components/notifications/NotificationPrompt";
 import { ShareCardButton } from "@/components/workout/share-card-button";
 import { subscribeToPush, isPushSupported, getNotificationPermission } from "@/lib/notifications/push-subscription";
+import { useUser } from "@clerk/nextjs";
 
 type WorkoutPhase = "preview" | "warmup" | "exercise" | "rest" | "finisher" | "complete";
 
@@ -165,6 +166,8 @@ export default function WorkoutSession() {
   const params = useParams();
   const router = useRouter();
   const dayId = params?.dayId as string;
+  const { user } = useUser();
+  const userId = user?.id ?? "anonymous";
 
   const [isLoading, setIsLoading] = useState(true);
   const [trainingDay, setTrainingDay] = useState<TrainingDay | null>(null);
@@ -282,6 +285,26 @@ export default function WorkoutSession() {
 
     loadData();
   }, [dayId, router]);
+
+  // Recover any pending workout data that failed to sync on previous session
+  useEffect(() => {
+    if (!userId || userId === "anonymous") return;
+    const pendingKey = `pending-workout-${userId}`;
+    const pendingData = localStorage.getItem(pendingKey);
+    if (!pendingData) return;
+
+    async function recoverPendingWorkout() {
+      try {
+        const workoutLogData = JSON.parse(pendingData!);
+        await workoutLogsApi.create(workoutLogData);
+        localStorage.removeItem(pendingKey);
+      } catch (e) {
+        console.error("Failed to recover pending workout:", e);
+      }
+    }
+
+    recoverPendingWorkout();
+  }, [userId]);
 
   // Check for saved session on mount (local + cloud)
   useEffect(() => {
@@ -909,7 +932,7 @@ export default function WorkoutSession() {
 
     // Save to localStorage first - data safety net
     try {
-      localStorage.setItem("pending-workout", JSON.stringify(workoutLogData));
+      localStorage.setItem(`pending-workout-${userId}`, JSON.stringify(workoutLogData));
     } catch {
       // localStorage full or unavailable - continue anyway
     }
@@ -934,12 +957,7 @@ export default function WorkoutSession() {
       setWorkoutLogId(savedLog.id);
 
       // Clear pending data - save succeeded
-      localStorage.removeItem("pending-workout");
-
-      // CRITICAL: Transition to complete phase BEFORE secondary operations
-      // This ensures completion screen shows even if PR/achievement checks fail
-      setPhase("complete");
-      clearSession(); // Clear saved session on completion
+      localStorage.removeItem(`pending-workout-${userId}`);
 
       // Secondary operations - wrapped in try-catch so they don't break completion
       try {
@@ -1729,9 +1747,9 @@ export default function WorkoutSession() {
               >
                 <p>{saveError}</p>
                 <button
-                  onClick={() => {
+                  onClick={async () => {
                     setSaveError(null);
-                    finishWorkout();
+                    await finishWorkout();
                   }}
                   className="mt-2 underline text-xs"
                 >
