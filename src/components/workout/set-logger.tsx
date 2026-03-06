@@ -215,7 +215,8 @@ export function SetLogger({
 
   const handleComplete = () => {
     setIsCompleted(true);
-    onComplete(weight, reps, rpe);
+    // Delay callback to let celebration animation play before parent unmounts
+    setTimeout(() => onComplete(weight, reps, rpe), 600);
   };
 
   // Get RPE label based on value

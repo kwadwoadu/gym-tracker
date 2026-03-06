@@ -17,6 +17,9 @@ interface SetLoggerSheetProps {
   suggestedRpe?: number;
   lastWeekWeight?: number;
   lastWeekReps?: number;
+  lastWorkoutDate?: string;
+  hitTargetLastTime?: boolean;
+  memorySource?: "session" | "historical";
   onComplete: (weight: number, reps: number, rpe?: number) => void;
   onSkip: () => void;
 }
@@ -33,6 +36,9 @@ export function SetLoggerSheet({
   suggestedRpe,
   lastWeekWeight,
   lastWeekReps,
+  lastWorkoutDate,
+  hitTargetLastTime,
+  memorySource,
   onComplete,
   onSkip,
 }: SetLoggerSheetProps) {
@@ -67,6 +73,9 @@ export function SetLoggerSheet({
             suggestedRpe={suggestedRpe}
             lastWeekWeight={lastWeekWeight}
             lastWeekReps={lastWeekReps}
+            lastWorkoutDate={lastWorkoutDate}
+            hitTargetLastTime={hitTargetLastTime}
+            memorySource={memorySource}
             videoUrl={exercise.videoUrl || undefined}
             muscles={exercise.muscles}
             onComplete={onComplete}

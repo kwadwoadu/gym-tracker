@@ -223,6 +223,8 @@ export default function WorkoutSession() {
   const [showPRCelebration, setShowPRCelebration] = useState(false);
   const [celebrationPR, setCelebrationPR] = useState<NewPR | null>(null);
   const [showNotificationPrompt, setShowNotificationPrompt] = useState(false);
+  const [autoSkipExercises, setAutoSkipExercises] = useState<Set<string>>(new Set());
+  const [showAutoSkipPrompt, setShowAutoSkipPrompt] = useState<string | null>(null); // exerciseId to prompt for
 
   // Achievement toasts
   const { addToasts: addAchievementToasts, removeToast: removeAchievementToast, currentToast } = useAchievementToasts();
@@ -499,6 +501,22 @@ export default function WorkoutSession() {
     fetchWeightSuggestion();
   }, [phase, trainingDay, workoutState.supersetIndex, workoutState.exerciseIndex, workoutState.setNumber, dayId]);
 
+  // Auto-skip exercises that the user has opted to skip all remaining sets
+  useEffect(() => {
+    if (phase !== "exercise" || !trainingDay || autoSkipExercises.size === 0) return;
+
+    const superset = trainingDay.supersets[workoutState.supersetIndex];
+    if (!superset) return;
+    const exerciseData = superset.exercises[workoutState.exerciseIndex];
+    if (!exerciseData) return;
+
+    if (autoSkipExercises.has(exerciseData.exerciseId)) {
+      // Auto-skip this exercise
+      handleSkipSet();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phase, workoutState.supersetIndex, workoutState.exerciseIndex, workoutState.setNumber, autoSkipExercises]);
+
   // Initialize audio on first user interaction
   const initAudio = useCallback(async () => {
     if (!audioInitialized) {
@@ -671,6 +689,12 @@ export default function WorkoutSession() {
       completedAt: new Date().toISOString(),
     };
     setCompletedSets((prev) => [...prev, setLog]);
+
+    // Offer auto-skip if this exercise is in a superset (>1 exercise) and not already auto-skipping
+    const currentSuperset = trainingDay.supersets[workoutState.supersetIndex];
+    if (currentSuperset.exercises.length > 1 && !autoSkipExercises.has(currentExercise.exerciseId)) {
+      setShowAutoSkipPrompt(currentExercise.exerciseId);
+    }
 
     // Progress to next set (same logic as complete, but no volume added)
     const superset = trainingDay.supersets[workoutState.supersetIndex];
@@ -884,7 +908,18 @@ export default function WorkoutSession() {
         isComplete: true,
       };
 
-      const savedLog = await workoutLogsApi.create(workoutLogData);
+      // Retry up to 3 times to prevent data loss
+      let savedLog: { id: string } | null = null;
+      for (let attempt = 0; attempt < 3; attempt++) {
+        try {
+          savedLog = await workoutLogsApi.create(workoutLogData);
+          break;
+        } catch (e) {
+          if (attempt === 2) throw e;
+          await new Promise((r) => setTimeout(r, 1000));
+        }
+      }
+      if (!savedLog) throw new Error("Failed to save workout log");
       setWorkoutLogId(savedLog.id);
 
       // CRITICAL: Transition to complete phase BEFORE secondary operations
@@ -1153,6 +1188,17 @@ export default function WorkoutSession() {
   const handleSheetSkip = () => {
     setSheetOpen(false);
     handleSkipSet();
+  };
+
+  // Handle editing a completed set from carousel dot tap
+  const handleEditFromCarousel = (exerciseId: string, setNumber: number) => {
+    const set = completedSets.find(
+      (s) => s.exerciseId === exerciseId && s.setNumber === setNumber
+    );
+    if (set) {
+      setEditingSet(set);
+      setShowEditDrawer(true);
+    }
   };
 
   // Build weight suggestions map for carousel
@@ -1438,26 +1484,43 @@ export default function WorkoutSession() {
               currentIndex={carouselIndex}
               onIndexChange={setCarouselIndex}
               onLogSet={handleOpenSheet}
+              onEditSet={handleEditFromCarousel}
               isRestTimerActive={false}
               weightSuggestions={weightSuggestionsMap}
             />
 
             {/* Set Logger Bottom Sheet */}
-            <SetLoggerSheet
-              open={sheetOpen}
-              onOpenChange={setSheetOpen}
-              flatExercise={sheetFlatExercise}
-              exercise={sheetExercise}
-              setNumber={sheetSetNumber}
-              totalSets={sheetFlatExercise?.sets || 4}
-              suggestedWeight={weightSuggestion?.weight}
-              suggestedReps={undefined}
-              suggestedRpe={undefined}
-              lastWeekWeight={weightSuggestion?.lastWeekWeight}
-              lastWeekReps={weightSuggestion?.lastWeekReps}
-              onComplete={handleSheetSetComplete}
-              onSkip={handleSheetSkip}
-            />
+            {(() => {
+              // Session memory: reuse weight/reps/RPE from earlier set in this workout
+              const sessionMem = sheetFlatExercise
+                ? getSessionMemoryForExercise(sheetFlatExercise.exerciseId, sheetSetNumber)
+                : null;
+              const memSource: "session" | "historical" | undefined = sessionMem
+                ? "session"
+                : globalSuggestion
+                  ? "historical"
+                  : undefined;
+              return (
+                <SetLoggerSheet
+                  open={sheetOpen}
+                  onOpenChange={setSheetOpen}
+                  flatExercise={sheetFlatExercise}
+                  exercise={sheetExercise}
+                  setNumber={sheetSetNumber}
+                  totalSets={sheetFlatExercise?.sets || 4}
+                  suggestedWeight={sessionMem?.weight ?? weightSuggestion?.weight}
+                  suggestedReps={sessionMem?.reps ?? globalSuggestion?.suggestedReps}
+                  suggestedRpe={sessionMem?.rpe ?? globalSuggestion?.suggestedRpe}
+                  lastWeekWeight={weightSuggestion?.lastWeekWeight}
+                  lastWeekReps={weightSuggestion?.lastWeekReps}
+                  lastWorkoutDate={globalSuggestion?.lastDate}
+                  hitTargetLastTime={globalSuggestion?.hitTargetLastTime}
+                  memorySource={memSource}
+                  onComplete={handleSheetSetComplete}
+                  onSkip={handleSheetSkip}
+                />
+              );
+            })()}
           </motion.div>
         )}
 
@@ -1894,6 +1957,38 @@ export default function WorkoutSession() {
                 <RotateCcw className="w-4 h-4 mr-2" />
               )}
               Resume Workout
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Auto-skip prompt */}
+      <AlertDialog open={!!showAutoSkipPrompt} onOpenChange={() => setShowAutoSkipPrompt(null)}>
+        <AlertDialogContent className="max-w-sm mx-4">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <SkipForward className="w-5 h-5 text-primary" />
+              Skip all remaining?
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              Skip this exercise for all remaining sets in this superset?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="flex-col sm:flex-row gap-2">
+            <AlertDialogCancel className="w-full sm:w-auto">
+              Just this once
+            </AlertDialogCancel>
+            <AlertDialogAction
+              className="w-full sm:w-auto bg-primary text-primary-foreground"
+              onClick={() => {
+                if (showAutoSkipPrompt) {
+                  setAutoSkipExercises((prev) => new Set(prev).add(showAutoSkipPrompt));
+                }
+                setShowAutoSkipPrompt(null);
+              }}
+            >
+              <SkipForward className="w-4 h-4 mr-2" />
+              Skip all remaining
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

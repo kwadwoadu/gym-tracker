@@ -16,6 +16,7 @@ interface WorkoutCarouselProps {
   currentIndex: number;
   onIndexChange: (index: number) => void;
   onLogSet: (exerciseIndex: number) => void;
+  onEditSet?: (exerciseId: string, setNumber: number) => void;
   isRestTimerActive: boolean;
   weightSuggestions: Map<string, { weight: number; lastWeekWeight: number; lastWeekReps: number }>;
 }
@@ -27,6 +28,7 @@ export function WorkoutCarousel({
   currentIndex,
   onIndexChange,
   onLogSet,
+  onEditSet,
   isRestTimerActive,
   weightSuggestions,
 }: WorkoutCarouselProps) {
@@ -108,22 +110,33 @@ export function WorkoutCarousel({
                 {flat.tempo ? ` | ${flat.tempo}` : ""}
               </p>
 
-              {/* Set counter */}
+              {/* Set counter - completed dots are tappable for editing */}
               <div className="flex items-center gap-2 mt-2">
-                {Array.from({ length: flat.sets }).map((_, setIdx) => (
-                  <div
-                    key={setIdx}
-                    className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${
-                      setIdx < completedCount
-                        ? "bg-[#CDFF00] text-black"
-                        : setIdx === completedCount
-                          ? "bg-[#CDFF00]/20 text-[#CDFF00] border border-[#CDFF00]"
-                          : "bg-[#2A2A2A] text-white/30"
-                    }`}
-                  >
-                    {setIdx + 1}
-                  </div>
-                ))}
+                {Array.from({ length: flat.sets }).map((_, setIdx) => {
+                  const isCompleted = setIdx < completedCount;
+                  return (
+                    <button
+                      key={setIdx}
+                      type="button"
+                      disabled={!isCompleted || !onEditSet}
+                      onClick={() => {
+                        if (isCompleted && onEditSet) {
+                          vibrateShort();
+                          onEditSet(flat.exerciseId, setIdx + 1);
+                        }
+                      }}
+                      className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-transform ${
+                        isCompleted
+                          ? "bg-[#CDFF00] text-black active:scale-90"
+                          : setIdx === completedCount
+                            ? "bg-[#CDFF00]/20 text-[#CDFF00] border border-[#CDFF00]"
+                            : "bg-[#2A2A2A] text-white/30"
+                      }`}
+                    >
+                      {setIdx + 1}
+                    </button>
+                  );
+                })}
               </div>
 
               {/* Weight suggestion */}

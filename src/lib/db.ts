@@ -88,6 +88,7 @@ export interface SetLog {
   weight: number;
   unit: "kg" | "lbs";
   rpe?: number; // 1-10
+  skipped?: boolean;
   isComplete: boolean;
   completedAt?: string;
 }
