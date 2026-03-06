@@ -4,6 +4,49 @@ All notable changes to the SetFlow project.
 
 ---
 
+## [2026-03-06] Workout Completion Silent Failure Fix
+
+**Type:** Fix
+**Files Changed:**
+- `src/lib/jwt-utils.ts`
+- `src/lib/api-client.ts`
+- `src/app/workout/[dayId]/page.tsx`
+
+### Summary
+Workout completion was silently failing after auth hardening removed JWT grace period. Implemented 4-layer defense: 30s JWT grace period, fetchWithRetry with idempotency keys, optimistic localStorage save before API call, and pending workout recovery on app reload.
+
+### Patterns Extracted
+- Optimistic Save for User-Critical Operations (save local -> show success -> sync background -> recover on reload)
+
+### Solution Documented
+- `docs/solutions/security-issues/2026-03-06-workout-completion-silent-failure.md`
+
+### Impact
+Workout data can never be silently lost. Completion screen shows immediately. Failed syncs recover automatically on next app load.
+
+---
+
+## [2026-03-06] Review Findings Resolution - 7 React Patterns
+
+**Type:** Fix
+**Files Changed:**
+- `src/app/workout/[dayId]/page.tsx`
+- `src/components/workout/set-logger.tsx`
+- `src/components/workout/workout-carousel.tsx`
+- `src/lib/api-client.ts`
+- `src/lib/jwt-utils.ts`
+
+### Summary
+Resolved 7 findings from 7-agent parallel code review: P1 auto-skip infinite loop (ref guard), IIFE to useMemo, setTimeout cleanup on unmount, fetchWithRetry network error handling, JWT grace period constant, removed double retry overlap, made onEditSet required. REV-002 (duplicate setPhase) was a false positive.
+
+### Solution Documented
+- `docs/solutions/logic-errors/2026-03-06-react-review-findings-batch-resolution.md`
+
+### Impact
+Prevents infinite re-render loops, memory leaks on unmount, unhandled network errors, and redundant API retry storms. Establishes 6 prevention rules for CLAUDE.md.
+
+---
+
 ## [2026-03-06] Clerk Auth Hardening - Vercel Edge Runtime Fallback
 
 **Type:** Fix

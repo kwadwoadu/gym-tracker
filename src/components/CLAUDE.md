@@ -216,6 +216,10 @@ function RestTimer() {
 | Network-first data | Fails offline | Dexie + IndexedDB |
 | HTML5 audio | iOS incompatible | Web Audio API |
 | Light theme components | Not supported | Dark theme only |
+| IIFE in JSX | Breaks referential equality, causes re-renders | Use `useMemo` for computed values |
+| setTimeout without cleanup | Memory leak on unmount | Use ref + `useEffect` return cleanup |
+| Optional prop always provided | Interface lies about usage | Make required (remove `?`) |
+| setState in useEffect without guard | Infinite re-render loop | Use ref guard to prevent re-entry |
 
 ---
 

@@ -112,6 +112,9 @@ await playSound('rest-complete');
 - NEVER play audio without user gesture (iOS will fail)
 - NEVER modify db schema without version bump
 - NEVER use synchronous localStorage for large data
+- NEVER stack retry layers (e.g., manual loop + fetchWithRetry = 6 API calls). Single retry layer only.
+- NEVER use magic numbers for timeouts/thresholds. Extract to named constants with comments.
+- fetchWithRetry MUST handle both HTTP errors (401) AND network errors (fetch throws). Always wrap in try-catch.
 
 ---
 
