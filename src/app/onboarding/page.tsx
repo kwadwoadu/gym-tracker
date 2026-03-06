@@ -121,25 +121,33 @@ export default function OnboardingPage() {
   };
 
   const handleConfirmSkip = async () => {
-    await onboardingApi.update({
-      hasCompletedOnboarding: true,
-      skippedOnboarding: true,
-      completedAt: new Date().toISOString(),
-      onboardingState: "profile_complete",
-    });
-    await queryClient.invalidateQueries({ queryKey: queryKeys.onboarding });
+    try {
+      await onboardingApi.update({
+        hasCompletedOnboarding: true,
+        skippedOnboarding: true,
+        completedAt: new Date().toISOString(),
+        onboardingState: "profile_complete",
+      });
+      await queryClient.invalidateQueries({ queryKey: queryKeys.onboarding });
+    } catch (e) {
+      console.error("Failed to update onboarding (skip):", e);
+    }
     router.replace("/onboarding/plans");
   };
 
   const handleComplete = async () => {
-    await saveProgress();
-    await onboardingApi.update({
-      hasCompletedOnboarding: true,
-      skippedOnboarding: false,
-      completedAt: new Date().toISOString(),
-      onboardingState: "profile_complete",
-    });
-    await queryClient.invalidateQueries({ queryKey: queryKeys.onboarding });
+    try {
+      await saveProgress();
+      await onboardingApi.update({
+        hasCompletedOnboarding: true,
+        skippedOnboarding: false,
+        completedAt: new Date().toISOString(),
+        onboardingState: "profile_complete",
+      });
+      await queryClient.invalidateQueries({ queryKey: queryKeys.onboarding });
+    } catch (e) {
+      console.error("Failed to update onboarding (complete):", e);
+    }
     router.replace("/onboarding/plans");
   };
 

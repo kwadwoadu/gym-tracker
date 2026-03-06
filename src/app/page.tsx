@@ -120,13 +120,10 @@ export default function Home() {
         break;
       case "not_started":
       default: {
-        const hasCompletedOnboarding = onboarding?.hasCompletedOnboarding || onboarding?.skippedOnboarding;
         if (!hasProgram) {
-          if (!hasCompletedOnboarding) {
-            router.replace("/onboarding");
-          } else {
-            router.replace("/onboarding/plans");
-          }
+          // Always send to plan selection directly - skip the 8-step carousel
+          // Users who need onboarding can access it from settings later
+          router.replace("/onboarding/plans");
         }
         break;
       }
