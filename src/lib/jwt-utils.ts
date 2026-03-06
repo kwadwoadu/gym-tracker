@@ -13,6 +13,9 @@ interface ClerkJWTPayload {
   [key: string]: unknown;
 }
 
+// 30s grace period: accounts for clock skew between client/server + API call latency
+const JWT_GRACE_PERIOD_MS = 30_000;
+
 /**
  * Decode a Clerk JWT and return the user ID (sub claim).
  * Returns null if the token is malformed, expired, or missing sub.
@@ -27,8 +30,8 @@ export function decodeClerkJwt(token: string): string | null {
     const jsonStr = atob(base64);
     const payload: ClerkJWTPayload = JSON.parse(jsonStr);
 
-    // 30s grace period for clock skew and long workout sessions
-    if (payload.exp && payload.exp * 1000 < Date.now() - 30000) {
+    // Reject tokens that expired more than grace period ago
+    if (payload.exp && payload.exp * 1000 < Date.now() - JWT_GRACE_PERIOD_MS) {
       return null;
     }
 

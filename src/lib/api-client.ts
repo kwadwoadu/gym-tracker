@@ -27,17 +27,23 @@ async function fetchWithRetry(url: string, options?: RequestInit): Promise<Respo
 
   const mergedOptions: RequestInit = { ...options, headers };
 
-  let response = await fetch(url, mergedOptions);
-  if (response.status === 401) {
-    console.warn("[API] 401 received, retrying after session refresh...");
-    // Wait for Clerk to refresh session cookie, then retry once
-    await new Promise(r => setTimeout(r, 1000));
-    response = await fetch(url, mergedOptions);
-    if (!response.ok) {
-      console.warn("[API] Retry after 401 failed:", response.status);
+  try {
+    let response = await fetch(url, mergedOptions);
+    if (response.status === 401) {
+      console.warn("[API] 401 received, retrying after session refresh...");
+      await new Promise(r => setTimeout(r, 1000));
+      response = await fetch(url, mergedOptions);
+      if (!response.ok) {
+        console.warn("[API] Retry after 401 failed:", response.status);
+      }
     }
+    return response;
+  } catch (e) {
+    // Network error - retry once after delay
+    console.warn("[API] Network error, retrying...", e);
+    await new Promise(r => setTimeout(r, 1000));
+    return fetch(url, mergedOptions);
   }
-  return response;
 }
 
 // ============================================================

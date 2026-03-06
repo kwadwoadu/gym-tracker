@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useEffect, useState, useCallback, useRef, useMemo } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -229,6 +229,7 @@ export default function WorkoutSession() {
   const [showNotificationPrompt, setShowNotificationPrompt] = useState(false);
   const [autoSkipExercises, setAutoSkipExercises] = useState<Set<string>>(new Set());
   const [showAutoSkipPrompt, setShowAutoSkipPrompt] = useState<string | null>(null); // exerciseId to prompt for
+  const lastAutoSkippedRef = useRef<string | null>(null);
 
   // Achievement toasts
   const { addToasts: addAchievementToasts, removeToast: removeAchievementToast, currentToast } = useAchievementToasts();
@@ -534,12 +535,13 @@ export default function WorkoutSession() {
     const exerciseData = superset.exercises[workoutState.exerciseIndex];
     if (!exerciseData) return;
 
-    if (autoSkipExercises.has(exerciseData.exerciseId)) {
-      // Auto-skip this exercise
+    const key = `${exerciseData.exerciseId}-${workoutState.setNumber}`;
+    if (autoSkipExercises.has(exerciseData.exerciseId) && lastAutoSkippedRef.current !== key) {
+      lastAutoSkippedRef.current = key;
       handleSkipSet();
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [phase, workoutState.supersetIndex, workoutState.exerciseIndex, workoutState.setNumber, autoSkipExercises]);
+  }, [phase, trainingDay, workoutState.supersetIndex, workoutState.exerciseIndex, workoutState.setNumber, autoSkipExercises]);
 
   // Initialize audio on first user interaction
   const initAudio = useCallback(async () => {
@@ -941,19 +943,9 @@ export default function WorkoutSession() {
     setPhase("complete");
     clearSession();
 
-    // Then try API save in background
+    // Then try API save in background (fetchWithRetry handles 401 + network errors)
     try {
-      let savedLog: { id: string } | null = null;
-      for (let attempt = 0; attempt < 3; attempt++) {
-        try {
-          savedLog = await workoutLogsApi.create(workoutLogData);
-          break;
-        } catch (e) {
-          if (attempt === 2) throw e;
-          await new Promise((r) => setTimeout(r, 1000));
-        }
-      }
-      if (!savedLog) throw new Error("Failed to save workout log");
+      const savedLog = await workoutLogsApi.create(workoutLogData);
       setWorkoutLogId(savedLog.id);
 
       // Clear pending data - save succeeded
@@ -1171,6 +1163,20 @@ export default function WorkoutSession() {
     ? completedSets.filter((s) => s.exerciseId === sheetFlatExercise.exerciseId).length
     : 0;
   const sheetSetNumber = sheetCompletedCount + 1;
+
+  // Session memory for set logger sheet
+  const sessionMemData = useMemo(() => {
+    const sessionMem = sheetFlatExercise
+      ? getSessionMemoryForExercise(sheetFlatExercise.exerciseId, sheetSetNumber)
+      : null;
+    const memSource: "session" | "historical" | undefined = sessionMem
+      ? "session"
+      : globalSuggestion
+        ? "historical"
+        : undefined;
+    return { sessionMem, memSource };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sheetFlatExercise?.exerciseId, sheetSetNumber, completedSets, globalSuggestion]);
 
   // Handle opening set logger sheet from carousel
   const handleOpenSheet = (exerciseIndex: number) => {
@@ -1522,37 +1528,24 @@ export default function WorkoutSession() {
             />
 
             {/* Set Logger Bottom Sheet */}
-            {(() => {
-              // Session memory: reuse weight/reps/RPE from earlier set in this workout
-              const sessionMem = sheetFlatExercise
-                ? getSessionMemoryForExercise(sheetFlatExercise.exerciseId, sheetSetNumber)
-                : null;
-              const memSource: "session" | "historical" | undefined = sessionMem
-                ? "session"
-                : globalSuggestion
-                  ? "historical"
-                  : undefined;
-              return (
-                <SetLoggerSheet
-                  open={sheetOpen}
-                  onOpenChange={setSheetOpen}
-                  flatExercise={sheetFlatExercise}
-                  exercise={sheetExercise}
-                  setNumber={sheetSetNumber}
-                  totalSets={sheetFlatExercise?.sets || 4}
-                  suggestedWeight={sessionMem?.weight ?? weightSuggestion?.weight}
-                  suggestedReps={sessionMem?.reps ?? globalSuggestion?.suggestedReps}
-                  suggestedRpe={sessionMem?.rpe ?? globalSuggestion?.suggestedRpe}
-                  lastWeekWeight={weightSuggestion?.lastWeekWeight}
-                  lastWeekReps={weightSuggestion?.lastWeekReps}
-                  lastWorkoutDate={globalSuggestion?.lastDate}
-                  hitTargetLastTime={globalSuggestion?.hitTargetLastTime}
-                  memorySource={memSource}
-                  onComplete={handleSheetSetComplete}
-                  onSkip={handleSheetSkip}
-                />
-              );
-            })()}
+            <SetLoggerSheet
+              open={sheetOpen}
+              onOpenChange={setSheetOpen}
+              flatExercise={sheetFlatExercise}
+              exercise={sheetExercise}
+              setNumber={sheetSetNumber}
+              totalSets={sheetFlatExercise?.sets || 4}
+              suggestedWeight={sessionMemData.sessionMem?.weight ?? weightSuggestion?.weight}
+              suggestedReps={sessionMemData.sessionMem?.reps ?? globalSuggestion?.suggestedReps}
+              suggestedRpe={sessionMemData.sessionMem?.rpe ?? globalSuggestion?.suggestedRpe}
+              lastWeekWeight={weightSuggestion?.lastWeekWeight}
+              lastWeekReps={weightSuggestion?.lastWeekReps}
+              lastWorkoutDate={globalSuggestion?.lastDate}
+              hitTargetLastTime={globalSuggestion?.hitTargetLastTime}
+              memorySource={sessionMemData.memSource}
+              onComplete={handleSheetSetComplete}
+              onSkip={handleSheetSkip}
+            />
           </motion.div>
         )}
 

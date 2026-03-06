@@ -16,7 +16,7 @@ interface WorkoutCarouselProps {
   currentIndex: number;
   onIndexChange: (index: number) => void;
   onLogSet: (exerciseIndex: number) => void;
-  onEditSet?: (exerciseId: string, setNumber: number) => void;
+  onEditSet: (exerciseId: string, setNumber: number) => void;
   isRestTimerActive: boolean;
   weightSuggestions: Map<string, { weight: number; lastWeekWeight: number; lastWeekReps: number }>;
 }
@@ -118,9 +118,9 @@ export function WorkoutCarousel({
                     <button
                       key={setIdx}
                       type="button"
-                      disabled={!isCompleted || !onEditSet}
+                      disabled={!isCompleted}
                       onClick={() => {
-                        if (isCompleted && onEditSet) {
+                        if (isCompleted) {
                           vibrateShort();
                           onEditSet(flat.exerciseId, setIdx + 1);
                         }
