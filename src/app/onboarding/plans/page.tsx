@@ -25,6 +25,7 @@ export default function PlansPage() {
   const [selection, setSelection] = useState<Selection | null>(null);
   const [recommendedId, setRecommendedId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [programs] = useState<PresetProgram[]>(getPresetPrograms());
 
   // Route guard: if user already has programs and is "complete", redirect home
@@ -70,23 +71,24 @@ export default function PlansPage() {
     if (!selection) return;
 
     setIsLoading(true);
+    setError(null);
     try {
       if (selection.type === "preset") {
         await installPresetProgram(selection.id);
       } else {
         await createEmptyProgram();
       }
-      // Invalidate caches so home page gets fresh data (prevents stale cache redirect loop)
+      // Invalidate caches so home page gets fresh data
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: queryKeys.programs }),
         queryClient.invalidateQueries({ queryKey: queryKeys.onboarding }),
       ]);
-      // Use replace to prevent back-button re-entry into plans page
-      router.replace("/");
-    } catch (error) {
-      console.error("Failed to install program:", error);
-      setIsLoading(false);
+    } catch (err) {
+      console.error("Failed to install program:", err);
+      setError("Program install failed. Taking you home.");
     }
+    // ALWAYS redirect home - empty state is better than being stuck
+    router.replace("/");
   };
 
   return (
@@ -158,6 +160,13 @@ export default function PlansPage() {
           </motion.div>
         </div>
       </div>
+
+      {/* Error Message */}
+      {error && (
+        <div className="fixed top-4 left-4 right-4 z-50 bg-red-900/90 border border-red-700 text-white px-4 py-3 rounded-lg text-sm text-center">
+          {error}
+        </div>
+      )}
 
       {/* Bottom CTA */}
       <div className="fixed bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-[#0A0A0A] via-[#0A0A0A] to-transparent">

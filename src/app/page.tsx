@@ -22,7 +22,6 @@ import {
   useTrainingDays,
   useExercises,
   useStats,
-  useOnboardingProfile,
   useGamification,
   useDailyChallenges,
   useWeeklyChallenges,
@@ -30,7 +29,6 @@ import {
   useActiveWorkout,
 } from "@/lib/queries";
 import type { Exercise } from "@/lib/api-client";
-import { onboardingApi } from "@/lib/api-client";
 import { GamificationStrip } from "@/components/home/GamificationStrip";
 
 export default function Home() {
@@ -39,11 +37,8 @@ export default function Home() {
   const [selectedDay, setSelectedDay] = useState<string | null>(null);
   const { hasAccess: hasNutritionAccess } = useNutritionAccess();
 
-  // React Query hooks - isFetching guards against stale cache decisions
+  // React Query hooks
   const { data: programs, isLoading: programsLoading, isFetching: programsFetching } = usePrograms();
-  // Include archived programs for onboarding decision - user who ever had a program shouldn't re-onboard
-  const { data: allPrograms, isLoading: allProgramsLoading, isFetching: allProgramsFetching } = usePrograms({ includeArchived: true });
-  const { data: onboarding, isLoading: onboardingLoading, isFetching: onboardingFetching } = useOnboardingProfile();
   const { data: stats } = useStats();
   const { data: gamification } = useGamification();
   const { data: dailyChallenges } = useDailyChallenges();
@@ -77,58 +72,6 @@ export default function Home() {
       setSelectedDay(sortedDays[0].id);
     }
   }, [sortedDays, selectedDay]);
-
-  // Redirect based on onboarding state machine (only for authenticated users)
-  useEffect(() => {
-    if (!authLoaded || !isSignedIn) return;
-    if (programsLoading || onboardingLoading || allProgramsLoading) return;
-    // Guard against stale React Query cache - wait for fresh data after navigation
-    if (programsFetching || onboardingFetching || allProgramsFetching) return;
-
-    const hasProgram = programs && programs.length > 0;
-    // Check ALL programs (including archived) for onboarding bypass
-    const hasAnyProgram = allPrograms && allPrograms.length > 0;
-    const onboardingState = onboarding?.onboardingState || "not_started";
-
-    // If user has ANY programs (active or archived), they're past onboarding
-    if (hasProgram || hasAnyProgram) {
-      if (onboardingState !== "complete") {
-        onboardingApi.update({ onboardingState: "complete", hasCompletedOnboarding: true }).catch(console.error);
-      }
-      return; // Never redirect to onboarding
-    }
-
-    // State machine for navigation
-    switch (onboardingState) {
-      case "complete":
-        if (!hasProgram) {
-          console.warn("[onboarding] State is complete but no program found - redirecting to plans without state reset");
-          router.replace("/onboarding/plans");
-        }
-        break;
-      case "program_installing":
-        if (hasProgram) {
-          onboardingApi.update({ onboardingState: "complete" }).catch((e) => {
-            console.error("Failed to update onboarding state:", e);
-          });
-        } else {
-          router.replace("/onboarding/plans");
-        }
-        break;
-      case "profile_complete":
-        router.replace("/onboarding/plans");
-        break;
-      case "not_started":
-      default: {
-        if (!hasProgram) {
-          // Always send to plan selection directly - skip the 8-step carousel
-          // Users who need onboarding can access it from settings later
-          router.replace("/onboarding/plans");
-        }
-        break;
-      }
-    }
-  }, [programs, allPrograms, onboarding, programsLoading, allProgramsLoading, onboardingLoading, programsFetching, allProgramsFetching, onboardingFetching, router, authLoaded, isSignedIn]);
 
   const currentDay = sortedDays.find((d) => d.id === selectedDay);
 
@@ -201,8 +144,8 @@ export default function Home() {
     );
   }
 
-  // Show loading while data is being fetched or refetched (prevents stale cache decisions)
-  if (programsLoading || onboardingLoading || allProgramsLoading || programsFetching || onboardingFetching || allProgramsFetching) {
+  // Show loading while data is being fetched
+  if (programsLoading || programsFetching) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center space-y-4">
@@ -213,13 +156,26 @@ export default function Home() {
     );
   }
 
-  // If no programs after loading complete, redirect logic will handle it
+  // No programs - show empty state instead of redirecting
   if (!programs || programs.length === 0) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center space-y-4">
-          <Loader2 className="w-8 h-8 animate-spin mx-auto text-primary" />
-          <p className="text-muted-foreground">Redirecting...</p>
+      <div className="min-h-screen flex flex-col items-center justify-center px-6">
+        <div className="text-center space-y-6 max-w-sm">
+          <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
+            <Dumbbell className="w-8 h-8 text-primary" />
+          </div>
+          <div>
+            <h2 className={`${HEADING.h3} text-foreground mb-2`}>No Program Yet</h2>
+            <p className="text-muted-foreground text-sm">
+              Pick a training plan to get started with your workouts.
+            </p>
+          </div>
+          <Button
+            onClick={() => router.push("/onboarding/plans")}
+            className="w-full h-14 bg-[#CDFF00] text-black font-semibold text-lg hover:bg-[#b8e600]"
+          >
+            Choose a Plan
+          </Button>
         </div>
       </div>
     );
