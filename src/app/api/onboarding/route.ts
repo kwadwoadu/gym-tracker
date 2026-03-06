@@ -15,7 +15,7 @@ export async function GET() {
     });
 
     if (!profile) {
-      // Check if user already has programs (legacy user)
+      // Check if user already has programs (legacy user) - count ALL including archived
       const programCount = await prisma.program.count({ where: { userId: user.id } });
 
       profile = await prisma.onboardingProfile.create({
@@ -28,6 +28,18 @@ export async function GET() {
           onboardingState: programCount > 0 ? "complete" : "not_started",
         },
       });
+    } else if (profile.onboardingState === "not_started" && !profile.hasCompletedOnboarding) {
+      // Auto-fix: if profile exists but stuck in not_started, re-check for programs
+      const programCount = await prisma.program.count({ where: { userId: user.id } });
+      if (programCount > 0) {
+        profile = await prisma.onboardingProfile.update({
+          where: { userId: user.id },
+          data: {
+            hasCompletedOnboarding: true,
+            onboardingState: "complete",
+          },
+        });
+      }
     }
 
     return NextResponse.json(profile);

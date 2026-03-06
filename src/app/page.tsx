@@ -41,6 +41,8 @@ export default function Home() {
 
   // React Query hooks - isFetching guards against stale cache decisions
   const { data: programs, isLoading: programsLoading, isFetching: programsFetching } = usePrograms();
+  // Include archived programs for onboarding decision - user who ever had a program shouldn't re-onboard
+  const { data: allPrograms, isLoading: allProgramsLoading, isFetching: allProgramsFetching } = usePrograms({ includeArchived: true });
   const { data: onboarding, isLoading: onboardingLoading, isFetching: onboardingFetching } = useOnboardingProfile();
   const { data: stats } = useStats();
   const { data: gamification } = useGamification();
@@ -79,15 +81,17 @@ export default function Home() {
   // Redirect based on onboarding state machine (only for authenticated users)
   useEffect(() => {
     if (!authLoaded || !isSignedIn) return;
-    if (programsLoading || onboardingLoading) return;
+    if (programsLoading || onboardingLoading || allProgramsLoading) return;
     // Guard against stale React Query cache - wait for fresh data after navigation
-    if (programsFetching || onboardingFetching) return;
+    if (programsFetching || onboardingFetching || allProgramsFetching) return;
 
     const hasProgram = programs && programs.length > 0;
+    // Check ALL programs (including archived) for onboarding bypass
+    const hasAnyProgram = allPrograms && allPrograms.length > 0;
     const onboardingState = onboarding?.onboardingState || "not_started";
 
-    // If user has programs, they're past onboarding - auto-fix state if needed
-    if (hasProgram) {
+    // If user has ANY programs (active or archived), they're past onboarding
+    if (hasProgram || hasAnyProgram) {
       if (onboardingState !== "complete") {
         onboardingApi.update({ onboardingState: "complete", hasCompletedOnboarding: true }).catch(console.error);
       }
@@ -127,7 +131,7 @@ export default function Home() {
         break;
       }
     }
-  }, [programs, onboarding, programsLoading, onboardingLoading, programsFetching, onboardingFetching, router, authLoaded, isSignedIn]);
+  }, [programs, allPrograms, onboarding, programsLoading, allProgramsLoading, onboardingLoading, programsFetching, allProgramsFetching, onboardingFetching, router, authLoaded, isSignedIn]);
 
   const currentDay = sortedDays.find((d) => d.id === selectedDay);
 
@@ -201,7 +205,7 @@ export default function Home() {
   }
 
   // Show loading while data is being fetched or refetched (prevents stale cache decisions)
-  if (programsLoading || onboardingLoading || programsFetching || onboardingFetching) {
+  if (programsLoading || onboardingLoading || allProgramsLoading || programsFetching || onboardingFetching || allProgramsFetching) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center space-y-4">
