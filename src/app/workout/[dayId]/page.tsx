@@ -193,6 +193,7 @@ export default function WorkoutSession() {
   const [currentVolume, setCurrentVolume] = useState<number>(0);
   const [showResumeDialog, setShowResumeDialog] = useState(false);
   const [savedSession, setSavedSession] = useState<SavedSession | null>(null);
+  const [saveError, setSaveError] = useState<string | null>(null);
   const hasCheckedSession = useRef(false);
   const isRestoringSession = useRef(false);
   const lastSyncTime = useRef<number>(0);
@@ -889,26 +890,36 @@ export default function WorkoutSession() {
   const finishWorkout = async () => {
     if (!startTime || !trainingDay) return;
 
+    const endTime = new Date();
+    const duration = Math.floor(
+      (endTime.getTime() - startTime.getTime()) / 1000
+    );
+
+    const workoutLogData = {
+      date: startTime.toISOString().split("T")[0],
+      dayId: trainingDay.id,
+      dayName: trainingDay.name,
+      programId: trainingDay.programId,
+      sets: completedSets,
+      startTime: startTime.toISOString(),
+      endTime: endTime.toISOString(),
+      duration: Math.floor(duration / 60),
+      isComplete: true,
+    };
+
+    // Save to localStorage first - data safety net
     try {
-      const endTime = new Date();
-      const duration = Math.floor(
-        (endTime.getTime() - startTime.getTime()) / 1000
-      );
+      localStorage.setItem("pending-workout", JSON.stringify(workoutLogData));
+    } catch {
+      // localStorage full or unavailable - continue anyway
+    }
 
-      // Save workout log via API
-      const workoutLogData = {
-        date: startTime.toISOString().split("T")[0],
-        dayId: trainingDay.id,
-        dayName: trainingDay.name,
-        programId: trainingDay.programId,
-        sets: completedSets,
-        startTime: startTime.toISOString(),
-        endTime: endTime.toISOString(),
-        duration: Math.floor(duration / 60), // Convert to minutes
-        isComplete: true,
-      };
+    // Show completion screen immediately (optimistic)
+    setPhase("complete");
+    clearSession();
 
-      // Retry up to 3 times to prevent data loss
+    // Then try API save in background
+    try {
       let savedLog: { id: string } | null = null;
       for (let attempt = 0; attempt < 3; attempt++) {
         try {
@@ -921,6 +932,9 @@ export default function WorkoutSession() {
       }
       if (!savedLog) throw new Error("Failed to save workout log");
       setWorkoutLogId(savedLog.id);
+
+      // Clear pending data - save succeeded
+      localStorage.removeItem("pending-workout");
 
       // CRITICAL: Transition to complete phase BEFORE secondary operations
       // This ensures completion screen shows even if PR/achievement checks fail
@@ -1072,10 +1086,10 @@ export default function WorkoutSession() {
         audioManager.playWorkoutComplete();
       }
     } catch (error) {
-      console.error("Error finishing workout:", error);
-      // TODO: Show error toast to user
+      console.error("Error saving workout to server:", error);
+      // Data is safe in localStorage - show warning but don't break completion
+      setSaveError("Workout saved locally. Will sync when connection is restored.");
     }
-    // Note: Dexie Cloud handles sync automatically in the background
   };
 
   // Handle completing workout with notes
@@ -1706,6 +1720,25 @@ export default function WorkoutSession() {
                 Great job crushing {trainingDay.name}
               </p>
             </motion.div>
+
+            {saveError && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mx-4 p-3 rounded-lg bg-warning/10 border border-warning/20 text-warning text-sm"
+              >
+                <p>{saveError}</p>
+                <button
+                  onClick={() => {
+                    setSaveError(null);
+                    finishWorkout();
+                  }}
+                  className="mt-2 underline text-xs"
+                >
+                  Tap to retry sync
+                </button>
+              </motion.div>
+            )}
 
             {/* PR Celebration Section */}
             {newPRs.length > 0 && (

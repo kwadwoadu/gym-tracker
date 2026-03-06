@@ -27,8 +27,8 @@ export function decodeClerkJwt(token: string): string | null {
     const jsonStr = atob(base64);
     const payload: ClerkJWTPayload = JSON.parse(jsonStr);
 
-    // Strict expiration check - no grace period
-    if (payload.exp && payload.exp * 1000 < Date.now()) {
+    // 30s grace period for clock skew and long workout sessions
+    if (payload.exp && payload.exp * 1000 < Date.now() - 30000) {
       return null;
     }
 

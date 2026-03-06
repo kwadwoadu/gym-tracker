@@ -13,6 +13,16 @@ async function handleResponse<T>(response: Response): Promise<T> {
   return response.json();
 }
 
+async function fetchWithRetry(url: string, options?: RequestInit): Promise<Response> {
+  let response = await fetch(url, options);
+  if (response.status === 401) {
+    // Wait for Clerk to refresh session cookie, then retry once
+    await new Promise(r => setTimeout(r, 1000));
+    response = await fetch(url, options);
+  }
+  return response;
+}
+
 // ============================================================
 // Exercises
 // ============================================================
@@ -346,7 +356,7 @@ export const workoutLogsApi = {
     notes?: string;
     isComplete?: boolean;
   }): Promise<WorkoutLog> => {
-    const res = await fetch(`${API_BASE}/workout-logs`, {
+    const res = await fetchWithRetry(`${API_BASE}/workout-logs`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
@@ -355,7 +365,7 @@ export const workoutLogsApi = {
   },
 
   update: async (id: string, data: Partial<WorkoutLog>): Promise<WorkoutLog> => {
-    const res = await fetch(`${API_BASE}/workout-logs/${id}`, {
+    const res = await fetchWithRetry(`${API_BASE}/workout-logs/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
