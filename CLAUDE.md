@@ -328,5 +328,35 @@ SetFlow is part of the Health domain in AduOS:
 
 ---
 
+---
+
+## E2E Visual Verification
+
+SetFlow has browser-based E2E testing configured via `e2e.json`.
+
+### Config
+- **File**: `/e2e.json` (project root)
+- **Deployed URL**: https://gym.adu.dk
+- **Auth provider**: Clerk
+- **Test user**: `e2e@adu.dk` (Clerk user ID stored in credentials registry)
+- **Credential env vars**: `E2E_SETFLOW_EMAIL`, `E2E_SETFLOW_PASSWORD` in `~/.config/aduos/.env`
+
+### Tested Flows
+| Flow | URL | Auth | Assertions |
+|------|-----|------|------------|
+| Landing Page | `/landing` | No | "SetFlow" text visible |
+| Home Dashboard | `/` | Yes | "SetFlow" text, no error state |
+| Program View | `/program` | Yes | No error state |
+| Stats Page | `/stats` | Yes | No error state |
+
+### Running E2E
+```
+/e2e setflow
+```
+
+Uses Puppeteer MCP to navigate, authenticate via Clerk, and screenshot each flow.
+
+---
+
 *Created: 2025-12-27*
-*Updated: 2026-01-04*
+*Updated: 2026-03-06*

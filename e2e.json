@@ -1,0 +1,46 @@
+{
+  "project": "setflow",
+  "baseUrl": "https://gym.adu.dk",
+  "localUrl": "http://localhost:3000",
+  "auth": {
+    "required": true,
+    "provider": "clerk",
+    "signInUrl": "/sign-in",
+    "credentialPrefix": "SETFLOW"
+  },
+  "flows": [
+    {
+      "name": "landing-page",
+      "url": "/landing",
+      "auth": false,
+      "assertions": [
+        { "type": "textVisible", "value": "SetFlow" }
+      ]
+    },
+    {
+      "name": "home-dashboard",
+      "url": "/",
+      "auth": true,
+      "assertions": [
+        { "type": "textVisible", "value": "SetFlow" },
+        { "type": "noErrorState" }
+      ]
+    },
+    {
+      "name": "program-view",
+      "url": "/program",
+      "auth": true,
+      "assertions": [
+        { "type": "noErrorState" }
+      ]
+    },
+    {
+      "name": "stats-page",
+      "url": "/stats",
+      "auth": true,
+      "assertions": [
+        { "type": "noErrorState" }
+      ]
+    }
+  ]
+}
