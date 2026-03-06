@@ -39,6 +39,7 @@ export default function Home() {
 
   // React Query hooks
   const { data: programs, isLoading: programsLoading, isFetching: programsFetching } = usePrograms();
+  const { data: allPrograms, isLoading: allProgramsLoading } = usePrograms({ includeArchived: true });
   const { data: stats } = useStats();
   const { data: gamification } = useGamification();
   const { data: dailyChallenges } = useDailyChallenges();
@@ -145,7 +146,7 @@ export default function Home() {
   }
 
   // Show loading while data is being fetched
-  if (programsLoading || programsFetching) {
+  if (programsLoading || programsFetching || allProgramsLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center space-y-4">
@@ -156,8 +157,36 @@ export default function Home() {
     );
   }
 
-  // No programs - show empty state instead of redirecting
+  // No active programs - check if there are archived ones
   if (!programs || programs.length === 0) {
+    const hasArchivedPrograms = allPrograms && allPrograms.length > 0;
+
+    if (hasArchivedPrograms) {
+      // User has archived programs but no active ones - point them to /programs to unarchive
+      return (
+        <div className="min-h-screen flex flex-col items-center justify-center px-6">
+          <div className="text-center space-y-6 max-w-sm">
+            <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
+              <Dumbbell className="w-8 h-8 text-primary" />
+            </div>
+            <div>
+              <h2 className={`${HEADING.h3} text-foreground mb-2`}>No Active Program</h2>
+              <p className="text-muted-foreground text-sm">
+                You have {allPrograms.length} archived program{allPrograms.length > 1 ? "s" : ""}. Head to Programs to reactivate one.
+              </p>
+            </div>
+            <Button
+              onClick={() => router.push("/programs")}
+              className="w-full h-14 bg-[#CDFF00] text-black font-semibold text-lg hover:bg-[#b8e600]"
+            >
+              View Programs
+            </Button>
+          </div>
+        </div>
+      );
+    }
+
+    // Truly no programs at all - show onboarding
     return (
       <div className="min-h-screen flex flex-col items-center justify-center px-6">
         <div className="text-center space-y-6 max-w-sm">
