@@ -1136,29 +1136,13 @@ export default function WorkoutSession() {
     return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
 
-  if (isLoading || !trainingDay) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center space-y-4">
-          <Dumbbell className="w-8 h-8 animate-pulse mx-auto text-primary" />
-          <p className="text-muted-foreground">Loading workout...</p>
-        </div>
-      </div>
-    );
-  }
-
-  const currentExercise = getCurrentExercise();
-
-  // Flatten supersets for carousel navigation
+  // Flatten supersets for carousel navigation (must be before early return for hooks rule)
   const flatExercises: FlatExercise[] = trainingDay
     ? flattenSupersets(trainingDay.supersets)
     : [];
 
   // Get the flat exercise for the current sheet
   const sheetFlatExercise = flatExercises[sheetExerciseIndex] || null;
-  const sheetExercise = sheetFlatExercise
-    ? exercises.get(sheetFlatExercise.exerciseId) || null
-    : null;
   const sheetCompletedCount = sheetFlatExercise
     ? completedSets.filter((s) => s.exerciseId === sheetFlatExercise.exerciseId).length
     : 0;
@@ -1177,6 +1161,23 @@ export default function WorkoutSession() {
     return { sessionMem, memSource };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sheetFlatExercise?.exerciseId, sheetSetNumber, completedSets, globalSuggestion]);
+
+  if (isLoading || !trainingDay) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <Dumbbell className="w-8 h-8 animate-pulse mx-auto text-primary" />
+          <p className="text-muted-foreground">Loading workout...</p>
+        </div>
+      </div>
+    );
+  }
+
+  const currentExercise = getCurrentExercise();
+
+  const sheetExercise = sheetFlatExercise
+    ? exercises.get(sheetFlatExercise.exerciseId) || null
+    : null;
 
   // Handle opening set logger sheet from carousel
   const handleOpenSheet = (exerciseIndex: number) => {
