@@ -1,8 +1,8 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
+import { decodeClerkJwt } from "@/lib/jwt-utils";
 
-// Public routes - auth pages, health check, landing page, and PWA manifest
-// Note: "/" is public - auth check happens client-side to show landing vs app
 const isPublicRoute = createRouteMatcher([
   "/",
   "/sign-in(.*)",
@@ -12,43 +12,65 @@ const isPublicRoute = createRouteMatcher([
   "/manifest.json",
 ]);
 
-// Onboarding routes - accessible but require auth
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const isOnboardingRoute = createRouteMatcher([
-  "/onboarding(.*)",
-]);
-
-// API routes need special handling
 const isApiRoute = createRouteMatcher(["/api(.*)"]);
 
-// All other routes require authentication
 export default clerkMiddleware(async (auth, req) => {
+  // Strip any client-sent x-clerk-user-id to prevent header injection
+  const incomingHeaders = new Headers(req.headers);
+  incomingHeaders.delete("x-clerk-user-id");
+
   if (isPublicRoute(req)) {
     return;
   }
 
-  // For API routes, return 401 instead of redirect
   if (isApiRoute(req)) {
-    const { userId } = await auth();
+    // Try Clerk auth() first
+    let userId: string | null = null;
+    try {
+      const result = await auth();
+      userId = result.userId;
+    } catch (e) {
+      console.warn("[middleware] Clerk auth() failed:", (e as Error).message);
+    }
+
+    // Fallback: decode JWT directly
+    if (!userId) {
+      const sessionCookie = req.cookies.get("__session");
+      if (sessionCookie?.value) {
+        userId = decodeClerkJwt(sessionCookie.value);
+      }
+    }
+
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    return;
+
+    // Pass userId to route handler via header
+    const requestHeaders = new Headers(req.headers);
+    requestHeaders.delete("x-clerk-user-id");
+    requestHeaders.set("x-clerk-user-id", userId);
+    return NextResponse.next({
+      request: { headers: requestHeaders },
+    });
   }
 
-  // Protect all non-public routes
-  await auth.protect();
-
-  // Note: Onboarding check happens client-side via IndexedDB
-  // We can't check IndexedDB from middleware (server-side)
-  // The main app page will redirect to /onboarding if needed
+  // Non-API protected routes
+  try {
+    await auth.protect();
+  } catch {
+    const sessionCookie = req.cookies.get("__session");
+    const userId = sessionCookie?.value
+      ? decodeClerkJwt(sessionCookie.value)
+      : null;
+    if (!userId) {
+      return NextResponse.redirect(new URL("/sign-in", req.url));
+    }
+  }
 });
 
 export const config = {
   matcher: [
-    // Skip static files and Next.js internals
     "/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest|sw\\.js|workbox-.*)).*)",
-    // Always run for API routes
     "/(api|trpc)(.*)",
   ],
 };
