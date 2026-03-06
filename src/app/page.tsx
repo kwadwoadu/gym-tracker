@@ -223,7 +223,7 @@ export default function Home() {
   return (
     <div className="min-h-screen pb-44 lg:pb-8">
       {/* Header */}
-      <header className="px-4 pt-6 pb-4 gradient-divider">
+      <header className="px-4 pt-6 pb-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
@@ -264,6 +264,7 @@ export default function Home() {
           </div>
         </div>
       </header>
+      <div className="gradient-divider" />
 
       {/* Compact Gamification Strip */}
       {g && (

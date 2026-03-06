@@ -196,7 +196,7 @@ export default function ProgramPage() {
       )}
 
       {/* Header */}
-      <header className="px-4 pt-safe-top pb-4 border-b border-border">
+      <header className="px-4 pt-6 pb-4 border-b border-border">
         <div className="flex items-center gap-3">
           <Button
             variant="ghost"

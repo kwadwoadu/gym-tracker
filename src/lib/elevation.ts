@@ -17,6 +17,16 @@ export const GLASS = {
   fixedCta: "bg-[#0A0A0A]/70 backdrop-blur-[20px] backdrop-saturate-150 border-t border-white/6 glass-bg",
 };
 
+/** Z-index scale for consistent layering */
+export const Z_INDEX = {
+  content: 0,
+  stickyHeader: 20,
+  tabBar: 40,
+  sidebar: 50,
+  modal: 50,
+  toast: 50,
+} as const;
+
 /** Progress bar gradient presets */
 export const GRADIENTS = {
   xp: "bg-gradient-to-r from-[#CDFF00] via-[#A3E635] to-[#22C55E]",

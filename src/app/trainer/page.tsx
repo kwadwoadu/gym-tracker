@@ -160,7 +160,7 @@ export default function TrainerPage() {
   return (
     <div className="min-h-screen bg-[#0A0A0A] flex flex-col">
       {/* Header */}
-      <header className="sticky top-0 z-50 bg-[#0A0A0A]/95 backdrop-blur-sm border-b border-[#2A2A2A]">
+      <header className="sticky top-0 z-20 bg-[#0A0A0A]/95 backdrop-blur-sm border-b border-[#2A2A2A]">
         <div className="flex items-center gap-3 px-4 h-14">
           <Link
             href="/"

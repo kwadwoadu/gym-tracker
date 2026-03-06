@@ -1182,7 +1182,7 @@ export default function WorkoutSession() {
       <MilestoneModalComponent />
 
       {/* Header */}
-      <header className="px-4 pt-safe-top pb-4 border-b border-border bg-background/80 backdrop-blur-lg sticky top-0 z-50">
+      <header className="px-4 pt-6 pb-4 border-b border-border bg-background/80 backdrop-blur-lg sticky top-0 z-20">
         <div className="flex items-center justify-between">
           <Button
             variant="ghost"

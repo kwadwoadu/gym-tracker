@@ -50,7 +50,7 @@ export default function SettingsLayout({ children }: { children: React.ReactNode
   return (
     <div className="min-h-screen pb-44 lg:pb-8">
       {/* Header */}
-      <header className="px-4 pt-safe-top pb-4 gradient-divider">
+      <header className="px-4 pt-6 pb-4">
         <div className="flex items-center gap-3">
           <Button
             variant="ghost"
@@ -101,6 +101,7 @@ export default function SettingsLayout({ children }: { children: React.ReactNode
           </div>
         )}
       </header>
+      <div className="gradient-divider" />
 
       {/* Tab navigation */}
       <div className="px-4 py-3 gradient-divider">

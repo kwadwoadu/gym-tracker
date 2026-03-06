@@ -58,7 +58,7 @@ export default function ExercisesPage() {
   return (
     <div className="min-h-screen pb-24">
       {/* Header */}
-      <header className="px-4 pt-safe-top pb-4 border-b border-border sticky top-0 bg-background z-10">
+      <header className="px-4 pt-6 pb-4 border-b border-border sticky top-0 bg-background z-20">
         <div className="flex items-center gap-3">
           <Button
             variant="ghost"
