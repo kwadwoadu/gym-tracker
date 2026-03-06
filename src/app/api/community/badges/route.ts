@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
-import { auth } from "@clerk/nextjs/server";
+import { getClerkId } from "@/lib/auth-helpers";
 import prisma from "@/lib/prisma";
 
 // GET /api/community/badges - List all badges
 export async function GET() {
   try {
-    const { userId: clerkId } = await auth();
+    const clerkId = await getClerkId();
     if (!clerkId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { auth } from "@clerk/nextjs/server";
+import { getClerkId } from "@/lib/auth-helpers";
 import { prisma } from "@/lib/prisma";
 import webpush from "web-push";
 import { ensureVapidConfigured } from "@/lib/web-push-config";
@@ -15,7 +15,7 @@ interface ScheduleRequest {
 }
 
 export async function POST(req: Request) {
-  const { userId } = await auth();
+  const userId = await getClerkId();
   if (!userId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
@@ -99,7 +99,7 @@ export async function POST(req: Request) {
 }
 
 export async function GET() {
-  const { userId } = await auth();
+  const userId = await getClerkId();
   if (!userId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }

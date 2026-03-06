@@ -1,4 +1,4 @@
-import { auth } from "@clerk/nextjs/server";
+import { getClerkId } from "@/lib/auth-helpers";
 import { prisma } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -39,7 +39,7 @@ export async function GET(req: NextRequest) {
   ]);
 
   // Check if current user has voted on these templates
-  const { userId } = await auth();
+  const userId = await getClerkId();
   let votedIds: Set<string> = new Set();
   if (userId) {
     const votes = await prisma.templateVote.findMany({
@@ -61,7 +61,7 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const { userId } = await auth();
+  const userId = await getClerkId();
   if (!userId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }

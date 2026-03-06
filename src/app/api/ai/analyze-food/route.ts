@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { auth } from "@clerk/nextjs/server";
+import { getClerkId } from "@/lib/auth-helpers";
 import { getAIClient } from "@/lib/ai/ai-client";
 import {
   FOOD_ANALYSIS_SYSTEM,
@@ -8,7 +8,7 @@ import {
 
 export async function POST(request: Request) {
   try {
-    const { userId } = await auth();
+    const userId = await getClerkId();
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
