@@ -41,11 +41,33 @@ const workouts = await prisma.workout.findMany(); // Server only!
 |------|---------|
 | `/lib/prisma.ts` | Prisma client singleton |
 | `/lib/queries.ts` | Server-side database queries |
+| `/lib/auth-helpers.ts` | 3-level Clerk auth fallback (getClerkId, getCurrentUser) |
+| `/lib/jwt-utils.ts` | Shared JWT decode for Clerk __session cookie |
 | `/lib/audio.ts` | Web Audio API sounds (iOS-compatible) |
 | `/lib/gamification.ts` | Achievement unlocking logic |
 | `/lib/api-client.ts` | API communication for sync |
 | `/lib/programs.ts` | Program management logic |
 | `/lib/utils.ts` | Volume calculations, 1RM estimates, helpers |
+
+## Authentication Pattern (Vercel Edge Runtime Workaround)
+
+**RULE: Use `getClerkId()` or `getCurrentUser()` for ALL auth access. Never call `auth()` directly.**
+
+Clerk's `auth()` fails silently on Vercel Edge Runtime due to middleware detection bug ([clerk/javascript#2045](https://github.com/clerk/javascript/issues/2045)).
+
+```typescript
+// CORRECT: 3-level fallback
+import { getClerkId } from '@/lib/auth-helpers';
+const userId = await getClerkId();
+
+// WRONG: Direct auth() - fails on Vercel
+import { auth } from '@clerk/nextjs/server';
+const { userId } = await auth();
+```
+
+Fallback chain: `auth()` -> `x-clerk-user-id` header (set by middleware) -> direct `__session` JWT decode.
+
+See: `docs/solutions/security-issues/2026-03-06-clerk-vercel-auth-fallback.md`
 
 ## Offline Requirements
 - NEVER assume network availability
@@ -138,4 +160,4 @@ await playSound('rest-complete');
 
 ---
 
-*Backend Rules | Updated: January 4, 2026*
+*Backend Rules | Updated: March 6, 2026*

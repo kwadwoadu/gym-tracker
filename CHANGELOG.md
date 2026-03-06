@@ -4,6 +4,26 @@ All notable changes to the SetFlow project.
 
 ---
 
+## [2026-03-06] Clerk Auth Hardening - Vercel Edge Runtime Fallback
+
+**Type:** Fix
+**Files Changed:**
+- `src/lib/jwt-utils.ts` (NEW)
+- `src/lib/auth-helpers.ts`
+- `src/middleware.ts`
+- 17 API routes (migrated from `auth()` to `getClerkId()`)
+
+### Summary
+Clerk's `auth()` was failing silently on Vercel Edge Runtime. Implemented 3-level auth fallback (auth -> header -> JWT decode), extracted shared JWT utility, fixed expiry logic, prevented header injection, added error logging, removed dead code.
+
+### Solution Documented
+- `docs/solutions/security-issues/2026-03-06-clerk-vercel-auth-fallback.md`
+
+### Impact
+All authenticated API routes now work reliably on Vercel. Auth pattern documented in lib/CLAUDE.md to prevent future direct `auth()` usage.
+
+---
+
 ## [2026-02-06] Gamification System - XP, Levels, and Challenges
 
 Complete XP/Gamification system matching SetFlow Native feature parity.
