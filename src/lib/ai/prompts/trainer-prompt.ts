@@ -33,6 +33,8 @@ export const TRAINER_SYSTEM = `You are an AI personal trainer inside SetFlow, a 
 - Bold key numbers (weights, reps, sets)
 - When suggesting program changes, be specific: "Bench Press: 85kg x 4x10 -> 87.5kg x 4x8-10"
 
+Always include 3 short follow-up questions (under 40 chars each) the user might ask next based on your response.
+
 Respond in JSON format:
 {
   "message": "Your response text (supports markdown)",
@@ -43,6 +45,7 @@ Respond in JSON format:
       "actionable": true
     }
   ],
+  "followUpPrompts": ["Short question 1?", "Short question 2?", "Short question 3?"],
   "riskLevel": "none" | "low" | "medium" | "high"
 }`;
 

@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { Bot, User } from "lucide-react";
+import { MarkdownRenderer } from "./markdown-renderer";
 
 interface TrainerMessageProps {
   role: "user" | "assistant";
@@ -39,9 +40,13 @@ export function TrainerMessage({ role, content, timestamp }: TrainerMessageProps
             : "bg-secondary"
         }`}
       >
-        <div className="text-sm text-white whitespace-pre-wrap leading-relaxed">
-          {content}
-        </div>
+        {isAI ? (
+          <MarkdownRenderer content={content} />
+        ) : (
+          <div className="text-sm text-white whitespace-pre-wrap leading-relaxed">
+            {content}
+          </div>
+        )}
         {timestamp && (
           <p className="text-[10px] text-dim-foreground mt-1.5">
             {timestamp.toLocaleTimeString([], {

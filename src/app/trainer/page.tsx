@@ -21,6 +21,7 @@ export default function TrainerPage() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [sending, setSending] = useState(false);
+  const [dynamicPrompts, setDynamicPrompts] = useState<string[]>([]);
   const [riskAlert, setRiskAlert] = useState<{
     title: string;
     description: string;
@@ -99,6 +100,13 @@ export default function TrainerPage() {
 
         setMessages((prev) => [...prev, aiMessage]);
 
+        // Extract dynamic follow-up prompts
+        const prompts: string[] =
+          data.followUpPrompts?.length > 0
+            ? data.followUpPrompts
+            : data.suggestions?.map((s: { description: string }) => s.description).filter(Boolean) || [];
+        setDynamicPrompts(prompts);
+
         // Show risk alert if the AI flagged a risk
         if (data.riskLevel && data.riskLevel !== "none") {
           setRiskAlert({
@@ -109,6 +117,7 @@ export default function TrainerPage() {
           });
         }
       } catch {
+        setDynamicPrompts([]);
         const errorMessage: ChatMessage = {
           id: `error-${Date.now()}`,
           role: "assistant",
@@ -157,7 +166,7 @@ export default function TrainerPage() {
         {/* Quick actions at top when few messages */}
         {messages.length <= 1 && (
           <div className="space-y-3">
-            <QuickActions onSelect={sendMessage} disabled={sending} />
+            <QuickActions onSelect={sendMessage} disabled={sending} dynamicActions={dynamicPrompts} />
 
             {/* Sample prediction card */}
             {stats && stats.currentStreak > 0 && (
@@ -217,7 +226,7 @@ export default function TrainerPage() {
 
         {/* Quick actions inline after a few messages */}
         {messages.length > 2 && !sending && (
-          <QuickActions onSelect={sendMessage} disabled={sending} />
+          <QuickActions onSelect={sendMessage} disabled={sending} dynamicActions={dynamicPrompts} />
         )}
 
         <div ref={messagesEndRef} />

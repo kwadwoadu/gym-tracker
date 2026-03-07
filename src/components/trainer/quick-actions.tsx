@@ -14,12 +14,15 @@ const QUICK_ACTIONS = [
 interface QuickActionsProps {
   onSelect: (action: string) => void;
   disabled?: boolean;
+  dynamicActions?: string[];
 }
 
-export function QuickActions({ onSelect, disabled }: QuickActionsProps) {
+export function QuickActions({ onSelect, disabled, dynamicActions }: QuickActionsProps) {
+  const actions = dynamicActions && dynamicActions.length > 0 ? dynamicActions : QUICK_ACTIONS;
+
   return (
     <div className="flex flex-wrap gap-2">
-      {QUICK_ACTIONS.map((action) => (
+      {actions.map((action) => (
         <motion.button
           key={action}
           whileTap={{ scale: 0.95 }}
