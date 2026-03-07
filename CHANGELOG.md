@@ -4,6 +4,29 @@ All notable changes to the SetFlow project.
 
 ---
 
+## [2026-03-07] AI Coach: Markdown Rendering + Dynamic Follow-up Prompts
+
+**Type:** Feature
+**Files Changed:**
+- `src/components/trainer/markdown-renderer.tsx` - NEW: react-markdown wrapper with dark theme
+- `src/components/trainer/trainer-message.tsx` - Use MarkdownRenderer for assistant messages
+- `src/components/trainer/quick-actions.tsx` - Accept dynamic actions prop
+- `src/app/trainer/page.tsx` - Wire up dynamic prompts from AI response
+- `src/lib/ai/prompts/trainer-prompt.ts` - Add followUpPrompts to JSON schema
+- `src/app/api/ai/trainer/route.ts` - Add followUpPrompts to fallback response
+
+### Summary
+AI Coach responses now render markdown properly (bold numbers, bullet lists, emphasis) instead of showing raw `**bold**` text. After each AI response, quick action pills update with 3 contextual follow-up questions instead of showing the same 6 static defaults.
+
+### Review Findings Resolved (5)
+- REV-001 P2: API fallback missing followUpPrompts field
+- REV-002 P2: Unvalidated API response fields - added runtime type guards
+- REV-003 P2: Simplified redundant check in QuickActions
+- REV-004 P3: Preserve dynamic prompts on error
+- REV-005 P3: Removed redundant text-white from markdown wrapper
+
+---
+
 ## [2026-03-07] SetFlow Evolved Review - 14 Findings Resolved
 
 **Type:** Fix
