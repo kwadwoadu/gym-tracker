@@ -132,7 +132,7 @@ export default function TrainerPage() {
           setRiskAlert({
             title: data.riskLevel === "high" ? "High Risk Detected" : "Training Advisory",
             description: data.message.slice(0, 120) + "...",
-            recommendation: data.suggestions?.[0] || "Consider adjusting your training.",
+            recommendation: data.suggestions?.[0]?.description || "Consider adjusting your training.",
             severity: data.riskLevel as "low" | "medium" | "high",
           });
         }
