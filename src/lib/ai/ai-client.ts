@@ -1,19 +1,19 @@
 /**
  * Shared AI API client for SetFlow
- * Server-side only - uses Anthropic Claude API
+ * Server-side only - uses OpenAI API
  */
 
-import Anthropic from "@anthropic-ai/sdk";
+import OpenAI from "openai";
 
-let client: Anthropic | null = null;
+let client: OpenAI | null = null;
 
-export function getAIClient(): Anthropic {
+export function getAIClient(): OpenAI {
   if (!client) {
-    const apiKey = process.env.ANTHROPIC_API_KEY;
+    const apiKey = process.env.OPENAI_API_KEY;
     if (!apiKey) {
-      throw new Error("ANTHROPIC_API_KEY environment variable is not set");
+      throw new Error("OPENAI_API_KEY environment variable is not set");
     }
-    client = new Anthropic({ apiKey });
+    client = new OpenAI({ apiKey });
   }
   return client;
 }
@@ -24,10 +24,10 @@ export interface AIRequestOptions {
   model?: string;
 }
 
-const DEFAULT_MODEL = "claude-sonnet-4-20250514";
+const DEFAULT_MODEL = "gpt-4o";
 
 /**
- * Send a structured JSON request to Claude and parse the response
+ * Send a structured JSON request to OpenAI and parse the response
  */
 export async function generateJSON<T>(
   systemPrompt: string,
@@ -37,22 +37,23 @@ export async function generateJSON<T>(
   const ai = getAIClient();
   const { maxTokens = 4096, temperature = 0.7, model = DEFAULT_MODEL } = options;
 
-  const response = await ai.messages.create({
+  const response = await ai.chat.completions.create({
     model,
     max_tokens: maxTokens,
     temperature,
-    system: systemPrompt,
-    messages: [{ role: "user", content: userPrompt }],
+    messages: [
+      { role: "system", content: systemPrompt },
+      { role: "user", content: userPrompt },
+    ],
   });
 
-  // Extract text content
-  const textBlock = response.content.find((block) => block.type === "text");
-  if (!textBlock || textBlock.type !== "text") {
+  const text = response.choices[0]?.message?.content?.trim();
+  if (!text) {
     throw new Error("No text content in AI response");
   }
 
   // Parse JSON from response - handle markdown code blocks
-  let jsonText = textBlock.text.trim();
+  let jsonText = text;
   const jsonMatch = jsonText.match(/```(?:json)?\s*\n?([\s\S]*?)\n?\s*```/);
   if (jsonMatch) {
     jsonText = jsonMatch[1].trim();

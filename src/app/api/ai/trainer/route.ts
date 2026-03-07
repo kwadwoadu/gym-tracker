@@ -27,7 +27,10 @@ export async function POST(request: Request) {
     const ai = getAIClient();
 
     // Build conversation messages
-    const messages: Array<{ role: "user" | "assistant"; content: string }> = [];
+    const messages: Array<{ role: "system" | "user" | "assistant"; content: string }> = [];
+
+    // System prompt
+    messages.push({ role: "system", content: TRAINER_SYSTEM });
 
     // Add context as first user message if provided
     if (context) {
@@ -50,20 +53,19 @@ export async function POST(request: Request) {
     // Add current message
     messages.push({ role: "user", content: message });
 
-    const response = await ai.messages.create({
-      model: "claude-sonnet-4-20250514",
+    const response = await ai.chat.completions.create({
+      model: "gpt-4o",
       max_tokens: 1024,
       temperature: 0.6,
-      system: TRAINER_SYSTEM,
       messages,
     });
 
-    const textBlock = response.content.find((block) => block.type === "text");
-    if (!textBlock || textBlock.type !== "text") {
+    const responseText = response.choices[0]?.message?.content?.trim();
+    if (!responseText) {
       throw new Error("No text content in AI response");
     }
 
-    let jsonText = textBlock.text.trim();
+    let jsonText = responseText;
     const jsonMatch = jsonText.match(/```(?:json)?\s*\n?([\s\S]*?)\n?\s*```/);
     if (jsonMatch) {
       jsonText = jsonMatch[1].trim();
@@ -77,7 +79,7 @@ export async function POST(request: Request) {
       return NextResponse.json({
         success: true,
         data: {
-          message: textBlock.text.trim(),
+          message: responseText,
           suggestions: [],
           riskLevel: "none",
         },

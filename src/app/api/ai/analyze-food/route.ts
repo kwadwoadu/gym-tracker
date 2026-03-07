@@ -24,25 +24,19 @@ export async function POST(request: Request) {
 
     const ai = getAIClient();
 
-    const response = await ai.messages.create({
-      model: "claude-sonnet-4-20250514",
+    const response = await ai.chat.completions.create({
+      model: "gpt-4o",
       max_tokens: 1024,
       temperature: 0.3,
-      system: FOOD_ANALYSIS_SYSTEM,
       messages: [
+        { role: "system", content: FOOD_ANALYSIS_SYSTEM },
         {
           role: "user",
           content: [
             {
-              type: "image",
-              source: {
-                type: "base64",
-                media_type: mimeType as
-                  | "image/jpeg"
-                  | "image/png"
-                  | "image/gif"
-                  | "image/webp",
-                data: imageBase64,
+              type: "image_url",
+              image_url: {
+                url: `data:${mimeType};base64,${imageBase64}`,
               },
             },
             {
@@ -54,12 +48,12 @@ export async function POST(request: Request) {
       ],
     });
 
-    const textBlock = response.content.find((block) => block.type === "text");
-    if (!textBlock || textBlock.type !== "text") {
+    const responseText = response.choices[0]?.message?.content?.trim();
+    if (!responseText) {
       throw new Error("No text content in AI response");
     }
 
-    let jsonText = textBlock.text.trim();
+    let jsonText = responseText;
     const jsonMatch = jsonText.match(/```(?:json)?\s*\n?([\s\S]*?)\n?\s*```/);
     if (jsonMatch) {
       jsonText = jsonMatch[1].trim();
