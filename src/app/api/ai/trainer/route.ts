@@ -1,7 +1,9 @@
 import { NextResponse } from "next/server";
-import { getClerkId } from "@/lib/auth-helpers";
+import { getCurrentUser } from "@/lib/auth-helpers";
+import { prisma } from "@/lib/prisma";
 import { getAIClient } from "@/lib/ai/ai-client";
 import { TRAINER_SYSTEM } from "@/lib/ai/prompts/trainer-prompt";
+import { buildServerContext } from "@/lib/ai/context-engine";
 
 interface TrainerMessage {
   role: "user" | "assistant";
@@ -10,12 +12,12 @@ interface TrainerMessage {
 
 export async function POST(request: Request) {
   try {
-    const userId = await getClerkId();
-    if (!userId) {
+    const user = await getCurrentUser();
+    if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { message, context, history = [] } = await request.json();
+    const { message, history = [] } = await request.json();
 
     if (!message) {
       return NextResponse.json(
@@ -23,6 +25,45 @@ export async function POST(request: Request) {
         { status: 400 }
       );
     }
+
+    // Fetch all user data server-side in parallel
+    const [recentWorkouts, personalRecords, activeProgram, onboardingProfile, totalWorkoutCount] =
+      await Promise.all([
+        prisma.workoutLog.findMany({
+          where: { userId: user.id, isComplete: true },
+          orderBy: { startTime: "desc" },
+          take: 10,
+        }),
+        prisma.personalRecord.findMany({
+          where: { userId: user.id },
+          orderBy: { date: "desc" },
+          take: 5,
+        }),
+        prisma.program.findFirst({
+          where: { userId: user.id, isActive: true },
+          include: {
+            trainingDays: {
+              select: { name: true, supersets: true },
+              orderBy: { dayNumber: "asc" },
+            },
+          },
+        }),
+        prisma.onboardingProfile.findUnique({
+          where: { userId: user.id },
+        }),
+        prisma.workoutLog.count({
+          where: { userId: user.id, isComplete: true },
+        }),
+      ]);
+
+    // Build context server-side from real DB data
+    const context = buildServerContext(
+      recentWorkouts,
+      personalRecords,
+      activeProgram,
+      onboardingProfile,
+      totalWorkoutCount,
+    );
 
     const ai = getAIClient();
 
@@ -32,17 +73,15 @@ export async function POST(request: Request) {
     // System prompt
     messages.push({ role: "system", content: TRAINER_SYSTEM });
 
-    // Add context as first user message if provided
-    if (context) {
-      messages.push({
-        role: "user",
-        content: `[CONTEXT - Do not respond to this, just use it for reference]\n${context}`,
-      });
-      messages.push({
-        role: "assistant",
-        content: "Understood, I have your training context loaded.",
-      });
-    }
+    // Inject server-built context
+    messages.push({
+      role: "user",
+      content: `[CONTEXT - Do not respond to this, just use it for reference]\n${context}`,
+    });
+    messages.push({
+      role: "assistant",
+      content: "Understood, I have your training context loaded.",
+    });
 
     // Add conversation history (last 20 messages)
     const recentHistory = (history as TrainerMessage[]).slice(-20);

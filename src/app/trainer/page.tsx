@@ -8,15 +8,7 @@ import { TrainerMessage } from "@/components/trainer/trainer-message";
 import { QuickActions } from "@/components/trainer/quick-actions";
 import { PredictionCard } from "@/components/trainer/prediction-card";
 import { RiskAlert } from "@/components/trainer/risk-alert";
-import {
-  usePrograms,
-  useTrainingDays,
-  useStats,
-  useOnboardingProfile,
-  useWorkoutLogs,
-  usePersonalRecords,
-} from "@/lib/queries";
-import { buildMinimalContext, buildContextPrompt } from "@/lib/ai/context-engine";
+import { useStats } from "@/lib/queries";
 
 interface ChatMessage {
   id: string;
@@ -38,14 +30,8 @@ export default function TrainerPage() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Load user context
-  const { data: programs } = usePrograms();
-  const activeProgram = programs?.find((p) => p.isActive);
-  const { data: trainingDays } = useTrainingDays(activeProgram?.id);
+  // Stats for PredictionCard display only (context is built server-side)
   const { data: stats } = useStats();
-  const { data: profile } = useOnboardingProfile();
-  const { data: workoutLogs } = useWorkoutLogs({ limit: 10, isComplete: true });
-  const { data: personalRecords } = usePersonalRecords();
 
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -85,44 +71,12 @@ export default function TrainerPage() {
       setSending(true);
 
       try {
-        // Build context from available data including onboarding profile
-        const context = buildMinimalContext(
-          activeProgram?.name || null,
-          (trainingDays || []).map((d) => ({
-            name: d.name,
-            supersets: d.supersets as Array<{ exercises: unknown[] }>,
-          })),
-          stats ? {
-            currentStreak: stats.currentStreak,
-            totalWorkouts: stats.totalWorkouts,
-            totalVolume: stats.totalVolume,
-            totalSets: stats.totalSets,
-            totalReps: stats.totalReps,
-            thisWeekCount: stats.thisWeekCount,
-            programDayCount: stats.programDayCount,
-          } : null,
-          (personalRecords || []).slice(0, 5).map((pr) => ({
-            exerciseName: pr.exerciseName,
-            weight: pr.weight,
-            reps: pr.reps,
-            date: pr.date,
-          })),
-          profile ? {
-            goals: profile.goals,
-            experienceLevel: profile.experienceLevel,
-            injuries: profile.injuries,
-          } : undefined,
-          workoutLogs || [],
-        );
-
-        const contextPrompt = buildContextPrompt(context);
-
+        // Context is built server-side from DB data - just send message + history
         const res = await fetch("/api/ai/trainer", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             message: text.trim(),
-            context: contextPrompt,
             history: messages
               .filter((m) => m.id !== "welcome")
               .map((m) => ({
@@ -167,7 +121,7 @@ export default function TrainerPage() {
         setSending(false);
       }
     },
-    [sending, messages, activeProgram, trainingDays, stats, profile, workoutLogs, personalRecords]
+    [sending, messages]
   );
 
   const handleSubmit = (e: React.FormEvent) => {

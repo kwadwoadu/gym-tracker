@@ -3,6 +3,187 @@
  * Aggregates all user data into a structured context for the AI
  */
 
+interface SetLog {
+  exerciseId: string;
+  exerciseName: string;
+  weight: number;
+  reps: number;
+  setNumber: number;
+}
+
+interface ServerWorkoutLog {
+  date: string;
+  dayName: string;
+  startTime: Date;
+  duration: number | null;
+  sets: unknown; // JSON field from Prisma
+}
+
+interface ServerPR {
+  exerciseName: string;
+  weight: number;
+  reps: number;
+  date: string;
+}
+
+interface ServerProgram {
+  name: string;
+  trainingDays: Array<{
+    name: string;
+    supersets: unknown; // JSON field
+  }>;
+}
+
+interface ServerOnboardingProfile {
+  goals: string[];
+  experienceLevel: string | null;
+  injuries: string[];
+  trainingDaysPerWeek: number | null;
+}
+
+/**
+ * Build context string server-side from raw Prisma data.
+ * This is the reliable path - no client-side hook timing issues.
+ */
+export function buildServerContext(
+  workoutLogs: ServerWorkoutLog[],
+  personalRecords: ServerPR[],
+  activeProgram: ServerProgram | null,
+  onboardingProfile: ServerOnboardingProfile | null,
+  totalWorkoutCount: number,
+): string {
+  const lines: string[] = [];
+
+  // Profile
+  lines.push("### Profile");
+  const goals = onboardingProfile?.goals?.length
+    ? onboardingProfile.goals.join(", ")
+    : "Build muscle, Progressive overload";
+  lines.push(`- Goals: ${goals}`);
+  lines.push(`- Experience: ${onboardingProfile?.experienceLevel || "Intermediate"}`);
+  lines.push(`- Training days/week: ${onboardingProfile?.trainingDaysPerWeek || 3}`);
+  lines.push("");
+
+  // Performance stats - calculate volume from workout logs
+  let totalVolume = 0;
+
+  for (const log of workoutLogs) {
+    const sets = log.sets as unknown as SetLog[];
+    if (Array.isArray(sets)) {
+      for (const set of sets) {
+        totalVolume += (set.weight || 0) * (set.reps || 0);
+      }
+    }
+  }
+
+  // Streak calculation
+  const today = new Date().toISOString().split("T")[0];
+  const workoutDates = [...new Set(workoutLogs.map((l) => l.date))].sort();
+  let currentStreak = 0;
+  for (let i = workoutDates.length - 1; i >= 0; i--) {
+    const workoutDate = new Date(workoutDates[i]);
+    const expectedDate = new Date(today);
+    expectedDate.setDate(expectedDate.getDate() - (workoutDates.length - 1 - i));
+    if (workoutDate.toISOString().split("T")[0] === expectedDate.toISOString().split("T")[0]) {
+      currentStreak++;
+    } else {
+      break;
+    }
+  }
+
+  // This week count
+  const now = new Date();
+  const startOfWeek = new Date(now);
+  startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
+  startOfWeek.setHours(0, 0, 0, 0);
+  const thisWeekDates = new Set(
+    workoutLogs
+      .filter((l) => new Date(l.startTime) >= startOfWeek)
+      .map((l) => l.date)
+  );
+
+  lines.push("### Performance");
+  lines.push(`- Current streak: ${currentStreak} days`);
+  lines.push(`- This week: ${thisWeekDates.size} sessions`);
+  lines.push(`- Total workouts: ${totalWorkoutCount}`);
+  lines.push(`- Total volume: ${Math.round(totalVolume).toLocaleString()}kg`);
+  lines.push("");
+
+  // Recent workouts - concise format
+  if (workoutLogs.length > 0) {
+    lines.push("### Recent Workouts");
+    for (const w of workoutLogs.slice(0, 10)) {
+      const date = new Date(w.date).toLocaleDateString("en-US", { month: "short", day: "numeric" });
+      const dur = w.duration ? `${Math.round(w.duration / 60)}min` : "";
+
+      const exerciseMap = new Map<string, { weight: number; reps: number[] }>();
+      const sets = w.sets as unknown as SetLog[];
+      if (Array.isArray(sets)) {
+        for (const s of sets) {
+          const key = s.exerciseName;
+          const existing = exerciseMap.get(key);
+          if (existing) {
+            existing.reps.push(s.reps);
+            existing.weight = Math.max(existing.weight, s.weight);
+          } else {
+            exerciseMap.set(key, { weight: s.weight, reps: [s.reps] });
+          }
+        }
+      }
+
+      const exercises = Array.from(exerciseMap.entries())
+        .slice(0, 4)
+        .map(([name, data]) => `${name} ${data.weight}kg x${data.reps.join(",")}`)
+        .join(" | ");
+
+      lines.push(`- ${date} (${w.dayName}): ${exercises}${dur ? ` | ${dur}` : ""}`);
+    }
+    lines.push("");
+  }
+
+  // Recent PRs
+  if (personalRecords.length > 0) {
+    lines.push("### Recent PRs");
+    for (const pr of personalRecords.slice(0, 5)) {
+      const dateStr = pr.date
+        ? ` (${new Date(pr.date).toLocaleDateString("en-US", { month: "short", day: "numeric" })})`
+        : "";
+      lines.push(`- ${pr.exerciseName}: ${pr.weight}kg x ${pr.reps}${dateStr}`);
+    }
+    lines.push("");
+  }
+
+  // Current program
+  if (activeProgram) {
+    lines.push("### Current Program");
+    lines.push(`Program: ${activeProgram.name}`);
+    for (const day of activeProgram.trainingDays) {
+      const supersets = day.supersets as Array<{ exercises: unknown[] }>;
+      const exerciseCount = Array.isArray(supersets)
+        ? supersets.reduce((sum, ss) => sum + (Array.isArray(ss.exercises) ? ss.exercises.length : 0), 0)
+        : 0;
+      lines.push(`- ${day.name}: ${exerciseCount} exercises`);
+    }
+    lines.push("");
+  }
+
+  // Today
+  lines.push("### Today");
+  lines.push(`- Day: ${new Date().toLocaleDateString("en-US", { weekday: "long" })}`);
+  if (activeProgram?.trainingDays?.length) {
+    lines.push(`- Program days: ${activeProgram.trainingDays.map((d) => d.name).join(", ")}`);
+  }
+
+  // Risk factors
+  if (onboardingProfile?.injuries?.length) {
+    lines.push("");
+    lines.push("### Risk Factors");
+    lines.push(`- Known injuries: ${onboardingProfile.injuries.join(", ")}`);
+  }
+
+  return lines.join("\n");
+}
+
 export interface TrainerContext {
   profile: {
     goals: string[];
