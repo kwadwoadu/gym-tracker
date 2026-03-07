@@ -13,6 +13,8 @@ import {
   useTrainingDays,
   useStats,
   useOnboardingProfile,
+  useWorkoutLogs,
+  usePersonalRecords,
 } from "@/lib/queries";
 import { buildMinimalContext, buildContextPrompt } from "@/lib/ai/context-engine";
 
@@ -42,6 +44,8 @@ export default function TrainerPage() {
   const { data: trainingDays } = useTrainingDays(activeProgram?.id);
   const { data: stats } = useStats();
   const { data: profile } = useOnboardingProfile();
+  const { data: workoutLogs } = useWorkoutLogs({ limit: 10, isComplete: true });
+  const { data: personalRecords } = usePersonalRecords();
 
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -88,13 +92,27 @@ export default function TrainerPage() {
             name: d.name,
             supersets: d.supersets as Array<{ exercises: unknown[] }>,
           })),
-          stats ? { currentStreak: stats.currentStreak, totalWorkouts: stats.totalWorkouts } : null,
-          [], // PRs would come from a separate query
+          stats ? {
+            currentStreak: stats.currentStreak,
+            totalWorkouts: stats.totalWorkouts,
+            totalVolume: stats.totalVolume,
+            totalSets: stats.totalSets,
+            totalReps: stats.totalReps,
+            thisWeekCount: stats.thisWeekCount,
+            programDayCount: stats.programDayCount,
+          } : null,
+          (personalRecords || []).slice(0, 5).map((pr) => ({
+            exerciseName: pr.exerciseName,
+            weight: pr.weight,
+            reps: pr.reps,
+            date: pr.date,
+          })),
           profile ? {
             goals: profile.goals,
             experienceLevel: profile.experienceLevel,
             injuries: profile.injuries,
-          } : undefined
+          } : undefined,
+          workoutLogs || [],
         );
 
         const contextPrompt = buildContextPrompt(context);
@@ -149,7 +167,7 @@ export default function TrainerPage() {
         setSending(false);
       }
     },
-    [sending, messages, activeProgram, trainingDays, stats, profile]
+    [sending, messages, activeProgram, trainingDays, stats, profile, workoutLogs, personalRecords]
   );
 
   const handleSubmit = (e: React.FormEvent) => {

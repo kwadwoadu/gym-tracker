@@ -82,25 +82,90 @@ export function buildContextPrompt(ctx: TrainerContext): string {
 }
 
 /**
+ * Minimal workout log shape for context building (avoids importing full types)
+ */
+interface ContextWorkoutLog {
+  date: string;
+  dayName: string;
+  duration: number | null;
+  isComplete: boolean;
+  sets: Array<{
+    exerciseName: string;
+    weight: number;
+    actualReps: number;
+    rpe?: number;
+    supersetLabel?: string;
+  }>;
+}
+
+/**
  * Build a minimal context from available data
  * This is the client-side version that uses whatever data is available
  */
 export function buildMinimalContext(
   programName: string | null,
   trainingDays: Array<{ name: string; supersets: unknown[] }>,
-  stats: { currentStreak: number; totalWorkouts: number } | null,
-  recentPRs: Array<{ exerciseName: string; weight: number; reps: number }>,
+  stats: {
+    currentStreak: number;
+    totalWorkouts: number;
+    totalVolume?: number;
+    totalSets?: number;
+    totalReps?: number;
+    thisWeekCount?: number;
+    programDayCount?: number;
+  } | null,
+  recentPRs: Array<{ exerciseName: string; weight: number; reps: number; date?: string }>,
   userProfile?: { goals: string[]; experienceLevel: string | null; injuries: string[] },
+  recentWorkouts?: ContextWorkoutLog[],
 ): TrainerContext {
   const performanceLines: string[] = [];
   if (stats) {
     performanceLines.push(`Current streak: ${stats.currentStreak} days`);
     performanceLines.push(`Total workouts: ${stats.totalWorkouts}`);
+    if (stats.totalVolume) performanceLines.push(`Total volume: ${Math.round(stats.totalVolume).toLocaleString()}kg`);
+    if (stats.totalSets) performanceLines.push(`Total sets: ${stats.totalSets}`);
+    if (stats.totalReps) performanceLines.push(`Total reps: ${stats.totalReps}`);
+    if (stats.thisWeekCount !== undefined) performanceLines.push(`This week: ${stats.thisWeekCount} sessions`);
+  }
+
+  // Format workout logs concisely: "Mar 5 (Full Body A): Bench Press 80kg x8,8,7 | Squat 120kg x10,9,8 | 45min"
+  if (recentWorkouts?.length) {
+    performanceLines.push("");
+    performanceLines.push("Recent Workouts:");
+    for (const w of recentWorkouts.slice(0, 10)) {
+      const date = new Date(w.date).toLocaleDateString("en-US", { month: "short", day: "numeric" });
+      const dur = w.duration ? `${Math.round(w.duration / 60)}min` : "";
+
+      // Group sets by exercise, show weight x reps per set
+      const exerciseMap = new Map<string, { weight: number; reps: number[] }>();
+      for (const s of w.sets) {
+        const key = s.exerciseName;
+        const existing = exerciseMap.get(key);
+        if (existing) {
+          existing.reps.push(s.actualReps);
+          existing.weight = Math.max(existing.weight, s.weight);
+        } else {
+          exerciseMap.set(key, { weight: s.weight, reps: [s.actualReps] });
+        }
+      }
+
+      const exercises = Array.from(exerciseMap.entries())
+        .slice(0, 4)
+        .map(([name, data]) => `${name} ${data.weight}kg x${data.reps.join(",")}`)
+        .join(" | ");
+
+      performanceLines.push(`- ${date} (${w.dayName}): ${exercises}${dur ? ` | ${dur}` : ""}`);
+    }
   }
 
   const prLines = recentPRs
     .slice(0, 5)
-    .map((pr) => `${pr.exerciseName}: ${pr.weight}kg x ${pr.reps}`)
+    .map((pr) => {
+      const dateStr = pr.date
+        ? ` (${new Date(pr.date).toLocaleDateString("en-US", { month: "short", day: "numeric" })})`
+        : "";
+      return `${pr.exerciseName}: ${pr.weight}kg x ${pr.reps}${dateStr}`;
+    })
     .join("\n");
 
   const riskFactors: string[] = [];
