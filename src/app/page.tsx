@@ -131,7 +131,7 @@ export default function Home() {
     if (hour < 12) greeting = "Good morning";
     else if (hour < 17) greeting = "Good afternoon";
     return firstName ? `${greeting}, ${firstName} - ${dateStr}` : `${greeting} - ${dateStr}`;
-  }, [user]);
+  }, [user?.firstName, user?.emailAddresses]);
 
   // Redirect unauthenticated users to /landing (animations work correctly there)
   useEffect(() => {

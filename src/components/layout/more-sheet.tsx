@@ -1,7 +1,6 @@
 "use client";
 
 import { useRouter, usePathname } from "next/navigation";
-import { Dumbbell, Timer, BookOpen, Scale, Bot, Users, Trophy } from "lucide-react";
 import {
   Drawer,
   DrawerContent,
@@ -9,63 +8,12 @@ import {
   DrawerTitle,
 } from "@/components/ui/drawer";
 import { cn } from "@/lib/utils";
+import { MORE_ROUTES } from "@/config/navigation";
 
 interface MoreSheetProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
-
-interface MenuItem {
-  href: string;
-  icon: typeof Dumbbell;
-  label: string;
-  description: string;
-}
-
-const menuItems: MenuItem[] = [
-  {
-    href: "/exercises",
-    icon: Dumbbell,
-    label: "Exercises",
-    description: "Browse exercise library",
-  },
-  {
-    href: "/community",
-    icon: Users,
-    label: "Community",
-    description: "Leaderboard, groups & templates",
-  },
-  {
-    href: "/gamification",
-    icon: Trophy,
-    label: "Achievements",
-    description: "XP, challenges & badges",
-  },
-  {
-    href: "/timer",
-    icon: Timer,
-    label: "Timer",
-    description: "AMRAP, EMOM, Tabata, Custom",
-  },
-  {
-    href: "/form-library",
-    icon: BookOpen,
-    label: "Form Library",
-    description: "Exercise cues & technique",
-  },
-  {
-    href: "/body",
-    icon: Scale,
-    label: "Body",
-    description: "Weight, measurements, body fat",
-  },
-  {
-    href: "/trainer",
-    icon: Bot,
-    label: "AI Coach",
-    description: "Personal trainer chat",
-  },
-];
 
 export function MoreSheet({ open, onOpenChange }: MoreSheetProps) {
   const router = useRouter();
@@ -85,7 +33,7 @@ export function MoreSheet({ open, onOpenChange }: MoreSheetProps) {
 
         <div className="px-4 pb-8">
           <div className="space-y-1">
-            {menuItems.map((item) => {
+            {MORE_ROUTES.map((item) => {
               const isActive = pathname === item.href ||
                 pathname?.startsWith(item.href + "/");
 

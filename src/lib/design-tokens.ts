@@ -30,15 +30,6 @@ export const RADIUS = {
   chip: "rounded-full",
 } as const;
 
-// Card style presets (use these instead of inline classes)
-export const CARD = {
-  standard: "bg-card border border-border rounded-xl p-4",
-  glass: "bg-glass-bg backdrop-blur-xl border border-glass-border rounded-xl p-4",
-  accentLeft: "bg-card border border-border rounded-xl p-4 border-l-2 border-l-primary",
-  alt: "bg-card-alt border border-border rounded-xl p-4",
-  interactive: "bg-card border border-border rounded-xl p-4 hover:border-primary/30 transition-colors",
-} as const;
-
 // Status color mapping for Whoop-style indicators
 export const STATUS_COLORS = {
   green: { bg: "bg-gym-success/20", text: "text-gym-success", ring: "#22C55E" },

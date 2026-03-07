@@ -19,6 +19,9 @@
 - `/program` - Training program editor
 - `/settings` - User preferences
 - `/onboarding` - First-time setup (8 steps)
+- `/gamification` - XP/Levels, daily/weekly challenges, achievements gallery
+- `/community` - Leaderboard, activity feed, workout templates, groups
+- `/nutrition` - Meal tracking, macros, supplements, protein ring
 
 ## Component Patterns
 - Offline-first: All data via IndexedDB (Dexie)

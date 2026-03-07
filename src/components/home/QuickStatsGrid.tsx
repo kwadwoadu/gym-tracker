@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import { motion } from "framer-motion";
 import { Dumbbell, Trophy, TrendingUp } from "lucide-react";
 import { DATA } from "@/lib/typography";
@@ -18,32 +19,34 @@ export function QuickStatsGrid({
 }: QuickStatsGridProps) {
   const reducedMotion = useReducedMotion();
 
-  const formatVolume = (vol: number): string => {
-    if (vol >= 1000000) return `${(vol / 1000000).toFixed(1)}M`;
-    if (vol >= 1000) return `${(vol / 1000).toFixed(1)}k`;
-    return vol.toString();
-  };
+  const stats = useMemo(() => {
+    const formatVolume = (vol: number): string => {
+      if (vol >= 1000000) return `${(vol / 1000000).toFixed(1)}M`;
+      if (vol >= 1000) return `${(vol / 1000).toFixed(1)}k`;
+      return vol.toString();
+    };
 
-  const stats = [
-    {
-      label: "Workouts",
-      value: weeklyWorkouts.toString(),
-      sublabel: "this week",
-      icon: Dumbbell,
-    },
-    {
-      label: "PRs",
-      value: totalPRs.toString(),
-      sublabel: "total",
-      icon: Trophy,
-    },
-    {
-      label: "Volume",
-      value: formatVolume(totalVolume),
-      sublabel: "kg total",
-      icon: TrendingUp,
-    },
-  ];
+    return [
+      {
+        label: "Workouts",
+        value: weeklyWorkouts.toString(),
+        sublabel: "this week",
+        icon: Dumbbell,
+      },
+      {
+        label: "PRs",
+        value: totalPRs.toString(),
+        sublabel: "total",
+        icon: Trophy,
+      },
+      {
+        label: "Volume",
+        value: formatVolume(totalVolume),
+        sublabel: "kg total",
+        icon: TrendingUp,
+      },
+    ];
+  }, [weeklyWorkouts, totalPRs, totalVolume]);
 
   return (
     <motion.div

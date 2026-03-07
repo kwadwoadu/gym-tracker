@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
+import { useUser } from "@clerk/nextjs";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Input } from "@/components/ui/input";
 import {
@@ -22,6 +23,7 @@ import { LeaderboardList, type LeaderboardEntryData } from "@/components/communi
 import { ActivityFeed, type ActivityItemData } from "@/components/community/activity-feed";
 import { GroupChallengeCard } from "@/components/community/group-challenge-card";
 import type { WorkoutTemplate, SplitType } from "@/types/templates";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 
 const TABS = [
@@ -53,6 +55,7 @@ async function fetchTemplates(params: { splitType?: string; search?: string; sor
 
 export default function CommunityPage() {
   const router = useRouter();
+  const { user } = useUser();
   const queryClient = useQueryClient();
   const [tab, setTab] = useState<TabKey>("leaderboard");
   const [templateSearch, setTemplateSearch] = useState("");
@@ -175,203 +178,204 @@ export default function CommunityPage() {
         </button>
       </header>
 
-      {/* Tab Bar */}
-      <div className="px-4 pb-4">
-        <div className="flex gap-1 bg-card rounded-xl p-1">
-          {TABS.map((t) => (
-            <button
-              key={t.key}
-              onClick={() => setTab(t.key)}
-              className={cn(
-                "flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-lg text-xs font-medium transition-all",
-                tab === t.key
-                  ? "bg-primary text-black"
-                  : "text-white/40"
-              )}
-            >
-              <t.icon className="w-3.5 h-3.5" />
-              {t.label}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Activity Tab */}
-      {tab === "activity" && (
-        <div className="px-4">
-          {activityLoading ? (
-            <div className="flex items-center justify-center py-12">
-              <Loader2 className="w-6 h-6 animate-spin text-primary" />
-            </div>
-          ) : (
-            <ActivityFeed activities={activityItems} />
-          )}
-        </div>
-      )}
-
-      {/* Leaderboard Tab */}
-      {tab === "leaderboard" && (
-        <div className="px-4">
-          {leaderboardLoading ? (
-            <div className="flex items-center justify-center py-12">
-              <Loader2 className="w-6 h-6 animate-spin text-primary" />
-            </div>
-          ) : (
-            <LeaderboardList
-              entries={leaderboardEntries}
-              currentUserId=""
-            />
-          )}
-        </div>
-      )}
-
-      {/* Templates Tab */}
-      {tab === "templates" && (
-        <div className="px-4 space-y-3">
-          {/* Search */}
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
-            <Input
-              placeholder="Search templates..."
-              value={templateSearch}
-              onChange={(e) => setTemplateSearch(e.target.value)}
-              className="pl-10 bg-secondary border-border"
-            />
-          </div>
-          {/* Filters */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-1">
-            {SPLIT_FILTERS.map((f) => (
-              <button
-                key={f.value}
-                onClick={() => setSplitFilter(f.value)}
+      {/* Tab Bar + Content */}
+      <Tabs value={tab} onValueChange={(v) => setTab(v as TabKey)} className="gap-0">
+        <div className="px-4 pb-4">
+          <TabsList className="flex w-full gap-1 bg-card rounded-xl p-1 h-auto">
+            {TABS.map((t) => (
+              <TabsTrigger
+                key={t.key}
+                value={t.key}
                 className={cn(
-                  "px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors",
-                  splitFilter === f.value
-                    ? "bg-primary text-black"
-                    : "bg-card text-white/50"
+                  "flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-lg text-xs font-medium transition-all border-0 shadow-none",
+                  "data-[state=active]:bg-primary data-[state=active]:text-black",
+                  "data-[state=inactive]:text-white/40 data-[state=inactive]:bg-transparent"
                 )}
               >
-                {f.label}
-              </button>
+                <t.icon className="w-3.5 h-3.5" />
+                {t.label}
+              </TabsTrigger>
             ))}
+          </TabsList>
+        </div>
+
+        {/* Activity Tab */}
+        <TabsContent value="activity">
+          <div className="px-4">
+            {activityLoading ? (
+              <div className="flex items-center justify-center py-12">
+                <Loader2 className="w-6 h-6 animate-spin text-primary" />
+              </div>
+            ) : (
+              <ActivityFeed activities={activityItems} />
+            )}
           </div>
-          {/* Sort */}
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setTemplateSort("upvotes")}
-              className={cn(
-                "text-xs font-medium",
-                templateSort === "upvotes" ? "text-primary" : "text-white/40"
-              )}
-            >
-              Popular
-            </button>
-            <span className="text-white/20">|</span>
-            <button
-              onClick={() => setTemplateSort("newest")}
-              className={cn(
-                "text-xs font-medium",
-                templateSort === "newest" ? "text-primary" : "text-white/40"
-              )}
-            >
-              Newest
-            </button>
+        </TabsContent>
+
+        {/* Leaderboard Tab */}
+        <TabsContent value="leaderboard">
+          <div className="px-4">
+            {leaderboardLoading ? (
+              <div className="flex items-center justify-center py-12">
+                <Loader2 className="w-6 h-6 animate-spin text-primary" />
+              </div>
+            ) : (
+              <LeaderboardList
+                entries={leaderboardEntries}
+                currentUserId={user?.id ?? ""}
+              />
+            )}
           </div>
-          {/* List */}
-          {templatesLoading ? (
-            <div className="flex items-center justify-center py-12">
-              <Loader2 className="w-6 h-6 animate-spin text-primary" />
+        </TabsContent>
+
+        {/* Templates Tab */}
+        <TabsContent value="templates">
+          <div className="px-4 space-y-3">
+            {/* Search */}
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+              <Input
+                placeholder="Search templates..."
+                value={templateSearch}
+                onChange={(e) => setTemplateSearch(e.target.value)}
+                className="pl-10 bg-secondary border-border"
+              />
             </div>
-          ) : templates.length === 0 ? (
-            <div className="text-center py-12">
-              <Dumbbell className="w-8 h-8 text-white/20 mx-auto mb-3" />
-              <p className="text-sm text-white/40">No programs yet</p>
-              <p className="text-xs text-white/30 mt-1">
-                Be the first to share a program!
-              </p>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {templates.map((t) => (
-                <TemplateCard key={t.id} template={t} onVote={handleVote} onView={handleView} />
+            {/* Filters */}
+            <div className="flex items-center gap-2 overflow-x-auto pb-1">
+              {SPLIT_FILTERS.map((f) => (
+                <button
+                  key={f.value}
+                  onClick={() => setSplitFilter(f.value)}
+                  className={cn(
+                    "px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors",
+                    splitFilter === f.value
+                      ? "bg-primary text-black"
+                      : "bg-card text-white/50"
+                  )}
+                >
+                  {f.label}
+                </button>
               ))}
             </div>
-          )}
-        </div>
-      )}
-
-      {/* Groups Tab */}
-      {tab === "groups" && (
-        <div className="px-4 space-y-4">
-          {/* Active Challenges */}
-          {challenges && challenges.length > 0 && (
-            <div>
-              <h3 className="text-xs uppercase tracking-[0.08em] text-white/40 font-semibold mb-2">
-                Active Challenges
-              </h3>
-              <div className="space-y-2">
-                {challenges.map((challenge: Challenge, i: number) => (
-                  <GroupChallengeCard
-                    key={challenge.id || i}
-                    title={challenge.name || "Challenge"}
-                    description={challenge.description || ""}
-                    progress={challenge.myProgress || 0}
-                    memberCount={challenge.participantCount || 0}
-                    gradient={
-                      i % 2 === 0
-                        ? "bg-gradient-to-r from-primary/20 to-gym-blue/20"
-                        : "bg-gradient-to-r from-gym-warning/20 to-gym-error/20"
-                    }
-                  />
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Groups */}
-          {groups && groups.length > 0 ? (
-            <div>
-              <h3 className="text-xs uppercase tracking-[0.08em] text-white/40 font-semibold mb-2">
-                Your Groups
-              </h3>
-              <div className="bg-card rounded-xl overflow-hidden divide-y divide-white/5">
-                {groups.map((group: Group, i: number) => (
-                  <div
-                    key={group.id || i}
-                    className="flex items-center gap-3 px-4 py-3"
-                  >
-                    <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-                      <Users className="w-5 h-5 text-primary" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-white truncate">
-                        {group.name || "Group"}
-                      </p>
-                      <p className="text-xs text-white/40">
-                        {group.memberCount || 0} members
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          ) : (
-            <div className="text-center py-12">
-              <Users className="w-8 h-8 text-white/20 mx-auto mb-3" />
-              <p className="text-sm text-white/40">No groups yet</p>
-              <p className="text-xs text-white/30 mt-1">
-                Join or create a group to get started
-              </p>
+            {/* Sort */}
+            <div className="flex items-center gap-2">
               <button
-                onClick={() => router.push("/community/groups")}
-                className="mt-4 px-6 py-3 rounded-xl bg-primary text-black font-semibold text-sm active:scale-[0.98] transition-transform"
+                onClick={() => setTemplateSort("upvotes")}
+                className={cn(
+                  "text-xs font-medium",
+                  templateSort === "upvotes" ? "text-primary" : "text-white/40"
+                )}
               >
-                Find Groups
+                Popular
+              </button>
+              <span className="text-white/20">|</span>
+              <button
+                onClick={() => setTemplateSort("newest")}
+                className={cn(
+                  "text-xs font-medium",
+                  templateSort === "newest" ? "text-primary" : "text-white/40"
+                )}
+              >
+                Newest
               </button>
             </div>
-          )}
-        </div>
-      )}
+            {/* List */}
+            {templatesLoading ? (
+              <div className="flex items-center justify-center py-12">
+                <Loader2 className="w-6 h-6 animate-spin text-primary" />
+              </div>
+            ) : templates.length === 0 ? (
+              <div className="text-center py-12">
+                <Dumbbell className="w-8 h-8 text-white/20 mx-auto mb-3" />
+                <p className="text-sm text-white/40">No programs yet</p>
+                <p className="text-xs text-white/30 mt-1">
+                  Be the first to share a program!
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {templates.map((t) => (
+                  <TemplateCard key={t.id} template={t} onVote={handleVote} onView={handleView} />
+                ))}
+              </div>
+            )}
+          </div>
+        </TabsContent>
+
+        {/* Groups Tab */}
+        <TabsContent value="groups">
+          <div className="px-4 space-y-4">
+            {/* Active Challenges */}
+            {challenges && challenges.length > 0 && (
+              <div>
+                <h3 className="text-xs uppercase tracking-[0.08em] text-white/40 font-semibold mb-2">
+                  Active Challenges
+                </h3>
+                <div className="space-y-2">
+                  {challenges.map((challenge: Challenge, i: number) => (
+                    <GroupChallengeCard
+                      key={challenge.id || i}
+                      title={challenge.name || "Challenge"}
+                      description={challenge.description || ""}
+                      progress={challenge.myProgress || 0}
+                      memberCount={challenge.participantCount || 0}
+                      gradient={
+                        i % 2 === 0
+                          ? "bg-gradient-to-r from-primary/20 to-gym-blue/20"
+                          : "bg-gradient-to-r from-gym-warning/20 to-gym-error/20"
+                      }
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Groups */}
+            {groups && groups.length > 0 ? (
+              <div>
+                <h3 className="text-xs uppercase tracking-[0.08em] text-white/40 font-semibold mb-2">
+                  Your Groups
+                </h3>
+                <div className="bg-card rounded-xl overflow-hidden divide-y divide-white/5">
+                  {groups.map((group: Group, i: number) => (
+                    <div
+                      key={group.id || i}
+                      className="flex items-center gap-3 px-4 py-3"
+                    >
+                      <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                        <Users className="w-5 h-5 text-primary" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-white truncate">
+                          {group.name || "Group"}
+                        </p>
+                        <p className="text-xs text-white/40">
+                          {group.memberCount || 0} members
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <Users className="w-8 h-8 text-white/20 mx-auto mb-3" />
+                <p className="text-sm text-white/40">No groups yet</p>
+                <p className="text-xs text-white/30 mt-1">
+                  Join or create a group to get started
+                </p>
+                <button
+                  onClick={() => router.push("/community/groups")}
+                  className="mt-4 px-6 py-3 rounded-xl bg-primary text-black font-semibold text-sm active:scale-[0.98] transition-transform"
+                >
+                  Find Groups
+                </button>
+              </div>
+            )}
+          </div>
+        </TabsContent>
+      </Tabs>
 
       {/* Template Preview Sheet */}
       <TemplatePreview
@@ -390,15 +394,19 @@ export default function CommunityPage() {
 function getActionText(item: ActivityItem): string {
   switch (item.type) {
     case "workout_completed": {
-      const data = item.data as { dayName?: string; duration?: number };
+      const data = (item.data && typeof item.data === "object") ? item.data as Record<string, unknown> : {};
       const parts = ["completed"];
-      if (data.dayName) parts.push(data.dayName);
-      if (data.duration) parts.push(`in ${data.duration} min`);
+      if (typeof data.dayName === "string") parts.push(data.dayName);
+      if (typeof data.duration === "number") parts.push(`in ${data.duration} min`);
       return parts.join(" ");
     }
     case "pr_achieved": {
-      const data = item.data as { exerciseName?: string; weight?: number; reps?: number; unit?: string };
-      return `set a new PR: ${data.weight || ""}${data.unit || "kg"} x${data.reps || ""} on ${data.exerciseName || "exercise"}`;
+      const data = (item.data && typeof item.data === "object") ? item.data as Record<string, unknown> : {};
+      const weight = typeof data.weight === "number" ? data.weight : "";
+      const unit = typeof data.unit === "string" ? data.unit : "kg";
+      const reps = typeof data.reps === "number" ? data.reps : "";
+      const exerciseName = typeof data.exerciseName === "string" ? data.exerciseName : "exercise";
+      return `set a new PR: ${weight}${unit} x${reps} on ${exerciseName}`;
     }
     case "challenge_joined":
       return "joined a challenge";

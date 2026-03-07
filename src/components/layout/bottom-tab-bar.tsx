@@ -7,6 +7,7 @@ import { Home, ClipboardList, BarChart3, UtensilsCrossed, Settings, MoreHorizont
 import { MoreSheet } from "./more-sheet";
 import { cn } from "@/lib/utils";
 import { GLASS } from "@/lib/elevation";
+import { MORE_ROUTE_PATHS } from "@/config/navigation";
 
 interface TabItem {
   href: string;
@@ -27,8 +28,8 @@ export function BottomTabBar() {
   const router = useRouter();
   const [moreOpen, setMoreOpen] = useState(false);
 
-  // Check if current route is in "More" menu items
-  const isMoreActive = ["/exercises", "/community", "/timer", "/form-library", "/body", "/trainer", "/gamification"].some(
+  // Check if current route is in "More" menu items (derived from shared config)
+  const isMoreActive = MORE_ROUTE_PATHS.some(
     (route) => pathname === route || pathname?.startsWith(route + "/")
   );
 

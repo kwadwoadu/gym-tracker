@@ -45,13 +45,14 @@ const fadeUp = { hidden: { opacity: 0, y: 16 }, show: { opacity: 1, y: 0, transi
 
 export default function GamificationPage() {
   const router = useRouter();
-  const { data: gData, isLoading: gLoading } = useGamification();
-  const { data: dailyChallenges, isLoading: dLoading } = useDailyChallenges();
-  const { data: weeklyChallenges, isLoading: wLoading } = useWeeklyChallenges();
-  const { data: stats, isLoading: sLoading } = useStats("all");
-  const { data: unlockedAchievements } = useAchievements();
+  const { data: gData, isLoading: gLoading, error: gError } = useGamification();
+  const { data: dailyChallenges, isLoading: dLoading, error: dError } = useDailyChallenges();
+  const { data: weeklyChallenges, isLoading: wLoading, error: wError } = useWeeklyChallenges();
+  const { data: stats, isLoading: sLoading, error: sError } = useStats("all");
+  const { data: unlockedAchievements, error: aError } = useAchievements();
 
   const isLoading = gLoading || dLoading || wLoading || sLoading;
+  const hasError = gError || dError || wError || sError || aError;
 
   const gamification = gData?.gamification;
   const totalXP = gamification?.totalXP ?? 0;
@@ -70,6 +71,17 @@ export default function GamificationPage() {
     return (
       <div className="flex items-center justify-center min-h-screen bg-background">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (hasError) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-background gap-3">
+        <p className="text-sm text-destructive">Failed to load achievements</p>
+        <Button variant="outline" size="sm" onClick={() => router.back()}>
+          Go Back
+        </Button>
       </div>
     );
   }

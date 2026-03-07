@@ -81,6 +81,38 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Name, type, target, start date, and end date are required" }, { status: 400 });
     }
 
+    // Field-level validation (REV-009)
+    if (typeof name !== "string" || name.length < 1 || name.length > 100) {
+      return NextResponse.json({ error: "Name must be between 1 and 100 characters" }, { status: 400 });
+    }
+
+    if (description !== undefined && description !== null) {
+      if (typeof description !== "string" || description.length > 500) {
+        return NextResponse.json({ error: "Description must be at most 500 characters" }, { status: 400 });
+      }
+    }
+
+    const validTypes = ["streak", "volume", "workouts", "consistency"];
+    if (!validTypes.includes(type)) {
+      return NextResponse.json({ error: `Type must be one of: ${validTypes.join(", ")}` }, { status: 400 });
+    }
+
+    if (typeof target !== "number" || target <= 0) {
+      return NextResponse.json({ error: "Target must be a positive number" }, { status: 400 });
+    }
+
+    const parsedStart = new Date(startDate);
+    const parsedEnd = new Date(endDate);
+    if (isNaN(parsedStart.getTime())) {
+      return NextResponse.json({ error: "startDate is not a valid date" }, { status: 400 });
+    }
+    if (isNaN(parsedEnd.getTime())) {
+      return NextResponse.json({ error: "endDate is not a valid date" }, { status: 400 });
+    }
+    if (parsedStart >= parsedEnd) {
+      return NextResponse.json({ error: "startDate must be before endDate" }, { status: 400 });
+    }
+
     // If groupId provided, verify user is admin of that group
     if (groupId) {
       const membership = await prisma.groupMember.findUnique({
