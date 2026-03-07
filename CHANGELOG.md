@@ -4,6 +4,35 @@ All notable changes to the SetFlow project.
 
 ---
 
+## [2026-03-07] SetFlow Evolved Review - 14 Findings Resolved
+
+**Type:** Fix
+**Files Changed:**
+- `src/app/api/community/profile/route.ts` - XSS prevention + input validation
+- `src/app/api/community/challenges/route.ts` - Input validation
+- `src/config/navigation.ts` - NEW: single source of truth for routes
+- `src/components/layout/more-sheet.tsx` - Import from navigation config
+- `src/components/layout/bottom-tab-bar.tsx` - Import from navigation config
+- `src/app/community/page.tsx` - shadcn Tabs, useUser, type guards
+- `src/components/community/leaderboard-list.tsx` - Remove dead toggle
+- `src/app/gamification/page.tsx` - Error handling for all queries
+- `src/components/home/QuickStatsGrid.tsx` - useMemo for stats array
+- `src/app/page.tsx` - Narrowed useMemo deps
+- `src/lib/design-tokens.ts` - Removed dead CARD export
+- `src/components/shared/evolved-card.tsx` - DELETED (unused wrapper)
+- `src/app/CLAUDE.md` - Added 3 missing routes
+
+### Summary
+Resolved 14 findings (3 P1, 11 P2) from 7-agent parallel review of SetFlow Evolved UI overhaul (157 files). P1s: XSS via avatarUrl protocol, duplicated navigation routes, undocumented routes. P2s: missing currentUserId, dead toggle, custom tabs, unsafe type assertions, missing validation, missing error states, broad useMemo deps, unmemoized array, dead code.
+
+### Solution Documented
+- `docs/solutions/logic-errors/2026-03-07-setflow-evolved-review-fix-cycle.md`
+
+### Impact
+Hardens community API against XSS and invalid input. Establishes navigation single-source-of-truth pattern. Removes dead code. Improves React performance with targeted memoization.
+
+---
+
 ## [2026-03-06] Workout Completion Silent Failure Fix
 
 **Type:** Fix
