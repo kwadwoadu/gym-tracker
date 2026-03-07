@@ -36,7 +36,7 @@ Aggregate quantities and group by store section.`;
     const result = await generateJSON<GroceryList>(
       GROCERY_LIST_SYSTEM,
       userPrompt,
-      { model: "claude-3-5-haiku-latest", maxTokens: 2048, temperature: 0.3 }
+      { model: "gpt-4o-mini", maxTokens: 2048, temperature: 0.3 }
     );
 
     return NextResponse.json({ success: true, data: result });

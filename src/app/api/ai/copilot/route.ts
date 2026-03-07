@@ -39,7 +39,7 @@ Provide a coaching suggestion.`;
     }>(systemPrompt, userPrompt, {
       maxTokens: 256,
       temperature: 0.3,
-      model: "claude-3-5-haiku-latest",
+      model: "gpt-4o-mini",
     });
 
     return NextResponse.json({ suggestion: result });

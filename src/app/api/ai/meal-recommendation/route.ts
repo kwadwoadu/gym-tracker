@@ -46,7 +46,7 @@ Suggest the best meals to hit my remaining targets.`;
     const result = await generateJSON<MealSuggestion>(
       MEAL_RECOMMENDATION_SYSTEM,
       userPrompt,
-      { model: "claude-3-5-haiku-latest", maxTokens: 1024, temperature: 0.5 }
+      { model: "gpt-4o-mini", maxTokens: 1024, temperature: 0.5 }
     );
 
     return NextResponse.json({ success: true, data: result });

@@ -38,7 +38,7 @@ Last reps: ${lastReps || "unknown"}`;
     }>(systemPrompt, userPrompt, {
       maxTokens: 64,
       temperature: 0.1,
-      model: "claude-3-5-haiku-latest",
+      model: "gpt-4o-mini",
     });
 
     return NextResponse.json({ parsed: result });
