@@ -120,6 +120,7 @@ export async function POST(request: Request) {
         data: {
           message: responseText,
           suggestions: [],
+          followUpPrompts: [],
           riskLevel: "none",
         },
       });

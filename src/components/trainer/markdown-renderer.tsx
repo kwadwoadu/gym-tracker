@@ -27,7 +27,7 @@ interface MarkdownRendererProps {
 
 export function MarkdownRenderer({ content }: MarkdownRendererProps) {
   return (
-    <div className="text-sm text-white leading-relaxed">
+    <div className="text-sm leading-relaxed">
       <ReactMarkdown components={components}>{content}</ReactMarkdown>
     </div>
   );

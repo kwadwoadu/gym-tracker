@@ -101,10 +101,10 @@ export default function TrainerPage() {
         setMessages((prev) => [...prev, aiMessage]);
 
         // Extract dynamic follow-up prompts
-        const prompts: string[] =
-          data.followUpPrompts?.length > 0
-            ? data.followUpPrompts
-            : data.suggestions?.map((s: { description: string }) => s.description).filter(Boolean) || [];
+        const followUps = Array.isArray(data.followUpPrompts) ? data.followUpPrompts : [];
+        const prompts: string[] = followUps.length > 0
+          ? followUps.filter((p: unknown): p is string => typeof p === "string")
+          : (Array.isArray(data.suggestions) ? data.suggestions.map((s: Record<string, unknown>) => s.description).filter((d: unknown): d is string => typeof d === "string") : []);
         setDynamicPrompts(prompts);
 
         // Show risk alert if the AI flagged a risk
@@ -117,7 +117,6 @@ export default function TrainerPage() {
           });
         }
       } catch {
-        setDynamicPrompts([]);
         const errorMessage: ChatMessage = {
           id: `error-${Date.now()}`,
           role: "assistant",

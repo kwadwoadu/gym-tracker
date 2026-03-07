@@ -18,7 +18,7 @@ interface QuickActionsProps {
 }
 
 export function QuickActions({ onSelect, disabled, dynamicActions }: QuickActionsProps) {
-  const actions = dynamicActions && dynamicActions.length > 0 ? dynamicActions : QUICK_ACTIONS;
+  const actions = dynamicActions?.length ? dynamicActions : QUICK_ACTIONS;
 
   return (
     <div className="flex flex-wrap gap-2">
