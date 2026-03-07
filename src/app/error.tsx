@@ -25,6 +25,14 @@ export default function Error({
           <p className="text-muted-foreground max-w-md">
             An unexpected error occurred. Please try again or go back to the home page.
           </p>
+          <p className="text-xs text-red-400/70 font-mono max-w-md break-all">
+            {error.message}
+          </p>
+          {error.digest && (
+            <p className="text-xs text-red-400/50 font-mono">
+              Digest: {error.digest}
+            </p>
+          )}
         </div>
         <div className="flex items-center justify-center gap-4">
           <Button onClick={reset} variant="outline" className="gap-2">
