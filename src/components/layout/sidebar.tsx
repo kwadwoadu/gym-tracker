@@ -17,6 +17,7 @@ import {
   ChevronRight,
   User,
 } from "lucide-react";
+import { MORE_ROUTES } from "@/config/navigation";
 
 const navItems = [
   { href: "/", icon: Home, label: "Home" },
@@ -26,6 +27,10 @@ const navItems = [
   { href: "/exercises", icon: Dumbbell, label: "Exercises" },
   { href: "/settings", icon: Settings, label: "Settings" },
 ];
+
+// Reuse MORE_ROUTES from navigation config, excluding items already in navItems
+const navItemPaths = new Set(navItems.map((item) => item.href));
+const moreNavItems = MORE_ROUTES.filter((route) => !navItemPaths.has(route.href));
 
 export function Sidebar() {
   const pathname = usePathname();
@@ -63,10 +68,63 @@ export function Sidebar() {
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 py-4">
+      <nav className="flex-1 py-4 overflow-y-auto">
         <ul className="space-y-1 px-2">
           {navItems.map((item) => {
             const isActive = pathname === item.href || (item.href !== "/" && pathname?.startsWith(item.href));
+            return (
+              <li key={item.href}>
+                <Link
+                  href={item.href}
+                  className={`flex items-center gap-3 px-3 py-3 rounded-lg transition-colors ${
+                    isActive
+                      ? "bg-primary/10 text-primary"
+                      : "text-white/60 hover:bg-white/5 hover:text-white"
+                  }`}
+                >
+                  <item.icon className="w-5 h-5 flex-shrink-0" />
+                  <AnimatePresence mode="wait">
+                    {!collapsed && (
+                      <motion.span
+                        initial={{ opacity: 0, width: 0 }}
+                        animate={{ opacity: 1, width: "auto" }}
+                        exit={{ opacity: 0, width: 0 }}
+                        className="font-medium whitespace-nowrap overflow-hidden"
+                      >
+                        {item.label}
+                      </motion.span>
+                    )}
+                  </AnimatePresence>
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+
+        {/* More section divider */}
+        <div className="px-4 my-3">
+          <AnimatePresence mode="wait">
+            {!collapsed ? (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="flex items-center gap-2"
+              >
+                <div className="h-px flex-1 bg-white/10" />
+                <span className="text-[10px] uppercase tracking-wider text-white/30">More</span>
+                <div className="h-px flex-1 bg-white/10" />
+              </motion.div>
+            ) : (
+              <div className="h-px bg-white/10" />
+            )}
+          </AnimatePresence>
+        </div>
+
+        {/* More routes */}
+        <ul className="space-y-1 px-2">
+          {moreNavItems.map((item) => {
+            const isActive = pathname === item.href || pathname?.startsWith(item.href + "/");
             return (
               <li key={item.href}>
                 <Link

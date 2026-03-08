@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -20,6 +20,9 @@ const COMPLETION_ANIMATION_MS = 600;
 import { MuscleMapMini } from "@/components/shared/MuscleMapMini";
 import { getFormRuleByExerciseId } from "@/data/form-rules";
 import { FormCamera } from "./form-camera";
+import { VoiceButton } from "./voice-button";
+import { VoiceConfirmation } from "./voice-confirmation";
+import { parseVoiceInput, type ParsedSetData } from "@/lib/ai/voice-parser";
 
 // Extract YouTube video ID from URL
 function getYouTubeId(url: string): string | null {
@@ -148,6 +151,67 @@ export function SetLogger({
 
   const [showFormAnalysis, setShowFormAnalysis] = useState(false);
   const [weightBounce, setWeightBounce] = useState<"up" | "down" | null>(null);
+
+  // Voice logging state
+  const [isVoiceListening, setIsVoiceListening] = useState(false);
+  const [isVoiceProcessing, setIsVoiceProcessing] = useState(false);
+  const [voiceResult, setVoiceResult] = useState<ParsedSetData | null>(null);
+  const recognitionRef = useRef<SpeechRecognition | null>(null);
+  const isVoiceAvailable = typeof window !== "undefined" && ("SpeechRecognition" in window || "webkitSpeechRecognition" in window);
+
+  const handleVoicePress = useCallback(() => {
+    if (isCompleted || isVoiceProcessing) return;
+    const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognitionAPI) return;
+
+    const recognition = new SpeechRecognitionAPI();
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    recognition.lang = "en-US";
+
+    recognition.onresult = (event: SpeechRecognitionEvent) => {
+      const transcript = event.results[0][0].transcript;
+      setIsVoiceProcessing(true);
+      setIsVoiceListening(false);
+      const parsed = parseVoiceInput(transcript, weight);
+      setVoiceResult(parsed);
+      // Apply parsed values to inputs
+      if (parsed.weight !== null) {
+        setWeight(parsed.weight);
+        setWeightInputValue(parsed.weight.toString());
+      }
+      if (parsed.reps !== null) setReps(parsed.reps);
+      if (parsed.rpe !== null) setRpe(parsed.rpe);
+      setIsVoiceProcessing(false);
+    };
+
+    recognition.onerror = () => {
+      setIsVoiceListening(false);
+      setIsVoiceProcessing(false);
+    };
+
+    recognition.onend = () => {
+      setIsVoiceListening(false);
+    };
+
+    recognitionRef.current = recognition;
+    recognition.start();
+    setIsVoiceListening(true);
+  }, [isCompleted, isVoiceProcessing, weight]);
+
+  const handleVoiceRelease = useCallback(() => {
+    if (recognitionRef.current) {
+      recognitionRef.current.stop();
+    }
+  }, []);
+
+  const handleVoiceConfirm = useCallback(() => {
+    setVoiceResult(null);
+  }, []);
+
+  const handleVoiceEdit = useCallback(() => {
+    setVoiceResult(null);
+  }, []);
 
   const videoId = videoUrl ? getYouTubeId(videoUrl) : null;
   const isSearchUrl = videoUrl ? isYouTubeSearchUrl(videoUrl) : false;
@@ -684,6 +748,17 @@ export function SetLogger({
         </div>
       </div>
 
+        {/* Voice confirmation banner */}
+        {voiceResult && (
+          <div className="mb-4">
+            <VoiceConfirmation
+              data={voiceResult}
+              onConfirm={handleVoiceConfirm}
+              onEdit={handleVoiceEdit}
+            />
+          </div>
+        )}
+
         {/* Complete and Skip buttons */}
         <AnimatePresence mode="wait">
           {!isCompleted ? (
@@ -692,7 +767,7 @@ export function SetLogger({
               variants={buttonExitVariants}
               initial="initial"
               exit="exit"
-              className="flex gap-3"
+              className="flex gap-3 items-center"
             >
               {onSkip && (
                 <Button
@@ -713,6 +788,15 @@ export function SetLogger({
                 <Check className="w-5 h-5 mr-2" />
                 Complete Set
               </Button>
+              {isVoiceAvailable && (
+                <VoiceButton
+                  isListening={isVoiceListening}
+                  isProcessing={isVoiceProcessing}
+                  isAvailable={isVoiceAvailable}
+                  onPress={handleVoicePress}
+                  onRelease={handleVoiceRelease}
+                />
+              )}
             </motion.div>
           ) : (
             <motion.div
