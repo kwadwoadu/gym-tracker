@@ -8,9 +8,9 @@
 3. Add missing UX features (focus mode, quick edit)
 
 ### Current Sprint
-- [ ] [P1] Set Completion Data Safety - fix celebration animation data loss
+- [x] [P1] Set Completion Data Safety - fix celebration animation data loss (2026-03-11)
   - PRD: `docs/prds/set-completion-data-safety.md`
-- [ ] [P1] Weight Memory Persistence - fix cross-day exercise weight pre-fill
+- [x] [P1] Weight Memory Persistence - fix cross-day exercise weight pre-fill (2026-03-11)
   - PRD: `docs/prds/weight-memory-persistence.md`
 - [ ] [P1] Superset UX Overhaul - context bar + focus mode + transitions
   - PRD: `docs/prds/superset-ux-overhaul.md`
