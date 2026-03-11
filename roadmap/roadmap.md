@@ -12,7 +12,7 @@
   - PRD: `docs/prds/set-completion-data-safety.md`
 - [x] [P1] Weight Memory Persistence - fix cross-day exercise weight pre-fill (2026-03-11)
   - PRD: `docs/prds/weight-memory-persistence.md`
-- [ ] [P1] Superset UX Overhaul - context bar + focus mode + transitions
+- [x] [P1] Superset UX Overhaul - context bar + focus mode + transitions (2026-03-11)
   - PRD: `docs/prds/superset-ux-overhaul.md`
 - [ ] [P2] Exercise Session Design Upgrade - visual overhaul per 10x mockup
   - PRD: `docs/prds/exercise-session-design-upgrade.md`
