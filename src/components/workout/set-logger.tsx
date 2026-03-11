@@ -567,7 +567,7 @@ export function SetLogger({
                 !isCompleted && "hover:bg-muted/50 active:bg-muted cursor-pointer"
               )}
             >
-              <span className="text-4xl font-bold text-foreground tabular-nums">
+              <span className="text-5xl font-black text-foreground tabular-nums tracking-tight">
                 {weight}
               </span>
               <span className="text-xl text-muted-foreground ml-1">kg</span>
@@ -671,76 +671,37 @@ export function SetLogger({
         </div>
       </div>
 
-      {/* RPE slider */}
+      {/* RPE pill selector */}
       <div className="mb-8">
-        <label className="text-xs text-muted-foreground uppercase tracking-wider mb-2 block">
-          RPE (Rate of Perceived Exertion)
-        </label>
-        <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <span className={cn(
-              "text-2xl font-bold tabular-nums",
-              rpe <= 7 ? "text-green-500" : rpe === 8 ? "text-yellow-500" : "text-red-500"
-            )}>
-              {rpe}
-            </span>
-            <span className={cn(
-              "text-sm font-medium",
-              rpe <= 7 ? "text-green-500" : rpe === 8 ? "text-yellow-500" : "text-red-500"
-            )}>
-              {getRpeLabel(rpe)}
-            </span>
-          </div>
-          <div className="relative">
-            <input
-              type="range"
-              min="1"
-              max="10"
-              value={rpe}
-              onChange={(e) => setRpe(parseInt(e.target.value))}
+        <div className="flex items-center justify-between mb-3">
+          <label className="text-xs text-muted-foreground uppercase tracking-wider">
+            RPE
+          </label>
+          <span className={cn(
+            "text-sm font-medium",
+            rpe <= 7 ? "text-green-500" : rpe === 8 ? "text-yellow-500" : "text-red-500"
+          )}>
+            {getRpeLabel(rpe)}
+          </span>
+        </div>
+        <div className="flex items-center justify-center gap-2">
+          {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => (
+            <button
+              key={n}
+              type="button"
               disabled={isCompleted}
+              onClick={() => setRpe(n)}
               className={cn(
-                "w-full h-3 rounded-full appearance-none cursor-pointer",
-                "bg-muted",
-                "[&::-webkit-slider-thumb]:appearance-none",
-                "[&::-webkit-slider-thumb]:w-7",
-                "[&::-webkit-slider-thumb]:h-7",
-                "[&::-webkit-slider-thumb]:rounded-full",
-                "[&::-webkit-slider-thumb]:cursor-pointer",
-                "[&::-webkit-slider-thumb]:shadow-md",
-                rpe <= 7
-                  ? "[&::-webkit-slider-thumb]:bg-green-500"
-                  : rpe === 8
-                  ? "[&::-webkit-slider-thumb]:bg-yellow-500"
-                  : "[&::-webkit-slider-thumb]:bg-red-500",
-                "[&::-moz-range-thumb]:w-7",
-                "[&::-moz-range-thumb]:h-7",
-                "[&::-moz-range-thumb]:rounded-full",
-                "[&::-moz-range-thumb]:cursor-pointer",
-                "[&::-moz-range-thumb]:border-0",
-                rpe <= 7
-                  ? "[&::-moz-range-thumb]:bg-green-500"
-                  : rpe === 8
-                  ? "[&::-moz-range-thumb]:bg-yellow-500"
-                  : "[&::-moz-range-thumb]:bg-red-500",
+                "w-[30px] h-[30px] rounded-full flex items-center justify-center text-xs font-bold transition-all",
+                n === rpe
+                  ? "bg-primary text-black scale-110"
+                  : "bg-white/[0.08] text-muted-foreground hover:bg-white/[0.15]",
                 isCompleted && "opacity-50 cursor-not-allowed"
               )}
-            />
-            {/* Scale markers */}
-            <div className="flex justify-between mt-1 px-1">
-              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => (
-                <span
-                  key={n}
-                  className={cn(
-                    "text-[10px] tabular-nums",
-                    n === rpe ? "text-foreground font-bold" : "text-muted-foreground"
-                  )}
-                >
-                  {n}
-                </span>
-              ))}
-            </div>
-          </div>
+            >
+              {n}
+            </button>
+          ))}
         </div>
       </div>
 

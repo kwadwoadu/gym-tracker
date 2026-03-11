@@ -100,15 +100,21 @@ export function WorkoutCarousel({
               </div>
 
               {/* Exercise name */}
-              <h2 className="text-2xl font-bold text-white text-center leading-tight">
+              <h2 className="text-[28px] font-extrabold text-white text-center leading-tight">
                 {name}
               </h2>
 
               {/* Target */}
               <p className="text-base text-white/50">
                 {flat.sets} x {flat.reps}
-                {flat.tempo ? ` | ${flat.tempo}` : ""}
               </p>
+
+              {/* Tempo badge */}
+              {flat.tempo && (
+                <span className="inline-block px-3 py-1 rounded-full text-xs font-bold bg-primary/10 text-primary">
+                  {flat.tempo}
+                </span>
+              )}
 
               {/* Set counter - completed dots are tappable for editing */}
               <div className="flex items-center gap-2 mt-2">
@@ -125,12 +131,12 @@ export function WorkoutCarousel({
                           onEditSet(flat.exerciseId, setIdx + 1);
                         }
                       }}
-                      className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-transform ${
+                      className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold transition-transform ${
                         isCompleted
                           ? "bg-primary text-black active:scale-90"
                           : setIdx === completedCount
-                            ? "bg-primary/20 text-primary border border-primary"
-                            : "bg-secondary text-white/30"
+                            ? "border-2 border-primary text-primary"
+                            : "border-2 border-white/15 text-white/30"
                       }`}
                     >
                       {setIdx + 1}
