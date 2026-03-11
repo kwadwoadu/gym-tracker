@@ -16,7 +16,7 @@
   - PRD: `docs/prds/superset-ux-overhaul.md`
 - [x] [P2] Exercise Session Design Upgrade - visual overhaul per 10x mockup (2026-03-11)
   - PRD: `docs/prds/exercise-session-design-upgrade.md`
-- [ ] [P3] Sprint Test Coverage - workout-helpers + traversal tests
+- [x] [P3] Sprint Test Coverage - workout-helpers + traversal tests (2026-03-11)
   - PRD: `docs/prds/sprint-test-coverage.md`
 
 ### Completed
