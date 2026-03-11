@@ -14,7 +14,7 @@
   - PRD: `docs/prds/weight-memory-persistence.md`
 - [x] [P1] Superset UX Overhaul - context bar + focus mode + transitions (2026-03-11)
   - PRD: `docs/prds/superset-ux-overhaul.md`
-- [ ] [P2] Exercise Session Design Upgrade - visual overhaul per 10x mockup
+- [x] [P2] Exercise Session Design Upgrade - visual overhaul per 10x mockup (2026-03-11)
   - PRD: `docs/prds/exercise-session-design-upgrade.md`
 - [ ] [P3] Sprint Test Coverage - workout-helpers + traversal tests
   - PRD: `docs/prds/sprint-test-coverage.md`
