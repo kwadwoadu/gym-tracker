@@ -1544,11 +1544,11 @@ export default function WorkoutSession() {
               exercise={sheetExercise}
               setNumber={sheetSetNumber}
               totalSets={sheetFlatExercise?.sets || 4}
-              suggestedWeight={sessionMemData.sessionMem?.weight ?? weightSuggestion?.weight}
+              suggestedWeight={sessionMemData.sessionMem?.weight ?? globalSuggestion?.nudgeWeight ?? globalSuggestion?.suggestedWeight ?? weightSuggestion?.weight}
               suggestedReps={sessionMemData.sessionMem?.reps ?? globalSuggestion?.suggestedReps}
               suggestedRpe={sessionMemData.sessionMem?.rpe ?? globalSuggestion?.suggestedRpe}
-              lastWeekWeight={weightSuggestion?.lastWeekWeight}
-              lastWeekReps={weightSuggestion?.lastWeekReps}
+              lastWeekWeight={weightSuggestion?.lastWeekWeight ?? globalSuggestion?.lastWeight}
+              lastWeekReps={weightSuggestion?.lastWeekReps ?? globalSuggestion?.lastReps}
               lastWorkoutDate={globalSuggestion?.lastDate}
               hitTargetLastTime={globalSuggestion?.hitTargetLastTime}
               memorySource={sessionMemData.memSource}
