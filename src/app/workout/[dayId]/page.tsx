@@ -768,6 +768,9 @@ export default function WorkoutSession() {
     setPhase("rest");
   };
 
+  // Delay between data save and phase transition so celebration animation is visible
+  const CELEBRATION_VISIBLE_MS = 400;
+
   // Handle set completion - simplified progression logic
   const handleSetComplete = (weight: number, reps: number, rpe?: number) => {
     if (!trainingDay) return;
@@ -775,7 +778,7 @@ export default function WorkoutSession() {
     const currentExercise = getCurrentExercise();
     if (!currentExercise) return;
 
-    // Log the set
+    // Log the set IMMEDIATELY - data safety first
     const exercise = exercises.get(currentExercise.exerciseId);
     const targetRepsStr = currentExercise.reps.split(",")[0] || "10";
     const targetReps = parseInt(targetRepsStr.split("-")[0]) || 10;
@@ -823,19 +826,21 @@ export default function WorkoutSession() {
         nextSupersetIndex++;
 
         if (nextSupersetIndex >= trainingDay.supersets.length) {
-          // All supersets done - check if finisher exists
-          if (trainingDay.finisher && trainingDay.finisher.length > 0) {
-            setPhase("finisher");
-            audioManager.playSetStart();
-          } else {
-            finishWorkout();
-          }
+          // All supersets done - delay phase transition for celebration animation
+          setTimeout(() => {
+            if (trainingDay.finisher && trainingDay.finisher.length > 0) {
+              setPhase("finisher");
+              audioManager.playSetStart();
+            } else {
+              finishWorkout();
+            }
+          }, CELEBRATION_VISIBLE_MS);
           return;
         }
       }
     }
 
-    // Update state for next exercise
+    // Update state for next exercise (pre-computed, doesn't unmount SetLogger)
     setWorkoutState({
       supersetIndex: nextSupersetIndex,
       exerciseIndex: nextExerciseIndex,
@@ -850,8 +855,11 @@ export default function WorkoutSession() {
       `${nextSuperset.label}${nextExerciseIndex + 1} ${nextExercise?.name || "Unknown"} - Set ${nextSetNumber}`
     );
 
-    // Go to rest
-    setPhase("rest");
+    // Delay phase transition so celebration animation is visible in SetLogger
+    // Data is already saved to state above - only the visual transition is delayed
+    setTimeout(() => {
+      setPhase("rest");
+    }, CELEBRATION_VISIBLE_MS);
   };
 
   // Handle rest timer complete

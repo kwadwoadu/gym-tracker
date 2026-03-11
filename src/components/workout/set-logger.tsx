@@ -16,7 +16,7 @@ import { Check, Minus, Plus, TrendingUp, TrendingDown, Play, ChevronDown, Chevro
 import { cn } from "@/lib/utils";
 import { WEIGHT_BOUNCE_UP, WEIGHT_BOUNCE_DOWN } from "@/lib/animations";
 
-const COMPLETION_ANIMATION_MS = 600;
+// Animation plays visually but data saves immediately (no delay)
 import { MuscleMapMini } from "@/components/shared/MuscleMapMini";
 import { getFormRuleByExerciseId } from "@/data/form-rules";
 import { FormCamera } from "./form-camera";
@@ -143,11 +143,6 @@ export function SetLogger({
   const [showVideo, setShowVideo] = useState(false);
   const [showVideoDialog, setShowVideoDialog] = useState(false);
   const weightInputRef = useRef<HTMLInputElement>(null);
-  const completionTimerRef = useRef<NodeJS.Timeout | null>(null);
-
-  useEffect(() => {
-    return () => { if (completionTimerRef.current) clearTimeout(completionTimerRef.current); };
-  }, []);
 
   const [showFormAnalysis, setShowFormAnalysis] = useState(false);
   const [weightBounce, setWeightBounce] = useState<"up" | "down" | null>(null);
@@ -285,9 +280,10 @@ export function SetLogger({
   };
 
   const handleComplete = () => {
+    // Save data immediately via callback - parent commits to state instantly
+    // Parent is responsible for delaying phase transition so animation is visible
+    onComplete(weight, reps, rpe);
     setIsCompleted(true);
-    // Delay callback to let celebration animation play before parent unmounts
-    completionTimerRef.current = setTimeout(() => onComplete(weight, reps, rpe), COMPLETION_ANIMATION_MS);
   };
 
   // Get RPE label based on value
