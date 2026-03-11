@@ -7,7 +7,12 @@ export default async function NutritionLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const userId = await getClerkId();
+  let userId: string | null = null;
+  try {
+    userId = await getClerkId();
+  } catch {
+    redirect('/');
+  }
 
   if (!userId) {
     redirect('/');

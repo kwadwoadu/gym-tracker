@@ -46,8 +46,14 @@ const workouts = await prisma.workout.findMany(); // Server only!
 | `/lib/audio.ts` | Web Audio API sounds (iOS-compatible) |
 | `/lib/gamification.ts` | Achievement unlocking logic |
 | `/lib/api-client.ts` | API communication for sync |
+| `/lib/api-utils.ts` | withAuth/withAuthParams API route wrappers |
 | `/lib/programs.ts` | Program management logic |
 | `/lib/utils.ts` | Volume calculations, 1RM estimates, helpers |
+
+## Key Hooks
+| File | Purpose |
+|------|---------|
+| `/hooks/use-workout-session.ts` | Workout session state management (extracted from page) |
 
 ## Authentication Pattern (Vercel Edge Runtime Workaround)
 

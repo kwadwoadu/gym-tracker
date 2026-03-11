@@ -2,12 +2,10 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { withAuth } from "@/lib/api-utils";
 
-// GET /api/community/badges/user - Get user's badges
+// GET /api/community/badges/user - Get authenticated user's badges
+// SEC-002: Always use authenticated user's ID to prevent IDOR
 export const GET = withAuth(async (req, user) => {
-  const { searchParams } = new URL(req.url);
-  const targetUserId = searchParams.get("userId");
-
-  const userId = targetUserId || user.id;
+  const userId = user.id;
 
   const userBadges = await prisma.userBadge.findMany({
     where: { userId },

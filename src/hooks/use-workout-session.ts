@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useState, useCallback, useRef, useMemo } from "react";
+import React, { useEffect, useState, useCallback, useRef, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
 import { flattenSupersets, type FlatExercise } from "@/lib/flatten-exercises";
 import { useAchievementToasts, useMilestoneModal } from "@/components/gamification";
 import { checkAchievements, XP_REWARDS } from "@/lib/gamification";
+import type { AchievementDefinition } from "@/data/achievements";
 import { useAwardXP, useBulkUpdateChallengeProgress } from "@/lib/queries";
 import {
   trainingDaysApi,
@@ -51,6 +52,128 @@ export interface NewPR {
   reps: number;
 }
 
+export interface UseWorkoutSessionReturn {
+  // State values
+  isLoading: boolean;
+  trainingDay: TrainingDay | null;
+  exercises: Map<string, Exercise>;
+  phase: WorkoutPhase;
+  workoutState: WorkoutState;
+  warmupChecked: boolean[];
+  finisherChecked: boolean[];
+  completedSets: SetLog[];
+  startTime: Date | null;
+  audioInitialized: boolean;
+  nextExercisePreview: string;
+  weightSuggestion: { weight: number; lastWeekWeight: number; lastWeekReps: number } | null;
+  newPRs: NewPR[];
+  workoutNotes: string;
+  setWorkoutNotes: React.Dispatch<React.SetStateAction<string>>;
+  workoutLogId: string | null;
+  lastWeekVolumeTotal: number | null;
+  currentVolume: number;
+  showResumeDialog: boolean;
+  setShowResumeDialog: React.Dispatch<React.SetStateAction<boolean>>;
+  savedSession: SavedSession | null;
+  saveError: string | null;
+  setSaveError: React.Dispatch<React.SetStateAction<string | null>>;
+  carouselIndex: number;
+  setCarouselIndex: React.Dispatch<React.SetStateAction<number>>;
+  sheetOpen: boolean;
+  setSheetOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  sheetExerciseIndex: number;
+  globalSuggestion: {
+    suggestedWeight: number;
+    lastWeight: number;
+    lastReps: number;
+    lastRpe: number;
+    suggestedReps: number;
+    suggestedRpe: number;
+    lastDate: string;
+    hitTargetLastTime: boolean;
+    shouldNudgeIncrease: boolean;
+    nudgeWeight: number | null;
+  } | null;
+  editingSet: SetLog | null;
+  showEditDrawer: boolean;
+  setShowEditDrawer: React.Dispatch<React.SetStateAction<boolean>>;
+  setEditingSet: React.Dispatch<React.SetStateAction<SetLog | null>>;
+  challengeDismissedExercises: Set<string>;
+  autoStartRestTimer: boolean;
+  showPRCelebration: boolean;
+  setShowPRCelebration: React.Dispatch<React.SetStateAction<boolean>>;
+  celebrationPR: NewPR | null;
+  showNotificationPrompt: boolean;
+  setShowNotificationPrompt: React.Dispatch<React.SetStateAction<boolean>>;
+  autoSkipExercises: Set<string>;
+  setAutoSkipExercises: React.Dispatch<React.SetStateAction<Set<string>>>;
+  showAutoSkipPrompt: string | null;
+  setShowAutoSkipPrompt: React.Dispatch<React.SetStateAction<string | null>>;
+  focusMode: boolean;
+  setFocusMode: React.Dispatch<React.SetStateAction<boolean>>;
+
+  // Gamification
+  currentToast: { achievement: AchievementDefinition; unlockedAt: string } | null;
+  removeAchievementToast: (achievementId: string) => void;
+  MilestoneModalComponent: () => React.JSX.Element;
+
+  // Computed / memoized values
+  flatExercises: FlatExercise[];
+  progress: number;
+  sheetFlatExercise: FlatExercise | null;
+  sheetSetNumber: number;
+  sessionMemData: { sessionMem: { weight: number; reps: number; rpe: number } | null; memSource: "session" | "historical" | undefined };
+  contextBarData: {
+    supersetLabel: string;
+    exercises: { id: string; name: string }[];
+    activeIndex: number;
+    setNumber: number;
+    totalSets: number;
+  } | null;
+  weightSuggestionsMap: Map<string, { weight: number; lastWeekWeight: number; lastWeekReps: number }>;
+  allWarmupDone: boolean;
+  allFinisherDone: boolean;
+
+  // Handlers
+  getCurrentExercise: () => {
+    exerciseId: string;
+    sets: number;
+    reps: string;
+    tempo?: string;
+    restSeconds?: number;
+    name: string;
+    supersetLabel: string;
+    videoUrl?: string | null;
+  } | null;
+  getNextExercisePreview: () => { name: string; label: string; setNumber?: number; equipment?: string } | null;
+  getSessionMemoryForExercise: (exerciseId: string, setNumber: number) => { weight: number; reps: number; rpe: number } | null;
+  startWarmup: () => Promise<void>;
+  startWorkout: () => void;
+  toggleWarmup: (index: number) => void;
+  toggleFinisher: (index: number) => void;
+  handleSkipSet: () => void;
+  handleSetComplete: (weight: number, reps: number, rpe?: number) => void;
+  handleRestComplete: () => void;
+  handleChallengeAccept: (exerciseId: string) => void;
+  handleChallengeDismiss: (exerciseId: string) => void;
+  handleEditSet: (set: SetLog) => void;
+  handleSaveEditedSet: (updates: { weight: number; actualReps: number; rpe?: number }) => void;
+  getCompletedSetsForCurrentExercise: () => SetLog[];
+  finishWorkout: () => Promise<void>;
+  handleFinishWithNotes: () => Promise<void>;
+  getTargetReps: (repsString: string, setNumber: number) => number;
+  formatDuration: (seconds: number) => string;
+  resumeSession: () => Promise<void>;
+  discardSession: () => void;
+  handleOpenSheet: (exerciseIndex: number) => void;
+  handleSheetSetComplete: (weight: number, reps: number, rpe?: number) => void;
+  handleSheetSkip: () => void;
+  handleEditFromCarousel: (exerciseId: string, setNumber: number) => void;
+  initAudio: () => Promise<void>;
+  setWarmupChecked: React.Dispatch<React.SetStateAction<boolean[]>>;
+  setFinisherChecked: React.Dispatch<React.SetStateAction<boolean[]>>;
+}
+
 // Session persistence for surviving refresh/back/power loss
 interface SavedSession {
   phase: WorkoutPhase;
@@ -84,7 +207,7 @@ const getDeviceId = (): string => {
 
 // --- Hook ---
 
-export function useWorkoutSession(dayId: string) {
+export function useWorkoutSession(dayId: string): UseWorkoutSessionReturn {
   const router = useRouter();
   const { user } = useUser();
   const userId = user?.id ?? "anonymous";
@@ -222,23 +345,27 @@ export function useWorkoutSession(dayId: string) {
   }, [trainingDay, workoutState.supersetIndex, workoutState.exerciseIndex, exercises]);
 
   // Build weight suggestions map for carousel (memoized)
+  // Uses primitive deps instead of getCurrentExercise callback to avoid defeating memoization
   const weightSuggestionsMap = useMemo(() => {
     const map = new Map<
       string,
       { weight: number; lastWeekWeight: number; lastWeekReps: number }
     >();
-    if (weightSuggestion) {
-      const currentEx = getCurrentExercise();
-      if (currentEx) {
-        map.set(currentEx.exerciseId, {
-          weight: weightSuggestion.weight,
-          lastWeekWeight: weightSuggestion.lastWeekWeight,
-          lastWeekReps: weightSuggestion.lastWeekReps,
-        });
+    if (weightSuggestion && trainingDay) {
+      const superset = trainingDay.supersets[workoutState.supersetIndex];
+      if (superset) {
+        const exerciseData = superset.exercises[workoutState.exerciseIndex];
+        if (exerciseData) {
+          map.set(exerciseData.exerciseId, {
+            weight: weightSuggestion.weight,
+            lastWeekWeight: weightSuggestion.lastWeekWeight,
+            lastWeekReps: weightSuggestion.lastWeekReps,
+          });
+        }
       }
     }
     return map;
-  }, [weightSuggestion, getCurrentExercise]);
+  }, [weightSuggestion, trainingDay, workoutState.supersetIndex, workoutState.exerciseIndex]);
 
   // Get session memory for within-workout set-to-set memory
   const getSessionMemoryForExercise = useCallback(
@@ -277,7 +404,7 @@ export function useWorkoutSession(dayId: string) {
         ? "historical"
         : undefined;
     return { sessionMem, memSource };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- intentionally omitting getSessionMemoryForExercise; its logic depends only on completedSets which is already listed
   }, [
     sheetFlatExercise?.exerciseId,
     sheetSetNumber,

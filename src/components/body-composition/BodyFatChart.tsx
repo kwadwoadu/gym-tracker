@@ -3,7 +3,7 @@
 import { LineChart, Line, XAxis, YAxis, ResponsiveContainer } from "recharts";
 import { COLORS } from "@/lib/design-tokens";
 
-interface BodyFatChartProps {
+export interface BodyFatChartProps {
   data: Array<{ date: string; percentage: number }>;
 }
 
