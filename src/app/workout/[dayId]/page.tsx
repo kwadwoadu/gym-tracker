@@ -39,6 +39,7 @@ import { ChallengeCard } from "@/components/workout/challenge-card";
 import { WorkoutCarousel } from "@/components/workout/workout-carousel";
 import { ProgressDots } from "@/components/workout/progress-dots";
 import { SetLoggerSheet } from "@/components/workout/set-logger-sheet";
+import { SupersetContextBar } from "@/components/workout/superset-context-bar";
 import { flattenSupersets, type FlatExercise } from "@/lib/flatten-exercises";
 import { AchievementToast, useAchievementToasts, useMilestoneModal } from "@/components/gamification";
 import { checkAchievements, XP_REWARDS } from "@/lib/gamification";
@@ -230,6 +231,7 @@ export default function WorkoutSession() {
   const [autoSkipExercises, setAutoSkipExercises] = useState<Set<string>>(new Set());
   const [showAutoSkipPrompt, setShowAutoSkipPrompt] = useState<string | null>(null); // exerciseId to prompt for
   const lastAutoSkippedRef = useRef<string | null>(null);
+  const [focusMode, setFocusMode] = useState(false);
 
   // Achievement toasts
   const { addToasts: addAchievementToasts, removeToast: removeAchievementToast, currentToast } = useAchievementToasts();
@@ -722,31 +724,51 @@ export default function WorkoutSession() {
       setShowAutoSkipPrompt(currentExercise.exerciseId);
     }
 
-    // Progress to next set (same logic as complete, but no volume added)
+    // Progress to next set - respects focus mode traversal
     const superset = trainingDay.supersets[workoutState.supersetIndex];
     const totalSets = currentExercise.sets;
     const exercisesInSuperset = superset.exercises.length;
 
     let nextSupersetIndex = workoutState.supersetIndex;
-    let nextExerciseIndex = workoutState.exerciseIndex + 1;
+    let nextExerciseIndex = workoutState.exerciseIndex;
     let nextSetNumber = workoutState.setNumber;
 
-    if (nextExerciseIndex >= exercisesInSuperset) {
-      nextExerciseIndex = 0;
+    if (focusMode) {
       nextSetNumber++;
-
       if (nextSetNumber > totalSets) {
+        nextExerciseIndex++;
         nextSetNumber = 1;
-        nextSupersetIndex++;
-
-        if (nextSupersetIndex >= trainingDay.supersets.length) {
-          if (trainingDay.finisher && trainingDay.finisher.length > 0) {
-            setPhase("finisher");
-            audioManager.playSetStart();
-          } else {
-            finishWorkout();
+        if (nextExerciseIndex >= exercisesInSuperset) {
+          nextExerciseIndex = 0;
+          nextSupersetIndex++;
+          if (nextSupersetIndex >= trainingDay.supersets.length) {
+            if (trainingDay.finisher && trainingDay.finisher.length > 0) {
+              setPhase("finisher");
+              audioManager.playSetStart();
+            } else {
+              finishWorkout();
+            }
+            return;
           }
-          return;
+        }
+      }
+    } else {
+      nextExerciseIndex++;
+      if (nextExerciseIndex >= exercisesInSuperset) {
+        nextExerciseIndex = 0;
+        nextSetNumber++;
+        if (nextSetNumber > totalSets) {
+          nextSetNumber = 1;
+          nextSupersetIndex++;
+          if (nextSupersetIndex >= trainingDay.supersets.length) {
+            if (trainingDay.finisher && trainingDay.finisher.length > 0) {
+              setPhase("finisher");
+              audioManager.playSetStart();
+            } else {
+              finishWorkout();
+            }
+            return;
+          }
         }
       }
     }
@@ -812,30 +834,56 @@ export default function WorkoutSession() {
     let nextExerciseIndex = workoutState.exerciseIndex;
     let nextSetNumber = workoutState.setNumber;
 
-    // Move to next exercise in superset (A1 -> A2)
-    nextExerciseIndex++;
-
-    if (nextExerciseIndex >= exercisesInSuperset) {
-      // Completed all exercises in superset for this set, move to next set
-      nextExerciseIndex = 0;
+    if (focusMode) {
+      // Focus mode: complete all sets of current exercise before moving to next
       nextSetNumber++;
-
       if (nextSetNumber > totalSets) {
-        // Completed all sets in this superset, move to next superset
+        // Done with this exercise, move to next in superset
+        nextExerciseIndex++;
         nextSetNumber = 1;
-        nextSupersetIndex++;
+        if (nextExerciseIndex >= exercisesInSuperset) {
+          // Done with superset, move to next
+          nextExerciseIndex = 0;
+          nextSupersetIndex++;
+          if (nextSupersetIndex >= trainingDay.supersets.length) {
+            setTimeout(() => {
+              if (trainingDay.finisher && trainingDay.finisher.length > 0) {
+                setPhase("finisher");
+                audioManager.playSetStart();
+              } else {
+                finishWorkout();
+              }
+            }, CELEBRATION_VISIBLE_MS);
+            return;
+          }
+        }
+      }
+    } else {
+      // Normal mode: alternate exercises in superset (A1 -> A2 -> A1 -> A2)
+      nextExerciseIndex++;
 
-        if (nextSupersetIndex >= trainingDay.supersets.length) {
-          // All supersets done - delay phase transition for celebration animation
-          setTimeout(() => {
-            if (trainingDay.finisher && trainingDay.finisher.length > 0) {
-              setPhase("finisher");
-              audioManager.playSetStart();
-            } else {
-              finishWorkout();
-            }
-          }, CELEBRATION_VISIBLE_MS);
-          return;
+      if (nextExerciseIndex >= exercisesInSuperset) {
+        // Completed all exercises in superset for this set, move to next set
+        nextExerciseIndex = 0;
+        nextSetNumber++;
+
+        if (nextSetNumber > totalSets) {
+          // Completed all sets in this superset, move to next superset
+          nextSetNumber = 1;
+          nextSupersetIndex++;
+
+          if (nextSupersetIndex >= trainingDay.supersets.length) {
+            // All supersets done - delay phase transition for celebration animation
+            setTimeout(() => {
+              if (trainingDay.finisher && trainingDay.finisher.length > 0) {
+                setPhase("finisher");
+                audioManager.playSetStart();
+              } else {
+                finishWorkout();
+              }
+            }, CELEBRATION_VISIBLE_MS);
+            return;
+          }
         }
       }
     }
@@ -862,8 +910,18 @@ export default function WorkoutSession() {
     }, CELEBRATION_VISIBLE_MS);
   };
 
-  // Handle rest timer complete
+  // Handle rest timer complete - auto-scroll carousel to next exercise
   const handleRestComplete = () => {
+    if (trainingDay) {
+      const targetSuperset = trainingDay.supersets[workoutState.supersetIndex];
+      if (targetSuperset) {
+        const targetIndex = flatExercises.findIndex(
+          (f) => f.supersetId === targetSuperset.id
+            && f.indexInSuperset === workoutState.exerciseIndex
+        );
+        if (targetIndex >= 0) setCarouselIndex(targetIndex);
+      }
+    }
     setPhase("exercise");
     audioManager.playSetStart();
   };
@@ -1169,6 +1227,28 @@ export default function WorkoutSession() {
     return { sessionMem, memSource };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sheetFlatExercise?.exerciseId, sheetSetNumber, completedSets, globalSuggestion]);
+
+  // Superset context bar data - memoized to avoid IIFE in JSX
+  const contextBarData = useMemo(() => {
+    const currentFlat = flatExercises[carouselIndex];
+    if (!currentFlat || currentFlat.supersetSize <= 1) return null;
+    const ssExercises = flatExercises
+      .filter((f) => f.supersetId === currentFlat.supersetId)
+      .map((f) => ({
+        id: f.exerciseId,
+        name: exercises.get(f.exerciseId)?.name || f.exerciseId,
+      }));
+    const completedCount = completedSets.filter(
+      (s) => s.exerciseId === currentFlat.exerciseId
+    ).length;
+    return {
+      supersetLabel: currentFlat.supersetLabel,
+      exercises: ssExercises,
+      activeIndex: currentFlat.indexInSuperset,
+      setNumber: Math.min(completedCount + 1, currentFlat.sets),
+      totalSets: currentFlat.sets,
+    };
+  }, [carouselIndex, flatExercises, exercises, completedSets]);
 
   if (isLoading || !trainingDay) {
     return (
@@ -1522,6 +1602,19 @@ export default function WorkoutSession() {
               currentIndex={carouselIndex}
               completedSets={completedSets}
             />
+
+            {/* Superset context bar - only for multi-exercise supersets */}
+            {contextBarData && (
+              <SupersetContextBar
+                supersetLabel={contextBarData.supersetLabel}
+                exercises={contextBarData.exercises}
+                activeExerciseIndex={contextBarData.activeIndex}
+                setNumber={contextBarData.setNumber}
+                totalSets={contextBarData.totalSets}
+                focusMode={focusMode}
+                onToggleFocusMode={() => setFocusMode((prev) => !prev)}
+              />
+            )}
 
             {/* Swipeable exercise carousel */}
             <WorkoutCarousel
