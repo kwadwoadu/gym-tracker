@@ -14,7 +14,6 @@ import {
   Camera,
 } from "lucide-react";
 import { DATA, LABEL } from "@/lib/typography";
-import { COLORS } from "@/lib/design-tokens";
 import db, { generateId, getToday } from "@/lib/db";
 import type {
   WeightEntry,
@@ -31,16 +30,20 @@ import {
   MEASUREMENT_SITES,
   type MeasurementSiteKey,
 } from "@/lib/body-composition/types";
-import { WeightChart, type Period } from "@/components/body-composition/WeightChart";
+import type { Period } from "@/components/body-composition/WeightChart";
 import { WeightInput } from "@/components/body-composition/WeightInput";
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  ResponsiveContainer,
-} from "recharts";
+import dynamic from "next/dynamic";
 import { MeasurementForm } from "@/components/body-composition/MeasurementForm";
+
+const WeightChart = dynamic(() => import("@/components/body-composition/WeightChart").then(mod => ({ default: mod.WeightChart })), {
+  ssr: false,
+  loading: () => <div className="w-full h-[200px] bg-card rounded-xl animate-pulse" />,
+});
+
+const BodyFatChart = dynamic(() => import("@/components/body-composition/BodyFatChart").then(mod => ({ default: mod.BodyFatChart })), {
+  ssr: false,
+  loading: () => <div className="h-[160px] bg-card rounded-xl animate-pulse" />,
+});
 import { BodyFatCalculator } from "@/components/body-composition/BodyFatCalculator";
 import { PhotoProgress } from "@/components/body-composition/PhotoProgress";
 
@@ -465,46 +468,7 @@ export default function BodyPage() {
                   <h3 className={`${LABEL.caption} text-white/40 mb-2`}>
                     Trend
                   </h3>
-                  <div className="h-[160px]">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <LineChart
-                        data={[...bodyFatEntries]
-                          .reverse()
-                          .map((e) => ({
-                            date: e.date,
-                            percentage: e.percentage,
-                          }))}
-                        margin={{ top: 5, right: 10, left: 0, bottom: 5 }}
-                      >
-                        <XAxis
-                          dataKey="date"
-                          stroke={COLORS.textMuted}
-                          tick={{ fontSize: 10, fill: COLORS.textMuted }}
-                          tickFormatter={(d: string) =>
-                            new Date(d).toLocaleDateString("en", {
-                              month: "short",
-                              day: "numeric",
-                            })
-                          }
-                        />
-                        <YAxis
-                          stroke={COLORS.textMuted}
-                          tick={{ fontSize: 10, fill: COLORS.textMuted }}
-                          domain={["auto", "auto"]}
-                          width={35}
-                          unit="%"
-                        />
-                        <Line
-                          type="monotone"
-                          dataKey="percentage"
-                          stroke={COLORS.accent}
-                          strokeWidth={2}
-                          dot={{ fill: COLORS.accent, r: 3 }}
-                          activeDot={{ fill: COLORS.accent, r: 5 }}
-                        />
-                      </LineChart>
-                    </ResponsiveContainer>
-                  </div>
+                  <BodyFatChart data={[...bodyFatEntries].reverse().map(e => ({ date: e.date, percentage: e.percentage }))} />
                 </div>
               )}
 

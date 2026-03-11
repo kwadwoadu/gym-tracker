@@ -146,6 +146,7 @@ export function SetLogger({
 
   const [showFormAnalysis, setShowFormAnalysis] = useState(false);
   const [weightBounce, setWeightBounce] = useState<"up" | "down" | null>(null);
+  const weightBounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Voice logging state
   const [isVoiceListening, setIsVoiceListening] = useState(false);
@@ -214,7 +215,7 @@ export function SetLogger({
 
   const formRule = exerciseId ? getFormRuleByExerciseId(exerciseId) : null;
 
-  // Update weight when suggestion props arrive (async fetch)
+  // Sync suggested values from props (session memory or historical data)
   useEffect(() => {
     if (suggestedWeight !== undefined) {
       setWeight(suggestedWeight);
@@ -223,20 +224,22 @@ export function SetLogger({
       setWeight(lastWeekWeight);
       setWeightInputValue(lastWeekWeight.toString());
     }
-  }, [suggestedWeight, lastWeekWeight]);
-
-  // Update reps and RPE when suggestion props arrive (smart memory)
-  useEffect(() => {
     if (suggestedReps !== undefined) {
       setReps(suggestedReps);
     }
-  }, [suggestedReps]);
-
-  useEffect(() => {
     if (suggestedRpe !== undefined) {
       setRpe(suggestedRpe);
     }
-  }, [suggestedRpe]);
+  }, [suggestedWeight, lastWeekWeight, suggestedReps, suggestedRpe]);
+
+  // Cleanup weight bounce timer on unmount
+  useEffect(() => {
+    return () => {
+      if (weightBounceTimerRef.current) {
+        clearTimeout(weightBounceTimerRef.current);
+      }
+    };
+  }, []);
 
   // Focus input when editing starts
   useEffect(() => {
@@ -249,7 +252,10 @@ export function SetLogger({
   const adjustWeight = (delta: number) => {
     setWeight((prev) => Math.max(0, +(prev + delta).toFixed(1)));
     setWeightBounce(delta > 0 ? "up" : "down");
-    setTimeout(() => setWeightBounce(null), 300);
+    if (weightBounceTimerRef.current) {
+      clearTimeout(weightBounceTimerRef.current);
+    }
+    weightBounceTimerRef.current = setTimeout(() => setWeightBounce(null), 300);
   };
 
   const adjustReps = (delta: number) => {

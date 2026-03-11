@@ -1,27 +1,15 @@
-'use client';
-
-import { useNutritionAccess } from '@/hooks/use-nutrition-access';
+import { getClerkId } from '@/lib/auth-helpers';
 import { redirect } from 'next/navigation';
 import { NutritionNav } from '@/components/nutrition/nutrition-nav';
 
-export default function NutritionLayout({
+export default async function NutritionLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const { hasAccess, isLoading } = useNutritionAccess();
+  const userId = await getClerkId();
 
-  // Show loading state while checking access
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="animate-pulse text-muted-foreground">Loading...</div>
-      </div>
-    );
-  }
-
-  // Redirect if no access
-  if (!hasAccess) {
+  if (!userId) {
     redirect('/');
   }
 

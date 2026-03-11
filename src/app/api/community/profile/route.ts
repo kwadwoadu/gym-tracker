@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { getOrCreateUser } from "@/lib/user";
+import { withAuth } from "@/lib/api-utils";
 
 // --- Input Validation Helpers ---
 
@@ -50,74 +50,54 @@ function validateProfileFields(body: Record<string, unknown>): string | null {
 }
 
 // GET /api/community/profile - Get own profile
-export async function GET() {
-  try {
-    const user = await getOrCreateUser();
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+export const GET = withAuth(async (req, user) => {
+  const profile = await prisma.userProfile.findUnique({
+    where: { userId: user.id },
+  });
 
-    const profile = await prisma.userProfile.findUnique({
-      where: { userId: user.id },
-    });
-
-    return NextResponse.json(profile);
-  } catch (error) {
-    console.error("Error fetching profile:", error);
-    return NextResponse.json({ error: "Failed to fetch profile" }, { status: 500 });
-  }
-}
+  return NextResponse.json(profile);
+});
 
 // PUT /api/community/profile - Update own profile
-export async function PUT(request: Request) {
-  try {
-    const user = await getOrCreateUser();
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+export const PUT = withAuth(async (req, user) => {
+  const body = await req.json();
 
-    const body = await request.json();
-
-    // REV-001: Validate avatarUrl protocol (prevent XSS via javascript:/data: URIs)
-    const avatarUrlError = validateAvatarUrl(body.avatarUrl);
-    if (avatarUrlError) {
-      return NextResponse.json({ error: avatarUrlError }, { status: 400 });
-    }
-
-    // REV-008: Validate profile field lengths and format
-    const fieldError = validateProfileFields(body);
-    if (fieldError) {
-      return NextResponse.json({ error: fieldError }, { status: 400 });
-    }
-
-    const { displayName, avatarUrl, bio, handle, shareStreak, shareVolume, shareWorkouts } = body;
-
-    const profile = await prisma.userProfile.upsert({
-      where: { userId: user.id },
-      update: {
-        displayName,
-        avatarUrl,
-        bio,
-        handle,
-        shareStreak,
-        shareVolume,
-        shareWorkouts,
-      },
-      create: {
-        userId: user.id,
-        displayName,
-        avatarUrl,
-        bio,
-        handle,
-        shareStreak: shareStreak ?? true,
-        shareVolume: shareVolume ?? false,
-        shareWorkouts: shareWorkouts ?? true,
-      },
-    });
-
-    return NextResponse.json(profile);
-  } catch (error) {
-    console.error("Error updating profile:", error);
-    return NextResponse.json({ error: "Failed to update profile" }, { status: 500 });
+  // REV-001: Validate avatarUrl protocol (prevent XSS via javascript:/data: URIs)
+  const avatarUrlError = validateAvatarUrl(body.avatarUrl);
+  if (avatarUrlError) {
+    return NextResponse.json({ error: avatarUrlError }, { status: 400 });
   }
-}
+
+  // REV-008: Validate profile field lengths and format
+  const fieldError = validateProfileFields(body);
+  if (fieldError) {
+    return NextResponse.json({ error: fieldError }, { status: 400 });
+  }
+
+  const { displayName, avatarUrl, bio, handle, shareStreak, shareVolume, shareWorkouts } = body;
+
+  const profile = await prisma.userProfile.upsert({
+    where: { userId: user.id },
+    update: {
+      displayName,
+      avatarUrl,
+      bio,
+      handle,
+      shareStreak,
+      shareVolume,
+      shareWorkouts,
+    },
+    create: {
+      userId: user.id,
+      displayName,
+      avatarUrl,
+      bio,
+      handle,
+      shareStreak: shareStreak ?? true,
+      shareVolume: shareVolume ?? false,
+      shareWorkouts: shareWorkouts ?? true,
+    },
+  });
+
+  return NextResponse.json(profile);
+});

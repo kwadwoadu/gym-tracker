@@ -9,8 +9,13 @@ import { HEADING } from "@/lib/typography";
 import { useWorkoutLogs, usePersonalRecords, useExercises, useAchievements, useStats, useMuscleVolume } from "@/lib/queries";
 import type { Exercise, WorkoutLog, PersonalRecord } from "@/lib/api-client";
 import { SummaryCards } from "@/components/stats/summary-cards";
-import { WeightChart } from "@/components/stats/weight-chart";
+import dynamic from "next/dynamic";
 import { PRList } from "@/components/stats/pr-list";
+
+const WeightChart = dynamic(() => import("@/components/stats/weight-chart").then(mod => ({ default: mod.WeightChart })), {
+  ssr: false,
+  loading: () => <div className="h-56 bg-card border-border rounded-lg animate-pulse" />,
+});
 import { WorkoutCalendar } from "@/components/stats/workout-calendar";
 import { RecentWorkouts } from "@/components/stats/recent-workouts";
 import { AchievementGallery } from "@/components/gamification";
