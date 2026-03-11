@@ -8,6 +8,17 @@ export default defineConfig({
   test: {
     environment: "node",
     globals: true,
+    include: ["src/**/__tests__/**/*.test.ts"],
+    coverage: {
+      provider: "v8",
+      reporter: ["text", "json"],
+      exclude: [
+        "node_modules/",
+        "src/components/**",
+        "src/app/**/page.tsx",
+        "src/app/**/layout.tsx",
+      ],
+    },
   },
   resolve: {
     alias: {
