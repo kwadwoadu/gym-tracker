@@ -7,7 +7,7 @@ import { Card } from "@/components/ui/card";
 import { estimateMuscleRecovery } from "@/lib/recovery";
 import { getRoutinesForMuscles } from "@/data/mobility-routines";
 import type { MobilityRoutine } from "@/data/mobility-routines";
-import { RecoveryAssessment } from "@/components/rest-day/RecoveryAssessment";
+
 import { MuscleRecoveryCard } from "@/components/rest-day/MuscleRecoveryCard";
 import { MobilityRoutineCard } from "@/components/rest-day/MobilityRoutineCard";
 import { ActiveRecoverySession } from "@/components/rest-day/ActiveRecoverySession";
@@ -95,9 +95,6 @@ export function RestDayDashboard({
             </Card>
           </motion.div>
         )}
-
-        {/* Recovery Self-Assessment */}
-        <RecoveryAssessment />
 
         {/* Muscle Recovery Timeline */}
         {recoveryEstimates.length > 0 && (

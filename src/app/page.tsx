@@ -32,6 +32,7 @@ import {
 } from "@/lib/queries";
 import type { Exercise } from "@/lib/api-client";
 import { GamificationStrip } from "@/components/home/GamificationStrip";
+import { RecoveryAssessment } from "@/components/rest-day/RecoveryAssessment";
 
 export default function Home() {
   const { isSignedIn, isLoaded: authLoaded, user } = useUser();
@@ -258,6 +259,11 @@ export default function Home() {
         <WhoopRecoveryCard />
       </div>
 
+      {/* Recovery Self-Assessment (visible on all dashboard states) */}
+      <div className="px-4 mt-3">
+        <RecoveryAssessment />
+      </div>
+
       {/* Context-Aware Dashboard */}
       {trainingDaysLoading ? null : (
       <div className="py-4 space-y-8">
@@ -285,7 +291,7 @@ export default function Home() {
             nextDay={nextDay}
           />
         )}
-        {dashboardCtx.state === "rest-day" && (
+        {dashboardCtx.state === "rest-day" && (sortedDays.length === 0 || selectedDay !== null) && (
           <RestDayDashboard
             nextDay={nextDay}
             lastWorkout={workoutLogs?.filter((l) => l.isComplete).sort((a, b) => b.date.localeCompare(a.date))[0] || null}

@@ -75,7 +75,7 @@ export function BottomTabBar() {
                 key={tab.href}
                 onClick={() => router.push(tab.href)}
                 className={cn(
-                  "flex flex-col items-center justify-center gap-0.5 min-w-[64px] h-[49px] transition-colors",
+                  "flex flex-col items-center justify-center gap-0.5 flex-1 min-w-0 h-[49px] transition-colors",
                   isActive ? "text-primary" : "text-dim-foreground"
                 )}
               >
@@ -92,7 +92,7 @@ export function BottomTabBar() {
           <button
             onClick={() => setMoreOpen(true)}
             className={cn(
-              "flex flex-col items-center justify-center gap-0.5 min-w-[64px] h-[49px] transition-colors",
+              "flex flex-col items-center justify-center gap-0.5 flex-1 min-w-0 h-[49px] transition-colors",
               isMoreActive || moreOpen ? "text-primary" : "text-dim-foreground"
             )}
           >

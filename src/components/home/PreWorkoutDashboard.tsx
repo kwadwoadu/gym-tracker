@@ -66,8 +66,8 @@ export function PreWorkoutDashboard({
               const name = ex?.name ?? item.exerciseId;
               return (
                 <div key={i} className="px-4 py-3">
-                  <div className="flex items-center justify-between">
-                    <p className="text-sm font-medium text-white">{name}</p>
+                  <div className="flex items-center justify-between min-w-0">
+                    <p className="text-sm font-medium text-white truncate">{name}</p>
                     <Badge className="bg-white/5 text-white/50 border-white/10 text-xs shrink-0">
                       {item.reps} reps
                     </Badge>
