@@ -103,6 +103,19 @@
               "restSeconds": 60
             }
           ]
+        },
+        {
+          "id": "upper-a-ss-e",
+          "label": "E",
+          "exercises": [
+            {
+              "exerciseId": "ex-incline-db-squeeze-press",
+              "sets": 3,
+              "reps": "12,12,12",
+              "tempo": "T:30A1",
+              "restSeconds": 60
+            }
+          ]
         }
       ],
       "finisher": []
@@ -217,14 +230,14 @@
           "label": "B",
           "exercises": [
             {
-              "exerciseId": "ex-cable-fly",
+              "exerciseId": "ex-incline-db-squeeze-press",
               "sets": 4,
-              "reps": "12,12,12,12",
+              "reps": "12,12,10,10",
               "tempo": "T:30A1",
               "restSeconds": 60
             },
             {
-              "exerciseId": "ex-barbell-row",
+              "exerciseId": "ex-dumbbell-row",
               "sets": 4,
               "reps": "10,10,8,8",
               "tempo": "T:20A1",

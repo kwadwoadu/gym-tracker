@@ -28,6 +28,15 @@
       "videoUrl": "https://www.youtube.com/watch?v=TcS2710y04w"
     },
     {
+      "id": "ex-incline-db-squeeze-press",
+      "name": "Incline Dumbbell Squeeze Press",
+      "muscleGroups": ["chest", "triceps"],
+      "muscles": { "primary": ["chest"], "secondary": ["triceps", "front_delts"] },
+      "equipment": "dumbbells",
+      "isCustom": false,
+      "videoUrl": "https://www.youtube.com/watch?v=CcBioansKHs"
+    },
+    {
       "id": "ex-incline-db-press",
       "name": "Incline Dumbbell Press",
       "muscleGroups": ["chest", "shoulders"],

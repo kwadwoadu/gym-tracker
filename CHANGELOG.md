@@ -4,6 +4,18 @@ All notable changes to the SetFlow project.
 
 ---
 
+## [2026-03-15] Program Update: Incline DB Squeeze Press for Upper Chest
+
+**Type:** Data
+**Files Changed:**
+- `src/data/exercises.json` - Added `ex-incline-db-squeeze-press` to catalog
+- `src/data/programs/upper-lower-4day.json` - Upper A: added superset E (3x12 burnout), Upper B: swapped Cable Fly -> Squeeze Press, Barbell Row -> Dumbbell Row
+
+### Summary
+Added Incline Dumbbell Squeeze Press to target upper chest across both upper days. Upper A gets a new burnout superset E (3x12). Upper B replaces Cable Fly with Squeeze Press (12,12,10,10) and Barbell Row with Dumbbell Row. Live Neon DB updated via one-time Prisma script (exercise created + JSONB supersets modified for all 8 training day rows). Review fix: standardized tempo to T:30A1 across both days.
+
+---
+
 ## [2026-03-07] AI Coach: Markdown Rendering + Dynamic Follow-up Prompts
 
 **Type:** Feature
