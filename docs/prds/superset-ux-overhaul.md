@@ -1,6 +1,6 @@
 # PRD: Superset UX Overhaul
 
-> **Status:** Ready
+> **Status:** SHIPPED
 > **Owner:** Kwadwo
 > **Created:** 2026-03-11
 > **Priority:** P1 Bug + P2 Feature

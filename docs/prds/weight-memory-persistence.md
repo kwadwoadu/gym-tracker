@@ -1,6 +1,6 @@
 # PRD: Weight Memory Persistence
 
-> **Status:** Ready
+> **Status:** SHIPPED
 > **Owner:** Kwadwo
 > **Created:** 2026-03-11
 > **Priority:** P1 (Data Quality Bug)
