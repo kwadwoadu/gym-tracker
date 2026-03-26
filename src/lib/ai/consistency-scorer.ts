@@ -78,7 +78,17 @@ export function calculateConsistencyScore(
   const now = new Date();
   const currentMonday = getMondayOfWeek(now);
 
-  // Build weekly history for the last MAX_WEEKS_BACK weeks
+  // Pre-build a Map of week-start to unique workout dates in a single pass (O(L))
+  const workoutDatesByWeek = new Map<string, Set<string>>();
+  for (const log of completedLogs) {
+    const logDate = new Date(log.date);
+    const weekStart = getMondayOfWeek(logDate);
+    const key = formatDate(weekStart);
+    if (!workoutDatesByWeek.has(key)) workoutDatesByWeek.set(key, new Set());
+    workoutDatesByWeek.get(key)!.add(log.date.slice(0, 10));
+  }
+
+  // Build weekly history for the last MAX_WEEKS_BACK weeks using the pre-built Map
   const weeklyHistory: Array<{
     weekStart: string;
     workoutsDone: number;
@@ -89,21 +99,10 @@ export function calculateConsistencyScore(
   for (let i = 0; i < MAX_WEEKS_BACK; i++) {
     const weekStart = new Date(currentMonday);
     weekStart.setDate(weekStart.getDate() - i * 7);
-    const weekEnd = new Date(weekStart);
-    weekEnd.setDate(weekEnd.getDate() + 7);
-
     const weekStartStr = formatDate(weekStart);
-    const weekEndStr = formatDate(weekEnd);
 
-    // Count unique workout days in this week
-    const daysWorkedOut = new Set<string>();
-    for (const log of completedLogs) {
-      if (log.date >= weekStartStr && log.date < weekEndStr) {
-        daysWorkedOut.add(log.date);
-      }
-    }
-
-    const workoutsDone = daysWorkedOut.size;
+    const daysWorkedOut = workoutDatesByWeek.get(weekStartStr);
+    const workoutsDone = daysWorkedOut ? daysWorkedOut.size : 0;
     const adherencePercent =
       plannedDaysPerWeek > 0
         ? Math.min(100, Math.round((workoutsDone / plannedDaysPerWeek) * 100))

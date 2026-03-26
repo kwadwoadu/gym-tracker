@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import useEmblaCarousel from "embla-carousel-react";
 import type { FlatExercise } from "@/lib/flatten-exercises";
@@ -160,12 +160,13 @@ export function ExerciseCarousel({
     };
   }, []);
 
-  const getCompletedSetCount = useCallback(
-    (exerciseId: string): number => {
-      return completedSets.filter((s) => s.exerciseId === exerciseId).length;
-    },
-    [completedSets]
-  );
+  const completedCountByExercise = useMemo(() => {
+    const m = new Map<string, number>();
+    for (const s of completedSets) {
+      m.set(s.exerciseId, (m.get(s.exerciseId) ?? 0) + 1);
+    }
+    return m;
+  }, [completedSets]);
 
   return (
     <div className="relative flex-1 overflow-hidden">
@@ -232,14 +233,14 @@ export function ExerciseCarousel({
           {flatExercises.map((flat, idx) => {
             const exercise = exercises.get(flat.exerciseId);
             const name = exercise?.name || flat.exerciseId;
-            const completedCount = getCompletedSetCount(flat.exerciseId);
+            const completedCount = completedCountByExercise.get(flat.exerciseId) ?? 0;
             const isComplete = completedCount >= flat.sets;
             const currentSet = Math.min(completedCount + 1, flat.sets);
             const suggestion = weightSuggestions.get(flat.exerciseId);
 
             return (
               <div
-                key={idx}
+                key={`${flat.exerciseId}-${idx}`}
                 className="flex-[0_0_100%] min-w-0 flex flex-col items-center justify-center px-6 gap-4"
               >
                 {/* Superset label */}

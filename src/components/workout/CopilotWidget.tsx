@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Brain,
@@ -78,6 +78,8 @@ export function CopilotWidget({
   const [expanded, setExpanded] = useState(false);
   const [dismissed, setDismissed] = useState<Set<string>>(new Set());
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
+  const chatMessagesRef = useRef(chatMessages);
+  useEffect(() => { chatMessagesRef.current = chatMessages; }, [chatMessages]);
   const [chatInput, setChatInput] = useState("");
   const [chatSending, setChatSending] = useState(false);
 
@@ -86,41 +88,39 @@ export function CopilotWidget({
     setDismissed(new Set());
   }, [currentExerciseId]);
 
+  // --- Shared reshaped history (avoids double-mapping workoutHistory) ---
+  const reshapedHistory = useMemo(() => {
+    return workoutHistory.map((log) => ({
+      date: log.date,
+      sets: log.sets.map((s: any) => ({
+        exerciseId: s.exerciseId,
+        weight: s.weight,
+        actualReps: s.actualReps,
+        reps: s.actualReps,
+        targetReps: s.targetReps,
+        rpe: s.rpe,
+      })),
+    }));
+  }, [workoutHistory]);
+
   // --- Plateau Detection ---
   const plateauResult = useMemo((): PlateauResult | null => {
-    if (!currentExerciseId || workoutHistory.length < 3) return null;
+    if (!currentExerciseId || reshapedHistory.length < 3) return null;
 
     const sessions = buildSessionSummaries(
-      workoutHistory.map((log) => ({
-        date: log.date,
-        sets: log.sets.map((s) => ({
-          exerciseId: s.exerciseId,
-          weight: s.weight,
-          actualReps: s.actualReps,
-          rpe: s.rpe,
-        })),
-      })),
+      reshapedHistory,
       currentExerciseId
     );
 
     return detectPlateau(sessions, isCompound);
-  }, [currentExerciseId, workoutHistory, isCompound]);
+  }, [currentExerciseId, reshapedHistory, isCompound]);
 
   // --- Weight Recommendation ---
   const weightRec = useMemo((): WeightRecommendation | null => {
-    if (!currentExerciseId || workoutHistory.length === 0) return null;
+    if (!currentExerciseId || reshapedHistory.length === 0) return null;
 
     const history = buildPerformanceHistory(
-      workoutHistory.map((log) => ({
-        date: log.date,
-        sets: log.sets.map((s) => ({
-          exerciseId: s.exerciseId,
-          weight: s.weight,
-          actualReps: s.actualReps,
-          targetReps: s.targetReps,
-          rpe: s.rpe,
-        })),
-      })),
+      reshapedHistory,
       currentExerciseId
     );
 
@@ -133,7 +133,7 @@ export function CopilotWidget({
           : "beginner";
 
     return recommendWeight(history, level, isCompound);
-  }, [currentExerciseId, workoutHistory, isCompound]);
+  }, [currentExerciseId, reshapedHistory, workoutHistory.length, isCompound]);
 
   // --- Build Tips ---
   const tips = useMemo((): WidgetTip[] => {
@@ -249,7 +249,7 @@ export function CopilotWidget({
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             message: text.trim(),
-            history: chatMessages.map((m) => ({
+            history: chatMessagesRef.current.map((m) => ({
               role: m.role,
               content: m.content,
             })),
@@ -280,7 +280,7 @@ export function CopilotWidget({
         setChatSending(false);
       }
     },
-    [chatSending, chatMessages]
+    [chatSending]
   );
 
   // Nothing to show

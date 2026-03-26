@@ -64,11 +64,22 @@ export function isQuietHours(
 // Notification Storage (IndexedDB-backed via localStorage fallback)
 // ============================================================
 
+const VALID_TYPES: NotificationType[] = ['streak_warning', 'pr_alert', 'weekly_digest', 'training_reminder'];
+
 function getStoredNotifications(): QueuedNotification[] {
   if (typeof window === "undefined") return [];
   try {
     const raw = localStorage.getItem(NOTIFICATION_STORAGE_KEY);
-    return raw ? JSON.parse(raw) : [];
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [];
+    return parsed.filter((n: any) =>
+      n &&
+      VALID_TYPES.includes(n.type) &&
+      typeof n.title === 'string' &&
+      typeof n.id === 'string' &&
+      (!n.url || (typeof n.url === 'string' && !n.url.startsWith('javascript:') && !n.url.startsWith('data:')))
+    );
   } catch {
     return [];
   }

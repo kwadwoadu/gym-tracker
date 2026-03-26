@@ -199,9 +199,12 @@ export function NotificationCenter() {
     if (open) refresh();
   }, [open, refresh]);
 
-  // Poll for updates every 60s while app is open
+  // Poll for updates every 60s while app is open (skip when tab hidden)
   useEffect(() => {
-    const interval = setInterval(refresh, 60_000);
+    const interval = setInterval(() => {
+      if (document.hidden) return;
+      refresh();
+    }, 60_000);
     return () => clearInterval(interval);
   }, [refresh]);
 

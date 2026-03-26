@@ -103,6 +103,7 @@ export default function PlansPage() {
       ]);
     } catch (err) {
       console.error("Failed to install program:", err);
+      setIsLoading(false);
       setError("Program install failed. Taking you home.");
     }
     // ALWAYS redirect home - empty state is better than being stuck

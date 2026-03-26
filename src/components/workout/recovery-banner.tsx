@@ -41,7 +41,8 @@ export function RecoveryBanner({ onDismiss, onAdjust }: RecoveryBannerProps) {
         if (assessment) {
           setScore(assessment.score);
         }
-      });
+      })
+      .catch(() => {});
   }, []);
 
   // No assessment for today - don't show banner

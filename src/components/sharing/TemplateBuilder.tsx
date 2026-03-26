@@ -159,13 +159,13 @@ export function TemplateBuilder({ open, onClose, programId }: TemplateBuilderPro
 
   // Reset when drawer closes
   const handleClose = () => {
+    publishMutation.reset();
     setStep(programId ? "configure" : "select");
     setSelectedProgramId(programId || null);
     setDescription("");
     setDifficulty("intermediate");
     setSplitType("other");
     setCustomName("");
-    publishMutation.reset();
     onClose();
   };
 
