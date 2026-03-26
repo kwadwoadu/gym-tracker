@@ -177,7 +177,7 @@ export default function TrainerPage() {
       </header>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4 pb-32">
+      <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4 pb-44">
         {/* Quick actions at top when few messages */}
         {messages.length <= 1 && (
           <div className="space-y-3">
@@ -248,7 +248,7 @@ export default function TrainerPage() {
       </div>
 
       {/* Input bar */}
-      <div className="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-sm border-t border-border p-3 pb-safe-bottom">
+      <div className="fixed bottom-[60px] left-0 right-0 bg-background/95 backdrop-blur-sm border-t border-border p-3">
         <form onSubmit={handleSubmit} className="flex items-center gap-2 max-w-lg mx-auto">
           <input
             ref={inputRef}
