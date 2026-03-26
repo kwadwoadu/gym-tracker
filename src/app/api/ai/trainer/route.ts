@@ -19,12 +19,23 @@ export async function POST(request: Request) {
 
     const { message, history = [], recoveryScore } = await request.json();
 
-    if (!message) {
-      return NextResponse.json(
-        { error: "No message provided" },
-        { status: 400 }
-      );
+    // Validate message length
+    if (!message || typeof message !== 'string') {
+      return NextResponse.json({ error: "Message required" }, { status: 400 });
     }
+    if (message.length > 2000) {
+      return NextResponse.json({ error: "Message too long" }, { status: 400 });
+    }
+
+    // Validate and sanitize history - only allow user/assistant roles
+    const safeHistory = (history as any[])
+      .filter(msg =>
+        msg &&
+        typeof msg.content === 'string' &&
+        msg.content.length <= 2000 &&
+        (msg.role === 'user' || msg.role === 'assistant')
+      )
+      .slice(-20);
 
     // Fetch all user data server-side in parallel
     const [recentWorkouts, personalRecords, activeProgram, onboardingProfile, totalWorkoutCount] =
@@ -84,9 +95,8 @@ export async function POST(request: Request) {
       content: "Understood, I have your training context loaded.",
     });
 
-    // Add conversation history (last 20 messages)
-    const recentHistory = (history as TrainerMessage[]).slice(-20);
-    for (const msg of recentHistory) {
+    // Add sanitized conversation history
+    for (const msg of safeHistory) {
       messages.push({ role: msg.role, content: msg.content });
     }
 

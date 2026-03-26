@@ -102,34 +102,28 @@ function findNextMilestone(currentBest: number): number {
   return Math.ceil(currentBest / 25) * 25 + 25;
 }
 
+/** Pre-indexed set data for a single exercise, built once in O(L*S) */
+interface ExerciseSetData {
+  date: string;
+  weight: number;
+  reps: number;
+  isComplete: boolean;
+}
+
 /**
- * Build weekly max weight data points from workout logs for a specific exercise
+ * Build weekly max weight data points from pre-indexed set data for an exercise.
+ * Accepts pre-filtered data instead of scanning all logs (PERF-002).
  */
 export function buildWeeklyProgressionData(
-  workoutLogs: Array<{
-    date: string;
-    sets: Array<{
-      exerciseId: string;
-      weight: number;
-      actualReps: number;
-      isComplete: boolean;
-    }>;
-    isComplete: boolean;
-  }>,
-  exerciseId: string
+  setData: ExerciseSetData[],
+  _exerciseId?: string
 ): DataPoint[] {
-  // Filter to completed workouts with this exercise
+  // Filter to completed sets with positive weight
   const relevantData: Array<{ date: Date; weight: number }> = [];
 
-  for (const log of workoutLogs) {
-    if (!log.isComplete) continue;
-    const exerciseSets = log.sets.filter(
-      (s) => s.exerciseId === exerciseId && s.isComplete && s.weight > 0
-    );
-    if (exerciseSets.length === 0) continue;
-
-    const maxWeight = Math.max(...exerciseSets.map((s) => s.weight));
-    relevantData.push({ date: new Date(log.date), weight: maxWeight });
+  for (const s of setData) {
+    if (!s.isComplete || s.weight <= 0) continue;
+    relevantData.push({ date: new Date(s.date), weight: s.weight });
   }
 
   if (relevantData.length === 0) return [];
@@ -154,25 +148,16 @@ export function buildWeeklyProgressionData(
 }
 
 /**
- * Generate PR predictions for a specific exercise
+ * Generate PR predictions for a specific exercise using pre-indexed data.
+ * Accepts pre-filtered set data instead of scanning all logs (PERF-002).
  */
 export function predictPR(
-  workoutLogs: Array<{
-    date: string;
-    sets: Array<{
-      exerciseId: string;
-      exerciseName: string;
-      weight: number;
-      actualReps: number;
-      isComplete: boolean;
-    }>;
-    isComplete: boolean;
-  }>,
+  setData: ExerciseSetData[],
   exerciseId: string,
   exerciseName: string,
   customTarget?: number
 ): PRPrediction | null {
-  const dataPoints = buildWeeklyProgressionData(workoutLogs, exerciseId);
+  const dataPoints = buildWeeklyProgressionData(setData);
 
   if (dataPoints.length < MIN_DATA_POINTS) return null;
 
@@ -185,21 +170,14 @@ export function predictPR(
   const lastPoint = dataPoints[dataPoints.length - 1];
   const currentBestWeight = lastPoint.weight;
 
-  // Find current best with reps from logs
+  // Find current best with reps from pre-indexed data (no full-log re-scan)
   let bestReps = 0;
   let bestDate = "";
-  for (const log of workoutLogs) {
-    if (!log.isComplete) continue;
-    for (const set of log.sets) {
-      if (
-        set.exerciseId === exerciseId &&
-        set.weight === currentBestWeight &&
-        set.isComplete
-      ) {
-        if (set.actualReps > bestReps) {
-          bestReps = set.actualReps;
-          bestDate = log.date;
-        }
+  for (const s of setData) {
+    if (s.weight === currentBestWeight && s.isComplete) {
+      if (s.reps > bestReps) {
+        bestReps = s.reps;
+        bestDate = s.date;
       }
     }
   }
@@ -243,8 +221,10 @@ export function predictPR(
 }
 
 /**
- * Generate top PR predictions across all exercises
- * Returns up to `limit` predictions sorted by confidence then by weeks remaining
+ * Generate top PR predictions across all exercises.
+ * PERF-002: Pre-indexes all log data in a single O(L*S) pass, then runs
+ * per-exercise predictions against the index instead of re-scanning all logs.
+ * Returns up to `limit` predictions sorted by confidence then by weeks remaining.
  */
 export function getTopPRPredictions(
   workoutLogs: Array<{
@@ -263,23 +243,34 @@ export function getTopPRPredictions(
 ): PRPrediction[] {
   const predictions: PRPrediction[] = [];
 
-  // Collect unique exercise IDs from logs
-  const exerciseIds = new Set<string>();
+  // Build pre-indexed data in a single O(L*S) pass
+  const exerciseData = new Map<string, ExerciseSetData[]>();
+
   for (const log of workoutLogs) {
     if (!log.isComplete) continue;
     for (const set of log.sets) {
-      if (set.isComplete && set.weight > 0) {
-        exerciseIds.add(set.exerciseId);
+      if (!set.exerciseId || !set.isComplete || set.weight <= 0) continue;
+      let existing = exerciseData.get(set.exerciseId);
+      if (!existing) {
+        existing = [];
+        exerciseData.set(set.exerciseId, existing);
       }
+      existing.push({
+        date: log.date,
+        weight: set.weight,
+        reps: set.actualReps,
+        isComplete: set.isComplete,
+      });
     }
   }
 
-  for (const exerciseId of exerciseIds) {
+  // Iterate the pre-built index instead of re-scanning logs per exercise
+  for (const [exerciseId, setData] of exerciseData) {
     const exercise = exerciseMap.get(exerciseId);
     if (!exercise) continue;
 
     const prediction = predictPR(
-      workoutLogs,
+      setData,
       exerciseId,
       exercise.name
     );

@@ -44,10 +44,9 @@ export function TrainingInsights({
   const router = useRouter();
   const reducedMotion = useReducedMotion();
 
-  const insight = useMemo((): Insight | null => {
-    if (!workoutLogs || workoutLogs.length < 2) return null;
-
-    // Priority 1: Check deload need
+  // Priority 1: Check deload need
+  const deloadInsight = useMemo((): Insight | null => {
+    if (!workoutLogs?.length) return null;
     const deload = detectDeloadNeed(workoutLogs as never[]);
     if (deload.needed) {
       return {
@@ -59,48 +58,59 @@ export function TrainingInsights({
         borderColor: "border-l-yellow-500",
       };
     }
+    return null;
+  }, [workoutLogs]);
 
-    // Priority 2: Check volume adjustments from most recent workout
+  // Priority 2: Check volume adjustments (short-circuit if deload found)
+  const volumeInsight = useMemo((): Insight | null => {
+    if (deloadInsight || !workoutLogs?.length) return null;
+
     const recentWorkout = [...workoutLogs]
       .filter((l) => l.isComplete)
       .sort((a, b) => b.date.localeCompare(a.date))[0];
 
-    if (recentWorkout) {
-      const exerciseMeta = new Map<
-        string,
-        { muscleGroups: string[]; equipment: string }
-      >();
-      exercises.forEach((ex, id) => {
-        exerciseMeta.set(id, {
-          muscleGroups: ex.muscleGroups || [],
-          equipment: ex.equipment || "barbell",
-        });
+    if (!recentWorkout) return null;
+
+    const exerciseMeta = new Map<
+      string,
+      { muscleGroups: string[]; equipment: string }
+    >();
+    exercises.forEach((ex, id) => {
+      exerciseMeta.set(id, {
+        muscleGroups: ex.muscleGroups || [],
+        equipment: ex.equipment || "barbell",
       });
+    });
 
-      const adjustments = generateVolumeAdjustments(
-        recentWorkout.sets as never[],
-        exerciseMeta
-      );
-      const topAdjustment = getMostImportantAdjustment(adjustments);
+    const adjustments = generateVolumeAdjustments(
+      recentWorkout.sets as never[],
+      exerciseMeta
+    );
+    const topAdjustment = getMostImportantAdjustment(adjustments);
 
-      if (topAdjustment && topAdjustment.type !== "maintain") {
-        const isIncrease =
-          topAdjustment.type === "increase_weight" ||
-          topAdjustment.type === "add_set";
-        return {
-          type: "volume",
-          title: isIncrease ? "Ready to Progress" : "Adjust Volume",
-          description: topAdjustment.reason,
-          icon: isIncrease ? Zap : TrendingUp,
-          accentColor: isIncrease ? "text-primary" : "text-blue-500",
-          borderColor: isIncrease
-            ? "border-l-primary"
-            : "border-l-blue-500",
-        };
-      }
+    if (topAdjustment && topAdjustment.type !== "maintain") {
+      const isIncrease =
+        topAdjustment.type === "increase_weight" ||
+        topAdjustment.type === "add_set";
+      return {
+        type: "volume",
+        title: isIncrease ? "Ready to Progress" : "Adjust Volume",
+        description: topAdjustment.reason,
+        icon: isIncrease ? Zap : TrendingUp,
+        accentColor: isIncrease ? "text-primary" : "text-blue-500",
+        borderColor: isIncrease
+          ? "border-l-primary"
+          : "border-l-blue-500",
+      };
     }
 
-    // Priority 3: PR prediction
+    return null;
+  }, [deloadInsight, workoutLogs, exercises]);
+
+  // Priority 3: PR prediction (short-circuit if higher-priority insight found)
+  const prInsight = useMemo((): Insight | null => {
+    if (deloadInsight || volumeInsight || !workoutLogs?.length) return null;
+
     const exerciseMap = new Map<string, { id: string; name: string }>();
     exercises.forEach((ex, id) => {
       exerciseMap.set(id, { id, name: ex.name });
@@ -129,7 +139,9 @@ export function TrainingInsights({
     }
 
     return null;
-  }, [workoutLogs, exercises]);
+  }, [deloadInsight, volumeInsight, workoutLogs, exercises]);
+
+  const insight = deloadInsight || volumeInsight || prInsight;
 
   if (!insight) return null;
 

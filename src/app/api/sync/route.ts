@@ -3,6 +3,16 @@ import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth-helpers";
 import { toDate, toDateRequired } from "@/lib/db/utils";
 
+/** Maximum items per entity type to prevent DoS via oversized payloads */
+const MAX_ITEMS: Record<string, number> = {
+  exercises: 500,
+  programs: 50,
+  trainingDays: 200,
+  workoutLogs: 1000,
+  personalRecords: 500,
+  achievements: 200,
+};
+
 /**
  * POST /api/sync - Push local IndexedDB data to cloud (legacy sync path)
  *
@@ -24,225 +34,331 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "No data provided" }, { status: 400 });
     }
 
-    // Sync exercises - explicit field mapping with date conversion
+    // SEC-008: Array length guards to prevent DoS
+    for (const [key, limit] of Object.entries(MAX_ITEMS)) {
+      if (data[key] && Array.isArray(data[key]) && data[key].length > limit) {
+        return NextResponse.json(
+          { error: `Too many ${key} (max ${limit})` },
+          { status: 413 }
+        );
+      }
+    }
+
+    // PERF-001: Batch ownership checks per entity type with Promise.all,
+    // then collect all allowed upserts into a single $transaction.
+    // This preserves SEC-001 ownership guards while eliminating N+1 sequential round trips.
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const operations: any[] = [];
+
+    // --- Exercises: batch ownership checks, then collect upserts ---
     if (data.exercises && Array.isArray(data.exercises)) {
-      for (const exercise of data.exercises) {
-        await prisma.exercise.upsert({
-          where: { id: exercise.id },
-          create: {
-            id: exercise.id,
-            name: exercise.name,
-            videoUrl: exercise.videoUrl || null,
-            muscleGroups: exercise.muscleGroups || [],
-            muscles: exercise.muscles || null,
-            equipment: exercise.equipment || "other",
-            isCustom: exercise.isCustom ?? true,
-            userId: user.id,
-            createdAt: toDateRequired(exercise.createdAt),
-          },
-          update: {
-            name: exercise.name,
-            videoUrl: exercise.videoUrl || null,
-            muscleGroups: exercise.muscleGroups || [],
-            muscles: exercise.muscles || null,
-            equipment: exercise.equipment || "other",
-          },
-        });
+      const existingExercises = await Promise.all(
+        data.exercises.map((exercise: { id: string }) =>
+          prisma.exercise.findUnique({
+            where: { id: exercise.id },
+            select: { id: true, userId: true },
+          })
+        )
+      );
+      for (let i = 0; i < data.exercises.length; i++) {
+        const exercise = data.exercises[i];
+        const existing = existingExercises[i];
+        // SEC-001: Skip records belonging to another user
+        if (existing && existing.userId !== user.id) continue;
+
+        operations.push(
+          prisma.exercise.upsert({
+            where: { id: exercise.id },
+            create: {
+              id: exercise.id,
+              name: exercise.name,
+              videoUrl: exercise.videoUrl || null,
+              muscleGroups: exercise.muscleGroups || [],
+              muscles: exercise.muscles || null,
+              equipment: exercise.equipment || "other",
+              isCustom: exercise.isCustom ?? true,
+              userId: user.id,
+              createdAt: toDateRequired(exercise.createdAt),
+            },
+            update: {
+              name: exercise.name,
+              videoUrl: exercise.videoUrl || null,
+              muscleGroups: exercise.muscleGroups || [],
+              muscles: exercise.muscles || null,
+              equipment: exercise.equipment || "other",
+            },
+          })
+        );
       }
     }
 
-    // Sync programs - explicit field mapping with date conversion
+    // --- Programs: batch ownership checks, then collect upserts ---
     if (data.programs && Array.isArray(data.programs)) {
-      for (const program of data.programs) {
-        await prisma.program.upsert({
-          where: { id: program.id },
-          create: {
-            id: program.id,
-            name: program.name,
-            description: program.description || null,
-            isActive: program.isActive ?? false,
-            userId: user.id,
-            createdAt: toDateRequired(program.createdAt),
-            updatedAt: toDateRequired(program.updatedAt),
-          },
-          update: {
-            name: program.name,
-            description: program.description || null,
-            isActive: program.isActive ?? false,
-            updatedAt: new Date(),
-          },
-        });
+      const existingPrograms = await Promise.all(
+        data.programs.map((program: { id: string }) =>
+          prisma.program.findUnique({
+            where: { id: program.id },
+            select: { id: true, userId: true },
+          })
+        )
+      );
+      for (let i = 0; i < data.programs.length; i++) {
+        const program = data.programs[i];
+        const existing = existingPrograms[i];
+        // SEC-001: Skip records belonging to another user
+        if (existing && existing.userId !== user.id) continue;
+
+        operations.push(
+          prisma.program.upsert({
+            where: { id: program.id },
+            create: {
+              id: program.id,
+              name: program.name,
+              description: program.description || null,
+              isActive: program.isActive ?? false,
+              userId: user.id,
+              createdAt: toDateRequired(program.createdAt),
+              updatedAt: toDateRequired(program.updatedAt),
+            },
+            update: {
+              name: program.name,
+              description: program.description || null,
+              isActive: program.isActive ?? false,
+              updatedAt: new Date(),
+            },
+          })
+        );
       }
     }
 
-    // Sync training days - explicit field mapping (no date fields on this model)
+    // --- Training days: batch ownership checks via parent program ---
     if (data.trainingDays && Array.isArray(data.trainingDays)) {
-      for (const day of data.trainingDays) {
-        await prisma.trainingDay.upsert({
-          where: { id: day.id },
-          create: {
-            id: day.id,
-            programId: day.programId,
-            name: day.name,
-            dayNumber: day.dayNumber,
-            warmup: day.warmup || [],
-            supersets: day.supersets || [],
-            finisher: day.finisher || [],
-          },
-          update: {
-            name: day.name,
-            dayNumber: day.dayNumber,
-            warmup: day.warmup || [],
-            supersets: day.supersets || [],
-            finisher: day.finisher || [],
-          },
-        });
+      const existingDays = await Promise.all(
+        data.trainingDays.map((day: { id: string }) =>
+          prisma.trainingDay.findUnique({
+            where: { id: day.id },
+            select: { id: true, program: { select: { userId: true } } },
+          })
+        )
+      );
+      for (let i = 0; i < data.trainingDays.length; i++) {
+        const day = data.trainingDays[i];
+        const existing = existingDays[i];
+        // SEC-001: Skip records belonging to another user
+        if (existing && existing.program.userId !== user.id) continue;
+
+        operations.push(
+          prisma.trainingDay.upsert({
+            where: { id: day.id },
+            create: {
+              id: day.id,
+              programId: day.programId,
+              name: day.name,
+              dayNumber: day.dayNumber,
+              warmup: day.warmup || [],
+              supersets: day.supersets || [],
+              finisher: day.finisher || [],
+            },
+            update: {
+              name: day.name,
+              dayNumber: day.dayNumber,
+              warmup: day.warmup || [],
+              supersets: day.supersets || [],
+              finisher: day.finisher || [],
+            },
+          })
+        );
       }
     }
 
-    // Sync workout logs - explicit field mapping with date conversion
+    // --- Workout logs: batch ownership checks, then collect upserts ---
     if (data.workoutLogs && Array.isArray(data.workoutLogs)) {
-      for (const log of data.workoutLogs) {
-        await prisma.workoutLog.upsert({
-          where: { id: log.id },
-          create: {
-            id: log.id,
-            date: log.date,
-            dayName: log.dayName,
-            startTime: toDateRequired(log.startTime),
-            endTime: toDate(log.endTime),
-            duration: log.duration ?? null,
-            isComplete: log.isComplete ?? false,
-            sets: log.sets || [],
-            notes: log.notes || null,
-            programId: log.programId,
-            dayId: log.dayId,
-            userId: user.id,
-          },
-          update: {
-            date: log.date,
-            dayName: log.dayName,
-            startTime: toDateRequired(log.startTime),
-            endTime: toDate(log.endTime),
-            duration: log.duration ?? null,
-            isComplete: log.isComplete ?? false,
-            sets: log.sets || [],
-            notes: log.notes || null,
-          },
-        });
+      const existingLogs = await Promise.all(
+        data.workoutLogs.map((log: { id: string }) =>
+          prisma.workoutLog.findUnique({
+            where: { id: log.id },
+            select: { id: true, userId: true },
+          })
+        )
+      );
+      for (let i = 0; i < data.workoutLogs.length; i++) {
+        const log = data.workoutLogs[i];
+        const existing = existingLogs[i];
+        // SEC-001: Skip records belonging to another user
+        if (existing && existing.userId !== user.id) continue;
+
+        operations.push(
+          prisma.workoutLog.upsert({
+            where: { id: log.id },
+            create: {
+              id: log.id,
+              date: log.date,
+              dayName: log.dayName,
+              startTime: toDateRequired(log.startTime),
+              endTime: toDate(log.endTime),
+              duration: log.duration ?? null,
+              isComplete: log.isComplete ?? false,
+              sets: log.sets || [],
+              notes: log.notes || null,
+              programId: log.programId,
+              dayId: log.dayId,
+              userId: user.id,
+            },
+            update: {
+              date: log.date,
+              dayName: log.dayName,
+              startTime: toDateRequired(log.startTime),
+              endTime: toDate(log.endTime),
+              duration: log.duration ?? null,
+              isComplete: log.isComplete ?? false,
+              sets: log.sets || [],
+              notes: log.notes || null,
+            },
+          })
+        );
       }
     }
 
-    // Sync personal records - explicit field mapping (date is a string field in schema)
+    // --- Personal records: batch ownership checks, then collect upserts ---
     if (data.personalRecords && Array.isArray(data.personalRecords)) {
-      for (const pr of data.personalRecords) {
-        await prisma.personalRecord.upsert({
-          where: { id: pr.id },
-          create: {
-            id: pr.id,
-            exerciseName: pr.exerciseName,
-            weight: pr.weight,
-            reps: pr.reps,
-            unit: pr.unit || "kg",
-            date: pr.date,
-            exerciseId: pr.exerciseId,
-            workoutLogId: pr.workoutLogId,
-            userId: user.id,
-          },
-          update: {
-            exerciseName: pr.exerciseName,
-            weight: pr.weight,
-            reps: pr.reps,
-            unit: pr.unit || "kg",
-            date: pr.date,
-          },
-        });
+      const existingPRs = await Promise.all(
+        data.personalRecords.map((pr: { id: string }) =>
+          prisma.personalRecord.findUnique({
+            where: { id: pr.id },
+            select: { id: true, userId: true },
+          })
+        )
+      );
+      for (let i = 0; i < data.personalRecords.length; i++) {
+        const pr = data.personalRecords[i];
+        const existing = existingPRs[i];
+        // SEC-001: Skip records belonging to another user
+        if (existing && existing.userId !== user.id) continue;
+
+        operations.push(
+          prisma.personalRecord.upsert({
+            where: { id: pr.id },
+            create: {
+              id: pr.id,
+              exerciseName: pr.exerciseName,
+              weight: pr.weight,
+              reps: pr.reps,
+              unit: pr.unit || "kg",
+              date: pr.date,
+              exerciseId: pr.exerciseId,
+              workoutLogId: pr.workoutLogId,
+              userId: user.id,
+            },
+            update: {
+              exerciseName: pr.exerciseName,
+              weight: pr.weight,
+              reps: pr.reps,
+              unit: pr.unit || "kg",
+              date: pr.date,
+            },
+          })
+        );
       }
     }
 
-    // Sync settings - explicit field mapping (no date fields on this model)
+    // --- Settings: no ownership check needed (keyed by userId) ---
     if (data.settings) {
-      await prisma.userSettings.upsert({
-        where: { userId: user.id },
-        create: {
-          userId: user.id,
-          weightUnit: data.settings.weightUnit || "kg",
-          defaultRestSeconds: data.settings.defaultRestSeconds ?? 90,
-          soundEnabled: data.settings.soundEnabled ?? true,
-          autoProgressWeight: data.settings.autoProgressWeight ?? true,
-          progressionIncrement: data.settings.progressionIncrement ?? 2.5,
-          autoStartRestTimer: data.settings.autoStartRestTimer ?? true,
-        },
-        update: {
-          weightUnit: data.settings.weightUnit || "kg",
-          defaultRestSeconds: data.settings.defaultRestSeconds ?? 90,
-          soundEnabled: data.settings.soundEnabled ?? true,
-          autoProgressWeight: data.settings.autoProgressWeight ?? true,
-          progressionIncrement: data.settings.progressionIncrement ?? 2.5,
-          autoStartRestTimer: data.settings.autoStartRestTimer ?? true,
-        },
-      });
+      operations.push(
+        prisma.userSettings.upsert({
+          where: { userId: user.id },
+          create: {
+            userId: user.id,
+            weightUnit: data.settings.weightUnit || "kg",
+            defaultRestSeconds: data.settings.defaultRestSeconds ?? 90,
+            soundEnabled: data.settings.soundEnabled ?? true,
+            autoProgressWeight: data.settings.autoProgressWeight ?? true,
+            progressionIncrement: data.settings.progressionIncrement ?? 2.5,
+            autoStartRestTimer: data.settings.autoStartRestTimer ?? true,
+          },
+          update: {
+            weightUnit: data.settings.weightUnit || "kg",
+            defaultRestSeconds: data.settings.defaultRestSeconds ?? 90,
+            soundEnabled: data.settings.soundEnabled ?? true,
+            autoProgressWeight: data.settings.autoProgressWeight ?? true,
+            progressionIncrement: data.settings.progressionIncrement ?? 2.5,
+            autoStartRestTimer: data.settings.autoStartRestTimer ?? true,
+          },
+        })
+      );
     }
 
-    // Sync onboarding profile - explicit field mapping with date conversion
+    // --- Onboarding profile: no ownership check needed (keyed by userId) ---
     if (data.onboardingProfile) {
-      await prisma.onboardingProfile.upsert({
-        where: { userId: user.id },
-        create: {
-          userId: user.id,
-          goals: data.onboardingProfile.goals || [],
-          experienceLevel: data.onboardingProfile.experienceLevel || null,
-          trainingDaysPerWeek: data.onboardingProfile.trainingDaysPerWeek ?? null,
-          equipment: data.onboardingProfile.equipment || null,
-          heightCm: data.onboardingProfile.heightCm ?? null,
-          weightKg: data.onboardingProfile.weightKg ?? null,
-          bodyFatPercent: data.onboardingProfile.bodyFatPercent ?? null,
-          injuries: data.onboardingProfile.injuries || [],
-          hasCompletedOnboarding: data.onboardingProfile.hasCompletedOnboarding ?? false,
-          skippedOnboarding: data.onboardingProfile.skippedOnboarding ?? false,
-          completedAt: toDate(data.onboardingProfile.completedAt),
-        },
-        update: {
-          goals: data.onboardingProfile.goals || [],
-          experienceLevel: data.onboardingProfile.experienceLevel || null,
-          trainingDaysPerWeek: data.onboardingProfile.trainingDaysPerWeek ?? null,
-          equipment: data.onboardingProfile.equipment || null,
-          heightCm: data.onboardingProfile.heightCm ?? null,
-          weightKg: data.onboardingProfile.weightKg ?? null,
-          bodyFatPercent: data.onboardingProfile.bodyFatPercent ?? null,
-          injuries: data.onboardingProfile.injuries || [],
-          hasCompletedOnboarding: data.onboardingProfile.hasCompletedOnboarding ?? false,
-          skippedOnboarding: data.onboardingProfile.skippedOnboarding ?? false,
-          completedAt: toDate(data.onboardingProfile.completedAt),
-        },
-      });
+      operations.push(
+        prisma.onboardingProfile.upsert({
+          where: { userId: user.id },
+          create: {
+            userId: user.id,
+            goals: data.onboardingProfile.goals || [],
+            experienceLevel: data.onboardingProfile.experienceLevel || null,
+            trainingDaysPerWeek: data.onboardingProfile.trainingDaysPerWeek ?? null,
+            equipment: data.onboardingProfile.equipment || null,
+            heightCm: data.onboardingProfile.heightCm ?? null,
+            weightKg: data.onboardingProfile.weightKg ?? null,
+            bodyFatPercent: data.onboardingProfile.bodyFatPercent ?? null,
+            injuries: data.onboardingProfile.injuries || [],
+            hasCompletedOnboarding: data.onboardingProfile.hasCompletedOnboarding ?? false,
+            skippedOnboarding: data.onboardingProfile.skippedOnboarding ?? false,
+            completedAt: toDate(data.onboardingProfile.completedAt),
+          },
+          update: {
+            goals: data.onboardingProfile.goals || [],
+            experienceLevel: data.onboardingProfile.experienceLevel || null,
+            trainingDaysPerWeek: data.onboardingProfile.trainingDaysPerWeek ?? null,
+            equipment: data.onboardingProfile.equipment || null,
+            heightCm: data.onboardingProfile.heightCm ?? null,
+            weightKg: data.onboardingProfile.weightKg ?? null,
+            bodyFatPercent: data.onboardingProfile.bodyFatPercent ?? null,
+            injuries: data.onboardingProfile.injuries || [],
+            hasCompletedOnboarding: data.onboardingProfile.hasCompletedOnboarding ?? false,
+            skippedOnboarding: data.onboardingProfile.skippedOnboarding ?? false,
+            completedAt: toDate(data.onboardingProfile.completedAt),
+          },
+        })
+      );
     }
 
-    // Sync achievements - explicit field mapping with date conversion
+    // --- Achievements: no per-record ownership check (keyed by userId compound) ---
     if (data.achievements && Array.isArray(data.achievements)) {
       for (const achievement of data.achievements) {
-        await prisma.achievement.upsert({
-          where: {
-            userId_achievementId: {
-              userId: user.id,
-              achievementId: achievement.achievementId,
+        operations.push(
+          prisma.achievement.upsert({
+            where: {
+              userId_achievementId: {
+                userId: user.id,
+                achievementId: achievement.achievementId,
+              },
             },
-          },
-          create: {
-            achievementId: achievement.achievementId,
-            unlockedAt: toDateRequired(achievement.unlockedAt),
-            userId: user.id,
-          },
-          update: {
-            unlockedAt: toDateRequired(achievement.unlockedAt),
-          },
-        });
+            create: {
+              achievementId: achievement.achievementId,
+              unlockedAt: toDateRequired(achievement.unlockedAt),
+              userId: user.id,
+            },
+            update: {
+              unlockedAt: toDateRequired(achievement.unlockedAt),
+            },
+          })
+        );
       }
+    }
+
+    // Execute all upserts in a single database transaction (1 round trip instead of N)
+    if (operations.length > 0) {
+      await prisma.$transaction(operations);
     }
 
     const syncedAt = new Date().toISOString();
 
-    console.log(`[Sync] Completed sync for user ${user.id} from device ${deviceId}`);
+    // SEC-007: Sanitize deviceId to prevent log injection
+    const safeDeviceId = String(deviceId ?? "").replace(/[^\w-]/g, "").slice(0, 64);
+
+    console.log(`[Sync] Completed sync for user ${user.id} from device ${safeDeviceId}`);
 
     return NextResponse.json({
       success: true,
@@ -251,10 +367,8 @@ export async function POST(request: Request) {
     });
   } catch (error) {
     console.error("[Sync POST] Error:", error);
-    return NextResponse.json(
-      { error: "Sync failed", details: String(error) },
-      { status: 500 }
-    );
+    // SEC-002: Never leak error details to client
+    return NextResponse.json({ error: "Sync failed" }, { status: 500 });
   }
 }
 
@@ -341,9 +455,7 @@ export async function GET(request: Request) {
     });
   } catch (error) {
     console.error("[Sync GET] Error:", error);
-    return NextResponse.json(
-      { error: "Sync failed", details: String(error) },
-      { status: 500 }
-    );
+    // SEC-002: Never leak error details to client
+    return NextResponse.json({ error: "Sync failed" }, { status: 500 });
   }
 }

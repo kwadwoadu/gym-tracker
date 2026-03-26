@@ -3,12 +3,19 @@
  * Aggregates all user data into a structured context for the AI
  */
 
-interface SetLog {
+interface ServerSetLog {
   exerciseId: string;
   exerciseName: string;
   weight: number;
   reps: number;
+  actualReps?: number;
+  rpe?: number;
   setNumber: number;
+}
+
+function parseSetLogs(raw: unknown): ServerSetLog[] {
+  if (!Array.isArray(raw)) return [];
+  return raw as ServerSetLog[];
 }
 
 interface ServerWorkoutLog {
@@ -16,7 +23,7 @@ interface ServerWorkoutLog {
   dayName: string;
   startTime: Date;
   duration: number | null;
-  sets: unknown; // JSON field from Prisma
+  sets: unknown; // Prisma JsonValue - parsed via parseSetLogs()
 }
 
 interface ServerPR {
@@ -69,11 +76,9 @@ export function buildServerContext(
   let totalVolume = 0;
 
   for (const log of workoutLogs) {
-    const sets = log.sets as unknown as SetLog[];
-    if (Array.isArray(sets)) {
-      for (const set of sets) {
-        totalVolume += (set.weight || 0) * (set.reps || 0);
-      }
+    const sets = parseSetLogs(log.sets);
+    for (const set of sets) {
+      totalVolume += (set.weight || 0) * (set.reps || 0);
     }
   }
 
@@ -118,17 +123,15 @@ export function buildServerContext(
       const dur = w.duration ? `${Math.round(w.duration / 60)}min` : "";
 
       const exerciseMap = new Map<string, { weight: number; reps: number[] }>();
-      const sets = w.sets as unknown as SetLog[];
-      if (Array.isArray(sets)) {
-        for (const s of sets) {
-          const key = s.exerciseName;
-          const existing = exerciseMap.get(key);
-          if (existing) {
-            existing.reps.push(s.reps);
-            existing.weight = Math.max(existing.weight, s.weight);
-          } else {
-            exerciseMap.set(key, { weight: s.weight, reps: [s.reps] });
-          }
+      const sets = parseSetLogs(w.sets);
+      for (const s of sets) {
+        const key = s.exerciseName;
+        const existing = exerciseMap.get(key);
+        if (existing) {
+          existing.reps.push(s.reps);
+          existing.weight = Math.max(existing.weight, s.weight);
+        } else {
+          exerciseMap.set(key, { weight: s.weight, reps: [s.reps] });
         }
       }
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Dialog,
   DialogContent,
@@ -63,13 +63,29 @@ export function ConflictResolver({
 }: ConflictResolverProps) {
   const [isResolving, setIsResolving] = useState(false);
   const [resolved, setResolved] = useState(false);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Reset state when dialog closes
+  useEffect(() => {
+    if (!open) {
+      setResolved(false);
+      setIsResolving(false);
+    }
+  }, [open]);
+
+  // Clean up timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
+  }, []);
 
   const handleResolve = async (strategy: ResolutionStrategy) => {
     setIsResolving(true);
     try {
       await onResolve(strategy);
       setResolved(true);
-      setTimeout(() => {
+      timerRef.current = setTimeout(() => {
         setResolved(false);
         onClose();
       }, 1500);

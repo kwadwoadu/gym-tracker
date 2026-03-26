@@ -626,41 +626,6 @@ export async function getLastWeightForExercise(
 }
 
 /**
- * Get weight suggestion with progressive overload logic.
- * Combines global weight memory with progression nudge.
- */
-export async function getGlobalWeightSuggestion(
-  exerciseId: string
-): Promise<{
-  suggestedWeight: number;
-  lastWeight: number;
-  lastReps: number;
-  lastDate: string;
-  hitTargetLastTime: boolean;
-  shouldNudgeIncrease: boolean;
-  nudgeWeight: number | null;
-} | null> {
-  const lastData = await getLastWeightForExercise(exerciseId);
-  if (!lastData) return null;
-
-  const settings = await getUserSettings();
-  const shouldNudge = lastData.hitTarget && settings.autoProgressWeight;
-  const nudgeWeight = shouldNudge
-    ? lastData.weight + settings.progressionIncrement
-    : null;
-
-  return {
-    suggestedWeight: lastData.weight, // Pre-fill with last weight (not auto-increased)
-    lastWeight: lastData.weight,
-    lastReps: lastData.reps,
-    lastDate: lastData.date,
-    hitTargetLastTime: lastData.hitTarget,
-    shouldNudgeIncrease: shouldNudge,
-    nudgeWeight,
-  };
-}
-
-/**
  * Update a specific set within a workout log.
  * Used for editing completed sets during or after workout.
  */

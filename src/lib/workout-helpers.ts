@@ -5,17 +5,8 @@
 
 import { workoutLogsApi, settingsApi, personalRecordsApi, type WorkoutLog, type SetLog, type UserSettings } from "./api-client";
 
-// Cache for settings to avoid repeated API calls
-let cachedSettings: UserSettings | null = null;
-
 export async function getUserSettings(): Promise<UserSettings> {
-  if (cachedSettings) return cachedSettings;
-  cachedSettings = await settingsApi.get();
-  return cachedSettings;
-}
-
-export function clearSettingsCache() {
-  cachedSettings = null;
+  return settingsApi.get();
 }
 
 /**
