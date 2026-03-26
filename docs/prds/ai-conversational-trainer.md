@@ -1,6 +1,6 @@
 # AI Conversational Trainer
 
-> **Status:** Draft
+> **Status:** Shipped
 > **Owner:** Kwadwo
 > **Created:** 2026-03-26
 > **Priority:** P2

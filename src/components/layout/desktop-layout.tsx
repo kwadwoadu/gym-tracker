@@ -6,6 +6,7 @@ import { useUser } from "@clerk/nextjs";
 import { Sidebar } from "./sidebar";
 import { BottomTabBar } from "./bottom-tab-bar";
 import { PageTransition } from "@/components/shared/page-transition";
+import { TrainerFAB } from "@/components/trainer/trainer-fab";
 
 interface DesktopLayoutProps {
   children: ReactNode;
@@ -58,6 +59,9 @@ export function DesktopLayout({ children }: DesktopLayoutProps) {
 
       {/* Bottom Tab Bar - visible on mobile only */}
       <BottomTabBar />
+
+      {/* AI Trainer FAB - bottom-right, above tab bar */}
+      <TrainerFAB />
     </div>
   );
 }

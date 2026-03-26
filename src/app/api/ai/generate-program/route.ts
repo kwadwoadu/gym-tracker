@@ -117,14 +117,18 @@ export async function POST(request: Request) {
       temperature: 0.7,
     });
 
-    // Validate the output
-    const validation = validateProgram(generated, validIds);
+    // Validate the output (pass full exercise DB for substitution of unknown IDs)
+    const validation = validateProgram(generated, validIds, exercises);
     if (!validation.success) {
       console.error("AI program validation failed:", validation.error);
       return NextResponse.json(
         { error: "Generated program failed validation. Please try again." },
         { status: 422 }
       );
+    }
+
+    if (Object.keys(validation.substitutions).length > 0) {
+      console.log("AI program exercise substitutions:", validation.substitutions);
     }
 
     return NextResponse.json({ program: validation.data });

@@ -1,6 +1,6 @@
 # AI Recovery Integration (Whoop)
 
-> **Status:** Draft
+> **Status:** Shipped
 > **Owner:** Kwadwo
 > **Created:** 2026-03-26
 > **Priority:** P3

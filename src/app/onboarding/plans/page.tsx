@@ -5,8 +5,9 @@ import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronRight, Loader2 } from "lucide-react";
-import { PlanCard, StartScratchCard } from "@/components/plan-selection";
+import { PlanCard, StartScratchCard, AIGenerateCard } from "@/components/plan-selection";
 import { Button } from "@/components/ui/button";
+import { AIProgramWizard } from "@/components/program/ai-program-wizard";
 import {
   getPresetPrograms,
   getRecommendedProgram,
@@ -17,7 +18,7 @@ import {
 import { onboardingApi } from "@/lib/api-client";
 import { queryKeys, usePrograms, useOnboardingProfile } from "@/lib/queries";
 
-type Selection = { type: "preset"; id: string } | { type: "scratch" };
+type Selection = { type: "preset"; id: string } | { type: "scratch" } | { type: "ai" };
 
 export default function PlansPage() {
   const router = useRouter();
@@ -27,6 +28,7 @@ export default function PlansPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [programs] = useState<PresetProgram[]>(getPresetPrograms());
+  const [showAIWizard, setShowAIWizard] = useState(false);
 
   // Route guard: if user already has programs and is "complete", redirect home
   const { data: userPrograms } = usePrograms();
@@ -67,8 +69,24 @@ export default function PlansPage() {
     setSelection({ type: "scratch" });
   };
 
+  const handleAIProgramCreated = async () => {
+    setShowAIWizard(false);
+    // Invalidate caches so home page gets fresh data
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: queryKeys.programs }),
+      queryClient.invalidateQueries({ queryKey: queryKeys.onboarding }),
+    ]);
+    router.replace("/");
+  };
+
   const handleContinue = async () => {
     if (!selection) return;
+
+    // AI selection opens the wizard overlay
+    if (selection.type === "ai") {
+      setShowAIWizard(true);
+      return;
+    }
 
     setIsLoading(true);
     setError(null);
@@ -147,11 +165,23 @@ export default function PlansPage() {
             </div>
           </div>
 
-          {/* Start from Scratch */}
+          {/* AI Generate */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
+          >
+            <AIGenerateCard
+              isSelected={selection?.type === "ai"}
+              onSelect={() => setSelection({ type: "ai" })}
+            />
+          </motion.div>
+
+          {/* Start from Scratch */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
           >
             <StartScratchCard
               isSelected={selection?.type === "scratch"}
@@ -177,6 +207,11 @@ export default function PlansPage() {
         >
           {isLoading ? (
             <Loader2 className="w-5 h-5 animate-spin" />
+          ) : selection?.type === "ai" ? (
+            <>
+              Generate with AI
+              <ChevronRight className="w-5 h-5 ml-2" />
+            </>
           ) : (
             <>
               Get Started
@@ -185,6 +220,14 @@ export default function PlansPage() {
           )}
         </Button>
       </div>
+
+      {/* AI Program Wizard Overlay */}
+      {showAIWizard && (
+        <AIProgramWizard
+          onClose={() => setShowAIWizard(false)}
+          onProgramCreated={handleAIProgramCreated}
+        />
+      )}
     </div>
   );
 }

@@ -9,6 +9,8 @@ import { QuickActions } from "@/components/trainer/quick-actions";
 import { PredictionCard } from "@/components/trainer/prediction-card";
 import { RiskAlert } from "@/components/trainer/risk-alert";
 import { useStats } from "@/lib/queries";
+import db, { getToday } from "@/lib/db";
+import type { RecoveryAssessment } from "@/lib/db";
 
 interface ChatMessage {
   id: string;
@@ -33,6 +35,19 @@ export default function TrainerPage() {
 
   // Stats for PredictionCard display only (context is built server-side)
   const { data: stats } = useStats();
+
+  // Load today's recovery score from IndexedDB for context-aware prompting
+  const [recoveryScore, setRecoveryScore] = useState<number | null>(null);
+  useEffect(() => {
+    const today = getToday();
+    db.recoveryAssessments
+      .where("date")
+      .equals(today)
+      .first()
+      .then((assessment: RecoveryAssessment | undefined) => {
+        if (assessment) setRecoveryScore(assessment.score);
+      });
+  }, []);
 
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -84,6 +99,7 @@ export default function TrainerPage() {
                 role: m.role,
                 content: m.content,
               })),
+            recoveryScore,
           }),
         });
 

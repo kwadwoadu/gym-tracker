@@ -3,12 +3,12 @@
 import { motion } from "framer-motion";
 
 const QUICK_ACTIONS = [
-  "Should I train today?",
+  "What should I train today?",
   "Analyze my week",
   "Why am I stalling?",
+  "Suggest a deload week",
+  "Help me warm up",
   "What should I change?",
-  "When will I hit my next PR?",
-  "Suggest a deload",
 ];
 
 interface QuickActionsProps {

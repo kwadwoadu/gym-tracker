@@ -4,6 +4,70 @@ All notable changes to the SetFlow project.
 
 ---
 
+## [2026-03-26] AI Predictive Analytics + Adaptive Periodization
+
+**Type:** Feature
+**Files Created:**
+- `src/lib/ai/pr-predictor.ts` - Linear regression PR prediction engine (per-exercise weight progression, milestone targeting, confidence scoring via R-squared)
+- `src/lib/ai/consistency-scorer.ts` - Weekly adherence calculator with 4-week rolling average, streak tracking, and trend detection
+- `src/lib/ai/deload-detector.ts` - Deload need detection based on consecutive training weeks, RPE trends, and performance decline signals
+- `src/lib/ai/volume-adjuster.ts` - Post-workout volume adjustment recommendations (weight increase/decrease, set changes based on RPE and completion rate)
+- `src/components/stats/pr-forecast.tsx` - PR Forecast card showing top 3 predicted PRs with progress bars, estimated dates, and confidence badges
+- `src/components/stats/consistency-score.tsx` - Consistency Score card with SVG ring, trend indicator, streak counter, and sparkline chart
+- `src/components/stats/consistency-sparkline.tsx` - Recharts area sparkline for 4-week adherence history
+- `src/components/home/TrainingInsights.tsx` - Training Insights card for home dashboard showing the most important current insight (deload warning, volume suggestion, or PR prediction)
+
+**Files Modified:**
+- `src/lib/feature-flags.ts` - Added `canAccessAIPredictiveAnalytics()` and `canAccessAIAdaptivePeriodization()` flags
+- `src/app/stats/page.tsx` - Integrated PR Forecast and Consistency Score cards after summary section
+- `src/app/page.tsx` - Integrated Training Insights card between recovery assessment and context-aware dashboard
+- `docs/prds/ai-predictive-analytics.md` - Status updated to SHIPPED
+- `docs/prds/ai-adaptive-periodization.md` - Status updated to SHIPPED
+
+### Summary
+Shipped two AI sub-features, both 100% on-device with no API calls: (1) **Predictive Analytics** - PR prediction engine using linear regression on per-exercise weight progression data with R-squared confidence scoring, consistency scoring with 4-week rolling average and streak tracking, surfaced as cards on the stats page. (2) **Adaptive Periodization** - deload detection engine analyzing consecutive training weeks, RPE trends, and performance decline patterns; volume auto-adjuster recommending weight/set changes based on workout completion and RPE; surfaced as a prioritized Training Insights card on the home dashboard showing the most actionable insight (deload warning > volume adjustment > PR prediction).
+
+---
+
+## [2026-03-26] AI Conversational Trainer + Recovery Integration
+
+**Type:** Feature
+**Files Changed:**
+- `src/lib/ai/prompts/trainer-prompt.ts` - Enhanced system prompt with recovery awareness, richer boundaries, warm-up guidance
+- `src/lib/ai/context-engine.ts` - Added recovery score parameter to server context builder, outputs recovery status section
+- `src/lib/ai/recovery-adjuster.ts` - NEW: Recovery-aware workout adjustment engine (weight/set multipliers per score 1-5)
+- `src/lib/feature-flags.ts` - Added `canAccessAIConversationalTrainer()` and `canAccessAIRecoveryIntegration()` flags
+- `src/components/trainer/trainer-fab.tsx` - NEW: Floating Action Button for quick trainer access (bottom-right, above tab bar)
+- `src/components/trainer/quick-actions.tsx` - Updated quick action chips with contextual prompts (warm up, deload)
+- `src/components/workout/recovery-banner.tsx` - NEW: Pre-session recovery banner with color-coded status and adjust/dismiss options
+- `src/components/layout/desktop-layout.tsx` - Added TrainerFAB to main layout
+- `src/app/trainer/page.tsx` - Passes recovery score from IndexedDB to API for context-aware responses
+- `src/app/api/ai/trainer/route.ts` - Accepts and forwards recovery score to context engine
+- `src/app/workout/[dayId]/page.tsx` - Integrated RecoveryBanner into workout preview phase
+- `docs/prds/ai-conversational-trainer.md` - Status updated to SHIPPED
+- `docs/prds/ai-recovery-integration.md` - Status updated to SHIPPED
+
+### Summary
+Shipped two AI sub-features: (1) **Conversational Trainer enhancements** - added a floating action button (FAB) visible on all main screens for quick trainer access, enhanced the system prompt with recovery awareness and richer context-aware prompting, and updated quick action chips with contextual options like "Help me warm up" and "Suggest a deload week". (2) **Recovery Integration** - created a recovery adjustment engine that maps the 1-5 self-assessment score to weight/set multipliers, built a pre-session RecoveryBanner shown in the workout preview phase with color-coded status (red/amber/green) and "Adjust Workout" / "Train as Planned" options, and wired recovery data through to the AI trainer for context-aware coaching advice.
+
+---
+
+## [2026-03-26] AI Program Generation - Complete Feature
+
+**Type:** Feature
+**Files Changed:**
+- `src/lib/ai/validators/program-validator.ts` - Enhanced with exercise substitution (maps unknown AI-generated exercise IDs to closest database match by name/equipment/muscleGroup similarity), added sets/reps range validation
+- `src/app/api/ai/generate-program/route.ts` - Updated to pass exercise database to validator for substitution, added substitution logging
+- `src/components/plan-selection/ai-generate-card.tsx` - NEW: AI generate card for onboarding plan selection
+- `src/components/plan-selection/index.ts` - Added AIGenerateCard export
+- `src/app/onboarding/plans/page.tsx` - Added AI program generation as an option alongside preset templates and start from scratch
+- `docs/prds/ai-program-generation.md` - Status updated to SHIPPED, requirements checklist updated
+
+### Summary
+Completed the AI Program Generation feature (P0). The full stack was already in place (API route, wizard UI with 4 steps, loading animation, preview cards, Zod validation). This update fills the remaining gaps: (1) enhanced the validator with intelligent exercise substitution so unknown exercise IDs from the AI are mapped to the closest match in the database rather than rejected outright, (2) added an "AI-Generated Program" option to the onboarding plan selection flow so new users can generate a personalized program right after completing onboarding, and (3) added sets/reps range validation to catch unrealistic AI output.
+
+---
+
 ## [2026-03-26] Exercise Form Library - 30 Exercises + Workout Integration
 
 **Type:** Feature

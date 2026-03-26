@@ -65,7 +65,7 @@ Every feature needs a PRD in /docs/prds/ with:
 - `landing-page-upgrade.md` (P2) - Animated walkthrough, social proof
 
 ### Phase 3 - AI Features
-- `ai-program-generation.md` (P0) - AI generates periodized programs
+- `ai-program-generation.md` (P0) - AI generates periodized programs (SHIPPED)
 - `ai-workout-copilot.md` (P1) - Real-time coaching + plateau detection (SHIPPED)
 - `ai-voice-logging.md` (P1) - Voice input for set logging
 - `ai-nutrition-coach.md` (P2) - Photo meal logging, macro recommendations

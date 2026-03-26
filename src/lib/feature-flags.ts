@@ -73,3 +73,35 @@ export function canAccessAIFormAnalysis(): boolean {
 export function canAccessAIPersonalTrainer(): boolean {
   return true;
 }
+
+/**
+ * Check if AI conversational trainer is enabled
+ * Chat-based trainer interface with context-aware prompting
+ */
+export function canAccessAIConversationalTrainer(): boolean {
+  return true;
+}
+
+/**
+ * Check if AI recovery integration is enabled
+ * Recovery-aware workout adjustments based on self-assessment and Whoop data
+ */
+export function canAccessAIRecoveryIntegration(): boolean {
+  return true;
+}
+
+/**
+ * Check if AI predictive analytics is enabled
+ * PR prediction, consistency scoring, fatigue forecasting
+ */
+export function canAccessAIPredictiveAnalytics(): boolean {
+  return true;
+}
+
+/**
+ * Check if AI adaptive periodization is enabled
+ * Deload detection, volume auto-adjustment, training insights
+ */
+export function canAccessAIAdaptivePeriodization(): boolean {
+  return true;
+}

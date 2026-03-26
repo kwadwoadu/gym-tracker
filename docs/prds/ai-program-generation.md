@@ -1,6 +1,6 @@
 # AI Smart Program Generation
 
-> **Status:** Draft
+> **Status:** SHIPPED
 > **Owner:** Kwadwo
 > **Created:** 2026-03-04
 > **Priority:** P0
@@ -60,22 +60,22 @@ AI generates a fully periodized training program based on the user's onboarding 
 ## 4. Requirements
 
 ### Must Have
-- [ ] AI generates a complete training program from OnboardingProfile data
-- [ ] Generated program includes exercises from the existing exercise database only
-- [ ] Program respects injury constraints (excludes aggravating movements)
-- [ ] Program respects equipment availability (only includes exercises user can do)
-- [ ] Output validated against Zod schema before saving
-- [ ] Preview screen before saving the generated program
-- [ ] API key stays server-side (Vercel API route)
+- [x] AI generates a complete training program from OnboardingProfile data
+- [x] Generated program includes exercises from the existing exercise database only
+- [x] Program respects injury constraints (excludes aggravating movements)
+- [x] Program respects equipment availability (only includes exercises user can do)
+- [x] Output validated against Zod schema before saving
+- [x] Preview screen before saving the generated program
+- [x] API key stays server-side (Vercel API route)
 - [ ] Rate limiting (max 3 generations per user per day)
-- [ ] Fallback to template selection if AI generation fails
+- [x] Fallback to template selection if AI generation fails
 
 ### Should Have
-- [ ] Deload weeks auto-scheduled (every 4th or 5th week)
-- [ ] Progressive overload strategy described in generated program metadata
-- [ ] Workout history informs starting weights when available
-- [ ] Regeneration uses performance data (PRs, compliance, stalled lifts) for next program
-- [ ] Additional preferences input (session length, focus area, mesocycle duration)
+- [x] Deload weeks auto-scheduled (every 4th or 5th week)
+- [x] Progressive overload strategy described in generated program metadata
+- [x] Workout history informs starting weights when available
+- [x] Regeneration uses performance data (PRs, compliance, stalled lifts) for next program
+- [x] Additional preferences input (session length, focus area, mesocycle duration)
 - [ ] User consent dialog on first AI generation
 
 ### Won't Have (This Version)
@@ -506,3 +506,4 @@ This PRD owns creation of the shared AI infrastructure used by all Phase 3 AI fe
 | 2026-03-04 | Fix REV-014: Renumber section headings to match numbered format (## 1. Problem, etc.) |
 | 2026-03-04 | Fix REV-019: Add Program Generation Output Schema with Zod definitions |
 | 2026-03-26 | PRD quality audit: Updated model to Claude 4.5 Haiku, added Requirements (MoSCoW), User Flows, Implementation Plan, Testing, Launch Checklist, Risks & Mitigations, Component Table, Visual Spec. Restructured to 14-section standard. |
+| 2026-03-26 | SHIPPED: All core files implemented - API route, wizard UI (4 steps), validator with exercise substitution, onboarding integration. |

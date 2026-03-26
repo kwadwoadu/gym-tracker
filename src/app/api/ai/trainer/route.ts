@@ -17,7 +17,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { message, history = [] } = await request.json();
+    const { message, history = [], recoveryScore } = await request.json();
 
     if (!message) {
       return NextResponse.json(
@@ -63,6 +63,7 @@ export async function POST(request: Request) {
       activeProgram,
       onboardingProfile,
       totalWorkoutCount,
+      typeof recoveryScore === "number" ? recoveryScore : undefined,
     );
 
     const ai = getAIClient();

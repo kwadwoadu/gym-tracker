@@ -51,6 +51,7 @@ export function buildServerContext(
   activeProgram: ServerProgram | null,
   onboardingProfile: ServerOnboardingProfile | null,
   totalWorkoutCount: number,
+  recoveryScore?: number,
 ): string {
   const lines: string[] = [];
 
@@ -172,6 +173,20 @@ export function buildServerContext(
   lines.push(`- Day: ${new Date().toLocaleDateString("en-US", { weekday: "long" })}`);
   if (activeProgram?.trainingDays?.length) {
     lines.push(`- Program days: ${activeProgram.trainingDays.map((d) => d.name).join(", ")}`);
+  }
+
+  // Recovery status
+  if (recoveryScore !== undefined && recoveryScore >= 1 && recoveryScore <= 5) {
+    const recoveryLabels: Record<number, string> = {
+      1: "Exhausted (1/5) - Very low recovery, suggest rest or light session",
+      2: "Tired (2/5) - Below average, reduce intensity 10-15%",
+      3: "Moderate (3/5) - Normal recovery, train as planned",
+      4: "Good (4/5) - Strong recovery, push for progressive overload",
+      5: "Great (5/5) - Peak recovery, great day for PRs",
+    };
+    lines.push("");
+    lines.push("### Recovery Status (Self-Assessed Today)");
+    lines.push(`- Recovery: ${recoveryLabels[recoveryScore]}`);
   }
 
   // Risk factors

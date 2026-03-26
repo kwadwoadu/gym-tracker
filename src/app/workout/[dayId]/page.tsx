@@ -44,6 +44,7 @@ import { HEADING, DATA } from "@/lib/typography";
 import { NotificationPrompt } from "@/components/notifications/NotificationPrompt";
 import { ShareCardButton } from "@/components/workout/share-card-button";
 import { CopilotWidget } from "@/components/workout/CopilotWidget";
+import { RecoveryBanner } from "@/components/workout/recovery-banner";
 import { subscribeToPush } from "@/lib/notifications/push-subscription";
 import { useWorkoutSession } from "@/hooks/use-workout-session";
 import { useWorkoutLogs } from "@/lib/queries";
@@ -309,6 +310,9 @@ export default function WorkoutSession() {
                 exercises
               </p>
             </div>
+
+            {/* Pre-Session Recovery Banner */}
+            <RecoveryBanner />
 
             {/* Weekly Goal Banner */}
             {lastWeekVolumeTotal && lastWeekVolumeTotal > 0 && (
