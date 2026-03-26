@@ -35,7 +35,7 @@ export async function POST(request: Request) {
         msg.content.length <= 2000 &&
         (msg.role === 'user' || msg.role === 'assistant')
       )
-      .slice(-20);
+      .slice(-20) as Array<{ role: "user" | "assistant"; content: string }>;
 
     // Fetch all user data server-side in parallel
     const [recentWorkouts, personalRecords, activeProgram, onboardingProfile, totalWorkoutCount] =
