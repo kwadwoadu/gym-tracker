@@ -73,13 +73,12 @@ function getStoredNotifications(): QueuedNotification[] {
     if (!raw) return [];
     const parsed = JSON.parse(raw);
     if (!Array.isArray(parsed)) return [];
-    return parsed.filter((n: Record<string, unknown>) =>
-      n &&
-      VALID_TYPES.includes(n.type) &&
-      typeof n.title === 'string' &&
-      typeof n.id === 'string' &&
-      (!n.url || (typeof n.url === 'string' && !n.url.startsWith('javascript:') && !n.url.startsWith('data:')))
-    );
+    return parsed.filter((n: Record<string, unknown>) => {
+      if (!n || typeof n.type !== 'string' || typeof n.title !== 'string' || typeof n.id !== 'string') return false;
+      if (!VALID_TYPES.includes(n.type as NotificationType)) return false;
+      if (n.url && (typeof n.url !== 'string' || n.url.startsWith('javascript:') || n.url.startsWith('data:'))) return false;
+      return true;
+    });
   } catch {
     return [];
   }
