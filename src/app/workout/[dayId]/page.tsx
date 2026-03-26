@@ -33,7 +33,7 @@ import {
 } from "lucide-react";
 import { RestTimer } from "@/components/workout/rest-timer";
 import { EditSetDrawer } from "@/components/workout/edit-set-drawer";
-import { WorkoutCarousel } from "@/components/workout/workout-carousel";
+import { ExerciseCarousel } from "@/components/workout/ExerciseCarousel";
 import { ProgressDots } from "@/components/workout/progress-dots";
 import { SetLoggerSheet } from "@/components/workout/set-logger-sheet";
 import { SupersetContextBar } from "@/components/workout/superset-context-bar";
@@ -43,8 +43,10 @@ import { PRCelebration } from "@/components/shared/PRCelebration";
 import { HEADING, DATA } from "@/lib/typography";
 import { NotificationPrompt } from "@/components/notifications/NotificationPrompt";
 import { ShareCardButton } from "@/components/workout/share-card-button";
+import { CopilotWidget } from "@/components/workout/CopilotWidget";
 import { subscribeToPush } from "@/lib/notifications/push-subscription";
 import { useWorkoutSession } from "@/hooks/use-workout-session";
+import { useWorkoutLogs } from "@/lib/queries";
 
 // Animation variants for phase transitions
 const phaseVariants = {
@@ -196,6 +198,18 @@ export default function WorkoutSession() {
     setWarmupChecked,
     setFinisherChecked,
   } = useWorkoutSession(dayId);
+
+  // Fetch recent workout history for copilot widget (plateau detection, weight recommendation)
+  const { data: workoutHistory } = useWorkoutLogs({ isComplete: true, limit: 20 });
+
+  // Determine the current exercise for the copilot widget
+  const copilotExerciseId = flatExercises[carouselIndex]?.exerciseId ?? null;
+  const copilotExerciseName = copilotExerciseId
+    ? exercises.get(copilotExerciseId)?.name ?? null
+    : null;
+  const copilotIsCompound = copilotExerciseId
+    ? (exercises.get(copilotExerciseId)?.muscleGroups?.length ?? 0) >= 2
+    : true;
 
   if (isLoading || !trainingDay) {
     return (
@@ -489,8 +503,8 @@ export default function WorkoutSession() {
               />
             )}
 
-            {/* Swipeable exercise carousel */}
-            <WorkoutCarousel
+            {/* Swipeable exercise carousel with gesture feedback */}
+            <ExerciseCarousel
               flatExercises={flatExercises}
               exercises={exercises}
               completedSets={completedSets}
@@ -1042,6 +1056,18 @@ export default function WorkoutSession() {
           setShowNotificationPrompt(false);
         }}
       />
+
+      {/* AI Copilot Widget - floating during exercise and rest phases */}
+      {(phase === "exercise" || phase === "rest") && (
+        <CopilotWidget
+          currentExerciseId={copilotExerciseId}
+          currentExerciseName={copilotExerciseName}
+          isCompound={copilotIsCompound}
+          completedSets={completedSets}
+          workoutHistory={workoutHistory ?? []}
+          exercises={exercises}
+        />
+      )}
     </div>
   );
 }

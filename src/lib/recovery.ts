@@ -129,3 +129,180 @@ export function calculateRecoveryScore(estimates: MuscleRecoveryEstimate[]): Rec
 
   return { overall: avgPercent, label, color, fatigueCount, recoveringCount, recoveredCount };
 }
+
+// ============================================================
+// Smart Rest Day Detection
+// ============================================================
+
+/** Minimum hours between workouts for recovery (conservative) */
+const MIN_REST_HOURS = 24;
+
+export interface RestDayRecommendation {
+  shouldRest: boolean;
+  reasons: string[];
+  confidence: "high" | "moderate" | "low";
+  daysSinceLastWorkout: number;
+  weeklyWorkouts: number;
+  weeklyTarget: number;
+  fatigueLevel: "none" | "light" | "moderate" | "heavy";
+}
+
+/**
+ * Determine whether today should be a rest day.
+ *
+ * Signals considered:
+ *   1. Days since last workout (0 = trained today)
+ *   2. Muscle recovery status across all recently trained groups
+ *   3. Weekly training frequency vs target (e.g. 3 of 4 done)
+ */
+export function shouldTakeRestDay(
+  workoutLogs: WorkoutLog[],
+  exerciseMap: Map<string, Exercise>,
+  weeklyTarget: number,
+  now: Date = new Date()
+): RestDayRecommendation {
+  const reasons: string[] = [];
+
+  // --- 1. Days since last workout ---
+  const completedLogs = workoutLogs
+    .filter((l) => l.isComplete && l.endTime)
+    .sort((a, b) => new Date(b.endTime!).getTime() - new Date(a.endTime!).getTime());
+
+  const lastWorkout = completedLogs[0] ?? null;
+  const hoursSinceLast = lastWorkout
+    ? (now.getTime() - new Date(lastWorkout.endTime!).getTime()) / (1000 * 60 * 60)
+    : Infinity;
+  const daysSinceLastWorkout = Math.floor(hoursSinceLast / 24);
+
+  // If no workout history, suggest training
+  if (!lastWorkout) {
+    return {
+      shouldRest: false,
+      reasons: ["No recent workout history - time to start training!"],
+      confidence: "low",
+      daysSinceLastWorkout: Infinity,
+      weeklyWorkouts: 0,
+      weeklyTarget,
+      fatigueLevel: "none",
+    };
+  }
+
+  // --- 2. Muscle recovery status ---
+  // Gather estimates from the most recent workouts within 72h
+  const recentCutoff = now.getTime() - 72 * 60 * 60 * 1000;
+  const recentWorkouts = completedLogs.filter(
+    (l) => new Date(l.endTime!).getTime() > recentCutoff
+  );
+
+  // Merge recovery estimates across recent workouts
+  const allEstimates = new Map<string, MuscleRecoveryEstimate>();
+  for (const log of recentWorkouts) {
+    const estimates = estimateMuscleRecovery(log, exerciseMap, now);
+    for (const est of estimates) {
+      const existing = allEstimates.get(est.muscleGroup);
+      // Keep the least-recovered estimate per muscle
+      if (!existing || est.percentRecovered < existing.percentRecovered) {
+        allEstimates.set(est.muscleGroup, est);
+      }
+    }
+  }
+
+  const fatigueCount = Array.from(allEstimates.values()).filter(
+    (e) => e.status === "fatigued"
+  ).length;
+  const recoveringCount = Array.from(allEstimates.values()).filter(
+    (e) => e.status === "recovering"
+  ).length;
+  const totalMuscles = allEstimates.size;
+
+  let fatigueLevel: RestDayRecommendation["fatigueLevel"] = "none";
+  if (totalMuscles > 0) {
+    const fatigueRatio = fatigueCount / totalMuscles;
+    if (fatigueRatio > 0.5) fatigueLevel = "heavy";
+    else if (fatigueRatio > 0.25) fatigueLevel = "moderate";
+    else if (fatigueCount > 0 || recoveringCount > 0) fatigueLevel = "light";
+  }
+
+  // --- 3. Weekly training frequency ---
+  const weekStart = getStartOfWeek(now);
+  const weeklyWorkouts = completedLogs.filter((l) => {
+    const d = new Date(l.endTime!);
+    return d >= weekStart && d <= now;
+  }).length;
+
+  // --- Decision logic ---
+  let shouldRest = false;
+
+  // Trained today already -> rest
+  if (hoursSinceLast < MIN_REST_HOURS) {
+    reasons.push("Already trained in the last 24 hours");
+    shouldRest = true;
+  }
+
+  // Heavy fatigue -> rest
+  if (fatigueLevel === "heavy") {
+    reasons.push(
+      `${fatigueCount} muscle group${fatigueCount > 1 ? "s" : ""} still fatigued`
+    );
+    shouldRest = true;
+  }
+
+  // Weekly target already hit -> rest is fine
+  if (weeklyWorkouts >= weeklyTarget) {
+    reasons.push(
+      `Weekly target reached (${weeklyWorkouts}/${weeklyTarget} workouts)`
+    );
+    shouldRest = true;
+  }
+
+  // Moderate fatigue is a softer signal
+  if (fatigueLevel === "moderate" && !shouldRest) {
+    reasons.push("Multiple muscle groups still recovering");
+    // Only suggest rest if also close to weekly target
+    if (weeklyWorkouts >= weeklyTarget - 1) {
+      shouldRest = true;
+    }
+  }
+
+  // If 3+ days since last workout, suggest training
+  if (daysSinceLastWorkout >= 3 && reasons.length === 0) {
+    reasons.push(`${daysSinceLastWorkout} days since last workout`);
+    shouldRest = false;
+  }
+
+  // Default reasoning if no signals triggered
+  if (reasons.length === 0) {
+    if (shouldRest) {
+      reasons.push("General recovery recommendation");
+    } else {
+      reasons.push("Recovery looks good - ready to train");
+    }
+  }
+
+  // Confidence based on signal strength
+  let confidence: RestDayRecommendation["confidence"] = "moderate";
+  if (reasons.length >= 2 && shouldRest) confidence = "high";
+  if (daysSinceLastWorkout >= 3 && !shouldRest) confidence = "high";
+  if (totalMuscles === 0) confidence = "low";
+
+  return {
+    shouldRest,
+    reasons,
+    confidence,
+    daysSinceLastWorkout,
+    weeklyWorkouts,
+    weeklyTarget,
+    fatigueLevel,
+  };
+}
+
+/** Get the Monday 00:00 of the current week */
+function getStartOfWeek(date: Date): Date {
+  const d = new Date(date);
+  const day = d.getDay();
+  // Monday = 1, Sunday = 0 -> shift Sunday to 7
+  const diff = day === 0 ? 6 : day - 1;
+  d.setDate(d.getDate() - diff);
+  d.setHours(0, 0, 0, 0);
+  return d;
+}

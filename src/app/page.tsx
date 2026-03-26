@@ -295,6 +295,7 @@ export default function Home() {
           <RestDayDashboard
             nextDay={nextDay}
             lastWorkout={workoutLogs?.filter((l) => l.isComplete).sort((a, b) => b.date.localeCompare(a.date))[0] || null}
+            recentWorkouts={workoutLogs?.filter((l) => l.isComplete).sort((a, b) => b.date.localeCompare(a.date)) || []}
             exercises={exercises}
             currentStreak={stats?.currentStreak || 0}
             weeklyWorkouts={weeklyWorkouts}

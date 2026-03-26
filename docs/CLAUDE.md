@@ -66,7 +66,7 @@ Every feature needs a PRD in /docs/prds/ with:
 
 ### Phase 3 - AI Features
 - `ai-program-generation.md` (P0) - AI generates periodized programs
-- `ai-workout-copilot.md` (P1) - Real-time coaching + plateau detection
+- `ai-workout-copilot.md` (P1) - Real-time coaching + plateau detection (SHIPPED)
 - `ai-voice-logging.md` (P1) - Voice input for set logging
 - `ai-nutrition-coach.md` (P2) - Photo meal logging, macro recommendations
 - `ai-form-analysis.md` (P3) - Camera-based pose estimation
@@ -77,8 +77,8 @@ Every feature needs a PRD in /docs/prds/ with:
   - `ai-recovery-integration.md` (P3) - Whoop/recovery-aware training adjustments
 
 ### Phase 4 - New Features
-- `workout-templates-sharing.md` (P2) - Create/share templates
-- `rest-day-intelligence.md` (P2) - Mobility, recovery, Whoop
+- `workout-templates-sharing.md` (P2) - Create/share templates (SHIPPED)
+- `rest-day-intelligence.md` (P2) - Mobility, recovery, Whoop (SHIPPED)
 - `workout-timer-modes.md` (P2) - AMRAP, EMOM, Tabata, custom
 - `exercise-form-library.md` (P2) - Built-in video, form cues
 - `body-composition-tracking.md` (P2) - Weight trend, photos, measurements

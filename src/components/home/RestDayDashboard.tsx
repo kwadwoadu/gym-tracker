@@ -4,12 +4,12 @@ import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Moon, Calendar, Flame, ChevronRight } from "lucide-react";
 import { Card } from "@/components/ui/card";
-import { estimateMuscleRecovery } from "@/lib/recovery";
-import { getRoutinesForMuscles } from "@/data/mobility-routines";
+import { estimateMuscleRecovery, shouldTakeRestDay } from "@/lib/recovery";
 import type { MobilityRoutine } from "@/data/mobility-routines";
 
 import { MuscleRecoveryCard } from "@/components/rest-day/MuscleRecoveryCard";
-import { MobilityRoutineCard } from "@/components/rest-day/MobilityRoutineCard";
+import { RecoveryTimeline } from "@/components/rest-day/RecoveryTimeline";
+import { MobilityRecommendation } from "@/components/rest-day/MobilityRecommendation";
 import { ActiveRecoverySession } from "@/components/rest-day/ActiveRecoverySession";
 import { HydrationTracker } from "@/components/rest-day/HydrationTracker";
 import type { TrainingDay, WorkoutLog, Exercise } from "@/lib/api-client";
@@ -17,6 +17,7 @@ import type { TrainingDay, WorkoutLog, Exercise } from "@/lib/api-client";
 interface RestDayDashboardProps {
   nextDay: TrainingDay | null;
   lastWorkout: WorkoutLog | null;
+  recentWorkouts?: WorkoutLog[];
   exercises: Map<string, Exercise>;
   currentStreak: number;
   weeklyWorkouts: number;
@@ -27,6 +28,7 @@ interface RestDayDashboardProps {
 export function RestDayDashboard({
   nextDay,
   lastWorkout,
+  recentWorkouts = [],
   exercises,
   currentStreak,
   weeklyWorkouts,
@@ -56,10 +58,19 @@ export function RestDayDashboard({
     return recoveryEstimates.map((est) => est.muscleGroup);
   }, [recoveryEstimates]);
 
-  // Mobility routines matching trained muscles
-  const suggestedRoutines = useMemo(() => {
-    return getRoutinesForMuscles(trainedMuscles);
-  }, [trainedMuscles]);
+  // Smart rest day recommendation
+  const restDayRec = useMemo(() => {
+    const logs = recentWorkouts.length > 0
+      ? recentWorkouts
+      : lastWorkout
+        ? [lastWorkout]
+        : [];
+    return shouldTakeRestDay(
+      logs as unknown as import("@/lib/db").WorkoutLog[],
+      exercises as unknown as Map<string, import("@/lib/db").Exercise>,
+      weeklyTarget
+    );
+  }, [recentWorkouts, lastWorkout, exercises, weeklyTarget]);
 
   return (
     <>
@@ -96,7 +107,24 @@ export function RestDayDashboard({
           </motion.div>
         )}
 
-        {/* Muscle Recovery Timeline */}
+        {/* Smart rest day insight */}
+        {restDayRec.reasons.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+          >
+            <Card className="bg-[#38BDF8]/5 border-[#38BDF8]/15 p-4">
+              <p className="text-xs text-[#38BDF8]/80 leading-relaxed">
+                {restDayRec.reasons[0]}
+                {restDayRec.fatigueLevel !== "none" && restDayRec.fatigueLevel !== "light" && (
+                  <span className="text-white/30"> - Fatigue: {restDayRec.fatigueLevel}</span>
+                )}
+              </p>
+            </Card>
+          </motion.div>
+        )}
+
+        {/* Yesterday's Impact */}
         {recoveryEstimates.length > 0 && (
           <MuscleRecoveryCard
             estimates={recoveryEstimates}
@@ -105,27 +133,16 @@ export function RestDayDashboard({
           />
         )}
 
-        {/* Suggested Mobility Routines */}
-        {suggestedRoutines.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-          >
-            <h4 className="text-xs font-semibold text-white/40 uppercase tracking-[0.08em] mb-2">
-              Suggested Mobility
-            </h4>
-            <div className="space-y-3">
-              {suggestedRoutines.slice(0, 2).map((routine) => (
-                <MobilityRoutineCard
-                  key={routine.id}
-                  routine={routine}
-                  onStart={setActiveRoutine}
-                />
-              ))}
-            </div>
-          </motion.div>
+        {/* Recovery Timeline with 24h/48h/72h bars */}
+        {recoveryEstimates.length > 0 && (
+          <RecoveryTimeline estimates={recoveryEstimates} />
         )}
+
+        {/* Auto-suggested mobility based on trained muscles */}
+        <MobilityRecommendation
+          trainedMuscles={trainedMuscles}
+          onStartRoutine={setActiveRoutine}
+        />
 
         {/* Hydration Tracker */}
         <HydrationTracker />

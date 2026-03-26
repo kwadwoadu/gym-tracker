@@ -4,6 +4,33 @@ All notable changes to the SetFlow project.
 
 ---
 
+## [2026-03-26] Workout Templates: Library, Builder & Sharing
+
+**Type:** Feature
+**Files Changed:**
+- `src/app/community/templates/page.tsx` - NEW: Dedicated template library page with multi-filter browse (split type, difficulty, days/week), search, sort
+- `src/components/sharing/TemplateBuilder.tsx` - NEW: 4-step template builder (select program, configure metadata, preview, publish)
+- `src/lib/templates.ts` - NEW: Template utilities (serialize, import, JSON export/import, split detection, duration estimation)
+- `src/app/api/templates/route.ts` - Extended: Added difficulty and dayCount filter support to GET
+- `src/app/community/page.tsx` - Added "Share Program" button, "Full Library" link, TemplateBuilder integration
+
+### Summary
+Implemented the missing template library and builder features for SetFlow's workout-templates-sharing PRD. Users can now:
+- Browse community templates with filters for goal/split type, difficulty level, and days per week
+- Share their own programs as community templates via a guided 4-step flow (select, configure, preview, publish)
+- Auto-detect split type from training day names
+- Import templates as new programs with a single tap
+- Export/import templates as JSON files for offline sharing
+
+### Technical Details
+- `serializeProgram()` converts user programs with exercise ID resolution into shareable template format
+- `detectSplitType()` auto-detects PPL/Upper-Lower/Full Body/Bro Split from day names
+- `estimateDuration()` heuristic: ~3 min per set including rest
+- API extended with difficulty and dayCount query params for server-side filtering
+- All components follow existing patterns: dark theme, 44px touch targets, Drawer-based modals
+
+---
+
 ## [2026-03-26] Rest Day Intelligence: Smart Detection, Recovery Timeline, Mobility Recommendations
 
 **Type:** Feature

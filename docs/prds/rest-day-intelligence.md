@@ -1,6 +1,6 @@
 # Rest Day Intelligence
 
-> **Status:** Not Started
+> **Status:** SHIPPED
 > **Owner:** Kwadwo
 > **Created:** 2026-03-04
 > **Priority:** P2
@@ -638,7 +638,25 @@ export async function getRestDayContext(
 
 ---
 
-## 9. Testing
+## 9. Edge Cases
+
+| Edge Case | Handling |
+|-----------|----------|
+| No workout history at all (new user) | Show generic rest day tips, skip muscle recovery section |
+| Last workout was 5+ days ago | Show all muscles as recovered, suggest starting a new training cycle |
+| User works out twice in one day | Use most recent completed workout for recovery context |
+| User manually marks training day as rest day | Override detection, show rest day screen |
+| Whoop token expired | Silent fallback to self-assessment, show "Reconnect Whoop" in settings |
+| Mobility routine has 0 matching muscles | Show general full-body mobility routine as fallback |
+| User closes app mid-mobility session | Save progress, offer to resume on next open |
+| Multiple muscle groups in one exercise (compound) | Count each muscle group independently in recovery estimates |
+| Hydration logged at 11:50pm, resets at midnight | Daily reset at midnight local time, previous day data persisted |
+| Whoop API returns partial data (sleep but no HRV) | Display available fields, hide missing data cards gracefully |
+| User timezone changes (travel) | Recalculate recovery hours based on current local time, do not re-trigger rest day detection |
+
+---
+
+## 10. Testing
 
 ### Functional Tests
 - [ ] Rest day correctly detected when no workout logged today
@@ -668,7 +686,7 @@ export async function getRestDayContext(
 
 ---
 
-## 10. Launch Checklist
+## 11. Launch Checklist
 
 - [ ] Code complete
 - [ ] Tests passing
@@ -684,23 +702,7 @@ export async function getRestDayContext(
 
 ---
 
-## Edge Cases
-
-| Edge Case | Handling |
-|-----------|----------|
-| No workout history at all (new user) | Show generic rest day tips, skip muscle recovery section |
-| Last workout was 5+ days ago | Show all muscles as recovered, suggest starting a new training cycle |
-| User works out twice in one day | Use most recent completed workout for recovery context |
-| User manually marks training day as rest day | Override detection, show rest day screen |
-| Whoop token expired | Silent fallback to self-assessment, show "Reconnect Whoop" in settings |
-| Mobility routine has 0 matching muscles | Show general full-body mobility routine as fallback |
-| User closes app mid-mobility session | Save progress, offer to resume on next open |
-| Multiple muscle groups in one exercise (compound) | Count each muscle group independently in recovery estimates |
-| Hydration logged at 11:50pm, resets at midnight | Daily reset at midnight local time, previous day data persisted |
-
----
-
-## Risks & Mitigations
+## 12. Risks & Mitigations
 
 | Risk | Impact | Mitigation |
 |------|--------|------------|
@@ -713,7 +715,7 @@ export async function getRestDayContext(
 
 ---
 
-## Dependencies
+## 13. Dependencies
 
 - Workout log data (existing) - required for muscle recovery analysis
 - Exercise data with muscleGroups field (existing) - maps exercises to muscles
@@ -724,8 +726,10 @@ export async function getRestDayContext(
 
 ---
 
-## Changelog
+## 14. Changelog
 
 | Date | Change |
 |------|--------|
 | 2026-03-04 | Initial draft |
+| 2026-03-26 | PRD quality audit: renumbered all 14 sections to match standard, added 2 edge cases (partial Whoop data, timezone change) |
+| 2026-03-26 | SHIPPED: Smart rest day detection, RecoveryTimeline component, MobilityRecommendation component |
