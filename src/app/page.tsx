@@ -33,6 +33,7 @@ import {
 import type { Exercise } from "@/lib/api-client";
 import { GamificationStrip } from "@/components/home/GamificationStrip";
 import { RecoveryAssessment } from "@/components/rest-day/RecoveryAssessment";
+import { TrainingInsights } from "@/components/home/TrainingInsights";
 
 export default function Home() {
   const { isSignedIn, isLoaded: authLoaded, user } = useUser();
@@ -263,6 +264,16 @@ export default function Home() {
       <div className="px-4 mt-3">
         <RecoveryAssessment />
       </div>
+
+      {/* AI Training Insights */}
+      {workoutLogs && workoutLogs.length >= 2 && (
+        <div className="mt-3">
+          <TrainingInsights
+            workoutLogs={workoutLogs as import("@/lib/api-client").WorkoutLog[]}
+            exercises={exercises}
+          />
+        </div>
+      )}
 
       {/* Context-Aware Dashboard */}
       {trainingDaysLoading ? null : (

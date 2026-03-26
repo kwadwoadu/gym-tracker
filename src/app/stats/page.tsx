@@ -6,11 +6,13 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import { HEADING } from "@/lib/typography";
-import { useWorkoutLogs, usePersonalRecords, useExercises, useAchievements, useStats, useMuscleVolume } from "@/lib/queries";
+import { useWorkoutLogs, usePersonalRecords, useExercises, useAchievements, useStats, useMuscleVolume, usePrograms, useTrainingDays } from "@/lib/queries";
 import type { Exercise, WorkoutLog, PersonalRecord } from "@/lib/api-client";
 import { SummaryCards } from "@/components/stats/summary-cards";
 import dynamic from "next/dynamic";
 import { PRList } from "@/components/stats/pr-list";
+import { PRForecast } from "@/components/stats/pr-forecast";
+import { ConsistencyScoreCard } from "@/components/stats/consistency-score";
 
 const WeightChart = dynamic(() => import("@/components/stats/weight-chart").then(mod => ({ default: mod.WeightChart })), {
   ssr: false,
@@ -49,6 +51,10 @@ export default function StatsPage() {
   const { data: unlockedAchievements, isLoading: achievementsLoading } = useAchievements();
   const { data: stats } = useStats();
   const { data: muscleVolumes, isLoading: muscleVolumeLoading } = useMuscleVolume();
+  const { data: programs } = usePrograms();
+  const activeProgram = programs?.find((p) => p.isActive);
+  const { data: trainingDays } = useTrainingDays(activeProgram?.id);
+  const plannedDaysPerWeek = trainingDays?.length ?? 3;
 
   // Create exercise map for quick lookup
   const exercises = useMemo(() => {
@@ -291,6 +297,18 @@ export default function StatsPage() {
           personalRecords={filteredPRs as PersonalRecord[]}
           previousWorkoutLogs={previousPeriodLogs as WorkoutLog[]}
           previousPersonalRecords={previousPeriodPRs as PersonalRecord[]}
+        />
+
+        {/* AI Predictive Analytics */}
+        <PRForecast
+          workoutLogs={sortedLogs as WorkoutLog[]}
+          exercises={exercises}
+        />
+
+        {/* Consistency Score */}
+        <ConsistencyScoreCard
+          workoutLogs={sortedLogs as Array<{ date: string; isComplete: boolean }>}
+          plannedDaysPerWeek={plannedDaysPerWeek}
         />
 
         {/* Weekly Muscle Coverage Heatmap */}
