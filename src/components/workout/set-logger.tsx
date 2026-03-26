@@ -17,6 +17,7 @@ import { cn } from "@/lib/utils";
 import { WEIGHT_BOUNCE_UP, WEIGHT_BOUNCE_DOWN } from "@/lib/animations";
 
 // Animation plays visually but data saves immediately (no delay)
+import { ChallengeCard } from "./challenge-card";
 import { MuscleMapMini } from "@/components/shared/MuscleMapMini";
 import { getFormRuleByExerciseId } from "@/data/form-rules";
 import { FormCamera } from "./form-camera";
@@ -101,6 +102,7 @@ interface SetLoggerProps {
   suggestedRpe?: number;   // Memory RPE (from session or historical)
   lastWorkoutDate?: string;  // ISO date of last time this exercise was done
   hitTargetLastTime?: boolean;  // Whether target reps were hit last time
+  nudgeWeight?: number | null;  // Progressive overload suggestion (last weight + increment)
   memorySource?: "session" | "historical";  // Where the suggested values come from
   videoUrl?: string;
   muscles?: {
@@ -126,6 +128,7 @@ export function SetLogger({
   suggestedRpe,
   lastWorkoutDate,
   hitTargetLastTime,
+  nudgeWeight,
   memorySource,
   videoUrl,
   muscles,
@@ -137,6 +140,7 @@ export function SetLogger({
   const [reps, setReps] = useState(suggestedReps ?? targetReps);
   // Use last workout's RPE if available, otherwise default to 7
   const [rpe, setRpe] = useState<number>(suggestedRpe ?? 7);
+  const [challengeDismissed, setChallengeDismissed] = useState(false);
   const [isCompleted, setIsCompleted] = useState(false);
   const [isEditingWeight, setIsEditingWeight] = useState(false);
   const [weightInputValue, setWeightInputValue] = useState(weight.toString());
@@ -415,6 +419,22 @@ export function SetLogger({
             </Badge>
           )}
         </div>
+      )}
+
+      {/* Progressive Overload Challenge Card */}
+      {hitTargetLastTime && nudgeWeight && !challengeDismissed && setNumber === 1 && lastWeekWeight && (
+        <ChallengeCard
+          currentWeight={lastWeekWeight}
+          challengeWeight={nudgeWeight}
+          lastReps={lastWeekReps ?? targetReps}
+          onAccept={() => {
+            setWeight(nudgeWeight);
+            setWeightInputValue(nudgeWeight.toString());
+            setChallengeDismissed(true);
+          }}
+          onDismiss={() => setChallengeDismissed(true)}
+          isVisible={true}
+        />
       )}
 
       {/* Video tutorial section */}

@@ -33,6 +33,7 @@ import {
 } from "lucide-react";
 import { RestTimer } from "@/components/workout/rest-timer";
 import { EditSetDrawer } from "@/components/workout/edit-set-drawer";
+import { CompletedSetsList } from "@/components/workout/completed-sets-list";
 import { ExerciseCarousel } from "@/components/workout/ExerciseCarousel";
 import { ProgressDots } from "@/components/workout/progress-dots";
 import { SetLoggerSheet } from "@/components/workout/set-logger-sheet";
@@ -535,10 +536,22 @@ export default function WorkoutSession() {
               lastWeekReps={weightSuggestion?.lastWeekReps ?? globalSuggestion?.lastReps}
               lastWorkoutDate={globalSuggestion?.lastDate}
               hitTargetLastTime={globalSuggestion?.hitTargetLastTime}
+              nudgeWeight={globalSuggestion?.nudgeWeight}
               memorySource={sessionMemData.memSource}
               onComplete={handleSheetSetComplete}
               onSkip={handleSheetSkip}
             />
+
+            {/* Completed Sets List (collapsible, tap to edit) */}
+            {completedSets.length > 0 && (
+              <CompletedSetsList
+                sets={completedSets}
+                onEditSet={(set) => {
+                  setEditingSet(set);
+                  setShowEditDrawer(true);
+                }}
+              />
+            )}
           </motion.div>
         )}
 

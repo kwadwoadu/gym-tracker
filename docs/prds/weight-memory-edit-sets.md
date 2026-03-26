@@ -1,6 +1,6 @@
 # PRD: Global Weight Memory + Edit Completed Sets
 
-**Status**: In Progress
+**Status**: SHIPPED
 **Created**: 2026-01-01
 **Author**: Kwadwo Adu
 
@@ -49,19 +49,19 @@ Two features working together to support progressive overload and data accuracy:
 ### Must Have
 - [x] `getLastWeightForExercise()` DB function searches all workout logs
 - [x] Weight input pre-fills with last used weight for exercise
-- [ ] Challenge card appears when user hit target reps last time
-- [ ] Challenge card shows suggested weight (last weight + 2.5kg)
-- [ ] Challenge card is dismissible (stored in session state)
-- [ ] Edit completed sets during active workout
-- [ ] Edit drawer with weight, reps, RPE inputs
-- [ ] Volume auto-recalculates after edit
-- [ ] Edit sets from workout history (stats page)
+- [x] Challenge card appears when user hit target reps last time
+- [x] Challenge card shows suggested weight (last weight + 2.5kg)
+- [x] Challenge card is dismissible (stored in session state)
+- [x] Edit completed sets during active workout
+- [x] Edit drawer with weight, reps, RPE inputs
+- [x] Volume auto-recalculates after edit
+- [x] Edit sets from workout history (stats page)
 
 ### Should Have
-- [ ] Accept button on challenge card applies suggested weight
-- [ ] Framer Motion entrance/exit animations on challenge card
-- [ ] Lime glow pulse animation on challenge card border
-- [ ] Collapsible completed sets list below active set
+- [x] Accept button on challenge card applies suggested weight
+- [x] Framer Motion entrance/exit animations on challenge card
+- [x] Lime glow pulse animation on challenge card border
+- [x] Collapsible completed sets list below active set
 
 ### Won't Have (this version)
 - PR recalculation on set edits (handle in future)
@@ -370,4 +370,5 @@ updateSetInWorkoutLog(workoutLogId: string, setId: string, updates: SetEditPaylo
 | Date | Change |
 |------|--------|
 | 2026-01-01 | Initial PRD created |
-| 2026-03-26 | PRD quality audit: added missing sections (solution, user flows, design wireframes, component table, visual spec, implementation plan, testing, launch checklist, risks & mitigations, dependencies, changelog), reformatted to 14-section standard |
+| 2026-03-26 | PRD quality audit: added missing sections, reformatted to 14-section standard |
+| 2026-03-26 | SHIPPED: ChallengeCard wired into SetLogger, CompletedSetsList created, all features verified |
