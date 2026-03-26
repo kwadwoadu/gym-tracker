@@ -601,10 +601,10 @@ export async function getLastWeightForExercise(
     .reverse()
     .sortBy("date");
 
-  // Search through logs to find most recent set for this exercise
+  // Search through logs to find most recent set for this exercise (excluding skipped)
   for (const log of logs) {
     const exerciseSets = log.sets.filter(
-      (s) => s.exerciseId === exerciseId && s.isComplete
+      (s) => s.exerciseId === exerciseId && s.isComplete && !s.skipped
     );
 
     if (exerciseSets.length > 0) {
@@ -797,6 +797,7 @@ export async function getWorkoutStreak(): Promise<{
 
 export function calculateTotalVolume(sets: SetLog[]): number {
   return sets.reduce((total, set) => {
+    if (set.skipped) return total;
     return total + set.weight * set.actualReps;
   }, 0);
 }

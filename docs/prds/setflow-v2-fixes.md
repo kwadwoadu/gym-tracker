@@ -1,6 +1,6 @@
 # SetFlow v2 - Maintenance Sprint PRD
 
-**Status**: Not Started
+**Status**: SHIPPED
 **Created**: 2026-01-04
 **Author**: Kwadwo Adu
 **Priority**: High
@@ -429,6 +429,7 @@ const isPublicRoute = createRouteMatcher([
 |------|--------|
 | 2026-01-04 | Initial PRD created with 6 issues |
 | 2026-03-26 | PRD quality audit: restructured as 14-section maintenance sprint PRD, added user flows, design specs (ASCII wireframes + component tables), edge cases table, testing checklists, launch checklist, dependencies table, implementation build order |
+| 2026-03-26 | SHIPPED: All critical fixes implemented - reset endpoint with $transaction, ActiveSession model + cross-device resume, manifest.json public route, skip button with skipped field, weight memory "Last time" indicator, settings page reset button |
 
 ---
 

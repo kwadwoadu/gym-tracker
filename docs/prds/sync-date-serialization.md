@@ -1,6 +1,6 @@
 # Sync Date Serialization Fix
 
-**Status**: In Progress
+**Status**: SHIPPED
 **Created**: 2026-01-03
 **Author**: Kwadwo Adu
 **Priority**: Critical - Blocking core functionality
@@ -312,3 +312,4 @@ await cloudDb.insert(exercises).values({
 |------|--------|
 | 2026-01-03 | Initial PRD created |
 | 2026-03-26 | PRD quality audit: added missing sections (success metrics table, requirements MoSCoW, user flows, design diagrams, implementation plan with build order, edge cases table, testing checklists, launch checklist, risks & mitigations, dependencies, changelog), reformatted to 14-section standard |
+| 2026-03-26 | SHIPPED: Created /src/lib/db/utils.ts with toDate/toDateRequired helpers, created /api/sync route with explicit field mapping for all 8 entity types (exercises, programs, trainingDays, workoutLogs, personalRecords, settings, onboardingProfile, achievements) |

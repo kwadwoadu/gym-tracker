@@ -1,6 +1,6 @@
 # PRD: Superset & Quality Sprint
 
-**Status**: Not Started
+**Status**: SHIPPED
 **Created**: 2026-03-06
 **Author**: Kwadwo Adu
 **Priority**: High (P1 bugs + P2 features + P3 quality)
@@ -508,6 +508,7 @@ export default defineConfig({
 |------|--------|
 | 2026-03-06 | Initial PRD created with 7 issues across P1/P2/P3 |
 | 2026-03-26 | PRD quality audit: added design section (ASCII wireframes + component tables), user flows (5 scenarios), edge cases table, expanded testing checklists, added launch checklist, risks table with mitigations, dependencies table with status, implementation build order |
+| 2026-03-26 | SHIPPED: Volume calculation excludes skipped sets, weight memory query excludes skipped sets, session memory excludes skipped sets, PR checks exclude skipped sets |
 
 ---
 

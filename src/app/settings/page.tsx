@@ -15,6 +15,7 @@ import {
   Trophy,
   Bell,
   ChevronRight,
+  RotateCcw,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useUser, SignOutButton } from "@clerk/nextjs";
@@ -40,6 +41,10 @@ export default function ProfileSettingsPage() {
   const [shareVolume, setShareVolume] = useState(false);
   const [shareWorkouts, setShareWorkouts] = useState(true);
   const [profileInitialized, setProfileInitialized] = useState(false);
+
+  // Reset state
+  const [showResetConfirm, setShowResetConfirm] = useState(false);
+  const [isResetting, setIsResetting] = useState(false);
 
   // Fetch profile
   const { data: profile, isLoading: profileLoading } = useQuery({
@@ -94,6 +99,30 @@ export default function ProfileSettingsPage() {
 
   const showToast = (message: string, type: ToastType) => {
     setToast({ message, type });
+  };
+
+  const handleReset = async () => {
+    setIsResetting(true);
+    try {
+      const res = await fetch("/api/reset", {
+        method: "POST",
+        credentials: "include",
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        showToast(`Reset to ${data.program?.name || "default program"}`, "success");
+        queryClient.invalidateQueries();
+        setShowResetConfirm(false);
+        // Redirect to home after short delay
+        setTimeout(() => router.push("/"), 1500);
+      } else {
+        showToast(data.error || "Reset failed", "error");
+      }
+    } catch {
+      showToast("Reset failed. Check your connection.", "error");
+    } finally {
+      setIsResetting(false);
+    }
   };
 
   if (profileLoading) {
@@ -264,6 +293,58 @@ export default function ProfileSettingsPage() {
               }}
             />
           </div>
+        </CardContent>
+      </Card>
+
+      {/* Reset Program */}
+      <Card className="bg-card border-border">
+        <CardHeader className="pb-4">
+          <CardTitle className="text-lg">Program</CardTitle>
+          <CardDescription>Reset to the default training program</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {!showResetConfirm ? (
+            <Button
+              variant="destructive"
+              className="w-full h-12"
+              onClick={() => setShowResetConfirm(true)}
+            >
+              <RotateCcw className="w-4 h-4 mr-2" />
+              Reset to Default Program
+            </Button>
+          ) : (
+            <div className="space-y-3 p-4 rounded-lg border border-red-500/30 bg-red-500/10">
+              <p className="text-sm text-foreground font-medium">
+                Reset Program?
+              </p>
+              <p className="text-sm text-muted-foreground">
+                This will delete your current program and all workout history. This cannot be undone.
+              </p>
+              <div className="flex gap-3">
+                <Button
+                  variant="ghost"
+                  className="flex-1 h-12 text-muted-foreground"
+                  onClick={() => setShowResetConfirm(false)}
+                  disabled={isResetting}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  variant="destructive"
+                  className="flex-1 h-12"
+                  onClick={handleReset}
+                  disabled={isResetting}
+                >
+                  {isResetting ? (
+                    <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                  ) : (
+                    <RotateCcw className="w-4 h-4 mr-2" />
+                  )}
+                  {isResetting ? "Resetting..." : "Reset"}
+                </Button>
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

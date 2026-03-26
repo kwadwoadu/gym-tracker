@@ -1,6 +1,6 @@
 # Post-Migration Fixes PRD
 
-**Status**: Not Started
+**Status**: SHIPPED
 **Created**: 2026-01-01
 **Author**: Kwadwo Adu
 
@@ -389,3 +389,4 @@ async function resetToDefaultProgram(userId: string) {
 |------|--------|
 | 2026-01-01 | Initial PRD created |
 | 2026-03-26 | PRD quality audit: added missing sections (success metrics table, requirements MoSCoW, user flows, design wireframes, component table, visual spec, implementation plan with build order, edge cases table, testing checklists, launch checklist, changelog), reformatted to 14-section standard |
+| 2026-03-26 | SHIPPED: builtInId field already in Prisma schema, seed.ts uses builtInId for upsert, reset endpoint with transaction implemented, settings page reset button with confirmation dialog added |

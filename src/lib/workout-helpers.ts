@@ -85,9 +85,9 @@ export async function getGlobalWeightSuggestion(
     limit: 50,
   });
 
-  // Find the most recent set for this exercise
+  // Find the most recent set for this exercise (excluding skipped sets)
   for (const log of logs) {
-    const exerciseSets = log.sets.filter((s: SetLog) => s.exerciseId === exerciseId);
+    const exerciseSets = log.sets.filter((s: SetLog) => s.exerciseId === exerciseId && !s.skipped);
     if (exerciseSets.length > 0) {
       // Get the best set (highest weight) for weight suggestion
       const bestSet = exerciseSets.reduce((best: SetLog, set: SetLog) =>
@@ -125,10 +125,11 @@ export async function getGlobalWeightSuggestion(
 }
 
 /**
- * Calculate total volume from sets
+ * Calculate total volume from sets (excludes skipped sets)
  */
 export function calculateTotalVolume(sets: SetLog[]): number {
   return sets.reduce((total, set) => {
+    if (set.skipped) return total;
     return total + set.weight * set.actualReps;
   }, 0);
 }

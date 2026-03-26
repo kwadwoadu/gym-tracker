@@ -374,7 +374,7 @@ export function useWorkoutSession(dayId: string): UseWorkoutSessionReturn {
       setNumber: number
     ): { weight: number; reps: number; rpe: number } | null => {
       const previousSets = completedSets
-        .filter((s) => s.exerciseId === exerciseId && s.setNumber < setNumber)
+        .filter((s) => s.exerciseId === exerciseId && s.setNumber < setNumber && !s.skipped)
         .sort((a, b) => b.setNumber - a.setNumber);
 
       if (previousSets.length > 0) {
@@ -925,9 +925,10 @@ export function useWorkoutSession(dayId: string): UseWorkoutSessionReturn {
 
       // Secondary operations
       try {
-        // Check for PRs
+        // Check for PRs (exclude skipped sets)
         const exerciseBestSets = new Map<string, SetLog>();
         for (const set of completedSets) {
+          if (set.skipped) continue;
           const existing = exerciseBestSets.get(set.exerciseId);
           if (
             !existing ||
