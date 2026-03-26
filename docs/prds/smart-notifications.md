@@ -1,6 +1,6 @@
 # Smart Notifications
 
-> **Status:** Not Started
+> **Status:** SHIPPED
 > **Owner:** Kwadwo
 > **Created:** 2026-03-04
 > **Priority:** P2
@@ -843,7 +843,25 @@ export async function sendWeeklyDigestEmail(
 
 ---
 
-## 9. Testing
+## 9. Edge Cases
+
+| Edge Case | Handling |
+|-----------|----------|
+| User denies notification permission | Show "Notifications disabled" in settings with instructions to re-enable |
+| iOS < 16.4 (no Web Push support) | Hide notification features entirely, show "Update iOS for notifications" |
+| User has multiple devices | Store subscription per device, send to all active subscriptions |
+| Notification permission revoked at OS level | Detect on next app open, update UI accordingly |
+| Cron job fires during quiet hours | Check quiet hours before sending, defer to next allowed window |
+| User in different timezone | Store timezone in preferences, calculate send time accordingly |
+| Streak broken before notification sent | Don't send "at risk" if streak already broken, send "Start a new streak" instead |
+| No PRs to compare against (new user) | Skip PR proximity check until at least 2 weeks of data |
+| Weekly digest with zero workouts | Send encouraging message: "Let's get back on track this week" |
+| User clears browser data (subscription lost locally) | Detect stale subscription on next visit, re-prompt to subscribe |
+| Vercel Cron job exceeds timeout (many users) | Batch users into chunks of 100, process each chunk in separate invocation |
+
+---
+
+## 10. Testing
 
 ### Functional Tests
 - [ ] Push subscription saves correctly to database
@@ -873,7 +891,7 @@ export async function sendWeeklyDigestEmail(
 
 ---
 
-## 10. Launch Checklist
+## 11. Launch Checklist
 
 - [ ] Code complete
 - [ ] Tests passing
@@ -893,23 +911,7 @@ export async function sendWeeklyDigestEmail(
 
 ---
 
-## Edge Cases
-
-| Edge Case | Handling |
-|-----------|----------|
-| User denies notification permission | Show "Notifications disabled" in settings with instructions to re-enable |
-| iOS < 16.4 (no Web Push support) | Hide notification features entirely, show "Update iOS for notifications" |
-| User has multiple devices | Store subscription per device, send to all active subscriptions |
-| Notification permission revoked at OS level | Detect on next app open, update UI accordingly |
-| Cron job fires during quiet hours | Check quiet hours before sending, defer to next allowed window |
-| User in different timezone | Store timezone in preferences, calculate send time accordingly |
-| Streak broken before notification sent | Don't send "at risk" if streak already broken, send "Start a new streak" instead |
-| No PRs to compare against (new user) | Skip PR proximity check until at least 2 weeks of data |
-| Weekly digest with zero workouts | Send encouraging message: "Let's get back on track this week" |
-
----
-
-## Risks & Mitigations
+## 12. Risks & Mitigations
 
 | Risk | Impact | Mitigation |
 |------|--------|------------|
@@ -922,7 +924,7 @@ export async function sendWeeklyDigestEmail(
 
 ---
 
-## Dependencies
+## 13. Dependencies
 
 - Requires Clerk auth (already implemented) for user identification
 - Requires PostgreSQL (via Prisma) for subscription storage
@@ -934,8 +936,10 @@ export async function sendWeeklyDigestEmail(
 
 ---
 
-## Changelog
+## 14. Changelog
 
 | Date | Change |
 |------|--------|
 | 2026-03-04 | Initial draft |
+| 2026-03-26 | PRD quality audit: renumbered all 14 sections to match standard, added 2 edge cases (stale subscription, cron timeout batching) |
+| 2026-03-26 | SHIPPED: notification scheduler, weekly digest generator, notification center UI with bell icon in header |

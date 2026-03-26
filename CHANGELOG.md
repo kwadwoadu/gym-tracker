@@ -4,6 +4,51 @@ All notable changes to the SetFlow project.
 
 ---
 
+## [2026-03-26] Rest Day Intelligence: Smart Detection, Recovery Timeline, Mobility Recommendations
+
+**Type:** Feature
+**Files Changed:**
+- `src/lib/recovery.ts` - Added `shouldTakeRestDay()` with multi-signal rest day detection (days since last workout, muscle fatigue ratio, weekly frequency vs target)
+- `src/components/rest-day/RecoveryTimeline.tsx` - NEW: Per-muscle recovery progress bars with 24h/48h/72h timeline markers and animated fills
+- `src/components/rest-day/MobilityRecommendation.tsx` - NEW: Auto-suggests best-match mobility routine + 2-3 quick targeted stretches based on recently trained muscles
+- `src/components/home/RestDayDashboard.tsx` - Integrated all three new features, added smart insight banner and `recentWorkouts` prop
+- `src/app/page.tsx` - Pass `recentWorkouts` to RestDayDashboard
+- `docs/prds/rest-day-intelligence.md` - Status updated to SHIPPED
+
+### Summary
+Closes the three gaps in the rest-day-intelligence feature. Smart detection uses muscle recovery status, training frequency, and time since last workout to generate a contextual insight. The RecoveryTimeline shows per-muscle recovery bars on a 24h/48h/72h scale with color-coded progress. MobilityRecommendation auto-selects the best-match full routine and surfaces 2-3 quick stretches targeting fatigued muscles.
+
+---
+
+## [2026-03-26] Smart Notifications: Scheduler, Weekly Digest, Notification Center
+
+**Type:** Feature
+**PRD:** `docs/prds/smart-notifications.md` (SHIPPED)
+**Files Changed:**
+- `src/lib/notifications/scheduler.ts` - NEW: Notification scheduler with streak risk, PR proximity, and training reminder checks; quiet hours support; localStorage-backed notification queue
+- `src/lib/notifications/weekly-digest.ts` - NEW: Weekly digest generator compiling workouts, volume, PRs, streak, and week-over-week comparison
+- `src/components/notifications/NotificationCenter.tsx` - NEW: Bell icon with unread badge count + drawer showing recent notifications by type (streak_warning, pr_alert, weekly_digest, training_reminder); mark as read, dismiss all
+- `src/components/layout/app-header.tsx` - Integrated NotificationCenter bell icon into header
+
+### Summary
+Implemented the missing delivery layer for SetFlow's smart notifications feature. The notification scheduler (`scheduler.ts`) checks streak risk daily and queues warnings when a streak is within 12 hours of breaking, checks PR proximity after workouts and alerts when within 5% of a weight PR, and queues training day reminders on configured days. All checks respect user-configured quiet hours. The weekly digest generator (`weekly-digest.ts`) compiles workouts completed, total volume/sets/reps, PRs hit, streak status, top exercise by volume, and week-over-week comparison. The NotificationCenter UI adds a bell icon in the app header with an unread count badge (lime accent), opening a dark-themed drawer with typed notification cards, mark-as-read, and dismiss-all actions. Notifications are stored in localStorage with a 50-item cap.
+
+---
+
+## [2026-03-26] Swipe Workout Flow: Gesture Feedback Enhancements
+
+**Type:** Feature
+**PRD:** `docs/prds/swipe-workout-flow.md` (SHIPPED)
+**Files Changed:**
+- `src/components/workout/ExerciseCarousel.tsx` - NEW: Enhanced carousel with edge bounce, swipe hint, position indicator
+- `src/components/workout/set-logger-sheet.tsx` - Added visible exercise header with badge, name, and target reps
+- `src/app/workout/[dayId]/page.tsx` - Swapped WorkoutCarousel for ExerciseCarousel
+
+### Summary
+Filled the gesture feedback gaps in the swipe workout flow. The new ExerciseCarousel adds three missing UX features: (1) edge bounce animation with primary color gradient when swiping past the first or last exercise, (2) a "Swipe to navigate" hint that appears on first use and auto-dismisses after 4 seconds or first swipe, persisted via localStorage, (3) a position indicator ("2 of 8") below each exercise slide. The SetLoggerSheet now shows a visible header with the exercise badge, name, and target reps so users maintain context while logging sets.
+
+---
+
 ## [2026-03-15] Program Update: Incline DB Squeeze Press for Upper Chest
 
 **Type:** Data

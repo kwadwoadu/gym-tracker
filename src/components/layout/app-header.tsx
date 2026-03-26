@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
 import { Dumbbell, User } from "lucide-react";
+import { NotificationCenter } from "@/components/notifications/NotificationCenter";
 
 interface AppHeaderProps {
   title?: string;
@@ -27,17 +28,20 @@ export function AppHeader({ title = "SetFlow", subtitle }: AppHeaderProps) {
             )}
           </div>
         </div>
-        <button
-          onClick={() => router.push("/settings/profile")}
-          className="w-9 h-9 rounded-full bg-card border border-border flex items-center justify-center"
-        >
-          {user?.imageUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={user.imageUrl} alt="" className="w-9 h-9 rounded-full" />
-          ) : (
-            <User className="w-4 h-4 text-muted-foreground" />
-          )}
-        </button>
+        <div className="flex items-center gap-2">
+          <NotificationCenter />
+          <button
+            onClick={() => router.push("/settings/profile")}
+            className="w-9 h-9 rounded-full bg-card border border-border flex items-center justify-center"
+          >
+            {user?.imageUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={user.imageUrl} alt="" className="w-9 h-9 rounded-full" />
+            ) : (
+              <User className="w-4 h-4 text-muted-foreground" />
+            )}
+          </button>
+        </div>
       </div>
     </header>
   );

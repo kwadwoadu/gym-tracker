@@ -22,15 +22,34 @@ Every feature needs a PRD in /docs/prds/ with:
 ## All PRDs
 
 ### Phase 1-2 (Shipped/In Progress)
-- `onboarding-flow.md` - 8-step onboarding (Complete)
+- `onboarding-flow.md` - 8-step onboarding (SHIPPED)
 - `weight-memory-edit-sets.md` - Progressive overload (In Progress)
-- `workout-plan-selection.md` - Program templates
-- `cross-browser-sync-domain.md` - Sync architecture
-- `exercise-database.md` - Exercise management
-- `gamification-system.md` - XP, streaks, challenges
-- `muscle-visualization.md` - Muscle group display
-- `program-management-ui.md` - Program CRUD
-- `landing-page-desktop.md` - Desktop landing page
+- `workout-plan-selection.md` - Program templates (SHIPPED)
+- `cross-browser-sync-domain.md` - Sync architecture (In Progress)
+- `exercise-database.md` - Exercise management (In Progress)
+- `gamification-system.md` - XP, streaks, challenges (SHIPPED)
+- `muscle-visualization.md` - Muscle group display (SHIPPED)
+- `program-management-ui.md` - Program CRUD (SHIPPED)
+- `program-archiving.md` - Archive inactive programs (SHIPPED)
+- `landing-page-desktop.md` - Desktop landing page (Draft)
+
+### Shipped (Maintenance)
+- `exercise-session-design-upgrade.md` - Exercise display redesign (SHIPPED)
+- `set-completion-data-safety.md` - Data safety during set completion (SHIPPED)
+- `weight-memory-persistence.md` - Cross-day weight memory (SHIPPED)
+- `superset-ux-overhaul.md` - Superset UX improvements (SHIPPED)
+- `recovery-checkin-always-home.md` - Recovery check-in on home (SHIPPED)
+- `mobile-viewport-optimization.md` - Mobile-first responsive (SHIPPED)
+- `production-fixes-cleanup.md` - Production cleanup (SHIPPED)
+- `data-fix-calf-lunges.md` - Exercise data corrections (SHIPPED)
+- `sprint-test-coverage.md` - Unit test coverage (SHIPPED)
+
+### Maintenance Sprints
+- `setflow-v2-fixes.md` - v2 critical/medium/low issue bundle
+- `superset-quality-sprint.md` - 7-issue quality sprint (2 P1, 3 P2, 2 P3)
+- `post-migration-fixes.md` - Post-migration bug fixes
+- `sync-date-serialization.md` - toISOString bug fix
+- `agent-architecture.md` - Agent system design
 
 ### Phase 3 - UX Polish
 - `hero-workout-action.md` (P0) - Start Workout as hero card
@@ -51,7 +70,11 @@ Every feature needs a PRD in /docs/prds/ with:
 - `ai-voice-logging.md` (P1) - Voice input for set logging
 - `ai-nutrition-coach.md` (P2) - Photo meal logging, macro recommendations
 - `ai-form-analysis.md` (P3) - Camera-based pose estimation
-- `ai-personal-trainer.md` (P3) - Conversational trainer (vision doc)
+- `ai-personal-trainer.md` (P3) - Vision doc (umbrella for 4 sub-PRDs below)
+  - `ai-conversational-trainer.md` (P2) - Chat-based trainer interface
+  - `ai-adaptive-periodization.md` (P3) - Auto-adjust program based on performance
+  - `ai-predictive-analytics.md` (P3) - PR prediction, injury risk, fatigue forecast
+  - `ai-recovery-integration.md` (P3) - Whoop/recovery-aware training adjustments
 
 ### Phase 4 - New Features
 - `workout-templates-sharing.md` (P2) - Create/share templates
@@ -59,7 +82,7 @@ Every feature needs a PRD in /docs/prds/ with:
 - `workout-timer-modes.md` (P2) - AMRAP, EMOM, Tabata, custom
 - `exercise-form-library.md` (P2) - Built-in video, form cues
 - `body-composition-tracking.md` (P2) - Weight trend, photos, measurements
-- `smart-notifications.md` (P2) - Push reminders, streak warnings, PR alerts
+- `smart-notifications.md` (P2) - Push reminders, streak warnings, PR alerts (SHIPPED)
 
 ## Changelog Updates
 - Update CHANGELOG.md for every significant change
