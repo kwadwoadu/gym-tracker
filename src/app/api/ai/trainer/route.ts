@@ -28,7 +28,7 @@ export async function POST(request: Request) {
     }
 
     // Validate and sanitize history - only allow user/assistant roles
-    const safeHistory = (history as any[])
+    const safeHistory = (history as Array<{ role: string; content: string }>)
       .filter(msg =>
         msg &&
         typeof msg.content === 'string' &&

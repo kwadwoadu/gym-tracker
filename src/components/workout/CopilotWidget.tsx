@@ -92,7 +92,7 @@ export function CopilotWidget({
   const reshapedHistory = useMemo(() => {
     return workoutHistory.map((log) => ({
       date: log.date,
-      sets: log.sets.map((s: any) => ({
+      sets: log.sets.map((s: Record<string, number | string>) => ({
         exerciseId: s.exerciseId,
         weight: s.weight,
         actualReps: s.actualReps,

@@ -73,7 +73,7 @@ function getStoredNotifications(): QueuedNotification[] {
     if (!raw) return [];
     const parsed = JSON.parse(raw);
     if (!Array.isArray(parsed)) return [];
-    return parsed.filter((n: any) =>
+    return parsed.filter((n: Record<string, unknown>) =>
       n &&
       VALID_TYPES.includes(n.type) &&
       typeof n.title === 'string' &&
