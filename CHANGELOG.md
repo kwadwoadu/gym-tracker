@@ -4,6 +4,39 @@ All notable changes to the SetFlow project.
 
 ---
 
+## [2026-03-26] Exercise Form Library - 30 Exercises + Workout Integration
+
+**Type:** Feature
+**Files Changed:**
+- `src/data/form-cues.ts` - Expanded from 17 to 30 exercises, added `breathingPattern` and `videoUrl` fields to all entries
+- `src/components/form-library/FormSheet.tsx` - Added breathing pattern section with Wind icon
+- `src/components/workout/exercise-card.tsx` - Added info icon to open FormSheet during workout sessions
+- `src/app/form-library/page.tsx` - Browse page with search, muscle group filters, grouped display (already existed, no changes needed)
+- `src/components/form-library/ExerciseFormCard.tsx` - Exercise card for form library grid (already existed, no changes needed)
+- `docs/prds/exercise-form-library.md` - Status updated to SHIPPED
+
+### Summary
+Enhanced the exercise form library with 13 new exercises (now 30 total) covering all major compounds and isolation movements. Each exercise now includes breathing patterns and a video URL placeholder for future video content. Users can access the form guide directly from the workout exercise card via an info icon button, keeping them in the workout flow while reviewing form cues, common mistakes, breathing patterns, and muscle activation data.
+
+### New exercises added
+Incline Dumbbell Press, Cable Fly, Dumbbell Row, Bulgarian Split Squat, Leg Curl, Leg Extension, Dumbbell Shoulder Press, Cable Lateral Raise, Hammer Curl, Skull Crusher, Plank, Cable Chest Fly, Calf Raise.
+
+---
+
+## [2026-03-26] Cross-Browser Sync - Conflict Resolution UI + Sync Settings
+
+**Type:** Feature
+**Files Changed:**
+- `src/components/sync/ConflictResolver.tsx` - NEW: Conflict resolution dialog with three strategies (Keep Newest, Keep This Device, Keep Cloud)
+- `src/app/settings/data/page.tsx` - Added Cloud Sync card with status display, frequency selector, Sync Now button, device info
+- `src/app/settings/layout.tsx` - Added sync-related items to settings search index
+- `docs/prds/cross-browser-sync-domain.md` - Status updated to SHIPPED
+
+### Summary
+Added conflict resolution UI for when sync detects data differences between devices. Users can choose to keep this device's data, cloud data, or the newest data. Also added a sync settings section in the Data tab with last sync timestamp, sync frequency selector (auto/manual/5min/15min/1hr), manual Sync Now button, and device identifier display.
+
+---
+
 ## [2026-03-26] Workout Templates: Library, Builder & Sharing
 
 **Type:** Feature

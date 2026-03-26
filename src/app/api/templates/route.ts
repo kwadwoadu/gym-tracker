@@ -5,6 +5,8 @@ import { NextRequest, NextResponse } from "next/server";
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const splitType = searchParams.get("splitType");
+  const difficulty = searchParams.get("difficulty");
+  const dayCount = searchParams.get("dayCount");
   const search = searchParams.get("search");
   const sort = searchParams.get("sort") || "upvotes";
   const page = parseInt(searchParams.get("page") || "1");
@@ -14,6 +16,15 @@ export async function GET(req: NextRequest) {
   const where: any = {};
   if (splitType && splitType !== "all") {
     where.splitType = splitType;
+  }
+  if (difficulty && difficulty !== "all") {
+    where.difficulty = difficulty;
+  }
+  if (dayCount && dayCount !== "all") {
+    const parsed = parseInt(dayCount);
+    if (!isNaN(parsed)) {
+      where.dayCount = parsed;
+    }
   }
   if (search) {
     where.OR = [

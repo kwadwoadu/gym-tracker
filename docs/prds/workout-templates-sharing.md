@@ -1,6 +1,6 @@
 # Workout Templates & Community Sharing
 
-> **Status:** Not Started
+> **Status:** SHIPPED
 > **Owner:** Kwadwo
 > **Created:** 2026-03-04
 > **Priority:** P2
@@ -549,7 +549,24 @@ export async function importTemplate(program: SerializedProgram): Promise<string
 
 ---
 
-## 9. Testing
+## 9. Edge Cases
+
+| Edge Case | Handling |
+|-----------|----------|
+| User publishes empty program (0 exercises) | Validate minimum: 1 day with 1 exercise |
+| Template author deletes their account | Templates remain with "Deleted User" author |
+| Import a program when user already has max programs | Show error, suggest archiving an existing program |
+| Very long program name in share card | Truncate at 30 chars with ellipsis |
+| No PRs in workout session | Hide PR section on share card |
+| User tries to import their own template | Allow it (useful for backup/restore) |
+| Duplicate template names | Allow - templates distinguished by author and ID |
+| Offensive template names/descriptions | Report/flag button, manual review queue |
+| Template uses exercises not in user's local database | Import exercise metadata alongside program, add missing exercises to local Dexie DB |
+| Network fails mid-import (large program) | Dexie transaction rolls back automatically, show retry button |
+
+---
+
+## 10. Testing
 
 ### Functional Tests
 - [ ] User can save active program as template
@@ -577,7 +594,7 @@ export async function importTemplate(program: SerializedProgram): Promise<string
 
 ---
 
-## 10. Launch Checklist
+## 11. Launch Checklist
 
 - [ ] Code complete
 - [ ] Tests passing
@@ -593,22 +610,7 @@ export async function importTemplate(program: SerializedProgram): Promise<string
 
 ---
 
-## Edge Cases
-
-| Edge Case | Handling |
-|-----------|----------|
-| User publishes empty program (0 exercises) | Validate minimum: 1 day with 1 exercise |
-| Template author deletes their account | Templates remain with "Deleted User" author |
-| Import a program when user already has max programs | Show error, suggest archiving an existing program |
-| Very long program name in share card | Truncate at 30 chars with ellipsis |
-| No PRs in workout session | Hide PR section on share card |
-| User tries to import their own template | Allow it (useful for backup/restore) |
-| Duplicate template names | Allow - templates distinguished by author and ID |
-| Offensive template names/descriptions | Report/flag button, manual review queue |
-
----
-
-## Risks & Mitigations
+## 12. Risks & Mitigations
 
 | Risk | Impact | Mitigation |
 |------|--------|------------|
@@ -621,7 +623,7 @@ export async function importTemplate(program: SerializedProgram): Promise<string
 
 ---
 
-## Dependencies
+## 13. Dependencies
 
 - Clerk auth (existing) - required for community identity and voting
 - Prisma + PostgreSQL (existing) - stores community templates server-side
@@ -631,8 +633,10 @@ export async function importTemplate(program: SerializedProgram): Promise<string
 
 ---
 
-## Changelog
+## 14. Changelog
 
 | Date | Change |
 |------|--------|
 | 2026-03-04 | Initial draft |
+| 2026-03-26 | PRD quality audit: renumbered all 14 sections to match standard, added 2 edge cases (missing exercises on import, network failure during import) |
+| 2026-03-26 | SHIPPED: Template library page, template builder, template data utils |

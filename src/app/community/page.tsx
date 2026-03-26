@@ -14,11 +14,14 @@ import {
   Search,
   Zap,
   LayoutGrid,
+  Plus,
+  ArrowRight,
 } from "lucide-react";
 import { groupsApi, challengesApi, leaderboardApi, activityApi } from "@/lib/api-client";
 import type { LeaderboardEntry, ActivityItem, Group, Challenge } from "@/lib/api-client";
 import { TemplateCard } from "@/components/community/template-card";
 import { TemplatePreview } from "@/components/community/template-preview";
+import { TemplateBuilder } from "@/components/sharing/TemplateBuilder";
 import { LeaderboardList, type LeaderboardEntryData } from "@/components/community/leaderboard-list";
 import { ActivityFeed, type ActivityItemData } from "@/components/community/activity-feed";
 import { GroupChallengeCard } from "@/components/community/group-challenge-card";
@@ -63,6 +66,7 @@ export default function CommunityPage() {
   const [templateSort, setTemplateSort] = useState<"upvotes" | "newest">("upvotes");
   const [selectedTemplate, setSelectedTemplate] = useState<WorkoutTemplate | null>(null);
   const [previewOpen, setPreviewOpen] = useState(false);
+  const [builderOpen, setBuilderOpen] = useState(false);
 
   // Templates query
   const { data: templatesData, isLoading: templatesLoading } = useQuery({
@@ -231,6 +235,24 @@ export default function CommunityPage() {
         {/* Templates Tab */}
         <TabsContent value="templates">
           <div className="px-4 space-y-3">
+            {/* Actions row */}
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setBuilderOpen(true)}
+                className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-primary text-black text-xs font-semibold active:scale-[0.98] transition-transform"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                Share Program
+              </button>
+              <button
+                onClick={() => router.push("/community/templates")}
+                className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-card text-white/60 text-xs font-medium active:scale-[0.98] transition-transform ml-auto"
+              >
+                Full Library
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
+
             {/* Search */}
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
@@ -385,6 +407,12 @@ export default function CommunityPage() {
         onImport={(t) => importMutation.mutate(t)}
         onVote={handleVote}
         isImporting={importMutation.isPending}
+      />
+
+      {/* Template Builder */}
+      <TemplateBuilder
+        open={builderOpen}
+        onClose={() => setBuilderOpen(false)}
       />
     </div>
   );
