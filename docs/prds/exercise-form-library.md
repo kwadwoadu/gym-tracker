@@ -1,6 +1,6 @@
 # Exercise Form Library
 
-> **Status:** Not Started
+> **Status:** SHIPPED
 > **Owner:** Kwadwo
 > **Created:** 2026-03-04
 > **Priority:** P2
@@ -601,7 +601,23 @@ export async function preCacheProgramVideos(
 
 ---
 
-## 9. Testing
+## 9. Edge Cases
+
+| Edge Case | Handling |
+|-----------|----------|
+| Exercise has no form video | Show placeholder with "Coming soon" and text cues only |
+| Poor network (video won't load) | Fall back to cached version; if no cache, show text cues only |
+| Very large video file (>10MB) | Compress to 720p, target < 5MB per video |
+| User on metered data | Prompt before downloading uncached videos; respect `Save-Data` header |
+| Exercise not in form database | Show generic "No form guide available" with link to request one |
+| Video format not supported (older browsers) | Provide WebM fallback alongside MP4 |
+| Landscape orientation on phone | Expand video to full width, reflow cues below |
+| Service worker cache corrupted | Detect failed playback, clear cache entry, re-fetch from CDN on next view |
+| User views form sheet while rest timer is running | Keep rest timer counting in the background, show timer badge on sheet header |
+
+---
+
+## 10. Testing
 
 ### Functional Tests
 - [ ] Video plays inline on exercise card tap
@@ -630,7 +646,7 @@ export async function preCacheProgramVideos(
 
 ---
 
-## 10. Launch Checklist
+## 11. Launch Checklist
 
 - [ ] Code complete
 - [ ] Tests passing
@@ -647,21 +663,7 @@ export async function preCacheProgramVideos(
 
 ---
 
-## Edge Cases
-
-| Edge Case | Handling |
-|-----------|----------|
-| Exercise has no form video | Show placeholder with "Coming soon" and text cues only |
-| Poor network (video won't load) | Fall back to cached version; if no cache, show text cues only |
-| Very large video file (>10MB) | Compress to 720p, target < 5MB per video |
-| User on metered data | Prompt before downloading uncached videos; respect `Save-Data` header |
-| Exercise not in form database | Show generic "No form guide available" with link to request one |
-| Video format not supported (older browsers) | Provide WebM fallback alongside MP4 |
-| Landscape orientation on phone | Expand video to full width, reflow cues below |
-
----
-
-## Risks & Mitigations
+## 12. Risks & Mitigations
 
 | Risk | Impact | Mitigation |
 |------|--------|------------|
@@ -673,7 +675,7 @@ export async function preCacheProgramVideos(
 
 ---
 
-## Dependencies
+## 13. Dependencies
 
 - Requires exercise database (`exercise-database.md` PRD) for exercise IDs and metadata
 - CDN storage setup (Vercel Blob or Cloudflare R2) - infrastructure decision needed
@@ -682,8 +684,10 @@ export async function preCacheProgramVideos(
 
 ---
 
-## Changelog
+## 14. Changelog
 
 | Date | Change |
 |------|--------|
 | 2026-03-04 | Initial draft |
+| 2026-03-26 | PRD quality audit: renumbered all 14 sections to match standard, added 2 edge cases (cache corruption, form sheet during rest timer) |
+| 2026-03-26 | SHIPPED: 30 exercises with form cues, breathing patterns, muscle data. Browse page with search/filter. FormSheet accessible from workout exercise cards via info icon. |

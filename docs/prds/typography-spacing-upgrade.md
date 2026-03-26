@@ -1,6 +1,6 @@
 # Typography & Spacing Upgrade
 
-> **Status:** Draft
+> **Status:** SHIPPED
 > **Owner:** Kwadwo
 > **Created:** 2026-03-04
 > **Project:** gym-tracker (SetFlow Webapp)
@@ -121,17 +121,225 @@ Upgrade the type scale, font weights, letter spacing, line height, and section s
 
 ---
 
-## User Stories
+## Requirements
 
-- As a user standing at a squat rack with my phone on the floor, I want headings large enough to read at arm's length so that I can see which exercise is next without picking up my phone.
-- As a user between sets with elevated heart rate, I want generous spacing between sections so that I can quickly find the set logger without scanning through dense content.
-- As a user logging my weight, I want the large weight display to be clearly separated from other numbers (reps, sets) so that I do not confuse them.
-- As a user scrolling through my program, I want clear visual breaks between workout days so that I can distinguish Day 1 from Day 2 at a glance.
-- As a user with mild presbyopia (common in lifters 35+), I want text sizes that account for reduced near-focus ability so that I can use the app without reading glasses.
+### Must Have
+- [ ] H1 increased to 36px with font-extrabold (800) and tracking-tight
+- [ ] H2 increased to 28px with font-bold (700) and tracking-tight
+- [ ] H3 increased to 20px with font-semibold (600)
+- [ ] Uppercase labels updated to tracking-[0.08em] letter spacing
+- [ ] Section spacing increased to 32px (`space-y-8`) between major sections
+- [ ] Card padding increased to 20px (`p-5`) for standard cards, 24px (`p-6`) for hero cards
+- [ ] Consistent `py-5` (20px) for hero section internal padding
+- [ ] Bottom padding increased to `pb-44` (176px) above tab bar
+- [ ] Data displays use `tabular-nums` and `leading-none`
+- [ ] Typography constants library (`src/lib/typography.ts`)
+
+### Should Have
+- [ ] Desktop responsive scaling: H1 40px, H2 32px, H3 22px at `lg:` breakpoint
+- [ ] Badge gap increased to `gap-2.5` (10px) in exercise cards
+- [ ] Weight adjustment button gap increased to `gap-2.5`
+- [ ] Bottom tab bar label increased from 10px to 11px
+- [ ] Landing page headings updated to match new type scale
+- [ ] Nutrition component spacing aligned with new spacing scale
+
+### Won't Have
+- Variable font features (optical sizing, width axis)
+- Custom font loading beyond Inter
+- Per-page typography overrides (unified scale across all pages)
+- Dark/light mode typography differences
 
 ---
 
-## Technical Scope
+## User Flows
+
+### Flow 1: Gym-Distance Reading
+1. User places phone on gym floor or bench (approximately 60-80cm away)
+2. User looks at screen between sets to identify the next exercise
+3. H2 at 28px with bold weight is readable at arm's length without squinting
+4. Exercise name at H3 (20px) is clearly distinguishable from rep count text (16px body)
+5. Weight display at 36px+ with tabular-nums stands out as the primary data point
+
+### Flow 2: Quick Section Navigation
+1. User scrolls through home page looking for today's workout
+2. 32px spacing between major sections creates clear visual breaks
+3. Gradient dividers (from visual hierarchy PRD) combined with spacing make sections scannable
+4. User identifies the workout section within 2 seconds of scrolling
+5. Consistent `py-5` padding on hero sections (streak, XP, challenges) creates rhythm
+
+### Flow 3: Set Logger Data Clarity
+1. User enters the workout session and views the set logger
+2. Exercise name at 20px (`text-xl`) is clearly the title
+3. Weight display at 36px+ with `tracking-tight` and `leading-none` is the dominant number
+4. Rep count and set number at 16px body are subordinate to weight
+5. Label spacing at 12px (`mb-3`) separates "WARMUP" and "WORKING SETS" sections clearly
+6. User adjusts weight with buttons spaced at 10px (`gap-2.5`), reducing mis-tap risk
+
+### Flow 4: Responsive Desktop Experience
+1. User opens SetFlow on a desktop browser (1024px+)
+2. H1 scales to 40px, H2 to 32px, H3 to 22px for comfortable desktop reading
+3. Section spacing increases to 48px for more breathing room on larger screens
+4. Card padding increases to 24px, using available space without feeling cramped
+5. Layout remains balanced and readable across the wider viewport
+
+---
+
+## Technical Spec
+
+### TypeScript Interfaces
+
+```typescript
+// src/lib/typography.ts
+export interface TypeScaleLevel {
+  size: string; // Tailwind class, e.g., "text-4xl"
+  weight: string; // Tailwind class, e.g., "font-extrabold"
+  tracking: string; // Tailwind class, e.g., "tracking-tight"
+  leading: string; // Tailwind class, e.g., "leading-tight"
+  desktopSize?: string; // Optional lg: override, e.g., "lg:text-[40px]"
+}
+
+export const TYPE_SCALE: Record<string, TypeScaleLevel> = {
+  h1: {
+    size: "text-4xl",
+    weight: "font-extrabold",
+    tracking: "tracking-tight",
+    leading: "leading-tight",
+    desktopSize: "lg:text-[40px]",
+  },
+  h2: {
+    size: "text-[28px]",
+    weight: "font-bold",
+    tracking: "tracking-tight",
+    leading: "leading-tight",
+    desktopSize: "lg:text-[32px]",
+  },
+  h3: {
+    size: "text-xl",
+    weight: "font-semibold",
+    tracking: "",
+    leading: "leading-tight",
+    desktopSize: "lg:text-[22px]",
+  },
+  body: {
+    size: "text-base",
+    weight: "font-normal",
+    tracking: "",
+    leading: "leading-relaxed",
+  },
+  small: {
+    size: "text-sm",
+    weight: "font-normal",
+    tracking: "",
+    leading: "leading-snug",
+  },
+  caption: {
+    size: "text-xs",
+    weight: "font-normal",
+    tracking: "",
+    leading: "leading-normal",
+  },
+  label: {
+    size: "text-sm",
+    weight: "font-semibold",
+    tracking: "tracking-[0.08em]",
+    leading: "leading-normal",
+  },
+  dataDisplay: {
+    size: "text-4xl",
+    weight: "font-bold",
+    tracking: "tracking-tight",
+    leading: "leading-none",
+  },
+};
+
+export interface SpacingScale {
+  sectionGap: string; // space-y-8 (32px)
+  heroSectionPadding: string; // py-5 (20px)
+  cardGapInSection: string; // space-y-3 (12px)
+  cardPadding: string; // p-5 (20px)
+  heroCardPadding: string; // p-6 (24px)
+  labelToContent: string; // mb-3 (12px)
+  pageBottomPadding: string; // pb-44 (176px)
+}
+
+export const SPACING: SpacingScale = {
+  sectionGap: "space-y-8",
+  heroSectionPadding: "py-5",
+  cardGapInSection: "space-y-3",
+  cardPadding: "p-5",
+  heroCardPadding: "p-6",
+  labelToContent: "mb-3",
+  pageBottomPadding: "pb-44",
+};
+
+export function getTypeClasses(level: keyof typeof TYPE_SCALE): string;
+// Returns combined Tailwind class string for the given type scale level
+```
+
+### Files to Create
+
+| File | Description |
+|------|-------------|
+| `src/lib/typography.ts` | Typography constants and Tailwind class presets for each heading level, exported as composable utility |
+
+### Files to Modify
+
+| File | Change |
+|------|--------|
+| `src/app/globals.css` | Add custom CSS properties for the type scale: `--text-h1`, `--text-h2`, `--text-h3` with responsive values |
+| `src/app/page.tsx` | Update day title from `text-2xl` to `text-[28px]`, section spacing from `space-y-6` to `space-y-8`, consistent `py-5` for hero sections |
+| `src/app/layout.tsx` | No changes needed (font already configured) |
+| `src/components/workout/set-logger.tsx` | Update exercise name to `text-xl`, weight display to include `tracking-tight`, increase card padding to `p-6`, increase `mb-6` gaps to `mb-8` |
+| `src/components/workout/exercise-card.tsx` | Update exercise name from `text-lg` to `text-xl`, card padding from `p-4` to `p-5`, badge gap from `gap-2` to `gap-2.5` |
+| `src/components/workout/superset-view.tsx` | Update superset heading, increase internal spacing |
+| `src/components/gamification/XPBar.tsx` | Increase section padding to `py-5` |
+| `src/components/gamification/DailyChallengeCard.tsx` | Increase card padding, label spacing |
+| `src/components/gamification/WeeklyChallengeCard.tsx` | Same spacing updates as DailyChallengeCard |
+| `src/components/stats/summary-cards.tsx` | Update stat headings and value sizes |
+| `src/components/stats/pr-list.tsx` | Update PR name and value typography |
+| `src/components/workout/rest-timer.tsx` | Update timer display: label letter spacing to `tracking-[0.08em]` |
+| `src/components/layout/bottom-tab-bar.tsx` | Increase label size from `text-[10px]` to `text-[11px]` |
+| `src/components/landing/hero.tsx` | Update heading scale for landing page consistency |
+| `src/components/landing/features.tsx` | Update feature card title from `text-lg` to `text-xl`, increase card padding |
+| `src/components/nutrition/daily-checklist.tsx` | Update spacing between meal slots |
+| `src/components/nutrition/macros-summary.tsx` | Update macro value typography |
+
+### Code Samples
+
+```typescript
+// Using typography utility in a component
+import { getTypeClasses, SPACING } from "@/lib/typography";
+
+export function SectionHeader({ title, label }: { title: string; label?: string }) {
+  return (
+    <div className={SPACING.heroSectionPadding}>
+      {label && (
+        <span className={cn(getTypeClasses("label"), "uppercase text-muted-foreground", SPACING.labelToContent)}>
+          {label}
+        </span>
+      )}
+      <h2 className={getTypeClasses("h2")}>{title}</h2>
+    </div>
+  );
+}
+```
+
+```css
+/* globals.css additions */
+:root {
+  --text-h1: 36px;
+  --text-h2: 28px;
+  --text-h3: 20px;
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --text-h1: 40px;
+    --text-h2: 32px;
+    --text-h3: 22px;
+  }
+}
+```
 
 ### Files to Create
 
@@ -276,9 +484,70 @@ Data Display (36px+, 700 weight, tabular-nums, leading-none, tracking-tight)
 
 ---
 
-## Priority
+## Testing
 
-**P1** - Typography and spacing are foundational to usability. They make every other element easier to interact with. Implement in parallel with Visual Hierarchy Redesign (also P1), as the two PRDs complement each other without blocking dependencies.
+### Functional Tests
+- [ ] H1 renders at 36px on mobile and 40px on desktop (lg+)
+- [ ] H2 renders at 28px on mobile and 32px on desktop
+- [ ] H3 renders at 20px on mobile and 22px on desktop
+- [ ] Font weights match spec: H1=800, H2=700, H3=600
+- [ ] Uppercase labels use tracking-[0.08em] letter spacing
+- [ ] Data displays (weight, timer) use `tabular-nums` font-variant
+- [ ] Section spacing is 32px (`space-y-8`) between major sections
+- [ ] Card padding is 20px (`p-5`) for standard, 24px (`p-6`) for hero
+- [ ] Hero sections use consistent `py-5` padding
+- [ ] Bottom page padding is `pb-44` (176px)
+- [ ] Tab bar label renders at 11px
+- [ ] `getTypeClasses()` returns correct combined class string for each level
+- [ ] All typography constants export correctly from `src/lib/typography.ts`
+- [ ] Weight display in set logger shows `tracking-tight` and `leading-none`
+
+### UI Verification
+- [ ] H2 heading is readable at 80cm distance (arm's length gym test)
+- [ ] Weight display (36px+) is clearly the dominant number on set logger
+- [ ] Exercise name (20px) is distinguishable from body text (16px)
+- [ ] Section spacing creates clear visual breaks between home page areas
+- [ ] No content overflow with larger headings on 375px viewport
+- [ ] Long exercise names truncate correctly at new H3 size (20px)
+- [ ] Layout does not break at 150% system font scaling
+- [ ] Bottom content is not hidden behind tab bar + CTA with `pb-44`
+- [ ] Spacing is consistent across all pages (home, stats, program, exercises, nutrition)
+- [ ] Desktop type scale (40/32/22px) looks proportional on 1024px+ screens
+- [ ] Desktop section spacing (48px) provides appropriate breathing room
+- [ ] Tab bar label at 11px is legible and does not overflow tab width
+- [ ] No horizontal scroll introduced by larger typography on any viewport
+
+---
+
+## Launch Checklist
+
+- [ ] `src/lib/typography.ts` created with TYPE_SCALE and SPACING exports
+- [ ] CSS custom properties for type scale added to `globals.css`
+- [ ] All heading instances across pages updated to new scale
+- [ ] Section spacing updated on home, stats, program, exercises, and nutrition pages
+- [ ] Card padding updated across all card components
+- [ ] Data displays use tabular-nums and leading-none
+- [ ] Desktop responsive overrides (lg: breakpoint) applied
+- [ ] Visual regression test screenshots on 375px, 414px, 768px, 1024px, 1440px
+- [ ] Gym readability test passed (H2 at 80cm)
+- [ ] System font scaling test passed (150% without layout breaks)
+- [ ] axe-core audit passes (no contrast or size violations)
+- [ ] Lighthouse Performance score 90+ (no regression from larger text)
+- [ ] CHANGELOG.md updated
+
+---
+
+## Risks & Mitigations
+
+| Risk | Impact | Mitigation |
+|------|--------|------------|
+| H1 at 36px is too large on 320px-width screens (iPhone SE 1st gen) | Text wraps awkwardly or overflows | Add `min-[320px]:text-3xl` fallback. Test on 320px viewport. SE 1st gen is <1% of users. |
+| Larger spacing increases scroll depth on all pages | Users scroll more, may feel content is sparse | Acceptable trade-off for readability. Monitor scroll depth analytics post-launch. Larger spacing benefits gym-distance use case. |
+| Increased card padding reduces content density | Less visible above the fold | Prioritize content hierarchy. Hero card content is most important, muted/completed cards can collapse (see visual hierarchy PRD). |
+| Typography constants drift if developers use hardcoded values | Inconsistent type scale | Code review gate: reject PRs with hardcoded font sizes. Lint rule for checking typography utility usage. |
+| System font scaling at 150%+ breaks layouts | Accessibility failure for users with vision impairments | All sizes use `rem` (Tailwind default). Test at 150% and 200% scaling. Add max-width constraints where needed. |
+| Tab bar label at 11px may overflow on translated labels | Broken tab bar on localized versions | Test with longest expected label. Currently English-only, but future-proof with truncation. |
+| Bottom padding `pb-44` may be too much on phones without home indicator | Excessive white space at page bottom | Use `safe-area-inset-bottom` padding as an additive. Test on devices with and without home indicators. |
 
 ---
 
@@ -334,3 +603,5 @@ Data Display (36px+, 700 weight, tabular-nums, leading-none, tracking-tight)
 | Date | Change |
 |------|--------|
 | 2026-03-04 | Initial PRD draft |
+| 2026-03-26 | PRD quality audit: added Requirements (MoSCoW), User flows (4 numbered scenarios), Technical spec (TypeScript interfaces for TypeScaleLevel, SpacingScale, code samples with globals.css additions), Testing (14 functional + 13 UI verification checks), Launch checklist (13 items), Risks & mitigations (7 risks) |
+| 2026-03-26 | Status updated to SHIPPED - implementation verified in codebase |

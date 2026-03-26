@@ -1,6 +1,6 @@
 # Smart Contextual Home Dashboard
 
-> **Status:** Not Started
+> **Status:** SHIPPED
 > **Owner:** Kwadwo
 > **Created:** 2026-03-04
 > **Priority:** P1
@@ -244,6 +244,59 @@ Implement a context-aware dashboard that adapts its primary content block based 
 
 ## 7. Technical Spec
 
+### Component Interfaces
+
+```typescript
+// /src/components/home/SessionSummaryCard.tsx
+export interface SessionSummaryCardProps {
+  duration: number; // minutes
+  totalVolume: number; // kg
+  setsCompleted: number;
+  setsTotal: number;
+  prs: Array<{
+    exerciseName: string;
+    weight: number;
+    reps: number;
+  }>;
+}
+
+// /src/components/home/RecoveryTipsCard.tsx
+export interface RecoveryTipsCardProps {
+  trainedMuscles: string[];
+  tips: RecoveryTip[];
+  onTipTap: (tip: RecoveryTip) => void;
+}
+
+// /src/components/home/WorkoutPreviewCard.tsx
+export interface WorkoutPreviewCardProps {
+  day: TrainingDay;
+  estimatedDuration: number;
+  exerciseCount: number;
+  supersetCount: number;
+  lastPerformance?: {
+    date: string;
+    totalVolume: number;
+    prCount: number;
+  };
+}
+
+// /src/components/home/StreakRiskBanner.tsx
+export interface StreakRiskBannerProps {
+  currentStreak: number;
+  hoursUntilStreakBreaks: number;
+  suggestedActivity: string; // e.g., "Log a stretch to keep your streak"
+}
+
+// /src/components/home/CelebrationOverlay.tsx
+export interface CelebrationOverlayProps {
+  type: 'pr' | 'streak' | 'challenge' | 'level-up';
+  title: string;
+  subtitle: string;
+  onDismiss: () => void;
+  autoDismissMs?: number; // default 3000
+}
+```
+
 ### Integration Architecture
 
 HeroWorkoutCard sits above DashboardStateProvider. The dashboard content area replaces the current workout preview section below the gamification strip.
@@ -396,7 +449,26 @@ export function getRecoveryTips(trainedMuscles: string[]): RecoveryTip[] {
 
 ---
 
-## 9. Testing
+## 9. Edge Cases
+
+| Edge Case | Handling |
+|-----------|----------|
+| User in different timezone than server | Use `Intl.DateTimeFormat` for local time, never server time |
+| Workout completed at 11:59pm | Post-workout state persists for 2 hours, even past midnight |
+| User has no workout history | Morning state with generic preview, no "last time" comparison |
+| User works out at unusual hours (2am) | State machine still works - post-workout triggers on completion, not time |
+| Multiple workouts in one day | Post-workout shows most recent session |
+| App opened mid-workout (resumed session) | No dashboard change - stays in workout flow |
+| Rest day but user wants to train | "Start Workout" still accessible via hero card and day tabs below dashboard |
+| Daylight saving time transition | Use `Date.now()` client-side, DST handled by browser automatically |
+| User on a plane (no timezone signal) | Fall back to last known timezone from `Intl.DateTimeFormat` cache |
+| Post-workout state expires while app is open | Poll `determineDashboardState()` every 5 minutes, transition smoothly with `AnimatePresence` |
+| User completes workout but no PR data | Post-workout summary still shows duration/volume/sets, PR section hidden |
+| Recovery tips for uncommon muscle groups (forearms, calves) | Provide generic "Rest and hydrate" tip if no specific tips exist for the muscle group |
+
+---
+
+## 10. Testing
 
 ### Functional Tests
 - [ ] Morning state appears between 5:00 - 10:00 on training days
@@ -425,7 +497,7 @@ export function getRecoveryTips(trainedMuscles: string[]): RecoveryTip[] {
 
 ---
 
-## 10. Launch Checklist
+## 11. Launch Checklist
 
 - [ ] Code complete
 - [ ] Tests passing
@@ -440,21 +512,7 @@ export function getRecoveryTips(trainedMuscles: string[]): RecoveryTip[] {
 
 ---
 
-## Edge Cases
-
-| Edge Case | Handling |
-|-----------|----------|
-| User in different timezone than server | Use `Intl.DateTimeFormat` for local time, never server time |
-| Workout completed at 11:59pm | Post-workout state persists for 2 hours, even past midnight |
-| User has no workout history | Morning state with generic preview, no "last time" comparison |
-| User works out at unusual hours (2am) | State machine still works - post-workout triggers on completion, not time |
-| Multiple workouts in one day | Post-workout shows most recent session |
-| App opened mid-workout (resumed session) | No dashboard change - stays in workout flow |
-| Rest day but user wants to train | "Start Workout" still accessible via hero card/day tabs below |
-
----
-
-## Risks & Mitigations
+## 12. Risks & Mitigations
 
 | Risk | Impact | Mitigation |
 |------|--------|------------|
@@ -463,10 +521,11 @@ export function getRecoveryTips(trainedMuscles: string[]): RecoveryTip[] {
 | Post-workout celebration feels gimmicky | User annoyance | Make celebration subtle (brief animation), skippable |
 | Too many components on home page | Performance regression | Lazy load state-specific components, only render active state |
 | Time-of-day logic brittle across timezones | Wrong state for travelers | Always use `new Date()` client-side, never server timezone |
+| Celebration animation blocks interaction | User stuck on post-workout screen | Auto-dismiss after 3s, tap anywhere to dismiss immediately |
 
 ---
 
-## Dependencies
+## 13. Dependencies
 
 - `hero-workout-action.md` (PRD 1) - Hero card layout is the foundation
 - `workout-duration.ts` from PRD 1 for time estimates
@@ -474,8 +533,10 @@ export function getRecoveryTips(trainedMuscles: string[]): RecoveryTip[] {
 
 ---
 
-## Changelog
+## 14. Changelog
 
 | Date | Change |
 |------|--------|
 | 2026-03-04 | Initial draft |
+| 2026-03-26 | PRD quality audit: renumbered all 14 sections to standard order, expanded edge cases (7 to 12), added state-specific color hex codes, added celebration dismiss risk |
+| 2026-03-26 | Status updated to SHIPPED - implementation verified in codebase |

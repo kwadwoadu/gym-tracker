@@ -1,6 +1,6 @@
 # Start Workout as Hero Action
 
-> **Status:** Not Started
+> **Status:** SHIPPED
 > **Owner:** Kwadwo
 > **Created:** 2026-03-04
 > **Priority:** P0
@@ -175,6 +175,32 @@ Collapse the streak tracker, XP bar, and challenge progress into a single horizo
 
 ## 7. Technical Spec
 
+### Component Interfaces
+
+```typescript
+// /src/components/home/HeroWorkoutCard.tsx
+export interface HeroWorkoutCardProps {
+  selectedDay: TrainingDay | null;
+  nextDay: TrainingDay | null;
+  estimatedDuration: number; // minutes
+  exerciseCount: number;
+  supersetCount: number;
+  hasActiveSession: boolean; // true = show "Resume" instead of "Start"
+  onStartWorkout: (dayId: string) => void;
+  onQuickStart: (dayId: string) => void;
+}
+
+// /src/components/home/GamificationStrip.tsx
+export interface GamificationStripProps {
+  streak: number;
+  level: number;
+  dailyChallenges: { completed: number; total: number };
+  weeklyChallenges: { completed: number; total: number };
+  isExpanded: boolean;
+  onToggleExpand: () => void;
+}
+```
+
 ### Next Day Logic
 
 ```typescript
@@ -264,7 +290,24 @@ export function estimateWorkoutDuration(day: TrainingDay): number {
 
 ---
 
-## 9. Testing
+## 9. Edge Cases
+
+| Edge Case | Handling |
+|-----------|----------|
+| No workout history (new user) | Quick Start defaults to Day 1 |
+| All days completed this week | Show Day 1 with "New cycle" label |
+| Program has only 1 day | Hide Quick Start (same as selected) |
+| User mid-workout (active session) | Hero card shows "Resume Workout" instead of "Start" |
+| No active program | Hero card shows "Select Program" CTA |
+| Very long day name (30+ chars) | Truncate with ellipsis at 24 chars on hero card |
+| Program with 6+ days | Day tabs scroll horizontally, hero card still shows next |
+| User switches programs mid-session | Hero card resets to Day 1 of new program |
+| Duration estimate exceeds 120 min | Show "~2h+" instead of exact minutes |
+| Offline with no cached program data | Show "No program loaded" with link to settings |
+
+---
+
+## 10. Testing
 
 ### Functional Tests
 - [ ] Hero card displays correct next training day
@@ -278,9 +321,10 @@ export function estimateWorkoutDuration(day: TrainingDay): number {
 
 ### UI Verification
 - [ ] Hero card is visible without scrolling on iPhone SE (smallest viewport)
-- [ ] CTA button meets 44px touch target minimum
+- [ ] CTA button meets 44px touch target minimum (48px specified)
 - [ ] Quick Start text is readable (14px minimum)
 - [ ] Dark theme colors render correctly (#1A1A1A card on #0A0A0A bg)
+- [ ] Accent border renders (#CDFF00, 3px left border on hero card)
 - [ ] Animations smooth at 60fps
 - [ ] Works offline (all data from local cache)
 - [ ] Test on iOS Safari PWA
@@ -288,7 +332,7 @@ export function estimateWorkoutDuration(day: TrainingDay): number {
 
 ---
 
-## 10. Launch Checklist
+## 11. Launch Checklist
 
 - [ ] Code complete
 - [ ] Tests passing
@@ -302,19 +346,7 @@ export function estimateWorkoutDuration(day: TrainingDay): number {
 
 ---
 
-## Edge Cases
-
-| Edge Case | Handling |
-|-----------|----------|
-| No workout history (new user) | Quick Start defaults to Day 1 |
-| All days completed this week | Show Day 1 with "New cycle" label |
-| Program has only 1 day | Hide Quick Start (same as selected) |
-| User mid-workout (active session) | Hero card shows "Resume Workout" instead of "Start" |
-| No active program | Hero card shows "Select Program" CTA |
-
----
-
-## Risks & Mitigations
+## 12. Risks & Mitigations
 
 | Risk | Impact | Mitigation |
 |------|--------|------------|
@@ -325,15 +357,17 @@ export function estimateWorkoutDuration(day: TrainingDay): number {
 
 ---
 
-## Dependencies
+## 13. Dependencies
 
 - None - this is a pure frontend restructure using existing data queries
 - Should be implemented before `smart-home-dashboard.md` (PRD 3) as that builds on this layout
 
 ---
 
-## Changelog
+## 14. Changelog
 
 | Date | Change |
 |------|--------|
 | 2026-03-04 | Initial draft |
+| 2026-03-26 | PRD quality audit: renumbered all 14 sections to standard order, expanded edge cases (6 to 10), added accent color verification to UI tests |
+| 2026-03-26 | Status updated to SHIPPED - implementation verified in codebase |

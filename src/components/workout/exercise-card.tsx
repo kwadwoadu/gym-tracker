@@ -8,11 +8,12 @@ import {
   Dialog,
   DialogContent,
 } from "@/components/ui/dialog";
-import { ChevronDown, ChevronUp, Play, Camera } from "lucide-react";
+import { ChevronDown, ChevronUp, Play, Camera, Info } from "lucide-react";
 import { cn, getYouTubeThumbnail, isYouTubeUrl } from "@/lib/utils";
 import { MuscleMap } from "@/components/shared/MuscleMap";
 import { getFormRuleByExerciseId } from "@/data/form-rules";
 import { FormCamera } from "./form-camera";
+import { FormSheet } from "@/components/form-library/FormSheet";
 
 interface ExerciseCardProps {
   exerciseId?: string;
@@ -50,6 +51,7 @@ export function ExerciseCard({
 }: ExerciseCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [showFormAnalysis, setShowFormAnalysis] = useState(false);
+  const [showFormSheet, setShowFormSheet] = useState(false);
 
   const formRule = exerciseId ? getFormRuleByExerciseId(exerciseId) : null;
 
@@ -122,13 +124,25 @@ export function ExerciseCard({
           )}
         </div>
 
-        {/* Expand indicator */}
-        <div className="text-muted-foreground">
-          {isExpanded ? (
-            <ChevronUp className="w-5 h-5" />
-          ) : (
-            <ChevronDown className="w-5 h-5" />
-          )}
+        {/* Form guide + expand indicator */}
+        <div className="flex items-center gap-1">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setShowFormSheet(true);
+            }}
+            className="p-2 -m-1 rounded-lg text-muted-foreground hover:text-primary transition-colors touch-target"
+            title="Form guide"
+          >
+            <Info className="w-5 h-5" />
+          </button>
+          <div className="text-muted-foreground">
+            {isExpanded ? (
+              <ChevronUp className="w-5 h-5" />
+            ) : (
+              <ChevronDown className="w-5 h-5" />
+            )}
+          </div>
         </div>
       </div>
 
@@ -246,6 +260,13 @@ export function ExerciseCard({
           </DialogContent>
         </Dialog>
       )}
+
+      {/* Form Guide Sheet */}
+      <FormSheet
+        exerciseName={name}
+        open={showFormSheet}
+        onClose={() => setShowFormSheet(false)}
+      />
     </Card>
   );
 }

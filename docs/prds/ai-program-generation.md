@@ -57,17 +57,70 @@ AI generates a fully periodized training program based on the user's onboarding 
 
 ---
 
-## 4. User Stories
+## 4. Requirements
 
-- As a beginner, I want a program generated for my 3-day schedule with basic equipment so I don't have to research programming myself.
-- As an intermediate lifter with a shoulder injury, I want AI to build a program that avoids aggravating movements while still training upper body.
-- As an advanced lifter, I want a periodized mesocycle with deload weeks built in so I can focus on execution rather than planning.
-- As a user who completed a mesocycle, I want AI to generate my next program based on what worked and what stalled.
-- As a user switching from 4 days to 3 days per week, I want AI to redistribute my volume intelligently.
+### Must Have
+- [ ] AI generates a complete training program from OnboardingProfile data
+- [ ] Generated program includes exercises from the existing exercise database only
+- [ ] Program respects injury constraints (excludes aggravating movements)
+- [ ] Program respects equipment availability (only includes exercises user can do)
+- [ ] Output validated against Zod schema before saving
+- [ ] Preview screen before saving the generated program
+- [ ] API key stays server-side (Vercel API route)
+- [ ] Rate limiting (max 3 generations per user per day)
+- [ ] Fallback to template selection if AI generation fails
+
+### Should Have
+- [ ] Deload weeks auto-scheduled (every 4th or 5th week)
+- [ ] Progressive overload strategy described in generated program metadata
+- [ ] Workout history informs starting weights when available
+- [ ] Regeneration uses performance data (PRs, compliance, stalled lifts) for next program
+- [ ] Additional preferences input (session length, focus area, mesocycle duration)
+- [ ] User consent dialog on first AI generation
+
+### Won't Have (This Version)
+- [ ] Real-time program adjustment mid-mesocycle (see ai-adaptive-periodization PRD)
+- [ ] Exercise video previews in generation wizard
+- [ ] Multi-language prompt support
+- [ ] Export/share generated programs
 
 ---
 
-## 5. Technical Scope
+## 5. User Flows
+
+### Flow 1: First-Time AI Program Generation (from Onboarding)
+
+1. User completes onboarding steps (goals, experience, equipment, schedule, injuries)
+2. User reaches final onboarding screen with options: "Choose a Template" or "Generate AI Program"
+3. User taps "Generate AI Program"
+4. System displays Step 1: Review Your Profile with pre-filled data from onboarding
+5. User optionally edits additional preferences (session length, focus area, mesocycle duration)
+6. User taps "Generate My Program" (accent #CDFF00 CTA)
+7. System shows Step 2: animated loading with progress messages ("Analyzing your profile...", "Selecting exercises...")
+8. AI returns structured JSON; system validates against Zod schema
+9. System displays Step 3: Program preview with day-by-day breakdown, superset groupings, deload info
+10. User reviews and taps "Start This Program" or "Regenerate"
+11. Program saved to IndexedDB with `generatedBy: 'ai'` flag
+12. User redirected to Home with new program active
+
+### Flow 2: Regenerate Program (Existing User)
+
+1. User navigates to Programs page
+2. User taps "Generate New Program"
+3. System pre-fills profile from stored OnboardingProfile
+4. System includes performance summary (PRs hit, stalled lifts, adherence rate) in AI context
+5. Steps 6-12 from Flow 1 continue
+
+### Flow 3: Generation Failure
+
+1. User taps "Generate My Program"
+2. API call times out or returns invalid data
+3. System shows error: "Generation failed. Would you like to try again or pick a template?"
+4. User taps "Try Again" (retry) or "Choose Template" (fallback to manual)
+
+---
+
+## 6. Technical Spec
 
 ### Architecture
 
@@ -87,7 +140,7 @@ User completes onboarding / taps "Generate Program"
            v
 ┌──────────────────────┐
 │  AI API Call         │ -- Claude API with structured output (JSON)
-│  (Claude 3.5 Sonnet) │
+│  (Claude 4.5 Haiku)  │
 └──────────┬───────────┘
            |
            v
@@ -134,14 +187,14 @@ User completes onboarding / taps "Generate Program"
 
 | Package | Purpose | Size |
 |---------|---------|------|
-| `@anthropic-ai/sdk` | Claude API client | ~50KB |
+| `@anthropic-ai/sdk` | Claude API client (latest) | ~50KB |
 | `zod` | Schema validation for AI structured output | ~13KB (likely already installed) |
 
 ### API/Model Requirements
 
 | Requirement | Detail |
 |-------------|--------|
-| Model | Claude 3.5 Sonnet (cost/quality balance) |
+| Model | Claude 4.5 Haiku (claude-haiku-4-5-20251001, cost/quality balance for structured output) |
 | Input tokens | ~2,000 (profile + exercise list + history summary) |
 | Output tokens | ~3,000 (full program JSON) |
 | Latency | 3-8 seconds expected |
@@ -191,7 +244,7 @@ This schema lives in `/src/lib/ai/validators/program-validator.ts` and is used b
 
 ---
 
-## 6. Design Requirements
+## 7. Design
 
 ### AI Program Wizard Flow
 
@@ -271,7 +324,60 @@ This schema lives in `/src/lib/ai/validators/program-validator.ts` and is used b
 
 ---
 
-## 7. Edge Cases
+### Component Table
+
+| Component | File | Purpose |
+|-----------|------|---------|
+| AIProgramWizard | `ai-program-wizard.tsx` | Multi-step wizard (review, generating, preview) |
+| ProgramPreviewCard | `program-preview-card.tsx` | Day-by-day preview of generated program |
+| GenerationLoading | `generation-loading.tsx` | Animated loading with progress messages |
+| ProfileReviewStep | Inside wizard | Shows OnboardingProfile with edit option |
+| PreferencesForm | Inside wizard | Session length, focus area, mesocycle inputs |
+
+### Visual Spec
+
+| Element | Value |
+|---------|-------|
+| Background | #0A0A0A |
+| Card surface | #1A1A1A |
+| Input fields | #2A2A2A |
+| CTA button | #CDFF00 text on #CDFF00/10 bg, solid on hover |
+| Loading animation | Pulsing dots in #CDFF00, Framer Motion |
+| Injury-modified badge | #F59E0B text, asterisk prefix |
+| Day cards | Swipeable horizontal scroll, #1A1A1A bg, 12px radius |
+| Font | Inter, 16px body, 24px section headers |
+| Touch targets | 44px minimum, 56px for primary CTA |
+
+---
+
+## 8. Implementation Plan
+
+### Dependencies Checklist
+- [ ] Verify `@anthropic-ai/sdk` is installed (or add to package.json)
+- [ ] Verify `zod` is installed
+- [ ] Confirm Vercel environment variable `ANTHROPIC_API_KEY` is set
+- [ ] Confirm OnboardingProfile is fully populated by existing onboarding flow
+- [ ] Verify exercises.json has equipment tags on all entries
+
+### Build Order
+
+1. **Create shared AI infrastructure** - `/src/lib/ai/ai-client.ts` with Claude client setup, retry logic, token tracking
+2. **Create program prompt template** - `/src/lib/ai/prompts/program-prompt.ts` with system prompt and OnboardingProfile serializer
+3. **Create Zod validation schema** - `/src/lib/ai/validators/program-validator.ts` with `GeneratedProgramSchema`
+4. **Create API route** - `/src/app/api/ai/generate-program/route.ts` with rate limiting, input validation, AI call, output validation
+5. **Create program generator** - `/src/lib/ai/program-generator.ts` orchestrating prompt build, API call, validation, fallback
+6. **Create loading component** - `generation-loading.tsx` with Framer Motion animated progress
+7. **Create preview card** - `program-preview-card.tsx` with day tabs, superset display, deload info
+8. **Create wizard component** - `ai-program-wizard.tsx` combining review step, loading step, preview step
+9. **Modify DB schema** - Add `generatedBy` field to Program interface in `db.ts`
+10. **Modify onboarding flow** - Add AI generation option to final onboarding screen
+11. **Modify programs page** - Add "Generate New Program" button
+12. **Add feature flag** - `AI_PROGRAM_GENERATION` in `feature-flags.ts`
+13. **Test end-to-end** - Generate program, verify saves correctly, start workout from it
+
+---
+
+## 9. Edge Cases
 
 | Edge Case | Handling |
 |-----------|----------|
@@ -287,31 +393,70 @@ This schema lives in `/src/lib/ai/validators/program-validator.ts` and is used b
 
 ---
 
-## 8. Privacy & Data
+## 10. Testing
 
-| Data | Where It Goes | Retention |
-|------|---------------|-----------|
-| OnboardingProfile (goals, injuries, etc.) | Sent to Claude API for generation | Not stored by API (instant processing) |
-| Workout history summary | Sent to Claude API (aggregated, no raw logs) | Not stored by API |
-| Exercise database | Sent as reference list to Claude API | Not stored by API |
-| Generated program | Stored locally in IndexedDB | Until user deletes |
-| API key | Server-side only (Vercel env var) | Never exposed to client |
+### Functional Tests
+- [ ] Generate program for beginner (3 days, limited equipment) - verify appropriate exercises
+- [ ] Generate program for intermediate (4 days, full gym) - verify periodization type
+- [ ] Generate program with injury constraints - verify no contraindicated exercises
+- [ ] Generate program with existing workout history - verify starting weights are informed by history
+- [ ] Rate limit enforcement: 4th generation in 24h shows limit message
+- [ ] AI returns malformed JSON - verify graceful error and retry option
+- [ ] API timeout (>10s) - verify fallback to template selection
+- [ ] Offline state - verify generation button disabled with "Requires internet" message
+- [ ] Zod validation rejects output with unknown exercise IDs
+- [ ] Generated program saves to IndexedDB with correct `generatedBy: 'ai'`
+- [ ] Regeneration includes performance data in prompt context
+- [ ] Consent dialog shown on first generation only
 
-### User Consent
-- First-time generation shows consent dialog: "SetFlow will send your profile data to generate a personalized program. No personal identifiers are included."
-- Users can opt out and use template programs instead
+### UI Verification
+- [ ] Wizard step transitions animate smoothly (Framer Motion)
+- [ ] Loading state shows rotating progress messages
+- [ ] Preview cards are swipeable on mobile
+- [ ] CTA buttons meet 44px minimum touch target
+- [ ] Accent color (#CDFF00) used consistently for CTAs and progress
+- [ ] Injury-modified exercises marked with asterisk and #F59E0B
+- [ ] Dark theme (#0A0A0A bg, #1A1A1A cards) consistent throughout
+- [ ] Font sizes match design system (Inter, 16px body)
+- [ ] Error states use #EF4444 for text/borders
+- [ ] Program preview shows deload week info clearly
 
 ---
 
-## 9. Priority
+## 11. Launch Checklist
 
-**P0 - Must Ship**
-
-This is the highest-impact AI feature. It transforms onboarding from "pick a template" to "get a personalized program" and directly addresses the #1 reason users abandon fitness apps: programs that don't match their needs.
+- [ ] Feature flag `AI_PROGRAM_GENERATION` added and tested (on/off)
+- [ ] `ANTHROPIC_API_KEY` set in Vercel production environment
+- [ ] Rate limiting tested in production (3/day)
+- [ ] API route returns appropriate HTTP codes (200, 400, 429, 500)
+- [ ] Consent dialog copy reviewed
+- [ ] Fallback to template selection works when AI fails
+- [ ] Lighthouse PWA audit passes with new feature
+- [ ] Offline behavior verified (feature gracefully disabled)
+- [ ] IndexedDB schema version bumped if needed
+- [ ] Bundle size impact measured (target: <5KB added to main chunk)
+- [ ] Tested on iOS Safari PWA mode
+- [ ] Tested on Chrome Android
+- [ ] Cost monitoring set up (track API spend per day)
 
 ---
 
-## 10. Dependencies
+## 12. Risks & Mitigations
+
+| Risk | Impact | Mitigation |
+|------|--------|------------|
+| AI generates exercises not in database | Users see broken exercise cards | Strict validation against exercises.json; reject and retry if >20% unknown IDs |
+| Claude API downtime | Feature completely unavailable | Fallback to template selection; cache last generated program locally |
+| High API costs at scale | Unexpected billing | Rate limit per user (3/day); monitor daily spend; use Claude 4.5 Haiku for cost efficiency |
+| Poor program quality for advanced users | Negative user perception, churn | Include detailed periodization context in prompt; allow regeneration; collect user ratings |
+| Prompt injection via profile fields | AI produces unexpected output | Sanitize all user inputs; validate output schema strictly; never expose raw AI output |
+| Slow generation (>10s) | Users abandon wizard | Show engaging loading animation; implement timeout with retry; stream partial progress |
+| Exercise database gaps (missing equipment tags) | AI selects exercises user can't do | Pre-audit exercises.json for complete equipment tagging; validator cross-checks |
+| Users generate but never start workout | Low conversion from generation | Track generation-to-first-workout funnel; optimize preview step for action |
+
+---
+
+## 13. Dependencies
 
 | Dependency | Status | Required For |
 |------------|--------|-------------|
@@ -328,7 +473,7 @@ This is the highest-impact AI feature. It transforms onboarding from "pick a tem
 
 This PRD owns creation of the shared AI infrastructure used by all Phase 3 AI features:
 
-- **`/src/lib/ai/ai-client.ts`** - Shared AI API client (Claude/OpenAI), token management, retry logic. Created by this PRD, consumed by ai-workout-copilot and ai-voice-logging.
+- **`/src/lib/ai/ai-client.ts`** - Shared AI API client using `@anthropic-ai/sdk` (latest), token management, retry logic. Created by this PRD, consumed by ai-workout-copilot and ai-voice-logging.
 - **`/src/lib/ai/`** directory - All AI-related modules live here. This PRD establishes the directory structure.
 
 **Phase 3 Dependency Chain:**
@@ -336,9 +481,23 @@ This PRD owns creation of the shared AI infrastructure used by all Phase 3 AI fe
 - **Phase 3.2**: `ai-workout-copilot.md` depends on this. Reuses `ai-client.ts` for real-time coaching.
 - **Phase 3.3**: `ai-voice-logging.md` depends on this. Reuses `ai-client.ts` for voice transcription and parsing.
 
+### Privacy & Data
+
+| Data | Where It Goes | Retention |
+|------|---------------|-----------|
+| OnboardingProfile (goals, injuries, etc.) | Sent to Claude API for generation | Not stored by API (instant processing) |
+| Workout history summary | Sent to Claude API (aggregated, no raw logs) | Not stored by API |
+| Exercise database | Sent as reference list to Claude API | Not stored by API |
+| Generated program | Stored locally in IndexedDB | Until user deletes |
+| API key | Server-side only (Vercel env var) | Never exposed to client |
+
+### User Consent
+- First-time generation shows consent dialog: "SetFlow will send your profile data to generate a personalized program. No personal identifiers are included."
+- Users can opt out and use template programs instead
+
 ---
 
-## 11. Changelog
+## 14. Changelog
 
 | Date | Change |
 |------|--------|
@@ -346,3 +505,4 @@ This PRD owns creation of the shared AI infrastructure used by all Phase 3 AI fe
 | 2026-03-04 | Fix REV-001: Add shared AI infrastructure ownership and Phase 3 dependency chain |
 | 2026-03-04 | Fix REV-014: Renumber section headings to match numbered format (## 1. Problem, etc.) |
 | 2026-03-04 | Fix REV-019: Add Program Generation Output Schema with Zod definitions |
+| 2026-03-26 | PRD quality audit: Updated model to Claude 4.5 Haiku, added Requirements (MoSCoW), User Flows, Implementation Plan, Testing, Launch Checklist, Risks & Mitigations, Component Table, Visual Spec. Restructured to 14-section standard. |

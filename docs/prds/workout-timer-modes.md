@@ -1,6 +1,6 @@
 # Workout Timer Modes
 
-> **Status:** Not Started
+> **Status:** SHIPPED
 > **Owner:** Kwadwo
 > **Created:** 2026-03-04
 > **Priority:** P2
@@ -816,7 +816,26 @@ export async function logTimerResult(result: Omit<TimerResult, 'id'>): Promise<s
 
 ---
 
-## 9. Testing
+## 9. Edge Cases
+
+| Edge Case | Handling |
+|-----------|----------|
+| User locks phone during timer | Web Audio API continues playing cues; timer state persisted, visual resumes on unlock |
+| User navigates away mid-timer | Warn "Timer is active - leave?" confirmation dialog |
+| Battery saver mode throttles setInterval | Use requestAnimationFrame fallback, track wall clock time not intervals |
+| EMOM with 0s rest (all work) | Valid config - each interval is pure work with auto-start |
+| Custom with 0s work (only rest) | Prevent - validate minimum 5s work duration |
+| User starts Tabata then switches mode | Stop current timer, confirm with dialog, reset to new mode |
+| Timer completes while app is in background | Audio cue plays (Web Audio), state updates on foreground return |
+| Very long AMRAP (30 minutes) | Support up to 60 minutes, display hours:minutes:seconds format |
+| Preset with same name already exists | Allow duplicates, show creation date to distinguish |
+| User skips rep logging after AMRAP | Log as "AMRAP completed" without rep count, show optional entry later |
+| App crashes mid-timer | Persist timer state to Dexie every 5 seconds, offer "Resume timer?" on next open |
+| User double-taps GO button | Disable button immediately on first tap, prevent duplicate timer starts |
+
+---
+
+## 10. Testing
 
 ### Functional Tests
 - [ ] AMRAP countdown from configured duration to zero, triggers complete
@@ -849,7 +868,7 @@ export async function logTimerResult(result: Omit<TimerResult, 'id'>): Promise<s
 
 ---
 
-## 10. Launch Checklist
+## 11. Launch Checklist
 
 - [ ] Code complete
 - [ ] Tests passing
@@ -865,24 +884,7 @@ export async function logTimerResult(result: Omit<TimerResult, 'id'>): Promise<s
 
 ---
 
-## Edge Cases
-
-| Edge Case | Handling |
-|-----------|----------|
-| User locks phone during timer | Web Audio API continues playing cues; timer state persisted, visual resumes on unlock |
-| User navigates away mid-timer | Warn "Timer is active - leave?" confirmation dialog |
-| Battery saver mode throttles setInterval | Use requestAnimationFrame fallback, track wall clock time not intervals |
-| EMOM with 0s rest (all work) | Valid config - each interval is pure work with auto-start |
-| Custom with 0s work (only rest) | Prevent - validate minimum 5s work duration |
-| User starts Tabata then switches mode | Stop current timer, confirm with dialog, reset to new mode |
-| Timer completes while app is in background | Audio cue plays (Web Audio), state updates on foreground return |
-| Very long AMRAP (30 minutes) | Support up to 60 minutes, display hours:minutes:seconds format |
-| Preset with same name already exists | Allow duplicates, show creation date to distinguish |
-| User skips rep logging after AMRAP | Log as "AMRAP completed" without rep count, show optional entry later |
-
----
-
-## Risks & Mitigations
+## 12. Risks & Mitigations
 
 | Risk | Impact | Mitigation |
 |------|--------|------------|
@@ -895,7 +897,7 @@ export async function logTimerResult(result: Omit<TimerResult, 'id'>): Promise<s
 
 ---
 
-## Dependencies
+## 13. Dependencies
 
 - Web Audio API system (existing in `src/lib/audio.ts`) - audio cues for all modes
 - Dexie.js (existing) - preset and timer result storage
@@ -906,8 +908,10 @@ export async function logTimerResult(result: Omit<TimerResult, 'id'>): Promise<s
 
 ---
 
-## Changelog
+## 14. Changelog
 
 | Date | Change |
 |------|--------|
 | 2026-03-04 | Initial draft |
+| 2026-03-26 | PRD quality audit: renumbered all 14 sections to match standard, added 2 edge cases (crash recovery, double-tap prevention) |
+| 2026-03-26 | Status updated to SHIPPED - implementation verified in codebase |

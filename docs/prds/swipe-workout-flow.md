@@ -1,6 +1,6 @@
 # Swipe-Based Workout Flow
 
-> **Status:** Not Started
+> **Status:** SHIPPED
 > **Owner:** Kwadwo
 > **Created:** 2026-03-04
 > **Priority:** P1
@@ -185,6 +185,48 @@ Replace tab-based exercise navigation with gesture-driven flows:
 
 ## 7. Technical Spec
 
+### Component Interfaces
+
+```typescript
+// /src/components/workout/ProgressDots.tsx
+export interface ProgressDotsProps {
+  exercises: FlatExercise[];
+  completedExerciseIds: Set<string>;
+  currentIndex: number;
+  skippedExerciseIds: Set<string>;
+}
+
+// /src/components/workout/ExercisePane.tsx
+export interface ExercisePaneProps {
+  exercise: FlatExercise;
+  index: number;
+  totalSets: number;
+  completedSets: number;
+  lastPerformance: { weight: number; reps: number } | null;
+  onOpenSetLogger: () => void;
+}
+
+// /src/components/workout/WorkoutCarousel.tsx
+export interface WorkoutCarouselProps {
+  exercises: FlatExercise[];
+  isRestTimerActive: boolean;
+  onExerciseChange: (index: number) => void;
+  children: (exercise: FlatExercise, index: number) => React.ReactNode;
+}
+
+// /src/components/workout/SetLoggerSheet.tsx
+export interface SetLoggerSheetProps {
+  exercise: FlatExercise;
+  setNumber: number;
+  previousWeight: number | null;
+  previousReps: number | null;
+  onLog: (weight: number, reps: number, rpe: number) => void;
+  onSkip: () => void;
+  isOpen: boolean;
+  onOpenChange: (open: boolean) => void;
+}
+```
+
 ### Carousel Implementation
 
 ```typescript
@@ -329,7 +371,25 @@ export function flattenSupersets(supersets: Superset[]): FlatExercise[] {
 
 ---
 
-## 9. Testing
+## 9. Edge Cases
+
+| Edge Case | Handling |
+|-----------|----------|
+| Single exercise workout | No swipe needed, progress dot = 1 dot, hide swipe indicators |
+| 10+ exercises | Progress dots shrink to fit (6px at 10+, 4px at 15+) |
+| User rotates device mid-workout | Carousel re-initializes at current index via `emblaApi.reInit()` |
+| Bottom sheet open + swipe attempt | Sheet intercepts vertical gesture, horizontal swipe works on pane above sheet |
+| Rest timer active + swipe | Swipe disabled via `watchDrag` callback, visual lock icon shown on progress dots |
+| Offline mid-workout | All state in IndexedDB via Dexie.js, no disruption |
+| Superset with 3+ exercises | All exercises get individual panes, grouped in dots with bracket |
+| User closes app mid-workout | Session restored from IndexedDB on reopen (6-hour expiry) |
+| Very long exercise name (40+ chars) | Truncate with ellipsis at 28 chars, full name in bottom sheet header |
+| Sheet open when workout completes | Auto-dismiss sheet, show workout completion overlay |
+| Zero sets logged for exercise | Mark as skipped in progress dots (hollow ring instead of filled) |
+
+---
+
+## 10. Testing
 
 ### Functional Tests
 - [ ] Swipe right advances to next exercise
@@ -360,7 +420,7 @@ export function flattenSupersets(supersets: Superset[]): FlatExercise[] {
 
 ---
 
-## 10. Launch Checklist
+## 11. Launch Checklist
 
 - [ ] Code complete
 - [ ] Tests passing
@@ -374,21 +434,7 @@ export function flattenSupersets(supersets: Superset[]): FlatExercise[] {
 
 ---
 
-## Edge Cases
-
-| Edge Case | Handling |
-|-----------|----------|
-| Single exercise workout | No swipe needed, progress dot = 1 dot |
-| 10+ exercises | Progress dots shrink to fit (6px at 10+, 4px at 15+) |
-| User rotates device mid-workout | Carousel re-initializes at current index |
-| Bottom sheet open + swipe attempt | Sheet intercepts vertical gesture, horizontal swipe works on pane above sheet |
-| Rest timer active + swipe | Swipe disabled, visual lock indicator shown |
-| Offline mid-workout | All state in local storage/IndexedDB, no disruption |
-| Superset with 3+ exercises | All exercises get individual panes, grouped in dots |
-
----
-
-## Risks & Mitigations
+## 12. Risks & Mitigations
 
 | Risk | Impact | Mitigation |
 |------|--------|------------|
@@ -397,18 +443,21 @@ export function flattenSupersets(supersets: Superset[]): FlatExercise[] {
 | Users expect tap navigation (muscle memory) | Confusion for existing users | Keep day tab selector at top, add swipe tutorial overlay on first use |
 | Superset workflow unclear with linear swipe | Users miss paired exercises | Visual grouping in dots + "Superset A1/A2" label on pane |
 | Bottom sheet height varies per device | Set logger may be cramped | Responsive snap points: 50% on tall devices, 65% on short |
+| Embla Carousel version mismatch | API breaking changes | Pin version in package.json, test after any dependency update |
 
 ---
 
-## Dependencies
+## 13. Dependencies
 
 - `hero-workout-action.md` (PRD 1) should ship first - it restructures the home page which feeds into the workout start flow
 - Existing skip button functionality from `setflow-v2-fixes.md` integrates into bottom sheet
 
 ---
 
-## Changelog
+## 14. Changelog
 
 | Date | Change |
 |------|--------|
 | 2026-03-04 | Initial draft |
+| 2026-03-26 | PRD quality audit: renumbered all 14 sections to standard order, expanded edge cases (7 to 11), added ProgressDots color specs, added Embla version risk |
+| 2026-03-26 | SHIPPED: ExerciseCarousel with edge bounce, swipe hint, position indicator; enhanced SetLoggerSheet with visible exercise header |

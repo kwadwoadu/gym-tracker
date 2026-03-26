@@ -1,6 +1,6 @@
 # Stats with Time Period Filtering
 
-> **Status:** Not Started
+> **Status:** SHIPPED
 > **Owner:** Kwadwo
 > **Created:** 2026-03-04
 > **Priority:** P2
@@ -214,6 +214,59 @@ Promote the existing `WeeklyMuscleHeatmap` to be the primary stats visualization
 
 ## 7. Technical Spec
 
+### Component Interfaces
+
+```typescript
+// /src/components/stats/PeriodSelector.tsx
+export interface PeriodSelectorProps {
+  activePeriod: StatsPeriod;
+  onPeriodChange: (period: StatsPeriod) => void;
+}
+
+// /src/components/stats/WinsSection.tsx
+export interface WinsSectionProps {
+  period: StatsPeriod;
+  prs: Array<{
+    exerciseName: string;
+    weight: number;
+    reps: number;
+    date: string;
+  }>;
+  records: Array<{
+    type: 'volume' | 'streak' | 'workouts';
+    label: string;
+    value: string;
+    date: string;
+  }>;
+}
+
+// /src/components/stats/TrendArrow.tsx
+export interface TrendArrowProps {
+  direction: TrendDirection;
+  percentage: number;
+  label?: string; // e.g., "vs last month"
+  size?: 'sm' | 'md'; // default 'md' (16px)
+}
+
+// /src/components/stats/MuscleDrillDown.tsx
+export interface MuscleDrillDownProps {
+  muscleName: string;
+  exercises: Array<{
+    name: string;
+    sessions: number;
+    totalVolume: number;
+  }>;
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+// /src/components/stats/EmptyPeriodState.tsx
+export interface EmptyPeriodStateProps {
+  period: StatsPeriod;
+  suggestion: string; // e.g., "Complete a workout this week to see stats"
+}
+```
+
 ### Period Calculation
 
 ```typescript
@@ -371,7 +424,26 @@ export function useFilteredMuscleVolume(period: StatsPeriod) {
 
 ---
 
-## 9. Testing
+## 9. Edge Cases
+
+| Edge Case | Handling |
+|-----------|----------|
+| New user with 0 workouts | Show "All" period with "Start your first workout" message and illustration |
+| Period with 1 workout only | Show stats normally, trend arrow shows "Not enough data" tooltip |
+| PR set in previous period | Only shows in the period it was set, "All" shows all PRs |
+| Week period starts on Sunday vs Monday | Use locale-aware week start (Monday for EU, Sunday for US) via `Intl.Locale` |
+| Workout spanning midnight | Count toward the day the workout started based on `WorkoutLog.date` |
+| 3-month period crossing year boundary | Date math handles correctly (Oct-Dec into Jan) via native `Date` methods |
+| API returns partial data (timeout) | Show cached data with "Last updated X ago" indicator |
+| Rapid period switching | Debounce period changes by 200ms, cancel in-flight Dexie queries with AbortController |
+| Muscle region with zero volume for period | Show region in `#222222` (not trained), not tappable |
+| Trend calculation with previous period having zero | Show "up" arrow with "New" label instead of percentage |
+| Very large dataset (1000+ workout logs) | Client-side filtering via Dexie indexed queries on `date` field, paginate if >500ms |
+| User changes weight unit (kg to lbs) during period view | Recalculate all volume stats in current unit, trends compare same-unit values |
+
+---
+
+## 10. Testing
 
 ### Functional Tests
 - [ ] Period selector switches between all 5 periods
@@ -402,7 +474,7 @@ export function useFilteredMuscleVolume(period: StatsPeriod) {
 
 ---
 
-## 10. Launch Checklist
+## 11. Launch Checklist
 
 - [ ] Code complete
 - [ ] API changes deployed (date range filtering)
@@ -417,22 +489,7 @@ export function useFilteredMuscleVolume(period: StatsPeriod) {
 
 ---
 
-## Edge Cases
-
-| Edge Case | Handling |
-|-----------|----------|
-| New user with 0 workouts | Show "All" period with "Start your first workout" message |
-| Period with 1 workout only | Show stats normally, trend shows "Not enough data" |
-| PR set in previous period | Only shows in the period it was set, "All" shows all PRs |
-| Week period starts on Sunday vs Monday | Use locale-aware week start (Monday for EU) |
-| Workout spanning midnight | Count toward the day the workout started |
-| 3-month period crossing year boundary | Date math handles correctly (Oct-Dec into Jan) |
-| API returns partial data (timeout) | Show cached data with "Last updated X ago" indicator |
-| Rapid period switching | Debounce API calls, cancel in-flight requests |
-
----
-
-## Risks & Mitigations
+## 12. Risks & Mitigations
 
 | Risk | Impact | Mitigation |
 |------|--------|------------|
@@ -441,10 +498,11 @@ export function useFilteredMuscleVolume(period: StatsPeriod) {
 | Muscle heatmap recalculation expensive | Lag when switching periods | Client-side filtering from cached workout logs |
 | Period selector adds complexity | Steeper learning curve | Default to "Month" (most useful), remember last selection |
 | Existing components break with new props | Regression | Backward-compatible props with defaults |
+| Recharts re-renders on every period switch | Chart flicker, poor UX | Memoize chart data with `useMemo`, use Recharts `isAnimationActive` prop |
 
 ---
 
-## Dependencies
+## 13. Dependencies
 
 - Backend API changes for date-range filtering (must deploy before frontend)
 - Existing `WeeklyMuscleHeatmap` component as foundation for period heatmap
@@ -452,8 +510,10 @@ export function useFilteredMuscleVolume(period: StatsPeriod) {
 
 ---
 
-## Changelog
+## 14. Changelog
 
 | Date | Change |
 |------|--------|
 | 2026-03-04 | Initial draft |
+| 2026-03-26 | PRD quality audit: renumbered all 14 sections to standard order, expanded edge cases (8 to 12), added component interfaces, added Recharts re-render risk, added heatmap color scale hex codes |
+| 2026-03-26 | Status updated to SHIPPED - implementation verified in codebase |

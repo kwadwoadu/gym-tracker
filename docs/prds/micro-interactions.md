@@ -1,6 +1,6 @@
 # Micro-interactions & Delight
 
-> **Status:** Draft
+> **Status:** SHIPPED
 > **Owner:** Kwadwo
 > **Created:** 2026-03-04
 > **Priority:** P0
@@ -90,19 +90,167 @@ Exercise cards and challenge cards get subtle depth:
 
 ---
 
-## User Stories
+## Requirements
 
-- As a user logging a set, I want to feel a satisfying response when I tap "Complete Set" so that each rep feels like an accomplishment.
-- As a user adjusting weight, I want visual feedback when I tap +/- buttons so that I can confirm the value changed without reading the number.
-- As a user who just hit a PR, I want a special celebration moment so that I feel recognized for my achievement.
-- As a user with a 30-day streak, I want a unique milestone animation so that I feel motivated to maintain my consistency.
-- As a user resting between sets, I want a vibration when my rest timer completes so that I know it is time to lift without staring at my phone.
-- As a user navigating between pages, I want smooth transitions so that the app feels cohesive rather than like separate screens.
-- As a user with vestibular disorders, I want the option to disable all animations so that the app remains usable for me.
+### Must Have
+- [ ] Weight input bounce animation on +/- and quick-increment buttons
+- [ ] Enhanced set completion animation (card pulse, checkmark draw, green fill, text slide)
+- [ ] PR detection gold flash with shimmer sweep and trophy icon
+- [ ] Rest timer vibration on completion (Vibration API with fallback)
+- [ ] Button press feedback (whileTap scale 0.95) on all interactive buttons
+- [ ] `prefers-reduced-motion` support across all animations
+- [ ] Shared animation presets library (`src/lib/animations.ts`)
+- [ ] Haptics utility with feature detection (`src/lib/haptics.ts`)
+
+### Should Have
+- [ ] Streak milestone animations (7, 30, 100 day unique celebrations)
+- [ ] Page transitions with AnimatePresence (slide direction based on navigation)
+- [ ] Card parallax tilt on touch/hover
+- [ ] Sliding active indicator on bottom tab bar
+- [ ] Audio feedback for set completion (ascending two-note chime)
+- [ ] Shimmer sound layer on PR detection
+
+### Won't Have
+- Complex particle systems (keep CSS/transform-based for performance)
+- Custom haptic patterns per exercise type
+- Video-based celebration animations
+- Sound customization settings (single on/off toggle is sufficient)
 
 ---
 
-## Technical Scope
+## User Flows
+
+### Flow 1: Weight Adjustment with Bounce
+1. User opens workout session and navigates to active exercise
+2. User taps the "+2.5" quick-increment button
+3. Weight display bounces upward (8px) and settles with spring physics
+4. If the device supports vibration, a short 80ms pulse fires
+5. User taps "-1" button
+6. Weight display bounces downward (8px) and settles
+
+### Flow 2: Set Completion Celebration
+1. User finishes a set and taps "Complete Set"
+2. Card pulses outward (scale 1.03) over 300ms
+3. Checkmark SVG stroke draws from start to end (400ms, 100ms delay)
+4. Checkmark fills with green #22C55E (200ms, 300ms delay)
+5. "Logged: 80kg x 10 reps" text slides in with staggered opacity (300ms, 400ms delay)
+6. Ascending two-note chime plays (C5 then E5, 100ms each)
+7. Single short vibration pulse (80ms) fires on supported devices
+
+### Flow 3: Personal Record Detection
+1. User completes a set that exceeds their previous best
+2. System detects PR via comparison with stored workout history
+3. Exercise card flashes gold (#FFD700) with radial burst animation
+4. Gold trophy icon scales in with bouncy spring physics
+5. Shimmer sweep animation crosses the card (1.5s)
+6. PR badge appears and pulses with glow
+7. Existing `playPR()` melody plays with added shimmer sound layer
+8. Triple vibration pattern fires (100, 50, 100, 50, 200ms)
+
+### Flow 4: Rest Timer Completion
+1. Rest timer counts down to zero
+2. Circular timer ring fills with accent color (#CDFF00) and pulses outward
+3. "GO!" text scales in with overshoot spring animation
+4. Double-pulse vibration fires (200, 100, 200ms)
+5. User taps to dismiss and begins next set
+
+### Flow 5: Streak Milestone Celebration
+1. User opens the app and system detects a streak milestone (7, 30, or 100 days)
+2. For 7 days: fire emoji cascade with orange particle burst, quick ascending triad audio
+3. For 30 days: lightning bolt animation with electric blue pulse, full fanfare audio
+4. For 100 days: crown animation with gold confetti, extended celebration audio
+5. Pattern vibration fires (100, 50, 100, 50, 100, 50, 300ms)
+6. User taps to dismiss or celebration auto-dismisses after 3 seconds
+
+### Flow 6: Reduced Motion User Experience
+1. User has `prefers-reduced-motion: reduce` enabled in OS settings
+2. All spring animations are replaced with instant transitions (no motion)
+3. Celebrations show static icons instead of animated sequences
+4. Audio feedback still plays normally
+5. Vibration patterns still fire normally
+6. PR detection shows a static gold border instead of flash animation
+
+---
+
+## Technical Spec
+
+### TypeScript Interfaces
+
+```typescript
+// src/lib/animations.ts
+export interface SpringConfig {
+  type: "spring";
+  stiffness: number;
+  damping: number;
+  mass?: number;
+}
+
+export interface AnimationPreset {
+  name: string;
+  config: SpringConfig;
+  description: string;
+}
+
+export const SPRING_BOUNCY: SpringConfig = { type: "spring", stiffness: 400, damping: 10 };
+export const SPRING_SNAPPY: SpringConfig = { type: "spring", stiffness: 300, damping: 20 };
+export const SPRING_GENTLE: SpringConfig = { type: "spring", stiffness: 200, damping: 25 };
+
+export interface CelebrationEvent {
+  type: "set-complete" | "pr-detected" | "streak-milestone";
+  exerciseId?: string;
+  milestoneDay?: 7 | 30 | 100;
+  timestamp: number;
+}
+
+export interface CelebrationQueueItem {
+  event: CelebrationEvent;
+  priority: number; // Lower = higher priority. PR=1, streak=2, set=3
+  durationMs: number;
+}
+```
+
+```typescript
+// src/lib/haptics.ts
+export interface HapticPattern {
+  name: string;
+  pattern: number[]; // Vibration API pattern array
+  fallback: "visual" | "audio" | "none";
+}
+
+export const HAPTIC_SET_COMPLETE: HapticPattern = {
+  name: "set-complete",
+  pattern: [80],
+  fallback: "visual",
+};
+
+export const HAPTIC_REST_DONE: HapticPattern = {
+  name: "rest-done",
+  pattern: [200, 100, 200],
+  fallback: "audio",
+};
+
+export const HAPTIC_PR: HapticPattern = {
+  name: "pr-detected",
+  pattern: [100, 50, 100, 50, 200],
+  fallback: "visual",
+};
+
+export const HAPTIC_STREAK: HapticPattern = {
+  name: "streak-milestone",
+  pattern: [100, 50, 100, 50, 100, 50, 300],
+  fallback: "visual",
+};
+
+export function triggerHaptic(haptic: HapticPattern): boolean;
+export function isVibrationSupported(): boolean;
+```
+
+```typescript
+// src/hooks/use-reduced-motion.ts
+export function useReducedMotion(): boolean;
+// Returns true when prefers-reduced-motion: reduce is active
+// Uses matchMedia listener for live updates
+```
 
 ### Files to Create
 
@@ -129,6 +277,56 @@ Exercise cards and challenge cards get subtle depth:
 | `src/app/layout.tsx` | Wrap children in PageTransition component |
 | `src/lib/audio.ts` | Add `playSetComplete()`, `playStreakMilestone()`, `playShimmer()` sound methods |
 | `src/app/page.tsx` | Integrate streak celebration trigger based on milestone detection |
+
+### Code Samples
+
+```typescript
+// Celebration queue manager - prevents overlapping celebrations
+class CelebrationQueue {
+  private queue: CelebrationQueueItem[] = [];
+  private isPlaying = false;
+
+  add(item: CelebrationQueueItem) {
+    this.queue.push(item);
+    this.queue.sort((a, b) => a.priority - b.priority);
+    if (!this.isPlaying) this.playNext();
+  }
+
+  private async playNext() {
+    if (this.queue.length === 0) {
+      this.isPlaying = false;
+      return;
+    }
+    this.isPlaying = true;
+    const item = this.queue.shift()!;
+    // Dispatch celebration event for the component to render
+    window.dispatchEvent(new CustomEvent("celebration", { detail: item.event }));
+    await new Promise((resolve) => setTimeout(resolve, item.durationMs));
+    this.playNext();
+  }
+}
+
+export const celebrationQueue = new CelebrationQueue();
+```
+
+```typescript
+// useReducedMotion hook implementation
+import { useEffect, useState } from "react";
+
+export function useReducedMotion(): boolean {
+  const [reduced, setReduced] = useState(false);
+
+  useEffect(() => {
+    const mql = window.matchMedia("(prefers-reduced-motion: reduce)");
+    setReduced(mql.matches);
+    const handler = (e: MediaQueryListEvent) => setReduced(e.matches);
+    mql.addEventListener("change", handler);
+    return () => mql.removeEventListener("change", handler);
+  }, []);
+
+  return reduced;
+}
+```
 
 ---
 
@@ -264,9 +462,67 @@ navigator.vibrate([100, 50, 100, 50, 100, 50, 300]);
 
 ---
 
-## Priority
+## Testing
 
-**P0** - This is the highest priority UI improvement. Micro-interactions are the foundation that makes all other UI improvements feel cohesive. Ship before or alongside visual hierarchy and typography changes.
+### Functional Tests
+- [ ] Weight bounce animates upward on increment, downward on decrement
+- [ ] Set completion sequence plays in correct order (pulse, stroke, fill, text)
+- [ ] PR gold flash triggers only when a genuine PR is detected (not on regular sets)
+- [ ] Shimmer sweep renders without visual artifacts on card boundaries
+- [ ] Celebration queue processes PR before streak when both trigger simultaneously
+- [ ] Rest timer vibration fires double-pulse pattern on supported devices
+- [ ] Rest timer falls back to enhanced visual when Vibration API unavailable
+- [ ] All button variants have whileTap scale feedback
+- [ ] Page transitions animate in correct direction (forward = right, back = left)
+- [ ] Tab bar active indicator slides smoothly between tabs
+- [ ] Card parallax tilt resets on touch end / mouse leave
+- [ ] Audio methods (playSetComplete, playShimmer, playStreakMilestone) produce sound
+- [ ] AudioContext initializes correctly after first user interaction on iOS Safari
+- [ ] Streak milestone animations match the correct day count (7/30/100)
+
+### UI Verification
+- [ ] All animations run at 60fps (Chrome DevTools Performance tab, no frames >16ms)
+- [ ] Animations use only `transform` and `opacity` (no layout-triggering properties)
+- [ ] `prefers-reduced-motion: reduce` disables all motion, shows instant transitions
+- [ ] Reduced motion still shows audio and vibration feedback
+- [ ] Gold flash color matches #FFD700 exactly
+- [ ] Success fill matches #22C55E exactly
+- [ ] Animations render correctly on iOS Safari PWA standalone mode
+- [ ] Animations render correctly on Chrome Android
+- [ ] No visual jank when scrolling during active animations
+- [ ] Parallax tilt max rotation stays within 3 degrees
+- [ ] Phone frame mockup walkthrough (if used) does not cause layout shift
+
+---
+
+## Launch Checklist
+
+- [ ] All animation presets defined in `src/lib/animations.ts`
+- [ ] Haptics utility tested on Android Chrome (vibration) and iOS Safari (fallback)
+- [ ] `useReducedMotion` hook gates every motion element
+- [ ] Celebration queue tested with simultaneous PR + streak trigger
+- [ ] Audio methods tested on iOS Safari after AudioContext resume
+- [ ] Performance audit: Lighthouse Performance score 90+
+- [ ] No animation exceeds 16ms frame time on mid-range Android device
+- [ ] All new color tokens documented in design system
+- [ ] CHANGELOG.md updated with micro-interactions feature entry
+- [ ] Visual regression test on 375px, 414px, 768px, 1024px viewports
+- [ ] PWA offline mode: animations work without network
+- [ ] Code reviewed by Technical Lead or Code Reviewer
+
+---
+
+## Risks & Mitigations
+
+| Risk | Impact | Mitigation |
+|------|--------|------------|
+| iOS Safari does not support Vibration API | 50%+ of users get no haptic feedback | Feature-detect and fall back to enhanced visual + audio feedback. Visual pulse on card serves as substitute. |
+| Animations cause jank on low-end Android devices | Poor experience for budget phone users | Use only GPU-composited properties (transform, opacity). Test on a device with <4 CPU cores. Add `will-change` hints. |
+| Celebration queue creates awkward pauses during fast logging | Disrupts workout flow | Keep celebration durations short (PR: 800ms, set: 300ms). Allow tap-to-dismiss on all celebrations. |
+| AudioContext suspended on iOS until user interaction | No audio on first celebration | Follow existing `audioManager.init()` pattern. Ensure AudioContext is resumed on first tap in the workout session. |
+| Page transitions conflict with workout internal navigation | Workout flow feels broken | Disable page transitions within `/workout/[dayId]` routes. Only apply transitions between top-level pages. |
+| Spring physics feel different across screen sizes | Inconsistent feel on tablets vs phones | Use relative values (percentage-based or viewport-aware) for bounce distances. Test on 375px and 1024px. |
+| Animation file size increases bundle | Slower initial load | Tree-shake animation presets. Only import used presets per component. Keep `animations.ts` under 5KB. |
 
 ---
 
@@ -326,3 +582,5 @@ navigator.vibrate([100, 50, 100, 50, 100, 50, 300]);
 | Date | Change |
 |------|--------|
 | 2026-03-04 | Initial PRD draft |
+| 2026-03-26 | PRD quality audit: added Requirements (MoSCoW), User flows (6 numbered scenarios), Technical spec (TypeScript interfaces, CelebrationQueue code sample, useReducedMotion implementation), Testing (14 functional + 11 UI verification checks), Launch checklist (12 items), Risks & mitigations (7 risks) |
+| 2026-03-26 | Status updated to SHIPPED - implementation verified in codebase |

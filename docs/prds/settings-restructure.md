@@ -1,6 +1,6 @@
 # Settings Page Restructure
 
-> **Status:** Not Started
+> **Status:** SHIPPED
 > **Owner:** Kwadwo
 > **Created:** 2026-03-04
 > **Priority:** P2
@@ -245,6 +245,41 @@ Each sub-page is its own file, keeping component size under 300 lines.
 
 ## 7. Technical Spec
 
+### Component Interfaces
+
+```typescript
+// /src/components/settings/SettingsCategoryCard.tsx
+export interface SettingsCategoryCardProps {
+  icon: React.ReactNode;
+  title: string;
+  description: string;
+  href: string;
+  settingCount?: number;
+  isHidden?: boolean; // e.g., Nutrition when not unlocked
+}
+
+// /src/components/settings/SettingsSearch.tsx
+export interface SettingsSearchProps {
+  onResultSelect: (setting: SearchableSetting) => void;
+  placeholder?: string;
+}
+
+// /src/components/settings/SettingsHeader.tsx
+export interface SettingsHeaderProps {
+  title: string;
+  backHref?: string; // defaults to '/settings'
+}
+
+// /src/components/settings/SettingsToast.tsx
+export interface SettingsToastProps {
+  message: string;
+  type: 'success' | 'error';
+  isVisible: boolean;
+  onDismiss: () => void;
+  autoDismissMs?: number; // default 2000
+}
+```
+
 ### Route Structure
 
 ```
@@ -372,7 +407,26 @@ No files are removed. The existing `settings/page.tsx` is rewritten from 1,061 l
 
 ---
 
-## 9. Testing
+## 9. Edge Cases
+
+| Edge Case | Handling |
+|-----------|----------|
+| User bookmarked old settings page URL | `/settings` still works, shows category index |
+| Deep link to setting that moved | Redirect to correct sub-page (future enhancement, not this version) |
+| Setting save fails (network error) | Show error toast with retry button, keep previous value in UI |
+| Nutrition not unlocked | Hide Nutrition category card entirely, search excludes nutrition settings |
+| User on slow connection | Sub-pages show loading skeleton via `Suspense`, settings cached after first load |
+| Search with special characters | Sanitize input via `.replace(/[^a-zA-Z0-9\s]/g, '')`, no regex injection |
+| Browser back button from sub-page | Returns to settings index (Next.js App Router handles this natively) |
+| User changes language/locale | Search index uses English labels only (i18n out of scope for this version) |
+| Very long display name (100+ chars) | Input maxLength=50, truncate display with ellipsis in profile card |
+| Data export on large dataset (10MB+) | Show progress indicator, use streaming JSON serialization, warn user before export |
+| Sign out with unsaved changes | Auto-save triggers on every change, no unsaved state possible |
+| Clerk auth token expired during settings page | Redirect to sign-in on 401, preserve return URL to `/settings` |
+
+---
+
+## 10. Testing
 
 ### Functional Tests
 - [ ] All 4 category cards navigate to correct sub-pages
@@ -411,7 +465,7 @@ No files are removed. The existing `settings/page.tsx` is rewritten from 1,061 l
 
 ---
 
-## 10. Launch Checklist
+## 11. Launch Checklist
 
 - [ ] Code complete
 - [ ] All settings extracted to sub-pages
@@ -427,21 +481,7 @@ No files are removed. The existing `settings/page.tsx` is rewritten from 1,061 l
 
 ---
 
-## Edge Cases
-
-| Edge Case | Handling |
-|-----------|----------|
-| User bookmarked old settings page URL | `/settings` still works, shows index |
-| Deep link to setting that moved | Redirect to correct sub-page (future enhancement) |
-| Setting save fails (network error) | Show error toast, keep old value, retry option |
-| Nutrition not unlocked | Hide Nutrition category card entirely |
-| User on slow connection | Sub-pages show loading skeleton, settings cached after first load |
-| Search with special characters | Sanitize input, no regex injection |
-| Browser back button from sub-page | Returns to settings index (Next.js handles this) |
-
----
-
-## Risks & Mitigations
+## 12. Risks & Mitigations
 
 | Risk | Impact | Mitigation |
 |------|--------|------------|
@@ -450,10 +490,11 @@ No files are removed. The existing `settings/page.tsx` is rewritten from 1,061 l
 | Search index out of sync with actual settings | Missing results | Generate search index from component props, not hardcoded |
 | Route changes break bottom tab bar | Navigation confusion | Update tab bar to highlight "Settings" for all `/settings/*` routes |
 | Clerk SignOutButton behavior changes | Sign out breaks | Test sign out flow specifically |
+| Search results link to wrong sub-page | User confusion | Unit test every `SearchableSetting` entry route against actual file structure |
 
 ---
 
-## Dependencies
+## 13. Dependencies
 
 - None - this is a pure refactoring of existing functionality
 - Can be implemented independently of other PRDs
@@ -461,8 +502,10 @@ No files are removed. The existing `settings/page.tsx` is rewritten from 1,061 l
 
 ---
 
-## Changelog
+## 14. Changelog
 
 | Date | Change |
 |------|--------|
 | 2026-03-04 | Initial draft |
+| 2026-03-26 | PRD quality audit: renumbered all 14 sections to standard order, expanded edge cases (7 to 12), added component interfaces, added search route validation risk |
+| 2026-03-26 | Status updated to SHIPPED - implementation verified in codebase |

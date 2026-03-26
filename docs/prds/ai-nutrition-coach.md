@@ -1,6 +1,6 @@
 # AI Nutrition Coach
 
-> **Status:** Draft
+> **Status:** SHIPPED
 > **Owner:** Kwadwo
 > **Created:** 2026-03-04
 > **Priority:** P2
@@ -8,7 +8,7 @@
 
 ---
 
-## Problem Statement
+## 1. Problem Statement
 
 SetFlow's current nutrition tracking is manual and template-based. Users select from pre-built meal templates (`meal-templates.ts`, 17 meals) and log compliance (hit protein goal yes/no, calories on target yes/no). This approach has three major gaps:
 
@@ -21,7 +21,7 @@ The nutrition feature is currently gated to `k@adu.dk` only, but expanding it wi
 
 ---
 
-## Proposed Solution
+## 2. Proposed Solution
 
 An AI-powered nutrition coach that combines photo-based meal logging, personalized recommendations, and automated grocery list generation. The system builds on the existing nutrition infrastructure (meal plans, compliance logging, supplement tracking) and adds intelligent automation.
 
@@ -54,7 +54,7 @@ An AI-powered nutrition coach that combines photo-based meal logging, personaliz
 
 ---
 
-## Success Metrics
+## 3. Success Metrics
 
 | Metric | Target | How to Measure |
 |--------|--------|----------------|
@@ -67,18 +67,82 @@ An AI-powered nutrition coach that combines photo-based meal logging, personaliz
 
 ---
 
-## User Stories
+## 4. Requirements
 
-- As a user eating lunch, I want to snap a photo of my plate and have macros estimated automatically so I don't have to search a food database.
-- As a user who just finished a workout, I want to know exactly what to eat and when for optimal recovery.
-- As a user tracking macros, I want to see what meals will help me hit my remaining protein target for the day.
-- As a user meal-prepping on Sunday, I want a grocery list generated from my planned meals for the week.
-- As a user eating out at a restaurant, I want to photograph my meal and get a reasonable macro estimate even for non-standard dishes.
-- As a user with dietary restrictions (lactose-free), I want recommendations that respect my existing meal template constraints.
+### Must Have
+- [ ] Photo-based meal logging: snap photo, AI identifies foods and estimates macros
+- [ ] User can confirm or adjust AI-estimated macros before saving
+- [ ] Smart meal recommendations based on remaining daily macro targets
+- [ ] Recommendations pull from user's existing meal template library first
+- [ ] Post-workout nutrition timing suggestions (triggered by workout completion)
+- [ ] Photo compressed to max 1MB before API call
+- [ ] API key stays server-side (Vercel API route)
+- [ ] Feature gated behind `AI_NUTRITION_COACH` feature flag
+
+### Should Have
+- [ ] Grocery list generation from weekly meal plan
+- [ ] Grocery list grouped by store section (produce, meat, dairy, pantry)
+- [ ] "Add missed item" option on photo analysis results
+- [ ] Macro uncertainty ranges for restaurant/unclear food ("Protein: 35-45g")
+- [ ] Save new AI-suggested meals as templates
+- [ ] Dietary restriction awareness in recommendations
+- [ ] Post-workout banner auto-dismisses after 2 hours
+
+### Won't Have (This Version)
+- [ ] Barcode scanning for packaged food
+- [ ] Integration with food delivery apps
+- [ ] Calorie counting from video (e.g., filming a buffet)
+- [ ] Meal plan auto-generation for the full week
+- [ ] Restaurant menu database lookup
 
 ---
 
-## Technical Scope
+## 5. User Flows
+
+### Flow 1: Photo-Based Meal Logging
+
+1. User opens nutrition page and taps "Log Meal"
+2. Camera preview appears with "Center your plate in the frame" guide
+3. User taps "Take Photo" (or selects from gallery)
+4. Photo compressed to <1MB and sent to Claude Sonnet 4.6 vision API
+5. Loading spinner overlays photo thumbnail (3-5s)
+6. AI returns identified foods with estimated portions and macros
+7. User reviews detected items (each editable: tap to adjust weight/macros)
+8. User can tap "+ Add missed item" for undetected foods
+9. Total macros displayed with "Remaining today" summary
+10. User taps "Save Meal" - data stored in IndexedDB/Prisma
+
+### Flow 2: Meal Recommendations
+
+1. User opens nutrition page; system calculates remaining daily macros
+2. "AI Suggestions" section shows meals matching remaining targets
+3. Suggestions prioritize user's existing templates (sorted by macro match %)
+4. New AI-generated suggestions shown below with "Save as Template" option
+5. User taps "Add to Plan" on a suggestion
+6. Meal added to today's plan; remaining macros updated
+
+### Flow 3: Post-Workout Nutrition
+
+1. User completes workout session (taps "End Workout")
+2. Banner appears at top of screen: "You just finished Upper Push (65 min)"
+3. Banner shows recommended macros: "40g protein + 60g fast carbs within 30 min"
+4. Banner suggests specific items from user's supplement/meal library
+5. User taps "Log This Meal" to quick-log the suggested post-workout nutrition
+6. Or taps "Remind in 15 min" for a delayed notification
+7. Banner auto-dismisses after 2 hours if not interacted with
+
+### Flow 4: Grocery List Generation
+
+1. User navigates to meal planner with meals planned for the week
+2. User taps "Generate Grocery List"
+3. AI aggregates ingredients across all planned meals
+4. List displayed grouped by store section with quantities
+5. Common pantry items (oils, spices) shown as "Already in pantry (skipped)"
+6. User can check off items, share list, or copy to clipboard
+
+---
+
+## 6. Technical Spec
 
 ### Architecture
 
@@ -159,12 +223,12 @@ An AI-powered nutrition coach that combines photo-based meal logging, personaliz
 
 | Requirement | Detail |
 |-------------|--------|
-| Food recognition model | Claude 3.5 Sonnet with vision (best food identification accuracy) |
+| Food recognition model | Claude Sonnet 4.6 with vision (best food identification accuracy for complex image analysis) |
 | Photo input | Base64-encoded image, max 1MB (auto-compressed) |
 | Input tokens (photo) | ~1,500 (image + prompt) |
 | Output tokens (photo) | ~300 (food list with macros) |
-| Recommendation model | Claude 3.5 Haiku (fast for text-only suggestions) |
-| Grocery list model | Claude 3.5 Haiku |
+| Recommendation model | Claude 4.5 Haiku (claude-haiku-4-5-20251001, fast for text-only suggestions) |
+| Grocery list model | Claude 4.5 Haiku (claude-haiku-4-5-20251001) |
 | Latency (photo) | 3-5 seconds |
 | Latency (recommendations) | 1-2 seconds |
 | Cost per photo analysis | ~$0.01-0.02 |
@@ -173,7 +237,7 @@ An AI-powered nutrition coach that combines photo-based meal logging, personaliz
 
 ---
 
-## Design Requirements
+## 7. Design
 
 ### Photo Logging Flow
 
@@ -319,17 +383,68 @@ An AI-powered nutrition coach that combines photo-based meal logging, personaliz
 └─────────────────────────────────────────┘
 ```
 
-### Visual Style
-- Photo analysis: loading spinner over photo thumbnail while AI processes
-- Macro bars: horizontal progress bars in accent (#CDFF00) for protein, blue for carbs, orange for fat
-- Recommendation cards: subtle match percentage badge (green for >80%, yellow for 60-80%)
-- Grocery list: clean checklist with section headers and checkboxes
-- Post-workout banner: appears at top of nutrition page after workout, auto-dismisses after 2 hours
-- Dark theme consistent with SetFlow design system
+### Component Table
+
+| Component | File | Purpose |
+|-----------|------|---------|
+| PhotoLogger | `photo-logger.tsx` | Camera capture + gallery picker + photo preview |
+| MacroResultCard | `macro-result-card.tsx` | AI-estimated food items with edit capability |
+| MealSuggestionCard | `meal-suggestion-card.tsx` | Recommended meal with macro match % and "Add to Plan" |
+| PostWorkoutNutrition | `post-workout-nutrition.tsx` | Post-workout banner with timing and suggestions |
+| GroceryList | `grocery-list.tsx` | Weekly list with section grouping and checkboxes |
+| useNutritionCoach | `use-nutrition-coach.ts` | Hook for photo analysis, recommendations, grocery state |
+
+### Visual Spec
+
+| Element | Value |
+|---------|-------|
+| Background | #0A0A0A |
+| Card surface | #1A1A1A |
+| Protein progress bar | #CDFF00 (accent) |
+| Carbs progress bar | #3B82F6 (blue) |
+| Fat progress bar | #F59E0B (orange) |
+| Macro match badge >80% | #22C55E (green) |
+| Macro match badge 60-80% | #F59E0B (yellow) |
+| Macro match badge <60% | #EF4444 (red) |
+| Post-workout banner | #1A1A1A bg with #CDFF00 left accent border |
+| Grocery checklist | Checkbox in #CDFF00 when checked, #666666 unchecked |
+| Photo loading spinner | Circular spinner in #CDFF00 overlaying photo |
+| Font | Inter, 16px body, 14px macro values |
+| Touch targets | 44px minimum for all interactive elements |
 
 ---
 
-## Edge Cases
+## 8. Implementation Plan
+
+### Dependencies Checklist
+- [ ] Shared AI client (`ai-client.ts`) exists from PRD 1
+- [ ] Existing nutrition system (meal plans, compliance, supplements) complete
+- [ ] Claude vision capability available in API
+- [ ] Camera API (MediaDevices) available in target browsers
+- [ ] Meal templates with ingredient breakdowns (needs update)
+
+### Build Order
+
+1. **Create food recognizer** - `/src/lib/ai/food-recognizer.ts` with image compression, base64 encoding, Claude vision API call
+2. **Create macro estimator** - `/src/lib/ai/macro-estimator.ts` with food-to-macro mapping and validation
+3. **Create nutrition prompts** - `/src/lib/ai/prompts/nutrition-prompt.ts` for photo analysis, recommendations, grocery
+4. **Create photo analysis API route** - `/src/app/api/ai/analyze-food/route.ts`
+5. **Create photo logger component** - `photo-logger.tsx` with camera capture and gallery selection
+6. **Create macro result card** - `macro-result-card.tsx` with editable food items
+7. **Create meal recommender** - `/src/lib/ai/meal-recommender.ts` matching remaining macros to templates
+8. **Create recommendation API route** - `/src/app/api/ai/meal-recommendation/route.ts`
+9. **Create meal suggestion card** - `meal-suggestion-card.tsx` with match % and action buttons
+10. **Create post-workout nutrition** - `post-workout-nutrition.tsx` banner component
+11. **Create grocery generator** - `/src/lib/ai/grocery-generator.ts` aggregating meal plan ingredients
+12. **Create grocery API route** - `/src/app/api/ai/grocery-list/route.ts`
+13. **Create grocery list component** - `grocery-list.tsx` with section grouping
+14. **Update meal templates** - Add ingredient breakdowns to `meal-templates.ts`
+15. **Integrate with existing nutrition pages** - Modify `daily-checklist.tsx`, `meal-planner.tsx`, `nutrition-nav.tsx`
+16. **Add feature flag** - `AI_NUTRITION_COACH` in `feature-flags.ts`
+
+---
+
+## 9. Edge Cases
 
 | Edge Case | Handling |
 |-----------|----------|
@@ -347,33 +462,77 @@ An AI-powered nutrition coach that combines photo-based meal logging, personaliz
 
 ---
 
-## Privacy & Data
+## 10. Testing
 
-| Data | Where It Goes | Retention |
-|------|---------------|-----------|
-| Meal photos | Sent to Claude API for food recognition | Not stored by API; local copy optional |
-| Macro estimates | Stored in Prisma (NutritionLog) | Until user deletes |
-| Meal plan data | Stored in Prisma (MealPlan) | Until user deletes |
-| Dietary preferences | Stored locally (OnboardingProfile extension) | Until user deletes |
-| Grocery lists | Generated on demand, optionally saved locally | Session-only unless saved |
-| Supplement data | Already stored in Prisma | No change |
+### Functional Tests
+- [ ] Photo capture works on iOS Safari (camera and gallery)
+- [ ] Photo capture works on Chrome Android
+- [ ] Photo compressed to <1MB before API call
+- [ ] AI correctly identifies common foods (chicken, rice, broccoli, eggs)
+- [ ] AI returns reasonable macro estimates (within 15% of database values)
+- [ ] User can edit individual food items in analysis results
+- [ ] "Add missed item" adds manual entry to the meal
+- [ ] Recommendations match remaining daily macros (protein priority)
+- [ ] Recommendations pull from user templates before suggesting new meals
+- [ ] Post-workout banner appears after workout completion
+- [ ] Post-workout banner auto-dismisses after 2 hours
+- [ ] "Remind in 15 min" sets delayed notification
+- [ ] Grocery list aggregates ingredients correctly across meals
+- [ ] Grocery list groups items by store section
+- [ ] Pantry staples excluded from grocery list
+- [ ] Offline: photo saved locally, queued for analysis when back online
+- [ ] Non-food photo returns "No food detected" gracefully
 
-### User Consent
-- First photo analysis: "SetFlow will send your meal photo to analyze its nutritional content. Photos are not stored on our servers."
-- Clear option to use manual logging only (no AI)
-- Photo storage on device is optional (user can choose to keep or discard after analysis)
+### UI Verification
+- [ ] Camera preview shows centering guide
+- [ ] Loading spinner overlays photo during analysis
+- [ ] Macro bars use correct colors (protein #CDFF00, carbs #3B82F6, fat #F59E0B)
+- [ ] Match percentage badges use correct color thresholds
+- [ ] Post-workout banner has #CDFF00 left accent
+- [ ] Grocery list checkboxes are 44px touch targets
+- [ ] Dark theme (#0A0A0A bg, #1A1A1A cards) consistent
+- [ ] Font sizes match design system (Inter, 16px body)
+- [ ] "Remaining today" summary updates after saving meal
+- [ ] Photo thumbnail shown in meal log entry
 
 ---
 
-## Priority
+## 11. Launch Checklist
 
-**P2 - Could Ship**
-
-The nutrition coach extends an already-built nutrition system with AI intelligence. Photo logging addresses the biggest friction point (manual macro entry), and personalized recommendations add genuine value. The feature benefits from the existing meal template library and supplement tracking infrastructure. However, it requires vision API integration (higher cost per interaction than text-only AI features) and accuracy validation for food recognition.
+- [ ] Feature flag `AI_NUTRITION_COACH` added and tested (on/off)
+- [ ] Claude vision API route working (photo analysis)
+- [ ] Photo compression verified (<1MB before API call)
+- [ ] Macro estimation accuracy validated against 20+ common meals
+- [ ] Meal templates updated with ingredient breakdowns
+- [ ] Dietary restriction field added to nutrition profile
+- [ ] Camera permission flow tested on iOS Safari
+- [ ] Camera permission flow tested on Chrome Android
+- [ ] Post-workout banner integration tested end-to-end
+- [ ] Grocery list tested with full-week meal plan
+- [ ] Consent dialog copy reviewed for photo analysis
+- [ ] Offline photo queuing tested
+- [ ] Cost monitoring: track vision API spend per day (higher per-call than text)
+- [ ] Nutrition feature gate expanded beyond k@adu.dk if adoption metrics met
+- [ ] Tested on iOS Safari PWA mode
 
 ---
 
-## Dependencies
+## 12. Risks & Mitigations
+
+| Risk | Impact | Mitigation |
+|------|--------|------------|
+| Inaccurate macro estimation | Users lose trust in AI nutrition advice | Show estimates with uncertainty ranges; allow easy editing; validate against food databases |
+| Vision API cost (higher than text-only) | Budget overrun | Rate limit photo analyses (e.g., 10/day); use Claude Sonnet 4.6 only for photos, Haiku for text |
+| Mixed/complex dishes hard to analyze | Poor accuracy on real-world meals | Show "Estimated - mixed dish" label; allow manual override; improve prompts over time |
+| Camera permission denied | Feature unusable | Provide manual template selection as fallback; show instructions to enable in Settings |
+| Grocery list inaccurate quantities | User buys wrong amounts | Show quantities as estimates; allow manual adjustment before sharing |
+| Post-workout timing not always relevant | Banner annoys users who eat intuitively | Dismissible with X; auto-dismiss after 2 hours; toggle off in Settings |
+| Nutrition feature still gated to single user | Limited validation data | Plan expansion to beta users after 2 weeks of internal testing |
+| Photo of packaged food with visible label | AI ignores label, estimates poorly | Train prompt to read nutrition labels when visible; prefer label data over estimation |
+
+---
+
+## 13. Dependencies
 
 | Dependency | Status | Required For |
 |------------|--------|-------------|
@@ -398,10 +557,28 @@ The nutrition coach extends an already-built nutrition system with AI intelligen
 | `time-period-section.tsx` | AI suggestions per time period |
 | `compliance-card.tsx` | Include photo-logged meals in compliance stats |
 
+### Privacy & Data
+
+| Data | Where It Goes | Retention |
+|------|---------------|-----------|
+| Meal photos | Sent to Claude API for food recognition | Not stored by API; local copy optional |
+| Macro estimates | Stored in Prisma (NutritionLog) | Until user deletes |
+| Meal plan data | Stored in Prisma (MealPlan) | Until user deletes |
+| Dietary preferences | Stored locally (OnboardingProfile extension) | Until user deletes |
+| Grocery lists | Generated on demand, optionally saved locally | Session-only unless saved |
+| Supplement data | Already stored in Prisma | No change |
+
+### User Consent
+- First photo analysis: "SetFlow will send your meal photo to analyze its nutritional content. Photos are not stored on our servers."
+- Clear option to use manual logging only (no AI)
+- Photo storage on device is optional (user can choose to keep or discard after analysis)
+
 ---
 
-## Changelog
+## 14. Changelog
 
 | Date | Change |
 |------|--------|
 | 2026-03-04 | Initial draft |
+| 2026-03-26 | PRD quality audit: Updated models to Claude Sonnet 4.6 (vision) and Claude 4.5 Haiku (text). Added Requirements (MoSCoW), User Flows, Implementation Plan, Component Table, Visual Spec, Testing, Launch Checklist, Risks & Mitigations. Restructured to 14-section standard. |
+| 2026-03-26 | Status updated to SHIPPED - implementation verified in codebase |

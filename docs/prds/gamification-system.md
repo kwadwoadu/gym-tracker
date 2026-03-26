@@ -1,6 +1,6 @@
 # PRD: SetFlow Webapp Gamification System
 
-> **Status:** Draft
+> **Status:** SHIPPED
 > **Owner:** Kwadwo
 > **Created:** 2026-02-05
 > **Project:** gym-tracker (SetFlow Webapp)
@@ -385,3 +385,4 @@ function getXPForLevel(level: number): number {
 | Date | Change |
 |------|--------|
 | 2026-02-05 | Initial PRD draft |
+| 2026-03-26 | Status updated to SHIPPED |

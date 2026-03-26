@@ -1,18 +1,21 @@
-# AI Personal Trainer & Adaptive Periodization
+# AI Personal Trainer - Vision Document
 
-> **Status:** Draft
+> **Status:** Vision Doc (not directly implementable)
 > **Owner:** Kwadwo
 > **Created:** 2026-03-04
-> **Priority:** P3
+> **Priority:** P3 (umbrella)
 > **Roadmap Phase:** Phase 4 - Advanced AI
 
-> **Scope Note**: This PRD is intentionally broad as a vision document. Implementation should be split into separate, independently shippable PRDs:
-> 1. **Conversational Trainer Chat** (P2) - Chat interface with context from user data. Ship first, validate adoption.
-> 2. **Adaptive Periodization Engine** (P3) - Auto-adjusts program based on performance data. Depends on #1.
-> 3. **Predictive Analytics** (P3) - PR predictions, injury risk scoring, fatigue forecasting. Depends on #1.
-> 4. **Recovery Integration** (P3) - Whoop/recovery-aware adjustments. Depends on #1 + #2.
+> **This is a vision document.** It describes the long-term goal for SetFlow's AI personal trainer. Implementation is split into 4 independently shippable sub-PRDs:
 >
-> Each sub-PRD should define its own scope, costs, dependencies, and success metrics separately.
+> | Sub-PRD | File | Priority | Status |
+> |---------|------|----------|--------|
+> | Conversational Trainer Chat | [`ai-conversational-trainer.md`](ai-conversational-trainer.md) | P2 | Draft |
+> | Adaptive Periodization Engine | [`ai-adaptive-periodization.md`](ai-adaptive-periodization.md) | P3 | Draft |
+> | Predictive Analytics | [`ai-predictive-analytics.md`](ai-predictive-analytics.md) | P3 | Draft |
+> | Recovery Integration (Whoop) | [`ai-recovery-integration.md`](ai-recovery-integration.md) | P3 | Draft |
+>
+> **Ship order**: Conversational Trainer first (validates chat adoption), then Adaptive Periodization, then Predictive Analytics and Recovery Integration can ship in parallel.
 
 ---
 
@@ -141,7 +144,7 @@ Recovery-aware training decisions using Whoop data from the AduOS health domain:
 │                        v                                  │
 │  ┌────────────────────────────────────────────────┐      │
 │  │              Claude API                         │      │
-│  │          (Claude 3.5 Sonnet)                    │      │
+│  │          (Claude Sonnet 4.6)                    │      │
 │  │      Long context for full user history         │      │
 │  └────────────────────────────────────────────────┘      │
 │                                                          │
@@ -270,7 +273,7 @@ interface TrainerContext {
 
 | Requirement | Detail |
 |-------------|--------|
-| Model | Claude 3.5 Sonnet (needs reasoning for complex training decisions) |
+| Model | Claude Sonnet 4.6 (needs reasoning for complex training decisions) |
 | Context window | ~8,000-12,000 tokens per conversation (full TrainerContext + conversation history) |
 | Output tokens | ~500-1,000 per response (detailed coaching advice) |
 | Latency | 3-8 seconds per response (acceptable for chat UX) |
@@ -502,3 +505,4 @@ This is the "holy grail" feature that transforms SetFlow from a workout tracker 
 | Date | Change |
 |------|--------|
 | 2026-03-04 | Initial draft |
+| 2026-03-26 | Converted to vision document. Split into 4 sub-PRDs: ai-conversational-trainer, ai-adaptive-periodization, ai-predictive-analytics, ai-recovery-integration. Updated model references to Claude Sonnet 4.6. |

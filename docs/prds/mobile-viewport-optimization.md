@@ -1,6 +1,6 @@
 # Mobile Viewport Optimization
 
-> **Status:** Not Started
+> **Status:** SHIPPED
 > **Owner:** Kwadwo
 > **Created:** 2026-03-16
 > **Priority:** P1
@@ -120,5 +120,12 @@ Add `min-w-0` to the flex container and `truncate` to the exercise name so long 
 | Truncated exercise names lose meaning | Truncation only kicks in for very long names; most exercise names fit |
 
 ---
+
+## Changelog
+
+| Date | Change |
+|------|--------|
+| 2026-03-16 | Initial PRD created |
+| 2026-03-26 | Status updated to SHIPPED |
 
 *Created: 2026-03-16*

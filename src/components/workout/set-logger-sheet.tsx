@@ -1,6 +1,7 @@
 "use client";
 
 import { Drawer, DrawerContent, DrawerTitle } from "@/components/ui/drawer";
+import { Badge } from "@/components/ui/badge";
 import { SetLogger } from "@/components/workout/set-logger";
 import type { Exercise } from "@/lib/api-client";
 import type { FlatExercise } from "@/lib/flatten-exercises";
@@ -58,7 +59,20 @@ export function SetLoggerSheet({
   return (
     <Drawer open={open} onOpenChange={onOpenChange}>
       <DrawerContent className="bg-card border-t border-border max-h-[70vh]">
-        <DrawerTitle className="sr-only">Log Set</DrawerTitle>
+        {/* Visible header with exercise context */}
+        <div className="flex items-center justify-between px-4 pt-3 pb-1">
+          <div className="flex items-center gap-2">
+            <Badge className="bg-primary text-black text-xs font-bold px-2 py-0.5">
+              {exerciseLabel}
+            </Badge>
+            <DrawerTitle className="text-sm font-semibold text-foreground truncate max-w-[200px]">
+              {exercise.name}
+            </DrawerTitle>
+          </div>
+          <span className="text-xs text-muted-foreground">
+            {flatExercise.sets} x {flatExercise.reps}
+          </span>
+        </div>
         <div className="px-4 py-2 overflow-y-auto">
           <SetLogger
             exerciseId={flatExercise.exerciseId}

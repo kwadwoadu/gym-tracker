@@ -1,6 +1,6 @@
 # Landing Page Upgrade
 
-> **Status:** Draft
+> **Status:** SHIPPED
 > **Owner:** Kwadwo
 > **Created:** 2026-03-04
 > **Project:** gym-tracker (SetFlow Webapp)
@@ -108,18 +108,237 @@ An interactive slider showing:
 
 ---
 
-## User Stories
+## Requirements
 
-- As a potential user visiting setflow.app for the first time, I want to see the app in action before signing up so that I can decide if it fits my training style.
-- As a potential user who is skeptical of free fitness apps, I want to see social proof (user count, testimonials) so that I trust the app is legitimate and maintained.
-- As a potential user comparing SetFlow to competitors, I want to see feature screenshots so that I can evaluate the UI quality without creating an account.
-- As a potential user who trains seriously, I want to know the app was built by someone who actually lifts so that I trust the training features are designed by someone who understands my needs.
-- As a potential user on mobile, I want the landing page to load fast and feel smooth so that my first impression matches the app quality.
-- As a potential user who has tried other gym apps, I want to see a before/after comparison so that I understand why SetFlow is better than tracking in a notes app or spreadsheet.
+### Must Have
+- [ ] Animated app walkthrough replacing static phone mockup in hero section
+- [ ] Social proof counters (users, workouts, PRs, sets) with count-up animation
+- [ ] Testimonial section with 3-4 cards (carousel on mobile, grid on desktop)
+- [ ] Screenshot carousel with phone frame mockups and snap scrolling
+- [ ] "Built by Lifters" credibility section with trust signals
+- [ ] Differentiated bottom CTA (different messaging from hero CTA)
+- [ ] SEO meta tags (title, description, og:image, canonical URL)
+- [ ] Performance budget: LCP <2.5s, CLS <0.1, Lighthouse 90+
+- [ ] All screenshots in WebP format, lazy loaded, max 150KB each
+
+### Should Have
+- [ ] Before/after comparison slider (notes app vs SetFlow)
+- [ ] Walkthrough step indicators (dots) with tap-to-jump
+- [ ] Auto-advancing screenshot carousel with pause on hover/touch
+- [ ] Counter animation triggered by Intersection Observer (animate when visible)
+- [ ] Feature cards enhanced with screenshot thumbnails
+- [ ] Public stats API endpoint with stale-while-revalidate caching
+
+### Won't Have
+- Video testimonials or embedded video content
+- Interactive demo mode (sign up to try the app)
+- Pricing comparison table (app is free)
+- Blog or content marketing pages
+- A/B testing infrastructure (manual comparison post-launch)
 
 ---
 
-## Technical Scope
+## User Flows
+
+### Flow 1: First-Time Visitor Conversion
+1. User visits setflow.app from a social media link or search result
+2. Hero section loads with headline "Track Your Lifts. Beat Your PRs." and animated walkthrough
+3. Walkthrough auto-plays: day select, exercise scroll, start workout, log set, complete set, rest timer, PR detected
+4. User watches 1-2 cycles of the walkthrough (15 seconds each)
+5. User scrolls down, passing social proof counters that animate from 0 to current values
+6. User sees feature cards with screenshot thumbnails showing real app UI
+7. User reaches testimonial section with quotes from real users
+8. User sees "Built by Lifters" section establishing credibility
+9. User clicks differentiated bottom CTA: "Start your first workout in 60 seconds"
+10. User is redirected to `/sign-up` (Clerk)
+
+### Flow 2: Mobile Visitor Experience
+1. User visits on mobile (375px-414px viewport)
+2. Walkthrough phone mockup is centered and appropriately sized
+3. Social proof counters display in 2x2 grid
+4. Testimonials display as horizontal snap-scroll carousel
+5. Screenshots display as horizontal scroll with peek of next item
+6. Comparison slider is touch-friendly (40px handle)
+7. User can drag comparison handle with no vertical scroll conflict
+8. All CTAs have 56px touch target height
+
+### Flow 3: Returning Visitor (Signed In)
+1. User who is already signed in visits setflow.app
+2. Existing conditional in `page.tsx` detects authentication
+3. User is shown the home dashboard, never sees the landing page
+4. No redirect latency or flash of landing page content
+
+### Flow 4: SEO Crawler Visit
+1. Search engine crawler visits setflow.app
+2. All text content is in the DOM (not dependent on JavaScript animations)
+3. Meta tags provide title, description, and og:image
+4. Canonical URL is set to prevent duplicate content
+5. Walkthrough is decorative only; core value proposition is in text
+6. Page passes Core Web Vitals thresholds
+
+---
+
+## Technical Spec
+
+### TypeScript Interfaces
+
+```typescript
+// src/data/testimonials.ts
+export interface Testimonial {
+  id: string;
+  name: string;
+  context: string; // e.g., "Powerlifter, 2 years on SetFlow"
+  quote: string;
+  rating: 1 | 2 | 3 | 4 | 5;
+  avatarUrl?: string; // Optional, falls back to initials
+}
+
+export const testimonials: Testimonial[] = [
+  // 3-4 seeded from beta testers
+];
+```
+
+```typescript
+// src/app/api/stats/public/route.ts
+export interface PublicStats {
+  totalUsers: number;
+  totalWorkouts: number;
+  totalPRs: number;
+  totalSetsLogged: number;
+  lastUpdated: string; // ISO date
+}
+
+// GET /api/stats/public
+// Response: PublicStats
+// Cache: stale-while-revalidate, 24 hours
+// Fallback: hardcoded values if DB query fails
+```
+
+```typescript
+// src/components/landing/app-walkthrough.tsx
+export interface WalkthroughStep {
+  id: string;
+  label: string;
+  duration: number; // ms
+  delay: number; // ms from sequence start
+}
+
+export interface AppWalkthroughProps {
+  autoPlay?: boolean; // Default: true
+  onStepChange?: (stepIndex: number) => void;
+}
+```
+
+```typescript
+// src/components/landing/social-proof.tsx
+export interface CounterItem {
+  icon: React.ReactNode;
+  value: number;
+  label: string;
+  prefix?: string; // e.g., ">"
+  suffix?: string; // e.g., "+"
+}
+
+export interface SocialProofProps {
+  stats: PublicStats;
+}
+```
+
+```typescript
+// src/components/landing/comparison-slider.tsx
+export interface ComparisonSliderProps {
+  beforeImage: string; // Path to "before" screenshot
+  afterImage: string; // Path to "after" screenshot
+  beforeLabel: string;
+  afterLabel: string;
+  initialPosition?: number; // 0-100, default 50
+}
+```
+
+### Files to Create
+
+| File | Description |
+|------|-------------|
+| `src/components/landing/app-walkthrough.tsx` | Animated Framer Motion sequence showing real app flow in phone mockup |
+| `src/components/landing/social-proof.tsx` | Live counter section with count-up animations |
+| `src/components/landing/testimonials.tsx` | Testimonial carousel/grid with user quotes |
+| `src/components/landing/screenshot-carousel.tsx` | Horizontally scrollable app screenshot showcase |
+| `src/components/landing/credibility.tsx` | "Built by lifters" credibility section |
+| `src/components/landing/comparison-slider.tsx` | Before/after interactive comparison slider |
+| `src/app/api/stats/public/route.ts` | API endpoint returning aggregate public stats (user count, workout count, PR count) |
+| `src/data/testimonials.ts` | Static testimonial data (quotes, names, ratings) |
+| `public/screenshots/home.webp` | App screenshot: home page |
+| `public/screenshots/set-logger.webp` | App screenshot: set logger |
+| `public/screenshots/rest-timer.webp` | App screenshot: rest timer |
+| `public/screenshots/stats.webp` | App screenshot: stats page |
+| `public/screenshots/muscle-map.webp` | App screenshot: muscle heatmap |
+| `public/screenshots/achievements.webp` | App screenshot: achievement system |
+
+### Files to Modify
+
+| File | Change |
+|------|--------|
+| `src/components/landing/hero.tsx` | Replace static phone mockup with AppWalkthrough component. Keep headline and CTAs. |
+| `src/components/landing/features.tsx` | Add screenshot thumbnails to each feature card. Update grid layout for visual variety. |
+| `src/components/landing/cta.tsx` | Differentiate bottom CTA from hero. Add urgency/value: "Start your first workout in 60 seconds" |
+| `src/components/landing/index.tsx` | Export new components |
+| `src/app/page.tsx` | Add new sections between Features and CTA: SocialProof, ScreenshotCarousel, Testimonials, Credibility, ComparisonSlider |
+| `src/components/landing/footer.tsx` | Add links to privacy policy, terms, and GitHub (if open source) |
+
+### Code Samples
+
+```typescript
+// Count-up animation hook for social proof counters
+import { useEffect, useRef, useState } from "react";
+
+export function useCountUp(target: number, duration = 2000, startOnView = true) {
+  const [count, setCount] = useState(0);
+  const ref = useRef<HTMLDivElement>(null);
+  const hasAnimated = useRef(false);
+
+  useEffect(() => {
+    if (!startOnView || !ref.current) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !hasAnimated.current) {
+          hasAnimated.current = true;
+          const start = performance.now();
+          const animate = (now: number) => {
+            const elapsed = now - start;
+            const progress = Math.min(elapsed / duration, 1);
+            // easeOutExpo
+            const eased = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
+            setCount(Math.floor(eased * target));
+            if (progress < 1) requestAnimationFrame(animate);
+          };
+          requestAnimationFrame(animate);
+        }
+      },
+      { threshold: 0.3 }
+    );
+
+    observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, [target, duration, startOnView]);
+
+  return { count, ref };
+}
+```
+
+```typescript
+// Comparison slider touch handling
+function handlePointerMove(e: React.PointerEvent) {
+  if (!isDragging) return;
+  const rect = containerRef.current?.getBoundingClientRect();
+  if (!rect) return;
+  const x = e.clientX - rect.left;
+  const percentage = Math.max(0, Math.min(100, (x / rect.width) * 100));
+  setPosition(percentage);
+}
+// Container: touch-action: pan-y (allow vertical scroll)
+// Handle: touch-action: none (capture horizontal drag)
+```
 
 ### Files to Create
 
@@ -331,9 +550,80 @@ Content: max-w-3xl mx-auto text-center
 
 ---
 
-## Priority
+## Testing
 
-**P2** - The landing page upgrade improves acquisition but does not affect the experience of existing active users. Implement after P0 (micro-interactions) and P1 (visual hierarchy, typography) improvements, which benefit all users on every session.
+### Functional Tests
+- [ ] Walkthrough auto-plays on page load and loops after 15-second cycle
+- [ ] Walkthrough step dots respond to tap (jump to correct step)
+- [ ] Walkthrough pauses on touch/hover and resumes on release
+- [ ] Social proof counters animate from 0 to target value on scroll into view
+- [ ] Counters only animate once (not on every scroll past)
+- [ ] Counter numbers format with comma separators (e.g., "12,847")
+- [ ] API endpoint `/api/stats/public` returns valid JSON with all 4 stats
+- [ ] API fallback: hardcoded values returned when database query fails
+- [ ] Testimonial carousel snap-scrolls on mobile (snap-x snap-mandatory)
+- [ ] Testimonial grid displays 3 columns on desktop (lg+)
+- [ ] Screenshot carousel auto-advances every 3 seconds
+- [ ] Screenshot carousel pauses on hover/touch
+- [ ] Comparison slider handle drags horizontally to reveal left/right panels
+- [ ] Comparison slider does not conflict with vertical page scrolling
+- [ ] Bottom CTA text differs from hero CTA text
+- [ ] Signed-in users are redirected to home dashboard (never see landing page)
+- [ ] All CTA buttons link to `/sign-up`
+
+### UI Verification
+- [ ] Walkthrough phone frame renders correctly (rounded corners, border, shadow)
+- [ ] Walkthrough animation is smooth at 60fps (no visible jank)
+- [ ] Social proof counter numbers use #CDFF00 color
+- [ ] Testimonial cards use `bg-white/5 border-white/10 rounded-2xl` styling
+- [ ] Star ratings in testimonials render in #CDFF00
+- [ ] Screenshot phone mockups show actual app captures (not placeholder images)
+- [ ] Screenshots are lazy loaded (not in initial bundle)
+- [ ] Section backgrounds alternate between #0A0A0A and #111111
+- [ ] Credibility trust signals display with icons + labels in a row
+- [ ] Comparison slider handle is 40px (touch-friendly)
+- [ ] All sections are properly spaced with consistent rhythm
+- [ ] Landing page renders correctly on 375px, 414px, 768px, 1024px, 1440px
+- [ ] No horizontal overflow on any viewport
+- [ ] Meta tags render in page source (title, description, og:image, canonical)
+- [ ] LCP <2.5s (hero headline is LCP element)
+- [ ] CLS <0.1 (no layout shifts from lazy-loaded images)
+
+---
+
+## Launch Checklist
+
+- [ ] 3-4 testimonials collected and added to `src/data/testimonials.ts`
+- [ ] 6 app screenshots captured in 1170x2532px WebP format (<150KB each)
+- [ ] Before/after comparison images created
+- [ ] Public stats API endpoint deployed and returning data
+- [ ] All 6 new landing page components built and integrated
+- [ ] Hero walkthrough replaces static mockup
+- [ ] Bottom CTA differentiated from hero CTA
+- [ ] Feature cards enhanced with screenshot thumbnails
+- [ ] Meta tags added: title, description, og:image, canonical URL
+- [ ] Lighthouse Performance score 90+
+- [ ] Core Web Vitals: LCP <2.5s, FID <100ms, CLS <0.1
+- [ ] Lazy loading verified for below-fold images
+- [ ] Tested on iOS Safari (PWA and browser)
+- [ ] Tested on Chrome Android
+- [ ] Signed-in user redirect works (no landing page flash)
+- [ ] CHANGELOG.md updated
+
+---
+
+## Risks & Mitigations
+
+| Risk | Impact | Mitigation |
+|------|--------|------------|
+| Walkthrough animation is janky on low-end mobile | Poor first impression for budget phone users | All animations use transform/opacity only. Detect `navigator.hardwareConcurrency < 4` and show static screenshot instead. |
+| Public stats API leaks sensitive data | Privacy concern | Only expose aggregate counts (total users, total workouts). No PII, no per-user data, no recent activity. |
+| Screenshots become outdated after UI updates | Landing page shows stale UI | Add screenshot regeneration to deployment checklist. Consider Playwright-based auto-capture script. |
+| No real testimonials available at launch | Social proof section looks fake | Seed with beta tester quotes. Mark as "Beta tester" in context. Minimum 3 testimonials. Update with real feedback post-launch. |
+| Comparison slider touch conflicts with page scroll | Frustrating mobile experience | Use `touch-action: pan-y` on container, `touch-action: none` on handle only. Test on iOS Safari and Chrome Android. |
+| Landing page JS bundle too large | Slow initial load, poor Lighthouse score | Lazy load below-fold sections with `dynamic()`. Keep page-specific JS <100KB gzipped. Tree-shake Framer Motion. |
+| SEO: animated content is not crawlable | Search engines cannot index the walkthrough | All value proposition text is in the DOM as semantic HTML. Walkthrough is purely decorative. Use `aria-hidden` on animation container. |
+| Walkthrough on <375px screens is too small to see | App preview is unreadable on very small screens | Switch to a static screenshot with "See it in action" CTA that opens a full-screen overlay on screens <375px. |
 
 ---
 
@@ -397,3 +687,5 @@ Content: max-w-3xl mx-auto text-center
 | Date | Change |
 |------|--------|
 | 2026-03-04 | Initial PRD draft |
+| 2026-03-26 | PRD quality audit: added Requirements (MoSCoW), User flows (4 numbered scenarios), Technical spec (TypeScript interfaces for Testimonial, PublicStats, WalkthroughStep, CounterItem, ComparisonSliderProps, code samples with useCountUp hook and slider touch handling), Testing (17 functional + 16 UI verification checks), Launch checklist (16 items), Risks & mitigations (8 risks) |
+| 2026-03-26 | Status updated to SHIPPED - implementation verified in codebase |

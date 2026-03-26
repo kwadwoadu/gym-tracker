@@ -1,6 +1,6 @@
 # Body Composition Tracking
 
-> **Status:** Not Started
+> **Status:** SHIPPED
 > **Owner:** Kwadwo
 > **Created:** 2026-03-04
 > **Priority:** P2
@@ -740,7 +740,25 @@ Recharts can struggle with large datasets on low-end devices. Apply these optimi
 
 ---
 
-## 9. Testing
+## 9. Edge Cases
+
+| Edge Case | Handling |
+|-----------|----------|
+| First weight entry (no trend data) | Show single dot, no trend line until 3+ entries |
+| Massive weight change (>5kg in a day) | Confirm with user: "Are you sure? This is a large change" |
+| Multiple entries same day | Keep most recent entry, show edit option |
+| No photos yet for comparison | Show "Take your first progress photo" prompt |
+| Camera permission denied | Fall back to photo gallery picker |
+| IndexedDB storage full (many photos) | Warn user, suggest exporting old photos |
+| Unit switch mid-data (kg to lbs) | Convert all historical data on toggle, store canonical in kg |
+| Navy method gives unrealistic result (<5% or >50%) | Show warning: "Result may be inaccurate - check measurements" |
+| Missing measurement fields | Allow partial entries, only calculate body fat when required fields present |
+| Photo Blob exceeds IndexedDB quota on older iOS devices | Catch QuotaExceededError, prompt user to free space or reduce photo quality |
+| User switches between metric and imperial rapidly | Debounce unit toggle, only convert once per 500ms to prevent rounding drift |
+
+---
+
+## 10. Testing
 
 ### Functional Tests
 - [ ] Weight entry saves to IndexedDB correctly
@@ -771,7 +789,7 @@ Recharts can struggle with large datasets on low-end devices. Apply these optimi
 
 ---
 
-## 10. Launch Checklist
+## 11. Launch Checklist
 
 - [ ] Code complete
 - [ ] Tests passing
@@ -787,23 +805,7 @@ Recharts can struggle with large datasets on low-end devices. Apply these optimi
 
 ---
 
-## Edge Cases
-
-| Edge Case | Handling |
-|-----------|----------|
-| First weight entry (no trend data) | Show single dot, no trend line until 3+ entries |
-| Massive weight change (>5kg in a day) | Confirm with user: "Are you sure? This is a large change" |
-| Multiple entries same day | Keep most recent entry, show edit option |
-| No photos yet for comparison | Show "Take your first progress photo" prompt |
-| Camera permission denied | Fall back to photo gallery picker |
-| IndexedDB storage full (many photos) | Warn user, suggest exporting old photos |
-| Unit switch mid-data (kg to lbs) | Convert all historical data on toggle, store canonical in kg |
-| Navy method gives unrealistic result (<5% or >50%) | Show warning: "Result may be inaccurate - check measurements" |
-| Missing measurement fields | Allow partial entries, only calculate body fat when required fields present |
-
----
-
-## Risks & Mitigations
+## 12. Risks & Mitigations
 
 | Risk | Impact | Mitigation |
 |------|--------|------------|
@@ -815,7 +817,7 @@ Recharts can struggle with large datasets on low-end devices. Apply these optimi
 
 ---
 
-## Dependencies
+## 13. Dependencies
 
 - Recharts (already installed) for weight and measurement charts
 - Dexie.js (already installed) for local data storage
@@ -825,8 +827,10 @@ Recharts can struggle with large datasets on low-end devices. Apply these optimi
 
 ---
 
-## Changelog
+## 14. Changelog
 
 | Date | Change |
 |------|--------|
 | 2026-03-04 | Initial draft |
+| 2026-03-26 | PRD quality audit: renumbered all 14 sections to match standard, added 2 edge cases (quota exceeded, unit toggle debounce) |
+| 2026-03-26 | Status updated to SHIPPED - implementation verified in codebase |

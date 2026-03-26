@@ -15,6 +15,13 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Loader2,
   Download,
   Upload,
@@ -22,10 +29,39 @@ import {
   RotateCcw,
   CheckCircle,
   AlertCircle,
+  Cloud,
+  RefreshCw,
+  Smartphone,
+  Clock,
 } from "lucide-react";
 import { exportAllData, downloadExportedData, importData, readFileAsString } from "@/lib/export";
+import { useSyncStatus } from "@/components/sync/auto-sync-provider";
 
 type ToastType = "success" | "error";
+
+type SyncFrequency = "auto" | "manual" | "5min" | "15min" | "1hr";
+
+const SYNC_FREQUENCY_LABELS: Record<SyncFrequency, string> = {
+  auto: "Auto (on focus)",
+  manual: "Manual only",
+  "5min": "Every 5 minutes",
+  "15min": "Every 15 minutes",
+  "1hr": "Every hour",
+};
+
+function formatLastSync(isoDate: string | null): string {
+  if (!isoDate) return "Never synced";
+  const date = new Date(isoDate);
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  const diffMin = Math.floor(diffMs / 60000);
+  const diffHr = Math.floor(diffMin / 60);
+
+  if (diffMin < 1) return "Just now";
+  if (diffMin < 60) return `${diffMin} minute${diffMin !== 1 ? "s" : ""} ago`;
+  if (diffHr < 24) return `${diffHr} hour${diffHr !== 1 ? "s" : ""} ago`;
+  return date.toLocaleDateString(undefined, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
+}
 
 export default function DataSettingsPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -33,6 +69,31 @@ export default function DataSettingsPage() {
   const [isImporting, setIsImporting] = useState(false);
   const [isResetting, setIsResetting] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: ToastType } | null>(null);
+  const { syncStatus, lastSyncedAt, isOnline, triggerSync } = useSyncStatus();
+  const [syncFrequency, setSyncFrequency] = useState<SyncFrequency>("auto");
+
+  // Load sync frequency preference
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem("setflow-sync-frequency") as SyncFrequency | null;
+      if (stored) setSyncFrequency(stored);
+    }
+  }, []);
+
+  const handleSyncFrequencyChange = (value: SyncFrequency) => {
+    setSyncFrequency(value);
+    localStorage.setItem("setflow-sync-frequency", value);
+  };
+
+  const handleSyncNow = async () => {
+    await triggerSync();
+    showToast("Sync complete!", "success");
+  };
+
+  // Get device ID for display
+  const deviceId = typeof window !== "undefined"
+    ? localStorage.getItem("setflow-device-id")?.slice(0, 8) || "Unknown"
+    : "...";
 
   useEffect(() => {
     if (toast) {
@@ -162,6 +223,103 @@ export default function DataSettingsPage() {
             )}
             {isImporting ? "Importing..." : "Import Data"}
           </Button>
+        </CardContent>
+      </Card>
+
+      {/* Cloud Sync */}
+      <Card className="bg-card border-border">
+        <CardHeader className="pb-4">
+          <CardTitle className="text-lg flex items-center gap-2">
+            <Cloud className="w-5 h-5 text-primary" />
+            Cloud Sync
+          </CardTitle>
+          <CardDescription>Sync workouts across your devices</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {/* Sync status */}
+          <div className="bg-card-alt rounded-xl p-4 space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-muted-foreground">Status</span>
+              <div className="flex items-center gap-2">
+                <span
+                  className={`w-2 h-2 rounded-full ${
+                    syncStatus === "success"
+                      ? "bg-green-500"
+                      : syncStatus === "syncing"
+                      ? "bg-blue-500 animate-pulse"
+                      : syncStatus === "error"
+                      ? "bg-red-500"
+                      : syncStatus === "offline"
+                      ? "bg-yellow-500"
+                      : "bg-muted-foreground"
+                  }`}
+                />
+                <span className="text-sm text-foreground capitalize">
+                  {syncStatus === "idle" ? "Ready" : syncStatus}
+                </span>
+              </div>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-muted-foreground">Last synced</span>
+              <div className="flex items-center gap-1.5 text-sm text-foreground">
+                <Clock className="w-3.5 h-3.5 text-muted-foreground" />
+                <span>{formatLastSync(lastSyncedAt)}</span>
+              </div>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-muted-foreground">This device</span>
+              <div className="flex items-center gap-1.5 text-sm text-foreground">
+                <Smartphone className="w-3.5 h-3.5 text-muted-foreground" />
+                <span className="font-mono text-xs">{deviceId}</span>
+              </div>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-muted-foreground">Connection</span>
+              <span className={`text-sm ${isOnline ? "text-green-500" : "text-yellow-500"}`}>
+                {isOnline ? "Online" : "Offline"}
+              </span>
+            </div>
+          </div>
+
+          {/* Sync frequency */}
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-foreground">Sync frequency</p>
+              <p className="text-xs text-muted-foreground">How often to sync data</p>
+            </div>
+            <Select value={syncFrequency} onValueChange={(v) => handleSyncFrequencyChange(v as SyncFrequency)}>
+              <SelectTrigger className="w-40 bg-card border-border">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="bg-card border-border">
+                {(Object.entries(SYNC_FREQUENCY_LABELS) as [SyncFrequency, string][]).map(([value, label]) => (
+                  <SelectItem key={value} value={value}>
+                    {label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Sync now button */}
+          <Button
+            variant="outline"
+            className="w-full h-12 border-primary/30 text-primary hover:bg-primary/10"
+            onClick={handleSyncNow}
+            disabled={syncStatus === "syncing" || !isOnline}
+          >
+            {syncStatus === "syncing" ? (
+              <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+            ) : (
+              <RefreshCw className="w-4 h-4 mr-2" />
+            )}
+            {syncStatus === "syncing" ? "Syncing..." : "Sync Now"}
+          </Button>
+
+          {/* Data estimate */}
+          <p className="text-xs text-muted-foreground text-center">
+            Sync uses minimal data. Workout logs, programs, and settings are synced.
+          </p>
         </CardContent>
       </Card>
 

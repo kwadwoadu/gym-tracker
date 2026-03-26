@@ -7,7 +7,7 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from "@/components/ui/drawer";
-import { CheckCircle2, XCircle, Dumbbell } from "lucide-react";
+import { CheckCircle2, XCircle, Dumbbell, Wind } from "lucide-react";
 import { getFormData } from "@/data/form-cues";
 
 interface FormSheetProps {
@@ -104,6 +104,19 @@ export function FormSheet({ exerciseName, open, onClose }: FormSheetProps) {
                   ))}
                 </div>
               </div>
+
+              {/* Breathing Pattern */}
+              {formData.breathingPattern && (
+                <div>
+                  <h3 className="text-xs font-semibold text-white/40 uppercase tracking-[0.08em] mb-3">
+                    Breathing
+                  </h3>
+                  <div className="flex gap-3 bg-card rounded-xl p-3.5 border-l-[3px] border-gym-blue">
+                    <Wind className="w-5 h-5 text-gym-blue shrink-0 mt-0.5" />
+                    <p className="text-sm text-white">{formData.breathingPattern}</p>
+                  </div>
+                </div>
+              )}
 
               {/* Muscles Worked */}
               <div>

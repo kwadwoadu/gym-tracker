@@ -1,5 +1,10 @@
 # Sync Date Serialization Fix
 
+**Status**: In Progress
+**Created**: 2026-01-03
+**Author**: Kwadwo Adu
+**Priority**: Critical - Blocking core functionality
+
 > Fix the `toISOString is not a function` error in cloud sync
 
 ---
@@ -12,64 +17,120 @@ Sync error: TypeError: a.toISOString is not a function
     at i.mapToDriverValue (.next/server/chunks/510.js:40:64383)
 ```
 
-**Impact**: Users cannot sync workout data between devices. The 3 workouts logged on mobile are stuck locally.
+**Impact**: Users cannot sync workout data between devices. Workouts logged on mobile are stuck locally and don't appear on desktop.
+
+**Root cause**: IndexedDB stores dates as ISO strings (e.g., `"2026-01-02T10:30:00.000Z"`), but Drizzle ORM expects Date objects and calls `.toISOString()` on them. When a string is passed where a Date is expected, the method doesn't exist on the string prototype.
 
 ---
 
-## 2. Root Cause Analysis
+## 2. Solution
 
-### Data Flow Mismatch
-
-| Layer | Date Storage | Example |
-|-------|--------------|---------|
-| **Client (IndexedDB)** | ISO strings | `"2026-01-02T10:30:00.000Z"` |
-| **Server (PostgreSQL)** | Date objects | `new Date()` |
-| **Drizzle ORM** | Calls `.toISOString()` on timestamp values | Fails on strings |
-
-### The Bug Location
-
-In `/src/app/api/sync/route.ts`, data from IndexedDB is spread directly into Drizzle:
-
-```typescript
-// Line 56-59: BUG - exercise.createdAt is a STRING from client
-await cloudDb.insert(exercises).values({ ...exercise, userId })
-```
-
-The client sends:
-```json
-{ "id": "ex-1", "name": "Squat", "createdAt": "2026-01-02T10:00:00Z" }
-```
-
-But Drizzle expects:
-```typescript
-{ id: "ex-1", name: "Squat", createdAt: new Date("2026-01-02T10:00:00Z") }
-```
-
-### Affected Fields
-
-All timestamp columns in the schema require Date objects:
-
-| Table | Timestamp Fields |
-|-------|------------------|
-| `exercises` | createdAt, updatedAt, deletedAt |
-| `programs` | createdAt, updatedAt, deletedAt |
-| `trainingDays` | createdAt, updatedAt, deletedAt |
-| `workoutLogs` | createdAt, updatedAt, deletedAt |
-| `personalRecords` | createdAt, updatedAt, deletedAt |
-| `userSettings` | createdAt, updatedAt |
-| `syncMetadata` | lastSyncedAt, createdAt, updatedAt |
-| `achievements` | unlockedAt, createdAt |
-| `onboardingProfiles` | completedAt, createdAt, updatedAt |
-
----
-
-## 3. Solution
+Create a date conversion utility and transform all date fields at the API boundary (in `/src/app/api/sync/route.ts`) before inserting into the database.
 
 ### Approach: Transform dates at API boundary
 
-Create a helper function that converts string dates to Date objects before inserting into the database.
+Instead of spreading client data directly into Drizzle inserts, explicitly map all fields and convert string dates to Date objects using helper functions.
 
-### Helper Function
+### Helper Functions
+
+```typescript
+// /src/lib/db/utils.ts (new file)
+export function toDate(value: string | Date | null | undefined): Date | null
+export function toDateRequired(value: string | Date | null | undefined): Date
+```
+
+---
+
+## 3. Success Metrics
+
+| Metric | Target | How to Measure |
+|--------|--------|----------------|
+| Sync error rate | 0 toISOString errors | Check Vercel function logs |
+| Cross-device sync | Workouts appear on all signed-in devices | Log on mobile, verify on desktop |
+| Date integrity | All timestamps stored correctly in PostgreSQL | Query cloud DB, verify date columns |
+| Invalid date handling | No crashes on malformed dates | Send null/invalid dates, verify graceful fallback |
+| Sync completion rate | 100% of sync attempts succeed | Monitor sync API response codes |
+
+---
+
+## 4. Requirements
+
+### Must Have
+- [ ] `toDate()` helper safely converts string/Date/null to Date or null
+- [ ] `toDateRequired()` helper converts with fallback to `new Date()`
+- [ ] All entity inserts in sync route use explicit field mapping (no spread)
+- [ ] All timestamp fields converted before insert: exercises, programs, trainingDays, workoutLogs, personalRecords, achievements, onboardingProfiles, userSettings, syncMetadata
+
+### Should Have
+- [ ] Validation logging for invalid date values
+- [ ] Unit tests for `toDate()` and `toDateRequired()`
+
+### Won't Have (this version)
+- Client-side date normalization (fix is server-side only)
+- Migration of existing bad data in cloud DB
+- Date format standardization across the entire codebase
+
+---
+
+## 5. User Flows
+
+### Flow A: Successful Sync After Fix
+1. User logs a workout on mobile (data stored in IndexedDB as ISO strings)
+2. AutoSyncProvider triggers `pushToCloud()`
+3. Client sends workout data with string dates to `/api/sync`
+4. API route receives data and passes through `toDateRequired()` for each timestamp field
+5. Drizzle ORM receives proper Date objects
+6. Data inserts successfully into Neon PostgreSQL
+7. User opens desktop browser, signs in
+8. `pullFromCloud()` retrieves synced data
+9. Workouts appear on desktop
+
+### Flow B: Invalid Date Handling
+1. Client sends data with a malformed date (e.g., `"not-a-date"`)
+2. `toDate()` detects invalid date via `isNaN(date.getTime())`
+3. Returns null for optional fields, or `new Date()` for required fields
+4. Insert proceeds without crashing
+5. Warning logged for debugging
+
+---
+
+## 6. Design
+
+### Wireframes
+
+```
+This is a backend-only fix. No UI changes required.
+
+Before Fix:
+  Client (IndexedDB)          Server (Drizzle)
+  ┌──────────────┐           ┌──────────────┐
+  │ createdAt:   │  ──POST──>│ .toISOString()│
+  │ "2026-01..."│           │  CRASHES!     │
+  └──────────────┘           └──────────────┘
+
+After Fix:
+  Client (IndexedDB)    API Boundary     Server (Drizzle)
+  ┌──────────────┐    ┌──────────┐     ┌──────────────┐
+  │ createdAt:   │──> │ toDate() │ ──> │ .toISOString()│
+  │ "2026-01..."│    │ -> Date  │     │  SUCCESS!     │
+  └──────────────┘    └──────────┘     └──────────────┘
+```
+
+### Component Table
+
+| Component | File | Purpose |
+|-----------|------|---------|
+| (No UI components) | - | Backend-only fix |
+
+### Visual Spec
+
+No visual changes. SyncIndicator should show "Synced" (green checkmark) instead of error state after this fix.
+
+---
+
+## 7. Technical Spec
+
+### TypeScript Schemas
 
 ```typescript
 // /src/lib/db/utils.ts (new file)
@@ -95,15 +156,39 @@ export function toDateRequired(value: string | Date | null | undefined): Date {
 }
 ```
 
-### Transform Each Entity
+### Affected Tables and Fields
 
-In `/src/app/api/sync/route.ts`, transform data before insert:
+| Table | Timestamp Fields |
+|-------|------------------|
+| `exercises` | createdAt, updatedAt, deletedAt |
+| `programs` | createdAt, updatedAt, deletedAt |
+| `trainingDays` | createdAt, updatedAt, deletedAt |
+| `workoutLogs` | createdAt, updatedAt, deletedAt |
+| `personalRecords` | createdAt, updatedAt, deletedAt |
+| `userSettings` | createdAt, updatedAt |
+| `syncMetadata` | lastSyncedAt, createdAt, updatedAt |
+| `achievements` | unlockedAt, createdAt |
+| `onboardingProfiles` | completedAt, createdAt, updatedAt |
+
+### Files to Create
+
+| File | Description |
+|------|-------------|
+| `/src/lib/db/utils.ts` | Date conversion utilities (`toDate`, `toDateRequired`) |
+
+### Files to Modify
+
+| File | Changes |
+|------|---------|
+| `/src/app/api/sync/route.ts` | Transform all date fields using `toDate`/`toDateRequired` before insert, replace spread operator with explicit field mapping |
+
+### Example Transform
 
 ```typescript
-// BEFORE (buggy)
+// BEFORE (buggy - spread passes strings to Drizzle)
 await cloudDb.insert(exercises).values({ ...exercise, userId })
 
-// AFTER (fixed)
+// AFTER (fixed - explicit mapping with date conversion)
 await cloudDb.insert(exercises).values({
   id: exercise.id,
   userId,
@@ -119,79 +204,111 @@ await cloudDb.insert(exercises).values({
 
 ---
 
-## 4. Implementation Plan
+## 8. Implementation Plan
 
-### Step 1: Create date utility file
-- [ ] Create `/src/lib/db/utils.ts` with `toDate` and `toDateRequired` helpers
+### Dependencies Checklist
+- [x] Sync API route exists (`/src/app/api/sync/route.ts`)
+- [x] Drizzle ORM configured with Neon PostgreSQL
+- [x] Cloud schema defined with timestamp columns
+- [ ] None blocking, can start immediately
 
-### Step 2: Fix exercises sync
-- [ ] Transform createdAt to Date before insert
-- [ ] Explicitly map all fields (no spread operator)
+### Build Order
 
-### Step 3: Fix programs sync
-- [ ] Transform createdAt, updatedAt to Date
+**Phase 1: Create Utility (15 min)**
+1. [ ] Create `/src/lib/db/utils.ts` with `toDate` and `toDateRequired` helpers
 
-### Step 4: Fix trainingDays sync
-- [ ] Transform createdAt, updatedAt to Date
+**Phase 2: Fix Each Entity (2 hours)**
+2. [ ] Fix exercises sync - explicit field mapping with date conversion
+3. [ ] Fix programs sync - explicit field mapping with date conversion
+4. [ ] Fix trainingDays sync - explicit field mapping with date conversion
+5. [ ] Fix workoutLogs sync - explicit field mapping with date conversion (note: date, startTime, endTime are TEXT, no conversion needed)
+6. [ ] Fix personalRecords sync - explicit field mapping with date conversion
+7. [ ] Fix achievements sync - transform unlockedAt with null check
+8. [ ] Fix onboardingProfiles sync - verify completedAt handling
+9. [ ] Fix userSettings sync - explicit field mapping with date conversion
+10. [ ] Fix syncMetadata - explicit field mapping with date conversion
 
-### Step 5: Fix workoutLogs sync
-- [ ] Transform createdAt, updatedAt to Date
-- [ ] Note: date, startTime, endTime are TEXT columns (no change needed)
-
-### Step 6: Fix personalRecords sync
-- [ ] Transform createdAt, updatedAt to Date
-
-### Step 7: Fix achievements sync
-- [ ] Transform unlockedAt to Date
-- [ ] Add null check for invalid dates
-
-### Step 8: Fix onboardingProfiles sync (already partially done)
-- [ ] Verify completedAt handling is correct
-
-### Step 9: Add validation logging
-- [ ] Log which dates were invalid for debugging
-
-### Step 10: Deploy and test
-- [ ] Deploy to Vercel
-- [ ] Test sync from mobile
-- [ ] Verify workouts appear on desktop
+**Phase 3: Validation + Deploy (30 min)**
+11. [ ] Add console.warn logging for invalid dates
+12. [ ] Deploy to Vercel
+13. [ ] Test sync from mobile
+14. [ ] Verify workouts appear on desktop
 
 ---
 
-## 5. Files to Modify
+## 9. Edge Cases
 
-| File | Changes |
-|------|---------|
-| `/src/lib/db/utils.ts` | **CREATE** - Date conversion utilities |
-| `/src/app/api/sync/route.ts` | **MODIFY** - Transform all date fields |
-
----
-
-## 6. Testing
-
-### Manual Test Steps
-1. Open https://gym.adu.dk on mobile
-2. Sign in with Clerk
-3. Verify SyncIndicator shows success (checkmark)
-4. Open https://gym.adu.dk on desktop
-5. Sign in with same account
-6. Verify workouts appear on desktop
-
-### Edge Cases
-- Client sends null dates: Should use fallback (new Date())
-- Client sends invalid date string: Should use fallback
-- Client sends Date object: Should work as-is
+| Edge Case | Handling |
+|-----------|----------|
+| Client sends null date for required field | `toDateRequired()` returns `new Date()` as fallback |
+| Client sends invalid date string (e.g., "not-a-date") | `toDate()` returns null, `toDateRequired()` returns `new Date()` |
+| Client sends Date object (not string) | `instanceof Date` check passes through unchanged |
+| Client sends empty string | `toDate()` treats as falsy, returns null |
+| Client sends Unix timestamp number | `new Date(number)` works correctly |
+| deletedAt is null (not deleted) | `toDate()` returns null, column accepts null |
+| Timezone differences between client and server | ISO strings are UTC, `new Date()` on server is UTC |
 
 ---
 
-## 7. Acceptance Criteria
+## 10. Testing
 
-- [ ] Sync completes without errors
-- [ ] Workouts logged on mobile appear on desktop
-- [ ] No `toISOString` errors in Vercel logs
-- [ ] All timestamp fields correctly stored in PostgreSQL
+### Functional Tests
+- [ ] `toDate("2026-01-02T10:00:00Z")` returns valid Date object
+- [ ] `toDate(new Date())` returns the same Date object
+- [ ] `toDate(null)` returns null
+- [ ] `toDate(undefined)` returns null
+- [ ] `toDate("invalid")` returns null
+- [ ] `toDateRequired(null)` returns current Date (not null)
+- [ ] `toDateRequired("invalid")` returns current Date (not null)
+- [ ] Sync API processes exercise with string dates without error
+- [ ] Sync API processes workout log with string dates without error
+- [ ] All 9 entity types sync without toISOString errors
+
+### UI Verification
+- [ ] SyncIndicator shows green checkmark after sync (not error state)
+- [ ] Workouts logged on mobile appear on desktop after sync
+- [ ] No error toasts during sync
+- [ ] Vercel function logs show no toISOString errors
 
 ---
 
-*Created: 2026-01-03*
-*Priority: Critical - Blocking core functionality*
+## 11. Launch Checklist
+
+- [ ] `/src/lib/db/utils.ts` created with toDate and toDateRequired
+- [ ] All 9 entity sync blocks use explicit field mapping (no spread)
+- [ ] All timestamp fields pass through toDate/toDateRequired
+- [ ] No toISOString errors in Vercel logs
+- [ ] Sync completes successfully from mobile to desktop
+- [ ] Invalid date fallback tested
+- [ ] Deploy to gym.adu.dk via `npx vercel --prod`
+
+---
+
+## 12. Risks & Mitigations
+
+| Risk | Impact | Mitigation |
+|------|--------|------------|
+| Missing a timestamp field in conversion | That field still crashes | Audit every entity's schema columns against the sync code |
+| Fallback date (new Date()) creates wrong timestamps | Data shows as "just now" instead of actual date | Log warnings for fallback usage, investigate root cause |
+| Explicit field mapping misses new columns | New columns not synced | Add sync code review to schema change checklist |
+| Performance impact of date conversion | Slower sync | Negligible, date conversion is O(1) per field |
+
+---
+
+## 13. Dependencies
+
+| Dependency | Status | Notes |
+|------------|--------|-------|
+| Sync API route (`/api/sync`) | Exists | Needs modification (no new routes) |
+| Drizzle ORM | Configured | Expects Date objects for timestamp columns |
+| Neon PostgreSQL | Provisioned | Cloud database receiving synced data |
+| Clerk authentication | Working | Provides userId for sync |
+
+---
+
+## 14. Changelog
+
+| Date | Change |
+|------|--------|
+| 2026-01-03 | Initial PRD created |
+| 2026-03-26 | PRD quality audit: added missing sections (success metrics table, requirements MoSCoW, user flows, design diagrams, implementation plan with build order, edge cases table, testing checklists, launch checklist, risks & mitigations, dependencies, changelog), reformatted to 14-section standard |

@@ -1,6 +1,6 @@
 # Recovery Check-in Always on Home
 
-> **Status:** Not Started
+> **Status:** SHIPPED
 > **Owner:** Kwadwo
 > **Created:** 2026-03-16
 > **Priority:** P1
@@ -104,5 +104,12 @@ This prevents the rest-day dashboard from flashing during the initial load when 
 | Breaking RestDayDashboard layout | Only removing one component, rest of layout unchanged |
 
 ---
+
+## Changelog
+
+| Date | Change |
+|------|--------|
+| 2026-03-16 | Initial PRD created |
+| 2026-03-26 | Status updated to SHIPPED |
 
 *Created: 2026-03-16*
