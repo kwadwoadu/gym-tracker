@@ -4,6 +4,7 @@
  */
 
 import { workoutLogsApi, settingsApi, personalRecordsApi, type WorkoutLog, type SetLog, type UserSettings } from "./api-client";
+import { getActiveDeload, getDeloadWeight } from "@/lib/deload";
 
 export async function getUserSettings(): Promise<UserSettings> {
   return settingsApi.get();
@@ -76,8 +77,11 @@ export async function getGlobalWeightSuggestion(
     limit: 50,
   });
 
+  // Filter out deload logs so normal weight suggestions aren't skewed
+  const normalLogs = logs.filter((log: WorkoutLog) => !log.isDeload);
+
   // Find the most recent set for this exercise (excluding skipped sets)
-  for (const log of logs) {
+  for (const log of normalLogs) {
     const exerciseSets = log.sets.filter((s: SetLog) => s.exerciseId === exerciseId && !s.skipped);
     if (exerciseSets.length > 0) {
       // Get the best set (highest weight) for weight suggestion
@@ -179,4 +183,42 @@ export async function updateWorkoutLog(
   updates: Partial<WorkoutLog>
 ): Promise<WorkoutLog> {
   return workoutLogsApi.update(workoutLogId, updates);
+}
+
+/**
+ * Weight suggestion shape returned by getGlobalWeightSuggestion
+ */
+export interface WeightSuggestion {
+  suggestedWeight: number;
+  lastWeight: number;
+  lastReps: number;
+  lastRpe: number;
+  suggestedReps: number;
+  suggestedRpe: number;
+  lastDate: string;
+  hitTargetLastTime: boolean;
+  shouldNudgeIncrease: boolean;
+  nudgeWeight: number | null;
+}
+
+/**
+ * Apply deload reductions to a weight suggestion.
+ * Returns the adjusted suggestion during an active deload,
+ * or the original suggestion if no deload is active.
+ */
+export function applyDeloadToSuggestion(
+  suggestion: WeightSuggestion | null
+): WeightSuggestion | null {
+  if (!suggestion) return null;
+
+  const deload = getActiveDeload();
+  if (!deload) return suggestion;
+
+  const reduction = deload.protocol.intensityReduction;
+  return {
+    ...suggestion,
+    suggestedWeight: getDeloadWeight(suggestion.suggestedWeight, reduction),
+    shouldNudgeIncrease: false, // Never nudge during deload
+    nudgeWeight: null,
+  };
 }

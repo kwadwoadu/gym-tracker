@@ -24,6 +24,7 @@ import { FormCamera } from "./form-camera";
 import { VoiceButton } from "./voice-button";
 import { VoiceConfirmation } from "./voice-confirmation";
 import { parseVoiceInput, type ParsedSetData } from "@/lib/ai/voice-parser";
+import { isDeloadActive, getDeloadWeight, getActiveDeload } from "@/lib/deload";
 
 // Extract YouTube video ID from URL
 function getYouTubeId(url: string): string | null {
@@ -135,7 +136,15 @@ export function SetLogger({
   onComplete,
   onSkip,
 }: SetLoggerProps) {
-  const [weight, setWeight] = useState(suggestedWeight || lastWeekWeight || 20);
+  const deloadCurrentlyActive = isDeloadActive();
+  const effectiveInitialWeight = (() => {
+    const baseWeight = suggestedWeight || lastWeekWeight || 20;
+    if (deloadCurrentlyActive && (suggestedWeight || lastWeekWeight)) {
+      return getDeloadWeight(baseWeight);
+    }
+    return baseWeight;
+  })();
+  const [weight, setWeight] = useState(effectiveInitialWeight);
   // Use last workout's actual reps if available, otherwise target reps
   const [reps, setReps] = useState(suggestedReps ?? targetReps);
   // Use last workout's RPE if available, otherwise default to 7
@@ -220,13 +229,16 @@ export function SetLogger({
   const formRule = exerciseId ? getFormRuleByExerciseId(exerciseId) : null;
 
   // Sync suggested values from props (session memory or historical data)
+  // Apply deload reduction when deload is active
   useEffect(() => {
     if (suggestedWeight !== undefined) {
-      setWeight(suggestedWeight);
-      setWeightInputValue(suggestedWeight.toString());
+      const w = deloadCurrentlyActive ? getDeloadWeight(suggestedWeight) : suggestedWeight;
+      setWeight(w);
+      setWeightInputValue(w.toString());
     } else if (lastWeekWeight !== undefined) {
-      setWeight(lastWeekWeight);
-      setWeightInputValue(lastWeekWeight.toString());
+      const w = deloadCurrentlyActive ? getDeloadWeight(lastWeekWeight) : lastWeekWeight;
+      setWeight(w);
+      setWeightInputValue(w.toString());
     }
     if (suggestedReps !== undefined) {
       setReps(suggestedReps);
@@ -234,7 +246,7 @@ export function SetLogger({
     if (suggestedRpe !== undefined) {
       setRpe(suggestedRpe);
     }
-  }, [suggestedWeight, lastWeekWeight, suggestedReps, suggestedRpe]);
+  }, [suggestedWeight, lastWeekWeight, suggestedReps, suggestedRpe, deloadCurrentlyActive]);
 
   // Cleanup weight bounce timer on unmount
   useEffect(() => {
@@ -555,9 +567,16 @@ export function SetLogger({
 
       {/* Weight input */}
       <div className="mb-6">
-        <label className="text-xs text-muted-foreground uppercase tracking-wider mb-2 block">
-          Weight (kg) - tap to edit
-        </label>
+        <div className="flex items-center justify-between mb-2">
+          <label className="text-xs text-muted-foreground uppercase tracking-wider">
+            Weight (kg) - tap to edit
+          </label>
+          {deloadCurrentlyActive && (
+            <span className="inline-flex items-center rounded-md bg-[#EAB308]/15 px-2 py-0.5 text-[11px] font-bold text-[#EAB308] border border-[#EAB308]/30">
+              Deload -{Math.round((getActiveDeload()?.protocol.intensityReduction ?? 0.3) * 100)}%
+            </span>
+          )}
+        </div>
 
         {/* Weight display/input */}
         <div className="flex items-center justify-center mb-3">

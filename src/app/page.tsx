@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
 import { Card } from "@/components/ui/card";
@@ -34,11 +34,22 @@ import type { Exercise } from "@/lib/api-client";
 import { GamificationStrip } from "@/components/home/GamificationStrip";
 import { RecoveryAssessment } from "@/components/rest-day/RecoveryAssessment";
 import { TrainingInsights } from "@/components/home/TrainingInsights";
+import {
+  isDeloadActive,
+  getDeloadDay,
+  getDaysRemaining,
+  getActiveDeload,
+  endDeload,
+  getDeloadWeight,
+} from "@/lib/deload";
+import { DeloadTracker, DeloadConfirmDialog } from "@/components/deload";
 
 export default function Home() {
   const { isSignedIn, isLoaded: authLoaded, user } = useUser();
   const router = useRouter();
   const [selectedDay, setSelectedDay] = useState<string | null>(null);
+  const [deloadActive, setDeloadActive] = useState(false);
+  const [showEndDeloadDialog, setShowEndDeloadDialog] = useState(false);
 
   // React Query hooks
   const { data: programs, isLoading: programsLoading, isFetching: programsFetching } = usePrograms();
@@ -134,6 +145,71 @@ export default function Home() {
     else if (hour < 17) greeting = "Good afternoon";
     return firstName ? `${greeting}, ${firstName} - ${dateStr}` : `${greeting} - ${dateStr}`;
   }, [user?.firstName, user?.emailAddresses]);
+
+  // Check deload state on mount
+  useEffect(() => {
+    setDeloadActive(isDeloadActive());
+  }, []);
+
+  // Deload tracker data
+  const deloadSession = useMemo(() => {
+    if (!deloadActive) return null;
+    return getActiveDeload();
+  }, [deloadActive]);
+
+  const deloadTrackerExercises = useMemo(() => {
+    if (!deloadSession || !workoutLogs || !exercisesList) return [];
+    const exerciseWeights = new Map<string, { name: string; normalWeight: number }>();
+
+    const sortedLogs = [...(workoutLogs || [])]
+      .filter((l) => l.isComplete && !l.isDeload)
+      .sort((a, b) => b.date.localeCompare(a.date));
+
+    for (const log of sortedLogs) {
+      for (const set of log.sets) {
+        if (!set.isComplete || set.skipped) continue;
+        if (exerciseWeights.has(set.exerciseId)) continue;
+        exerciseWeights.set(set.exerciseId, {
+          name: set.exerciseName,
+          normalWeight: set.weight,
+        });
+      }
+    }
+
+    return Array.from(exerciseWeights.entries()).map(([, data]) => ({
+      name: data.name,
+      normalWeight: data.normalWeight,
+      deloadWeight: getDeloadWeight(data.normalWeight, deloadSession.protocol.intensityReduction),
+    }));
+  }, [deloadSession, workoutLogs, exercisesList]);
+
+  const deloadCompletedDays = useMemo(() => {
+    if (!deloadSession || !workoutLogs) return [];
+    const completed: number[] = [];
+    const startDate = new Date(deloadSession.startDate);
+
+    for (const log of workoutLogs) {
+      if (!log.isComplete || !log.isDeload) continue;
+      const logDate = new Date(log.date);
+      const diffMs = logDate.getTime() - startDate.getTime();
+      const dayNum = Math.floor(diffMs / (1000 * 60 * 60 * 24)) + 1;
+      if (dayNum >= 1 && dayNum <= 7 && !completed.includes(dayNum)) {
+        completed.push(dayNum);
+      }
+    }
+
+    return completed;
+  }, [deloadSession, workoutLogs]);
+
+  const handleEndDeload = useCallback(() => {
+    endDeload();
+    setDeloadActive(false);
+    setShowEndDeloadDialog(false);
+  }, []);
+
+  const handleDeloadActivated = useCallback(() => {
+    setDeloadActive(isDeloadActive());
+  }, []);
 
   // Redirect unauthenticated users to /landing (animations work correctly there)
   useEffect(() => {
@@ -265,12 +341,38 @@ export default function Home() {
         <RecoveryAssessment />
       </div>
 
+      {/* Deload Tracker (shown when deload is active) */}
+      {deloadActive && deloadSession && (
+        <div className="px-4 mt-3">
+          <DeloadTracker
+            currentDay={getDeloadDay()}
+            daysRemaining={getDaysRemaining()}
+            intensityReduction={deloadSession.protocol.intensityReduction}
+            volumeReduction={deloadSession.protocol.volumeReduction}
+            exercises={deloadTrackerExercises}
+            completedDays={deloadCompletedDays}
+            onEndEarly={() => setShowEndDeloadDialog(true)}
+            onStartWorkout={() => router.push("/workout")}
+          />
+        </div>
+      )}
+
+      {/* End Deload Confirmation Dialog */}
+      <DeloadConfirmDialog
+        open={showEndDeloadDialog}
+        onOpenChange={setShowEndDeloadDialog}
+        completedDays={deloadCompletedDays.length}
+        totalDays={7}
+        onConfirm={handleEndDeload}
+      />
+
       {/* AI Training Insights */}
-      {workoutLogs && workoutLogs.length >= 2 && (
+      {workoutLogs && workoutLogs.length >= 2 && !deloadActive && (
         <div className="mt-3">
           <TrainingInsights
             workoutLogs={workoutLogs as import("@/lib/api-client").WorkoutLog[]}
             exercises={exercises}
+            onDeloadActivated={handleDeloadActivated}
           />
         </div>
       )}

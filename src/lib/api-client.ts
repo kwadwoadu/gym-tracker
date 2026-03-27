@@ -330,6 +330,7 @@ export interface WorkoutLog {
   duration: number | null;
   notes: string | null;
   isComplete: boolean;
+  isDeload?: boolean;
   programId: string;
   dayId: string;
   userId: string;

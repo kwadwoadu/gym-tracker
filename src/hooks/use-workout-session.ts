@@ -29,6 +29,7 @@ import {
   isPushSupported,
   getNotificationPermission,
 } from "@/lib/notifications/push-subscription";
+import { isDeloadActive } from "@/lib/deload";
 
 // --- Types ---
 
@@ -900,6 +901,7 @@ export function useWorkoutSession(dayId: string): UseWorkoutSessionReturn {
       endTime: endTime.toISOString(),
       duration: Math.floor(duration / 60),
       isComplete: true,
+      isDeload: isDeloadActive(),
     };
 
     // Save to localStorage first - data safety net

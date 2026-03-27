@@ -75,6 +75,7 @@ export interface WorkoutLog {
   duration?: number; // minutes
   notes?: string;
   isComplete: boolean;
+  isDeload?: boolean;
 }
 
 export interface SetLog {
@@ -306,6 +307,25 @@ db.version(6).stores({
 });
 
 db.version(7).stores({
+  exercises: "id, name, *muscleGroups, equipment, isCustom",
+  programs: "id, name, isActive",
+  trainingDays: "id, programId, dayNumber",
+  workoutLogs: "id, date, programId, dayId, isComplete",
+  personalRecords: "id, exerciseId, date",
+  userSettings: "id",
+  onboardingProfiles: "id",
+  achievements: "id, achievementId, unlockedAt",
+  hydrationLogs: "id, date",
+  recoveryAssessments: "id, date",
+  weightEntries: "id, date",
+  bodyMeasurements: "id, date",
+  bodyFatEntries: "id, date",
+  notificationPreferences: "id",
+  progressPhotos: "id, date, pose",
+});
+
+// v8: Add isDeload support to WorkoutLog (no index needed - filtered in code)
+db.version(8).stores({
   exercises: "id, name, *muscleGroups, equipment, isCustom",
   programs: "id, name, isActive",
   trainingDays: "id, programId, dayNumber",
@@ -596,8 +616,9 @@ export async function getLastWeightForExercise(
   hitTarget: boolean;
 } | null> {
   // Get all completed workout logs, sorted by date descending
+  // Exclude deload logs so normal weight suggestions aren't skewed
   const logs = await db.workoutLogs
-    .filter((log) => log.isComplete)
+    .filter((log) => log.isComplete && !log.isDeload)
     .reverse()
     .sortBy("date");
 
